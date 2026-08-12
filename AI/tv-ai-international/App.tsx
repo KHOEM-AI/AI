@@ -1,0 +1,497 @@
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import NotFound from '@/pages/not-found';
+import {
+  Activity,
+  AlertCircle,
+  Check,
+  CircleHelp,
+  Expand,
+  Info,
+  Maximize2,
+  MonitorPlay,
+  Pause,
+  Play,
+  Radio,
+  RotateCw,
+  Satellite,
+  Settings2,
+  SlidersHorizontal,
+  Volume2,
+  VolumeX,
+  Wifi,
+  X,
+} from 'lucide-react';
+import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+
+type HlsLike = {
+  loadSource: (source: string) => void;
+  attachMedia: (media: HTMLVideoElement) => void;
+  destroy: () => void;
+  on: (event: string, callback: (event: string, data?: { fatal?: boolean }) => void) => void;
+};
+
+type HlsConstructor = {
+  new (config?: Record<string, unknown>): HlsLike;
+  isSupported: () => boolean;
+  Events: { MANIFEST_PARSED: string; ERROR: string };
+};
+
+declare global {
+  interface Window {
+    Hls?: HlsConstructor;
+  }
+}
+
+type ChannelId = 'cnn' | 'bbc' | 'france24' | 'nhk';
+type StatusKey = 'offline' | 'connecting' | 'buffering' | 'live' | 'blocked' | 'reconnecting' | 'error';
+
+type SavedState = {
+  channel: ChannelId | '';
+  volume: number;
+  brightness: number;
+  rotation: number;
+};
+
+type Channel = {
+  id: ChannelId;
+  short: string;
+  name: string;
+  origin: string;
+  region: string;
+};
+
+const STREAM_URL = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+const STORAGE_KEY = 'tvai_state';
+const DEFAULT_STATE: SavedState = { channel: 'cnn', volume: 50, brightness: 80, rotation: 0 };
+const CHANNELS: Channel[] = [
+  { id: 'cnn', short: 'CNN', name: 'CNN International', origin: 'United States', region: 'US' },
+  { id: 'bbc', short: 'BBC', name: 'BBC News', origin: 'United Kingdom', region: 'UK' },
+  { id: 'france24', short: 'F24', name: 'France 24', origin: 'France', region: 'FR' },
+  { id: 'nhk', short: 'NHK', name: 'NHK World', origin: 'Japan', region: 'JP' },
+];
+
+const STATUS_COPY: Record<StatusKey, { label: string; tone: string; title: string; detail: string }> = {
+  offline: { label: 'Offline', tone: 'status-offline', title: 'Ready when you are', detail: 'Select a channel to open the live window.' },
+  connecting: { label: 'Connecting', tone: 'status-connecting', title: 'Finding the signal', detail: 'The broadcast desk is opening a secure stream.' },
+  buffering: { label: 'Buffering', tone: 'status-buffering', title: 'A moment for the signal', detail: 'We are gathering enough stream to play smoothly.' },
+  live: { label: 'Live', tone: 'status-live', title: '', detail: '' },
+  blocked: { label: 'Play needed', tone: 'status-blocked', title: 'Your browser paused autoplay', detail: 'Press play to start this broadcast. This is normal on many phones.' },
+  reconnecting: { label: 'Reconnecting', tone: 'status-reconnecting', title: 'The signal slipped away', detail: 'Trying to reconnect automatically.' },
+  error: { label: 'Unavailable', tone: 'status-error', title: 'This signal is unavailable', detail: 'Try reconnecting, or choose another international channel.' },
+};
+
+function readSavedState(): SavedState {
+  if (typeof window === 'undefined') return DEFAULT_STATE;
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '{}') as Partial<SavedState>;
+    const channel = CHANNELS.some((item) => item.id === parsed.channel) ? parsed.channel as ChannelId : DEFAULT_STATE.channel;
+    return {
+      channel,
+      volume: typeof parsed.volume === 'number' ? Math.min(100, Math.max(0, parsed.volume)) : DEFAULT_STATE.volume,
+      brightness: typeof parsed.brightness === 'number' ? Math.min(100, Math.max(0, parsed.brightness)) : DEFAULT_STATE.brightness,
+      rotation: typeof parsed.rotation === 'number' ? ((parsed.rotation % 360) + 360) % 360 : DEFAULT_STATE.rotation,
+    };
+  } catch {
+    return DEFAULT_STATE;
+  }
+}
+
+function loadHls(): Promise<HlsConstructor | null> {
+  if (typeof window === 'undefined') return Promise.resolve(null);
+  if (window.Hls) return Promise.resolve(window.Hls);
+  const existing = document.querySelector<HTMLScriptElement>('script[data-tvai-hls]');
+  if (existing) {
+    return new Promise((resolve) => {
+      existing.addEventListener('load', () => resolve(window.Hls ?? null), { once: true });
+      existing.addEventListener('error', () => resolve(null), { once: true });
+    });
+  }
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
+    script.async = true;
+    script.dataset.tvaiHls = 'true';
+    script.onload = () => resolve(window.Hls ?? null);
+    script.onerror = () => resolve(null);
+    document.head.appendChild(script);
+  });
+}
+
+function AppButton({
+  children,
+  className = '',
+  onClick,
+  testId,
+  title,
+  disabled = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  onClick: () => void;
+  testId: string;
+  title?: string;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      className={`tv-btn ${className}`}
+      onClick={onClick}
+      data-testid={testId}
+      title={title}
+      aria-label={title}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Home() {
+  const [saved, setSaved] = useState<SavedState>(() => readSavedState());
+  const [status, setStatus] = useState<StatusKey>(saved.channel ? 'connecting' : 'offline');
+  const [reconnectNonce, setReconnectNonce] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const screenRef = useRef<HTMLDivElement>(null);
+  const reconnectAttempts = useRef(0);
+  const channel = useMemo(() => CHANNELS.find((item) => item.id === saved.channel), [saved.channel]);
+  const statusMeta = STATUS_COPY[status];
+
+  const saveState = useCallback((next: SavedState) => {
+    setSaved(next);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  }, []);
+
+  const attemptPlay = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || !saved.channel) return;
+    video.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => setStatus('blocked'));
+  }, [saved.channel]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const onLoadStart = () => setStatus('connecting');
+    const onWaiting = () => setStatus('buffering');
+    const onPlaying = () => {
+      setStatus('live');
+      setIsPlaying(true);
+      reconnectAttempts.current = 0;
+    };
+    const onPause = () => setIsPlaying(false);
+    video.addEventListener('loadstart', onLoadStart);
+    video.addEventListener('waiting', onWaiting);
+    video.addEventListener('playing', onPlaying);
+    video.addEventListener('pause', onPause);
+    return () => {
+      video.removeEventListener('loadstart', onLoadStart);
+      video.removeEventListener('waiting', onWaiting);
+      video.removeEventListener('playing', onPlaying);
+      video.removeEventListener('pause', onPause);
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.volume = saved.volume / 100;
+    video.muted = saved.volume === 0;
+    screenRef.current?.style.setProperty('--tv-brightness', `${saved.brightness}%`);
+  }, [saved.volume, saved.brightness]);
+
+  useEffect(() => {
+    const onFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onFullscreen);
+    return () => document.removeEventListener('fullscreenchange', onFullscreen);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    let hls: HlsLike | null = null;
+    let timer: number | undefined;
+    let cancelled = false;
+
+    const reconnect = () => {
+      if (cancelled) return;
+      if (reconnectAttempts.current < 3) {
+        reconnectAttempts.current += 1;
+        setStatus('reconnecting');
+        timer = window.setTimeout(() => {
+          setReconnectNonce((value) => value + 1);
+        }, 2600);
+      } else {
+        setStatus('error');
+      }
+    };
+
+    const connect = async () => {
+      if (!saved.channel) {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        setIsPlaying(false);
+        setStatus('offline');
+        return;
+      }
+      setStatus('connecting');
+      setIsPlaying(false);
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+
+      const Hls = await loadHls();
+      if (cancelled) return;
+      if (Hls?.isSupported()) {
+        hls = new Hls({ enableWorker: true, lowLatencyMode: true });
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (!cancelled) attemptPlay();
+        });
+        hls.on(Hls.Events.ERROR, (_event, data) => {
+          if (data?.fatal) reconnect();
+        });
+        hls.loadSource(STREAM_URL);
+        hls.attachMedia(video);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        const onMetadata = () => {
+          if (!cancelled) attemptPlay();
+        };
+        video.addEventListener('loadedmetadata', onMetadata, { once: true });
+        video.src = STREAM_URL;
+        video.load();
+      } else {
+        setStatus('error');
+      }
+    };
+
+    const onVideoError = () => reconnect();
+    video.addEventListener('error', onVideoError);
+    void connect();
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+      video.removeEventListener('error', onVideoError);
+      hls?.destroy();
+    };
+  }, [attemptPlay, reconnectNonce, saved.channel]);
+
+  const updateSaved = (patch: Partial<SavedState>) => saveState({ ...saved, ...patch });
+  const togglePlayback = () => {
+    if (!videoRef.current || !saved.channel) return;
+    if (videoRef.current.paused) attemptPlay();
+    else videoRef.current.pause();
+  };
+  const rotate = () => updateSaved({ rotation: (saved.rotation + 90) % 360 });
+  const toggleFullscreen = async () => {
+    if (!screenRef.current) return;
+    if (document.fullscreenElement) await document.exitFullscreen?.();
+    else await screenRef.current.requestFullscreen?.();
+  };
+  const reset = () => {
+    window.localStorage.removeItem(STORAGE_KEY);
+    setSaved({ ...DEFAULT_STATE, channel: '' });
+    reconnectAttempts.current = 0;
+    setStatus('offline');
+    if (document.fullscreenElement) void document.exitFullscreen?.();
+  };
+  const chooseChannel = (id: ChannelId) => {
+    reconnectAttempts.current = 0;
+    updateSaved({ channel: id });
+  };
+  const rotationClass = saved.rotation === 90 ? 'is-rotated' : saved.rotation === 180 ? 'is-rotated-180' : saved.rotation === 270 ? 'is-rotated-270' : '';
+  const volumeIcon = saved.volume === 0 ? <VolumeX size={14} /> : <Volume2 size={14} />;
+
+  return (
+    <main className="tv-app">
+      <div className="tv-shell">
+        <header className="tv-header">
+          <div className="tv-brand" data-testid="display-brand">
+            <div className="tv-brand-mark" aria-hidden="true"><Radio size={18} strokeWidth={1.7} /></div>
+            <div>
+              <div className="tv-brand-name">TV AI INTERNATIONAL</div>
+              <div className="tv-brand-sub">ស្ថានីយ៍ព័ត៌មានសម្រាប់គ្រួសារ · FAMILY NEWS DESK</div>
+            </div>
+          </div>
+          <div className="tv-header-right">
+            <div className="tv-clock" data-testid="display-clock">
+              <strong>{new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit' }).format(new Date())}</strong>
+              Phnom Penh / local time
+            </div>
+            <div className="tv-live-pill"><span className="tv-live-dot" /> Desk online</div>
+          </div>
+        </header>
+
+        <section className="tv-intro">
+          <div>
+            <div className="tv-eyebrow">A quiet window to the world · ព័ត៌មានពីពិភពលោក</div>
+            <h1>International news,<br /><em>without the noise.</em></h1>
+            <p>សូមស្វាគមន៍ — ជ្រើសរើសស្ថានីយ៍មួយ ដើម្បីមើលព័ត៌មានផ្សាយផ្ទាល់ ពីកន្លែងតែមួយដែលងាយស្រួលសម្រាប់គ្រួសារ។</p>
+          </div>
+          <div className="tv-intro-note" data-testid="display-note">
+            <strong>One desk. Four signals.</strong>
+            A calm, simple way to keep the world in view.
+          </div>
+        </section>
+
+        <section className="tv-layout" aria-label="Live television control room">
+          <div className="tv-panel tv-monitor-panel">
+            <div className="tv-monitor-top">
+              <div className="tv-monitor-title"><MonitorPlay size={16} color="hsl(var(--primary))" /> Live window <small>{channel?.region ?? 'STANDBY'} / 01</small></div>
+              <div className={`tv-status-pill ${statusMeta.tone}`} data-testid="status-connection"><span className="tv-live-dot" /> {statusMeta.label}</div>
+            </div>
+            <div
+              className={`tv-screen ${status === 'connecting' || status === 'buffering' || status === 'reconnecting' ? 'is-loading' : ''}`}
+              ref={screenRef}
+              data-testid="display-live-screen"
+            >
+              <video
+                ref={videoRef}
+                className={`tv-video ${rotationClass}`}
+                playsInline
+                muted={saved.volume === 0}
+                aria-label={channel ? `${channel.name} live video` : 'Live video standby'}
+                data-testid="video-player"
+              />
+              <div className="tv-screen-status">
+                <span className={`tv-status-pill ${statusMeta.tone}`}><span className="tv-live-dot" /> {statusMeta.label}</span>
+              </div>
+              {status !== 'live' && (
+                <div className="tv-screen-center" data-testid="display-stream-message">
+                  <div className="tv-signal-icon">
+                    {status === 'error' ? <AlertCircle size={22} /> : status === 'offline' ? <Satellite size={22} /> : status === 'blocked' ? <Play size={21} fill="currentColor" /> : <Activity size={22} />}
+                  </div>
+                  <h2>{status === 'offline' ? statusMeta.title : channel ? `${channel.name}` : statusMeta.title}</h2>
+                  <p>{status === 'offline' ? statusMeta.detail : statusMeta.detail}</p>
+                  {status === 'blocked' && <AppButton className="primary" onClick={attemptPlay} testId="button-play-stream"><Play size={14} fill="currentColor" /> Play broadcast</AppButton>}
+                  {status === 'error' && <AppButton className="primary" onClick={() => { reconnectAttempts.current = 0; setReconnectNonce((value) => value + 1); }} testId="button-reconnect-inline"><RotateCw size={14} /> Try again</AppButton>}
+                </div>
+              )}
+              {status === 'live' && (
+                <button className="tv-sr-only" onClick={togglePlayback} data-testid="button-video-toggle" aria-label={isPlaying ? 'Pause broadcast' : 'Play broadcast'}>{isPlaying ? 'Pause' : 'Play'}</button>
+              )}
+            </div>
+            <div className="tv-screen-actions">
+              <AppButton className="primary" onClick={togglePlayback} testId="button-play-toggle" title={isPlaying ? 'Pause broadcast' : 'Play broadcast'}>
+                {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} {isPlaying ? 'Pause' : 'Play'}
+              </AppButton>
+              <AppButton onClick={rotate} testId="button-rotate" title="Rotate video 90 degrees"><RotateCw size={14} /> Rotate</AppButton>
+              <AppButton onClick={toggleFullscreen} testId="button-fullscreen" title={isFullscreen ? 'Exit fullscreen' : 'Open fullscreen'}>
+                {isFullscreen ? <X size={14} /> : <Maximize2 size={14} />} {isFullscreen ? 'Exit' : 'Fullscreen'}
+              </AppButton>
+              <div className="tv-actions-spacer" />
+              <AppButton onClick={() => { reconnectAttempts.current = 0; setReconnectNonce((value) => value + 1); }} testId="button-reconnect" title="Reconnect to the current stream"><Wifi size={14} /> Reconnect</AppButton>
+            </div>
+            <div className="tv-monitor-foot" data-testid="display-stream-footnote">
+              <Check size={13} /> {channel ? `${channel.name} · ${channel.origin}` : 'Choose a channel to begin'} <span>•</span> HLS adaptive stream
+            </div>
+          </div>
+
+          <aside className="tv-side">
+            <div className="tv-panel tv-side-panel">
+              <div className="tv-side-heading">
+                <h2>Choose a channel</h2>
+                <span>{CHANNELS.length} AVAILABLE</span>
+              </div>
+              <label className="tv-sr-only" htmlFor="channelSelect">Choose an international channel</label>
+              <select
+                id="channelSelect"
+                className="tv-channel-select"
+                value={saved.channel}
+                onChange={(event) => { if (event.target.value) chooseChannel(event.target.value as ChannelId); }}
+                data-testid="select-channel"
+              >
+                <option value="">Select a channel...</option>
+                {CHANNELS.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.region}</option>)}
+              </select>
+              <div className="tv-channel-list">
+                {CHANNELS.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`tv-channel-card ${saved.channel === item.id ? 'active' : ''}`}
+                    onClick={() => chooseChannel(item.id)}
+                    aria-pressed={saved.channel === item.id}
+                    data-testid={`button-channel-${item.id}`}
+                  >
+                    <span className="tv-channel-mark">{item.short}</span>
+                    <span className="tv-channel-copy"><strong>{item.name}</strong><span>{item.origin}</span></span>
+                    <span className={`tv-channel-live ${saved.channel === item.id ? '' : 'off'}`} aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="tv-panel tv-utility-panel">
+              <div className="tv-side-heading"><h2>Picture & sound</h2><Settings2 size={15} color="hsl(var(--muted-foreground))" /></div>
+              <div className="tv-control-block">
+                <div className="tv-control-label"><span>{volumeIcon} <span style={{ marginLeft: 7 }}>Volume</span></span><output data-testid="value-volume">{saved.volume}%</output></div>
+                <input className="tv-range" style={{ '--range': `${saved.volume}%` } as CSSProperties} type="range" min="0" max="100" value={saved.volume} onChange={(event) => updateSaved({ volume: Number(event.target.value) })} aria-label="Volume" data-testid="input-volume" />
+              </div>
+              <div className="tv-control-block">
+                <div className="tv-control-label"><span><SlidersHorizontal size={14} /> <span style={{ marginLeft: 7 }}>Brightness</span></span><output data-testid="value-brightness">{saved.brightness}%</output></div>
+                <input className="tv-range" style={{ '--range': `${saved.brightness}%` } as CSSProperties} type="range" min="20" max="100" value={saved.brightness} onChange={(event) => updateSaved({ brightness: Number(event.target.value) })} aria-label="Brightness" data-testid="input-brightness" />
+              </div>
+              <div className="tv-utility-divider" />
+              <div className="tv-secondary-actions">
+                <AppButton onClick={rotate} testId="button-rotate-secondary"><RotateCw size={13} /> Rotate</AppButton>
+                <AppButton onClick={toggleFullscreen} testId="button-expand"><Expand size={13} /> Expand</AppButton>
+              </div>
+              <AppButton className="tv-reset danger" onClick={reset} testId="button-reset"><RotateCw size={13} /> Reset settings</AppButton>
+            </div>
+
+            <div className="tv-help" data-testid="display-help">
+              <CircleHelp size={15} />
+              <span><strong>Need a hand?</strong><br />If a stream pauses, tap Reconnect. Some phones ask you to press Play once before sound begins.</span>
+            </div>
+          </aside>
+        </section>
+
+        <footer className="tv-footer">
+          <span>TV AI INTERNATIONAL / BROADCAST DESK 01</span>
+          <span><Info size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Streams use the supplied HLS test signal · Player falls back to native Safari HLS</span>
+        </footer>
+      </div>
+    </main>
+  );
+}
+
+const queryClient = new QueryClient();
+
+function Router() {
+  return (
+    <RoutedErrorBoundary>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route component={NotFound} />
+      </Switch>
+    </RoutedErrorBoundary>
+  );
+}
+
+function RoutedErrorBoundary({ children }: { children: ReactNode }) {
+  const [location] = useLocation();
+  return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+          <Router />
+        </WouterRouter>
+        <Toaster />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
