@@ -1,16 +1,19 @@
 # AI រចនាសម្ព័ន្ធឯកសារ KHOEM_AI (សរុប ៧៤ ឯកសារ)
 
+# 👑 រចនាសម្ព័ន្ធឯកសារ KHOEM_AI (សរុប ៧២ ឯកសារ)
+
 ```text
-👑 KHOEM_AI / AI (Monorepo)
+👑 KHOEM_AI / AI
 ├── 👉 .gitignore
 ├── 👉 pnpm-lock.yaml
 ├── 👉 README.md
+├── 📁 AI/
 └── 🎖️ artifacts/
     ├── 📁 components/
     │   └── 👉 error-boundary.tsx
     │
     ├── 📁 mockup-sandbox/
-    │   ├── 👉 tsconfig.json
+    │   ├── 👉 .gitignore
     │   ├── 👉 accordion.tsx
     │   ├── 👉 alert-dialog.tsx
     │   ├── 👉 alert.tsx
@@ -52,41 +55,38 @@
     │   ├── 👉 toast.tsx
     │   ├── 👉 toaster.tsx
     │   ├── 👉 toggle-group.tsx
-    │   ├── 👉 toggle.tsx
-    │   └── 👉 tooltip.tsx
+    │   └── 👉 toggle.tsx
     │
     └── 📁 tv-ai-international/
+        ├── 👉 App.tsx
         ├── 👉 artifact.toml
+        ├── 👉 aspect-ratio.tsx
+        ├── 👉 badge.tsx
+        ├── 👉 button.tsx
+        ├── 👉 collapsible.tsx
         ├── 👉 components.json
         ├── 👉 favicon.svg
+        ├── 👉 index.css
         ├── 👉 index.html
+        ├── 👉 input-group.tsx
+        ├── 👉 kbd.tsx
+        ├── 👉 main.tsx
+        ├── 👉 not-found.tsx
         ├── 👉 package.json
         ├── 👉 robots.txt
+        ├── 👉 separator.tsx
+        ├── 👉 sonner.tsx
+        ├── 👉 spinner.tsx
+        ├── 👉 tooltip.tsx
         ├── 👉 tsconfig.json
-        ├── 👉 vite.config.ts
-        ├── 👉 Pasted--script-src-https-cdn-jsdelivr...
-        └── 📁 src/
-            ├── 👉 App.tsx
-            ├── 👉 main.tsx
-            ├── 👉 index.css
-            ├── 👉 utils.ts
-            ├── 👉 not-found.tsx
-            ├── 👉 use-mobile.tsx
-            ├── 👉 use-toast.ts
-            ├── 👉 aspect-ratio.tsx
-            ├── 👉 badge.tsx
-            ├── 👉 button.tsx
-            ├── 👉 collapsible.tsx
-            ├── 👉 input-group.tsx
-            ├── 👉 kbd.tsx
-            ├── 👉 separator.tsx
-            ├── 👉 sonner.tsx
-            ├── 👉 spinner.tsx
-            └── 👉 tooltip.tsx
+        ├── 👉 use-mobile.tsx
+        ├── 👉 use-toast.ts
+        ├── 👉 utils.ts
+        └── 👉 vite.config.ts
 
 # ឈ្មោះថត (Folder)ប្រភេទការងារ / មុខងារចំនួនឯកសារ
-Root Directoryឯកសារគ្រឹះប្រព័ន្ធ (Config, Git, README)៣
-artifacts/components/ឯកសារគ្រប់គ្រង Error សកល (error-boundary.tsx)១
-artifacts/mockup-sandbox/សមាសធាតុ UI Dashboard & Components៤៤
-artifacts/tv-ai-international/ឯកសារ Config, HTML, assets និងកូដ React ក្នុង src/២៦
-សរុបទាំងអស់ប្រព័ន្ធ Monorepo គម្រោង KHOEM_AI៧៤ ឯកសារ
+Root Directoryឯកសារគ្រឹះប្រព័ន្ធ (.gitignore, pnpm-lock.yaml, README.md)៣
+artifacts/components/ឯកសារ Error Boundary (error-boundary.tsx)១
+artifacts/mockup-sandbox/សមាសធាតុ UI Dashboard (.gitignore + 42 UI Components)៤៣
+artifacts/tv-ai-international/ឯកសារប្រព័ន្ធ TV AI (Config, HTML, React Components)២៥
+សរុបទាំងអស់ប្រព័ន្ធ Monorepo គម្រោង KHOEM_AI៧២ ឯកសារ
