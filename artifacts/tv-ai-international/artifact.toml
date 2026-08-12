@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "TV AI International"
+description = "A Khmer-friendly live international TV viewer with HLS playback, channel selection, volume, brightness, rotation, fullscreen, reconnect, and remembered settings."
+version = "1.0.0"
+id = "artifacts/tv-ai-international"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23146
+
+[services.development]
+run = "pnpm --filter @workspace/tv-ai-international run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tv-ai-international", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/tv-ai-international/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23146"
+BASE_PATH = "/"
