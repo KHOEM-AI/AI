@@ -1,8 +1,9 @@
 from flask import Flask, render_template
 
-app = Flask(__name__, template_folder='.') # ដាក់ '.' ដើម្បីឲ្យវាស្គាល់ index.html នៅកន្លែងជាមួយគ្នា
+# Flask នឹងស្វែងរកឯកសារ HTML ក្នុងថត 'templates' ដោយស្វ័យប្រវត្តិ
+app = Flask(__name__)
 
-# ទិន្នន័យប៉ុស្តិ៍ (ប្រើ HLS .m3u8 សម្រាប់ Demo សិន អាចដូរបាន)
+# ទិន្នន័យប៉ុស្តិ៍សម្រាប់ Demo
 CHANNELS = [
     {
         "id": "cnn",
@@ -18,13 +19,17 @@ CHANNELS = [
     }
 ]
 
+# Route សម្រាប់ទំព័រដើម (Control Room)
 @app.route('/')
 def home():
-    # បើកឯកសារ index.html មកបង្ហាញ
     return render_template('index.html', channels=CHANNELS)
 
+# Route សម្រាប់ទំព័រមើលទូរទស្សន៍ពេញអេក្រង់ (AI TV)
+@app.route('/tv')
+def ai_tv():
+    return render_template('aitv.html')
+
 if __name__ == '__main__':
-    # រត់ Server លើ Port 5000
+    # រត់ Server
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-
+    
