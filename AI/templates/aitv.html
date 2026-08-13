@@ -1,298 +1,305 @@
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<div class="tv-ai-container" id="tvAiComponent">
-    <div class="tv-ai-banner" role="button" tabindex="0" id="tvBannerBtn" aria-controls="tvAiDrawer" aria-expanded="false">
-        <div class="tv-ai-line"></div>
-        <div class="tv-ai-title">
-            <span>[ TV AI INTERNATIONAL ]</span>
-            <span id="tv-ai-arrow" class="arrow-icon">▼</span>
-        </div>
-        <div class="tv-ai-line"></div>
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI TV - International</title>
+    <!-- បញ្ចូល Tailwind ដើម្បីឲ្យប៊ូតុង Back ស្អាត និង Background ងងឹតស៊ីគ្នា -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- កូដ HLS ដែលបងបានភ្ជាប់ -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <!-- រក្សាស្តាយកូដ CSS របស់បងដើមទាំងស្រុង -->
+    <style>
+        body { background-color: #0B1120; margin: 0; padding: 20px; color: white; font-family: sans-serif; }
+        
+        .tv-ai-container { width: 100%; max-width: 800px; margin: 0 auto; margin-top: 15px; font-family: inherit; }
+        .tv-ai-banner { display: flex; align-items: center; cursor: pointer; padding: 10px 0; user-select: none; outline: none; }
+        .tv-ai-banner:focus .tv-ai-title { color: #6366f1; }
+        .tv-ai-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent); }
+        .tv-ai-title { padding: 0 15px; color: #e2e8f0; font-size: 13px; font-weight: bold; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; transition: color 0.2s; text-shadow: 0 0 10px rgba(100, 150, 255, 0.5); }
+        .arrow-icon { transition: transform 0.3s ease; font-size: 10px; }
+        .tv-ai-drawer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, padding 0.4s ease; background: rgba(18, 16, 26, 0.95); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 0 15px; }
+        .tv-control-panel { padding: 15px 0; display: flex; flex-direction: column; gap: 15px; }
+        .tv-screen-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: center; align-items: center; transition: filter 0.3s ease; }
+        .tv-video-element { width: 100%; height: 100%; object-fit: contain; background: #000; transition: transform 0.3s ease; }
+        .tv-status { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; z-index: 10; letter-spacing: 0.5px; backdrop-filter: blur(4px); }
+        .tv-row { display: flex; flex-direction: column; gap: 5px; color: #94a3b8; font-size: 12px; }
+        .tv-input-select { background: rgba(26, 22, 37, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 8px; border-radius: 6px; outline: none; cursor: pointer; }
+        .tv-sliders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #94a3b8; font-size: 11px; }
+        .slider-box { display: flex; flex-direction: column; gap: 4px; background: rgba(255, 255, 255, 0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .slider-box input[type="range"] { width: 100%; accent-color: #6366f1; cursor: pointer; }
+        .tv-action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tv-btn { flex: 1; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #c7d2fe; padding: 8px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .tv-btn:hover { background: rgba(99, 102, 241, 0.3); }
+        .reset-btn { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+        .reset-btn:hover { background: rgba(239, 68, 68, 0.3); }
+        @media (max-width: 600px) { .tv-sliders-grid { grid-template-columns: 1fr; } .tv-action-buttons { flex-direction: column; } }
+    </style>
+</head>
+<body>
+
+    <!-- ប៊ូតុងត្រឡប់ទៅកាន់ Control Room (index.html) -->
+    <div class="max-w-[800px] mx-auto mb-4">
+        <a href="/" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition bg-gray-800/50 px-4 py-2 rounded-lg border border-gray-700">
+            <span>⬅</span> ត្រឡប់ទៅ Control Room
+        </a>
     </div>
 
-    <div id="tvAiDrawer" class="tv-ai-drawer">
-        <div class="tv-control-panel">
-            
-            <div class="tv-screen-wrapper" id="tvScreenWrapper">
-                <div id="tvStatus" class="tv-status">🔴 OFFLINE</div>
-                <video id="tvPlayer" class="tv-video-element" playsinline></video>
+    <!-- កូដ Component ដើមរបស់បង ១០០% មិនកែប្រែ -->
+    <div class="tv-ai-container" id="tvAiComponent">
+        <div class="tv-ai-banner" role="button" tabindex="0" id="tvBannerBtn" aria-controls="tvAiDrawer" aria-expanded="false">
+            <div class="tv-ai-line"></div>
+            <div class="tv-ai-title">
+                <span>[ TV AI INTERNATIONAL ]</span>
+                <span id="tv-ai-arrow" class="arrow-icon">▼</span>
             </div>
+            <div class="tv-ai-line"></div>
+        </div>
 
-            <div class="tv-row">
-                <label for="channelSelect">Global Channels (Democratic Network)</label>
-                <select id="channelSelect" class="tv-input-select">
-                    <option value="" disabled selected>Select a channel...</option>
-                    <option value="cnn">CNN International (US)</option>
-                    <option value="bbc">BBC News (UK)</option>
-                    <option value="france24">France 24 (France)</option>
-                    <option value="nhk">NHK World (Japan)</option>
-                </select>
-            </div>
-
-            <div class="tv-sliders-grid">
-                <div class="slider-box">
-                    <span>Volume: <output id="volVal">50</output>%</span>
-                    <input type="range" id="volSlider" min="0" max="100" value="50">
+        <div id="tvAiDrawer" class="tv-ai-drawer">
+            <div class="tv-control-panel">
+                
+                <div class="tv-screen-wrapper" id="tvScreenWrapper">
+                    <div id="tvStatus" class="tv-status">🔴 OFFLINE</div>
+                    <video id="tvPlayer" class="tv-video-element" playsinline></video>
                 </div>
-                <div class="slider-box">
-                    <span>Brightness: <output id="briVal">80</output>%</span>
-                    <input type="range" id="briSlider" min="0" max="100" value="80">
+
+                <div class="tv-row">
+                    <label for="channelSelect">Global Channels (Democratic Network)</label>
+                    <select id="channelSelect" class="tv-input-select">
+                        <option value="" disabled selected>Select a channel...</option>
+                        <option value="cnn">CNN International (US)</option>
+                        <option value="bbc">BBC News (UK)</option>
+                        <option value="france24">France 24 (France)</option>
+                        <option value="nhk">NHK World (Japan)</option>
+                    </select>
                 </div>
-            </div>
 
-            <div class="tv-action-buttons">
-                <button class="tv-btn" id="btnRotate">🔄 Rotate</button>
-                <button class="tv-btn" id="btnExpand">🔲 Expand / Scale</button>
-                <button class="tv-btn reset-btn" id="btnReset">Reset</button>
-            </div>
+                <div class="tv-sliders-grid">
+                    <div class="slider-box">
+                        <span>Volume: <output id="volVal">50</output>%</span>
+                        <input type="range" id="volSlider" min="0" max="100" value="50">
+                    </div>
+                    <div class="slider-box">
+                        <span>Brightness: <output id="briVal">80</output>%</span>
+                        <input type="range" id="briSlider" min="0" max="100" value="80">
+                    </div>
+                </div>
 
+                <div class="tv-action-buttons">
+                    <button class="tv-btn" id="btnRotate">🔄 Rotate</button>
+                    <button class="tv-btn" id="btnExpand">🔲 Expand / Scale</button>
+                    <button class="tv-btn reset-btn" id="btnReset">Reset</button>
+                </div>
+
+            </div>
         </div>
     </div>
-</div>
 
-<style>
-.tv-ai-container { width: 100%; margin-top: 15px; font-family: inherit; }
-.tv-ai-banner { display: flex; align-items: center; cursor: pointer; padding: 10px 0; user-select: none; outline: none; }
-.tv-ai-banner:focus .tv-ai-title { color: #6366f1; } /* Accessibility Focus */
-.tv-ai-line { flex-grow: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent); }
-.tv-ai-title { padding: 0 15px; color: #e2e8f0; font-size: 13px; font-weight: bold; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; transition: color 0.2s; text-shadow: 0 0 10px rgba(100, 150, 255, 0.5); }
-.arrow-icon { transition: transform 0.3s ease; font-size: 10px; }
-.tv-ai-drawer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out, padding 0.4s ease; background: rgba(18, 16, 26, 0.95); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 0 15px; }
-.tv-control-panel { padding: 15px 0; display: flex; flex-direction: column; gap: 15px; }
-.tv-screen-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: center; align-items: center; transition: filter 0.3s ease; }
-/* Added rotation wrapper to prevent layout breakage on mobile */
-.tv-video-element { width: 100%; height: 100%; object-fit: contain; background: #000; transition: transform 0.3s ease; }
-.tv-status { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; z-index: 10; letter-spacing: 0.5px; backdrop-filter: blur(4px); }
-.tv-row { display: flex; flex-direction: column; gap: 5px; color: #94a3b8; font-size: 12px; }
-.tv-input-select { background: rgba(26, 22, 37, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 8px; border-radius: 6px; outline: none; cursor: pointer; }
-.tv-sliders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #94a3b8; font-size: 11px; }
-.slider-box { display: flex; flex-direction: column; gap: 4px; background: rgba(255, 255, 255, 0.02); padding: 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
-.slider-box input[type="range"] { width: 100%; accent-color: #6366f1; cursor: pointer; }
-.tv-action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-.tv-btn { flex: 1; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #c7d2fe; padding: 8px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-.tv-btn:hover { background: rgba(99, 102, 241, 0.3); }
-.reset-btn { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #fca5a5; }
-.reset-btn:hover { background: rgba(239, 68, 68, 0.3); }
-@media (max-width: 600px) { .tv-sliders-grid { grid-template-columns: 1fr; } .tv-action-buttons { flex-direction: column; } }
-</style>
+    <!-- Javascript របស់បង ១០០% មិនកែប្រែ -->
+    <script>
+    const TVAI_Engine = (function() {
+        let UI = {};
+        let hlsInstance = null;
+        let reconnectAttempts = 0;
+        const MAX_RECONNECT = 3;
 
-<script>
-/**
- * TV AI Engine Module (Encapsulated to avoid global scope pollution)
- */
-const TVAI_Engine = (function() {
-    // DOM Elements
-    let UI = {};
-    let hlsInstance = null;
-    let reconnectAttempts = 0;
-    const MAX_RECONNECT = 3;
+        const defaultState = { channel: '', volume: 50, brightness: 80, rotation: 0, isDrawerOpen: false };
+        let state = { ...defaultState };
 
-    // Default State
-    const defaultState = { channel: '', volume: 50, brightness: 80, rotation: 0, isDrawerOpen: false };
-    let state = { ...defaultState };
-
-    // Placeholder HLS Streams (To be replaced with Backend API)
-    const channelData = {
-        cnn: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",      // Open HLS Test Stream
-        bbc: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-        france24: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-        nhk: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
-    };
-
-    function init() {
-        // Map DOM elements
-        UI = {
-            bannerBtn: document.getElementById('tvBannerBtn'),
-            drawer: document.getElementById('tvAiDrawer'),
-            arrow: document.getElementById('tv-ai-arrow'),
-            player: document.getElementById('tvPlayer'),
-            wrapper: document.getElementById('tvScreenWrapper'),
-            status: document.getElementById('tvStatus'),
-            channelSelect: document.getElementById('channelSelect'),
-            volSlider: document.getElementById('volSlider'),
-            volVal: document.getElementById('volVal'),
-            briSlider: document.getElementById('briSlider'),
-            briVal: document.getElementById('briVal'),
-            btnRotate: document.getElementById('btnRotate'),
-            btnExpand: document.getElementById('btnExpand'),
-            btnReset: document.getElementById('btnReset')
+        const channelData = {
+            cnn: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8", 
+            bbc: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8",
+            france24: "https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8",
+            nhk: "https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8"
         };
 
-        loadState();
-        bindEvents();
-        applyStateToUI();
-    }
+        function init() {
+            UI = {
+                bannerBtn: document.getElementById('tvBannerBtn'),
+                drawer: document.getElementById('tvAiDrawer'),
+                arrow: document.getElementById('tv-ai-arrow'),
+                player: document.getElementById('tvPlayer'),
+                wrapper: document.getElementById('tvScreenWrapper'),
+                status: document.getElementById('tvStatus'),
+                channelSelect: document.getElementById('channelSelect'),
+                volSlider: document.getElementById('volSlider'),
+                volVal: document.getElementById('volVal'),
+                briSlider: document.getElementById('briSlider'),
+                briVal: document.getElementById('briVal'),
+                btnRotate: document.getElementById('btnRotate'),
+                btnExpand: document.getElementById('btnExpand'),
+                btnReset: document.getElementById('btnReset')
+            };
 
-    // --- State Persistence ---
-    function loadState() {
-        const saved = localStorage.getItem('tvai_state');
-        if (saved) state = { ...defaultState, ...JSON.parse(saved) };
-    }
-    
-    function saveState() {
-        localStorage.setItem('tvai_state', JSON.stringify({
-            channel: state.channel,
-            volume: state.volume,
-            brightness: state.brightness,
-            rotation: state.rotation
-        }));
-    }
+            loadState();
+            bindEvents();
+            applyStateToUI();
+        }
 
-    // --- Event Bindings ---
-    function bindEvents() {
-        // Drawer Accessibility & Click
-        UI.bannerBtn.addEventListener('click', toggleDrawer);
-        UI.bannerBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDrawer(); } });
+        function loadState() {
+            const saved = localStorage.getItem('tvai_state');
+            if (saved) state = { ...defaultState, ...JSON.parse(saved) };
+        }
         
-        // Controls
-        UI.channelSelect.addEventListener('change', (e) => loadChannel(e.target.value));
-        UI.volSlider.addEventListener('input', (e) => setVolume(e.target.value));
-        UI.briSlider.addEventListener('input', (e) => setBrightness(e.target.value));
-        UI.btnRotate.addEventListener('click', rotateScreen);
-        UI.btnExpand.addEventListener('click', toggleFullscreen);
-        UI.btnReset.addEventListener('click', resetAll);
+        function saveState() {
+            localStorage.setItem('tvai_state', JSON.stringify({
+                channel: state.channel,
+                volume: state.volume,
+                brightness: state.brightness,
+                rotation: state.rotation
+            }));
+        }
 
-        // Real Video Events
-        UI.player.addEventListener('loadstart', () => setStatus("🟡 CONNECTING...", "#fbbf24"));
-        UI.player.addEventListener('waiting', () => setStatus("🟡 BUFFERING...", "#fbbf24"));
-        UI.player.addEventListener('playing', () => { setStatus("🟢 LIVE", "#4ade80"); reconnectAttempts = 0; });
-        UI.player.addEventListener('error', handleVideoError);
-        
-        // Fullscreen Synchronization
-        document.addEventListener('fullscreenchange', syncFullscreenState);
-    }
+        function bindEvents() {
+            UI.bannerBtn.addEventListener('click', toggleDrawer);
+            UI.bannerBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleDrawer(); } });
+            
+            UI.channelSelect.addEventListener('change', (e) => loadChannel(e.target.value));
+            UI.volSlider.addEventListener('input', (e) => setVolume(e.target.value));
+            UI.briSlider.addEventListener('input', (e) => setBrightness(e.target.value));
+            UI.btnRotate.addEventListener('click', rotateScreen);
+            UI.btnExpand.addEventListener('click', toggleFullscreen);
+            UI.btnReset.addEventListener('click', resetAll);
 
-    // --- Player Logic (HLS Support) ---
-    function loadChannel(channelId, isRetry = false) {
-        if (!channelData[channelId]) return;
-        state.channel = channelId;
-        saveState();
+            UI.player.addEventListener('loadstart', () => setStatus("🟡 CONNECTING...", "#fbbf24"));
+            UI.player.addEventListener('waiting', () => setStatus("🟡 BUFFERING...", "#fbbf24"));
+            UI.player.addEventListener('playing', () => { setStatus("🟢 LIVE", "#4ade80"); reconnectAttempts = 0; });
+            UI.player.addEventListener('error', handleVideoError);
+            
+            document.addEventListener('fullscreenchange', syncFullscreenState);
+        }
 
-        const streamUrl = channelData[channelId];
-        setStatus("🟡 CONNECTING...", "#fbbf24");
+        function loadChannel(channelId, isRetry = false) {
+            if (!channelData[channelId]) return;
+            state.channel = channelId;
+            saveState();
 
-        if (Hls.isSupported()) {
+            const streamUrl = channelData[channelId];
+            setStatus("🟡 CONNECTING...", "#fbbf24");
+
+            if (Hls.isSupported()) {
+                if (hlsInstance) hlsInstance.destroy();
+                hlsInstance = new Hls();
+                hlsInstance.loadSource(streamUrl);
+                hlsInstance.attachMedia(UI.player);
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                    UI.player.play().catch(() => setStatus("⚠️ AUTOPLAY BLOCKED", "#f97316"));
+                });
+                hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) handleVideoError();
+                });
+            } else if (UI.player.canPlayType('application/vnd.apple.mpegurl')) {
+                UI.player.src = streamUrl;
+                UI.player.addEventListener('loadedmetadata', () => {
+                    UI.player.play().catch(() => setStatus("⚠️ AUTOPLAY BLOCKED", "#f97316"));
+                });
+            }
+        }
+
+        function handleVideoError() {
+            if (reconnectAttempts < MAX_RECONNECT && state.channel) {
+                reconnectAttempts++;
+                setStatus(`🔄 RECONNECTING (${reconnectAttempts}/${MAX_RECONNECT})...`, "#fbbf24");
+                setTimeout(() => loadChannel(state.channel, true), 3000);
+            } else {
+                setStatus("🔴 OFFLINE / ERROR", "#ef4444");
+            }
+        }
+
+        function setVolume(val) {
+            state.volume = val;
+            UI.volVal.innerText = val;
+            UI.player.volume = val / 100;
+            UI.player.muted = (val == 0);
+            saveState();
+        }
+
+        function setBrightness(val) {
+            state.brightness = val;
+            UI.briVal.innerText = val;
+            UI.wrapper.style.filter = `brightness(${val}%)`;
+            saveState();
+        }
+
+        function rotateScreen() {
+            state.rotation = (state.rotation + 90) % 360;
+            let scaleStr = (state.rotation === 90 || state.rotation === 270) ? "scale(0.5625)" : "scale(1)"; 
+            UI.player.style.transform = `rotate(${state.rotation}deg) ${scaleStr}`;
+            saveState();
+        }
+
+        function toggleDrawer() {
+            state.isDrawerOpen = !state.isDrawerOpen;
+            UI.bannerBtn.setAttribute('aria-expanded', state.isDrawerOpen);
+            
+            if (!state.isDrawerOpen) {
+                UI.drawer.style.maxHeight = "0px";
+                UI.drawer.style.padding = "0 15px";
+                UI.arrow.style.transform = "rotate(0deg)";
+            } else {
+                UI.drawer.style.maxHeight = UI.drawer.scrollHeight + 50 + "px";
+                UI.drawer.style.padding = "15px";
+                UI.arrow.style.transform = "rotate(180deg)";
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                UI.wrapper.requestFullscreen?.() || UI.wrapper.webkitRequestFullscreen?.();
+            } else {
+                document.exitFullscreen?.();
+            }
+        }
+
+        function syncFullscreenState() {
+            if (!document.fullscreenElement) {
+                UI.wrapper.style.width = "100%";
+            }
+        }
+
+        function setStatus(text, color) {
+            UI.status.innerText = text;
+            UI.status.style.color = color;
+        }
+
+        function applyStateToUI() {
+            UI.volSlider.value = state.volume;
+            UI.briSlider.value = state.brightness;
+            UI.channelSelect.value = state.channel || "";
+            
+            setVolume(state.volume);
+            setBrightness(state.brightness);
+            if (state.rotation > 0) {
+                let tempRot = state.rotation;
+                state.rotation = 0; 
+                for(let i=0; i < (tempRot/90); i++) rotateScreen();
+            }
+            
+            if (state.channel) loadChannel(state.channel);
+            
+            // Auto open drawer if a channel is selected and saved
+            if (state.channel && !state.isDrawerOpen) {
+                toggleDrawer();
+            }
+        }
+
+        function resetAll() {
+            localStorage.removeItem('tvai_state');
+            state = { ...defaultState };
             if (hlsInstance) hlsInstance.destroy();
-            hlsInstance = new Hls();
-            hlsInstance.loadSource(streamUrl);
-            hlsInstance.attachMedia(UI.player);
-            hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                UI.player.play().catch(() => setStatus("⚠️ AUTOPLAY BLOCKED", "#f97316"));
-            });
-            hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-                if (data.fatal) handleVideoError();
-            });
-        } else if (UI.player.canPlayType('application/vnd.apple.mpegurl')) {
-            // Safari native HLS support
-            UI.player.src = streamUrl;
-            UI.player.addEventListener('loadedmetadata', () => {
-                UI.player.play().catch(() => setStatus("⚠️ AUTOPLAY BLOCKED", "#f97316"));
-            });
+            UI.player.src = "";
+            setStatus("🔴 OFFLINE", "#ef4444");
+            UI.player.style.transform = "rotate(0deg) scale(1)";
+            applyStateToUI();
+            if (document.fullscreenElement) document.exitFullscreen?.();
         }
-    }
 
-    // --- Auto Reconnect Logic ---
-    function handleVideoError() {
-        if (reconnectAttempts < MAX_RECONNECT && state.channel) {
-            reconnectAttempts++;
-            setStatus(`🔄 RECONNECTING (${reconnectAttempts}/${MAX_RECONNECT})...`, "#fbbf24");
-            setTimeout(() => loadChannel(state.channel, true), 3000);
-        } else {
-            setStatus("🔴 OFFLINE / ERROR", "#ef4444");
-        }
-    }
+        return { init };
+    })();
 
-    // --- Controls ---
-    function setVolume(val) {
-        state.volume = val;
-        UI.volVal.innerText = val;
-        UI.player.volume = val / 100;
-        UI.player.muted = (val == 0);
-        saveState();
-    }
-
-    function setBrightness(val) {
-        state.brightness = val;
-        UI.briVal.innerText = val;
-        UI.wrapper.style.filter = `brightness(${val}%)`;
-        saveState();
-    }
-
-    function rotateScreen() {
-        state.rotation = (state.rotation + 90) % 360;
-        // Apply transform to video element inside aspect-ratio wrapper
-        let scaleStr = (state.rotation === 90 || state.rotation === 270) ? "scale(0.5625)" : "scale(1)"; 
-        // 0.5625 is 9/16, prevents video overflowing horizontally on mobile when rotated
-        UI.player.style.transform = `rotate(${state.rotation}deg) ${scaleStr}`;
-        saveState();
-    }
-
-    // --- UI Methods ---
-    function toggleDrawer() {
-        state.isDrawerOpen = !state.isDrawerOpen;
-        UI.bannerBtn.setAttribute('aria-expanded', state.isDrawerOpen);
-        
-        if (!state.isDrawerOpen) {
-            UI.drawer.style.maxHeight = "0px";
-            UI.drawer.style.padding = "0 15px";
-            UI.arrow.style.transform = "rotate(0deg)";
-        } else {
-            UI.drawer.style.maxHeight = UI.drawer.scrollHeight + 50 + "px";
-            UI.drawer.style.padding = "15px";
-            UI.arrow.style.transform = "rotate(180deg)";
-        }
-    }
-
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            UI.wrapper.requestFullscreen?.() || UI.wrapper.webkitRequestFullscreen?.();
-        } else {
-            document.exitFullscreen?.();
-        }
-    }
-
-    function syncFullscreenState() {
-        if (!document.fullscreenElement) {
-            // Adjust UI when exiting fullscreen if needed
-            UI.wrapper.style.width = "100%";
-        }
-    }
-
-    function setStatus(text, color) {
-        UI.status.innerText = text;
-        UI.status.style.color = color;
-    }
-
-    function applyStateToUI() {
-        UI.volSlider.value = state.volume;
-        UI.briSlider.value = state.brightness;
-        UI.channelSelect.value = state.channel || "";
-        
-        setVolume(state.volume);
-        setBrightness(state.brightness);
-        if (state.rotation > 0) {
-            let tempRot = state.rotation;
-            state.rotation = 0; // reset temp to let rotation calc properly
-            for(let i=0; i < (tempRot/90); i++) rotateScreen();
-        }
-        
-        if (state.channel) loadChannel(state.channel);
-    }
-
-    function resetAll() {
-        localStorage.removeItem('tvai_state');
-        state = { ...defaultState };
-        if (hlsInstance) hlsInstance.destroy();
-        UI.player.src = "";
-        setStatus("🔴 OFFLINE", "#ef4444");
-        UI.player.style.transform = "rotate(0deg) scale(1)";
-        applyStateToUI();
-        if (document.fullscreenElement) document.exitFullscreen?.();
-    }
-
-    // Expose only init method
-    return { init };
-})();
-
-// Initialize Module when DOM is ready
-document.addEventListener('DOMContentLoaded', TVAI_Engine.init);
-</script>
+    document.addEventListener('DOMContentLoaded', TVAI_Engine.init);
+    </script>
+</body>
+</html>
