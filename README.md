@@ -1,14 +1,11 @@
-# AI រចនាសម្ព័ន្ធឯកសារ KHOEM_AI (សរុប ៧៤ ឯកសារ)
-
-# 👑 រចនាសម្ព័ន្ធឯកសារ KHOEM_AI (សរុប ៧២ ឯកសារ)
-
-```text
-👑 KHOEM_AI / AI
+# 👑 KHOEM_AI / AI
 ├── 👉 .gitignore
 ├── 👉 pnpm-lock.yaml
 ├── 👉 README.md
 ├── 📁 AI/
-└── 🎖️ artifacts/
+│   ├── 👉 .env
+│   └── 👉 requirements.txt
+└── 📁 artifacts/
     ├── 📁 components/
     │   └── 👉 error-boundary.tsx
     │
@@ -83,10 +80,4 @@
         ├── 👉 use-toast.ts
         ├── 👉 utils.ts
         └── 👉 vite.config.ts
-
-# ឈ្មោះថត (Folder)ប្រភេទការងារ / មុខងារចំនួនឯកសារ
-Root Directoryឯកសារគ្រឹះប្រព័ន្ធ (.gitignore, pnpm-lock.yaml, README.md)៣
-artifacts/components/ឯកសារ Error Boundary (error-boundary.tsx)១
-artifacts/mockup-sandbox/សមាសធាតុ UI Dashboard (.gitignore + 42 UI Components)៤៣
-artifacts/tv-ai-international/ឯកសារប្រព័ន្ធ TV AI (Config, HTML, React Components)២៥
-សរុបទាំងអស់ប្រព័ន្ធ Monorepo គម្រោង KHOEM_AI៧២ ឯកសារ
+        
