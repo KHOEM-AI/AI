@@ -101,7 +101,7 @@
 │   │   ├── Google: Google Profile
 │   │   └── Developer: KHOEM SOKSIVUTHA
 │   │
-│   └── 📜 **Sololearn Certificates (Certificate #1 ដល់ #41)**
+│   └── 📜 **Sololearn Certificates (Certificate #1 ដល់ #42)**
 │       ├── Certificate #1
 │       ├── Certificate #2
 │       ├── ... (រហូតដល់ #41)
@@ -129,45 +129,46 @@ tsconfig.json ៖ ការកំណត់រចនាសម្ព័ន្ធ T
 src/ ៖ ផ្ទុកសមាសភាគ UI Components ទាំង ៤៤ សម្រាប់ឌីហ្សាញ Interface (Shadcn UI & Tailwind CSS)។
 <details>
 <summary>📜 <b>ចុចទីនេះដើម្បីមើល វិញ្ញាបនបត្រ Sololearn ទាំងអស់ (Sololearn Certificates)</b></summary>
-Certificate #1
-Certificate #2
-Certificate #3
-Certificate #4
-Certificate #5
-Certificate #6
-Certificate #7
-Certificate #8
-Certificate #9
-Certificate #10
-Certificate #11
-Certificate #12
-Certificate #13
-Certificate #14
-Certificate #15
-Certificate #16
-Certificate #17
-Certificate #18
-Certificate #19
-Certificate #20
-Certificate #21
-Certificate #22
-Certificate #23
-Certificate #24
-Certificate #25
-Certificate #26
-Certificate #27
-Certificate #28
-Certificate #29
-Certificate #30
-Certificate #31
-Certificate #32
-Certificate #33
-Certificate #34
-Certificate #35
-Certificate #36
-Certificate #38
-Certificate #39
-Certificate #40
-Certificate #41
+Certificate #1 https://api2.sololearn.com/v2/certificates/CC-4WMNT8MZ/image/png?t=639211314186882960
+Certificate #2 https://api2.sololearn.com/v2/certificates/CC-FQXPSLUW/image/png?t=639114126319491590
+Certificate #3 https://api2.sololearn.com/v2/certificates/CC-T1WYSOHU/image/png?t=639218531599541850
+Certificate #4 https://api2.sololearn.com/v2/certificates/CC-I6OFSBAU/image/png?t=639221583443257000
+Certificate #5 https://api2.sololearn.com/v2/certificates/CC-IXX7OEVL/image/png?t=639129089670279240
+Certificate #6 https://api2.sololearn.com/v2/certificates/CC-AYYCWFZD/image/png?t=639213017982820410
+Certificate #7 https://api2.sololearn.com/v2/certificates/CC-3LIHOX01/image/png?t=639149755075790680
+Certificate #8 https://api2.sololearn.com/v2/certificates/CC-HAW7ZIH5/image/png?t=639127071272290510
+Certificate #9 https://api2.sololearn.com/v2/certificates/CC-U8DL49ZZ/image/png?t=639128642579113120
+Certificate #10 https://api2.sololearn.com/v2/certificates/CC-SI2WZX43/image/png?t=639128879870325970
+Certificate #11 https://api2.sololearn.com/v2/certificates/CC-SUOWGF8T/image/png?t=639129397891636970
+Certificate #12 https://api2.sololearn.com/v2/certificates/CC-I4TIACOI/image/png?t=639129633525792890
+Certificate #13 https://api2.sololearn.com/v2/certificates/CC-GT2PAJTL/image/png?t=639130145139061920
+Certificate #14 https://api2.sololearn.com/v2/certificates/CC-CCYNOT2R/image/png?t=639130171535224370
+Certificate #15 https://api2.sololearn.com/v2/certificates/CC-ZYSDAZM8/image/png?t=639130228680226390
+Certificate #16 https://api2.sololearn.com/v2/certificates/CC-7ABADG4R/image/png?t=639130271146365570
+Certificate #17 https://api2.sololearn.com/v2/certificates/CC-DBRL4YLD/image/png?t=639131460155620180
+Certificate #18 https://api2.sololearn.com/v2/certificates/CC-033EXHKA/image/png?t=639132345227292480
+Certificate #19 https://api2.sololearn.com/v2/certificates/CC-UYFGANZQ/image/png?t=639132373592160560
+Certificate #20 https://api2.sololearn.com/v2/certificates/CC-2M47YBCR/image/png?t=639132404731128520
+Certificate #21 https://api2.sololearn.com/v2/certificates/CC-WKCFVLYI/image/png?t=639132438814129950
+Certificate #22 https://api2.sololearn.com/v2/certificates/CC-CRBRNFSO/image/png?t=639132486370977210
+Certificate #23 https://api2.sololearn.com/v2/certificates/CC-SUEHSLUF/image/png?t=639132518202129160
+Certificate #24 https://api2.sololearn.com/v2/certificates/CC-SI4N5SIB/image/png?t=639132552000527100
+Certificate #25 https://api2.sololearn.com/v2/certificates/CC-ZTIH8SKI/image/png?t=639132624414342210
+Certificate #26 https://api2.sololearn.com/v2/certificates/CC-OFASKCAF/image/png?t=639136631237077950
+Certificate #27 https://api2.sololearn.com/v2/certificates/CC-SCJHQBG0/image/png?t=639133282834683540
+Certificate #28 https://api2.sololearn.com/v2/certificates/CC-JAJVCQCJ/image/png?t=639133319713608600
+Certificate #29 https://api2.sololearn.com/v2/certificates/CC-DJ9YJOG5/image/png?t=639133354278903030
+Certificate #30 https://api2.sololearn.com/v2/certificates/CC-FYISPG0F/image/png?t=639139227658362860
+Certificate #31 https://api2.sololearn.com/v2/certificates/CC-AXMQ8X3Q/image/png?t=639138317832565410
+Certificate #32 https://api2.sololearn.com/v2/certificates/CC-OU33MLMF/image/png?t=639142032442792440
+Certificate #33 https://api2.sololearn.com/v2/certificates/CC-K47BIVEI/image/png?t=639147137885562720
+Certificate #34 https://api2.sololearn.com/v2/certificates/CC-AREK9EJE/image/png?t=639154446519468340
+Certificate #35 https://api2.sololearn.com/v2/certificates/CC-6ZXHTBFA/image/png?t=639158173295795190
+Certificate #36 https://api2.sololearn.com/v2/certificates/CC-ZDBUNAIR/image/png?t=639156230587386000
+Certificate #38 https://api2.sololearn.com/v2/certificates/CC-2SCXNBZ6/image/png?t=639220875861304820
+Certificate #39 https://api2.sololearn.com/v2/certificates/CC-CAZPORAO/image/png?t=639214762709896540
+Certificate #40 https://api2.sololearn.com/v2/certificates/CC-S072WEWW/image/png?t=639220816092789140
+Certificate #41 https://api2.sololearn.com/v2/certificates/CC-OP1HINXS/image/png?t=639222163892448310
+Certificate #42 https://api2.sololearn.com/v2/certificates/CC-GPX6LLCC/image/png?t=639222232281084110
 </details>
 © 2026 KHOEM SOKSIVUTHA. All rights reserved.
