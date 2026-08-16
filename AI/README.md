@@ -173,5 +173,6 @@ Certificate #42 https://api2.sololearn.com/v2/certificates/CC-GPX6LLCC/image/png
 Certificate #43 https://api2.sololearn.com/v2/certificates/CC-8VRSVYY8/image/png?t=639223768700061080
 Certificate #44 https://api2.sololearn.com/v2/certificates/CC-IGJZ5ICG/image/png?t=639224674159806284
 Certificate #45 https://api2.sololearn.com/v2/certificates/CC-NIHNI6RW/image/png?t=639224739175951367
+Certificate #46 https://api2.sololearn.com/v2/certificates/CC-PKZFLGAF/image/png?t=639224766824092049
 </details>
 © 2026 KHOEM SOKSIVUTHA. All rights reserved.
