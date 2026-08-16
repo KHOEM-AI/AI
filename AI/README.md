@@ -126,7 +126,7 @@ App.tsx ៖ អេក្រង់ចម្បងនៃប្រព័ន្ធ�
 main.tsx ៖ ចំណុចចាប់ផ្តើមដំណើរការ React Web App។
 package.json ៖ ឯកសារកំណត់ Library និង Command (ឧទាហរណ៍៖ pnpm dev)។
 tsconfig.json ៖ ការកំណត់រចនាសម្ព័ន្ធ TypeScript Configuration Framework។
-src/ ៖ ផ្ទុកសមាសភាគ UI Components ទាំង ៤៤ សម្រាប់ឌីហ្សាញ Interface (Shadcn UI & Tailwind CSS)។
+src/ ៖ ផ្ទុកសមាសភាគ UI Components ទាំង 47  សម្រាប់ឌីហ្សាញ Interface (Shadcn UI & Tailwind CSS)។
 <details>
 <summary>📜 <b>ចុចទីនេះដើម្បីមើល វិញ្ញាបនបត្រ Sololearn ទាំងអស់ (Sololearn Certificates)</b></summary>
 Certificate #1 https://api2.sololearn.com/v2/certificates/CC-4WMNT8MZ/image/png?t=639211314186882960
@@ -174,5 +174,6 @@ Certificate #43 https://api2.sololearn.com/v2/certificates/CC-8VRSVYY8/image/png
 Certificate #44 https://api2.sololearn.com/v2/certificates/CC-IGJZ5ICG/image/png?t=639224674159806284
 Certificate #45 https://api2.sololearn.com/v2/certificates/CC-NIHNI6RW/image/png?t=639224739175951367
 Certificate #46 https://api2.sololearn.com/v2/certificates/CC-PKZFLGAF/image/png?t=639224766824092049
+Certificate #47 https://api2.sololearn.com/v2/certificates/CC-ILCAQPVL/image/png?t=639224873573920252
 </details>
 © 2026 KHOEM SOKSIVUTHA. All rights reserved.
