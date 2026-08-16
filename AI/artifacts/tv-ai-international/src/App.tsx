@@ -46,7 +46,7 @@ declare global {
   }
 }
 
-type ChannelId = 'cnn' | 'bbc' | 'france24' | 'nhk';
+type ChannelId = 'cnn' | 'bbc' | 'france24' | 'nhk' | 'explore';
 type StatusKey = 'offline' | 'connecting' | 'buffering' | 'live' | 'blocked' | 'reconnecting' | 'error';
 
 type SavedState = {
@@ -62,17 +62,25 @@ type Channel = {
   name: string;
   origin: string;
   region: string;
+  /** Official YouTube channel ID for a broadcaster that streams live 24/7
+   *  and allows embedding. When set, we show their official YouTube
+   *  embedded player instead of pulling any stream URL ourselves. */
+  youtubeChannelId?: string;
 };
 
-const STREAM_URL = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+const STREAM_URL = 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8';
 const STORAGE_KEY = 'tvai_state';
 const DEFAULT_STATE: SavedState = { channel: 'cnn', volume: 50, brightness: 80, rotation: 0 };
 const CHANNELS: Channel[] = [
   { id: 'cnn', short: 'CNN', name: 'CNN International', origin: 'United States', region: 'US' },
   { id: 'bbc', short: 'BBC', name: 'BBC News', origin: 'United Kingdom', region: 'UK' },
-  { id: 'france24', short: 'F24', name: 'France 24', origin: 'France', region: 'FR' },
-  { id: 'nhk', short: 'NHK', name: 'NHK World', origin: 'Japan', region: 'JP' },
+  { id: 'france24', short: 'F24', name: 'France 24', origin: 'France', region: 'FR', youtubeChannelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },
+  { id: 'nhk', short: 'NHK', name: 'NHK World', origin: 'Japan', region: 'JP', youtubeChannelId: 'UCSPEjw8F2nQDtmUKPFNF7_A' },
+  { id: 'explore', short: 'NAT', name: 'Explore Live Nature Cams', origin: 'Explore.org (non-profit)', region: 'US', youtubeChannelId: 'UC-2KSeUU5SMCX6XLRD-AEvw' },
 ];
+
+const TICKER_TEXT =
+  'Thank you for watching KHOEM_AI TV International • Voluntary support is warmly welcomed, any amount helps us grow • Wishing you and your family peace, health and happiness • Happy New Year • Happy Lunar New Year • Enjoy your weekend and safe travels wherever you go';
 
 const STATUS_COPY: Record<StatusKey, { label: string; tone: string; title: string; detail: string }> = {
   offline: { label: 'Offline', tone: 'status-offline', title: 'Ready when you are', detail: 'Select a channel to open the live window.' },
@@ -213,6 +221,37 @@ function Home() {
     return () => document.removeEventListener('fullscreenchange', onFullscreen);
   }, []);
 
+  // Phase 2 — TV remote / keyboard navigation across the channel list.
+  // Arrow keys move native focus between channel cards, Enter/OK activates
+  // the focused channel, and Escape/Back clears focus so the remote's
+  // "back" button feels natural on a TV.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const cards = Array.from(document.querySelectorAll<HTMLButtonElement>('.tv-channel-card'));
+      if (cards.length === 0) return;
+      const activeIndex = cards.findIndex((card) => card === document.activeElement);
+
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        const nextIndex = activeIndex === -1 ? 0 : (activeIndex + 1) % cards.length;
+        cards[nextIndex].focus();
+      } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+        event.preventDefault();
+        const prevIndex = activeIndex === -1 ? 0 : (activeIndex - 1 + cards.length) % cards.length;
+        cards[prevIndex].focus();
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        if (activeIndex !== -1) {
+          event.preventDefault();
+          cards[activeIndex].click();
+        }
+      } else if (event.key === 'Escape' || event.key === 'Backspace') {
+        (document.activeElement as HTMLElement | null)?.blur();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -234,7 +273,7 @@ function Home() {
     };
 
     const connect = async () => {
-      if (!saved.channel) {
+      if (!saved.channel || channel?.youtubeChannelId) {
         video.pause();
         video.removeAttribute('src');
         video.load();
@@ -281,7 +320,7 @@ function Home() {
       video.removeEventListener('error', onVideoError);
       hls?.destroy();
     };
-  }, [attemptPlay, reconnectNonce, saved.channel]);
+  }, [attemptPlay, reconnectNonce, saved.channel, channel?.youtubeChannelId]);
 
   const updateSaved = (patch: Partial<SavedState>) => saveState({ ...saved, ...patch });
   const togglePlayback = () => {
@@ -316,7 +355,7 @@ function Home() {
           <div className="tv-brand" data-testid="display-brand">
             <div className="tv-brand-mark" aria-hidden="true"><Radio size={18} strokeWidth={1.7} /></div>
             <div>
-              <div className="tv-brand-name">TV AI INTERNATIONAL</div>
+              <div className="tv-brand-name">TV AI KHOEM-Ai</div>
               <div className="tv-brand-sub">ស្ថានីយ៍ព័ត៌មានសម្រាប់គ្រួសារ · FAMILY NEWS DESK</div>
             </div>
           </div>
@@ -328,6 +367,13 @@ function Home() {
             <div className="tv-live-pill"><span className="tv-live-dot" /> Desk online</div>
           </div>
         </header>
+
+        <div className="tv-ticker" data-testid="display-ticker" aria-label="Announcements">
+          <div className="tv-ticker-track">
+            <span>{TICKER_TEXT}</span>
+            <span aria-hidden="true">{TICKER_TEXT}</span>
+          </div>
+        </div>
 
         <section className="tv-intro">
           <div>
@@ -352,18 +398,32 @@ function Home() {
               ref={screenRef}
               data-testid="display-live-screen"
             >
-              <video
-                ref={videoRef}
-                className={`tv-video ${rotationClass}`}
-                playsInline
-                muted={saved.volume === 0}
-                aria-label={channel ? `${channel.name} live video` : 'Live video standby'}
-                data-testid="video-player"
-              />
-              <div className="tv-screen-status">
-                <span className={`tv-status-pill ${statusMeta.tone}`}><span className="tv-live-dot" /> {statusMeta.label}</span>
-              </div>
-              {status !== 'live' && (
+              {channel?.youtubeChannelId ? (
+                <iframe
+                  className={`tv-video tv-youtube-embed ${rotationClass}`}
+                  src={`https://www.youtube.com/embed/live_stream?channel=${channel.youtubeChannelId}&autoplay=1&mute=${saved.volume === 0 ? 1 : 0}`}
+                  title={`${channel.name} — official live stream`}
+                  data-testid="video-player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  frameBorder={0}
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  className={`tv-video ${rotationClass}`}
+                  playsInline
+                  muted={saved.volume === 0}
+                  aria-label={channel ? `${channel.name} live video` : 'Live video standby'}
+                  data-testid="video-player"
+                />
+              )}
+              {!channel?.youtubeChannelId && (
+                <div className="tv-screen-status">
+                  <span className={`tv-status-pill ${statusMeta.tone}`}><span className="tv-live-dot" /> {statusMeta.label}</span>
+                </div>
+              )}
+              {!channel?.youtubeChannelId && status !== 'live' && (
                 <div className="tv-screen-center" data-testid="display-stream-message">
                   <div className="tv-signal-icon">
                     {status === 'error' ? <AlertCircle size={22} /> : status === 'offline' ? <Satellite size={22} /> : status === 'blocked' ? <Play size={21} fill="currentColor" /> : <Activity size={22} />}
@@ -374,13 +434,18 @@ function Home() {
                   {status === 'error' && <AppButton className="primary" onClick={() => { reconnectAttempts.current = 0; setReconnectNonce((value) => value + 1); }} testId="button-reconnect-inline"><RotateCw size={14} /> Try again</AppButton>}
                 </div>
               )}
-              {status === 'live' && (
+              {!channel?.youtubeChannelId && status === 'live' && (
                 <button className="tv-sr-only" onClick={togglePlayback} data-testid="button-video-toggle" aria-label={isPlaying ? 'Pause broadcast' : 'Play broadcast'}>{isPlaying ? 'Pause' : 'Play'}</button>
+              )}
+              {channel?.youtubeChannelId && (
+                <div className="tv-screen-status">
+                  <span className="tv-status-pill status-live"><span className="tv-live-dot" /> Official YouTube live</span>
+                </div>
               )}
             </div>
             <div className="tv-screen-actions">
-              <AppButton className="primary" onClick={togglePlayback} testId="button-play-toggle" title={isPlaying ? 'Pause broadcast' : 'Play broadcast'}>
-                {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} {isPlaying ? 'Pause' : 'Play'}
+              <AppButton className="primary" onClick={togglePlayback} testId="button-play-toggle" title={isPlaying ? 'Pause broadcast' : 'Play broadcast'} disabled={Boolean(channel?.youtubeChannelId)}>
+                {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} {channel?.youtubeChannelId ? 'Use player controls' : isPlaying ? 'Pause' : 'Play'}
               </AppButton>
               <AppButton onClick={rotate} testId="button-rotate" title="Rotate video 90 degrees"><RotateCw size={14} /> Rotate</AppButton>
               <AppButton onClick={toggleFullscreen} testId="button-fullscreen" title={isFullscreen ? 'Exit fullscreen' : 'Open fullscreen'}>
@@ -390,7 +455,12 @@ function Home() {
               <AppButton onClick={() => { reconnectAttempts.current = 0; setReconnectNonce((value) => value + 1); }} testId="button-reconnect" title="Reconnect to the current stream"><Wifi size={14} /> Reconnect</AppButton>
             </div>
             <div className="tv-monitor-foot" data-testid="display-stream-footnote">
-              <Check size={13} /> {channel ? `${channel.name} · ${channel.origin}` : 'Choose a channel to begin'} <span>•</span> HLS adaptive stream
+              <Check size={13} />{' '}
+              {channel
+                ? `${channel.name} · ${channel.origin}`
+                : 'Choose a channel to begin'}{' '}
+              <span>•</span>{' '}
+              {channel?.youtubeChannelId ? 'Official YouTube live embed — all rights with the broadcaster' : 'HLS adaptive stream'}
             </div>
           </div>
 
@@ -455,7 +525,7 @@ function Home() {
         </section>
 
         <footer className="tv-footer">
-          <span>TV AI INTERNATIONAL / BROADCAST DESK 01</span>
+          <span>TV AI KHOEM-Ai / BROADCAST DESK 01</span>
           <span><Info size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Streams use the supplied HLS test signal · Player falls back to native Safari HLS</span>
         </footer>
       </div>
