@@ -1,3 +1,4 @@
+import TrustLabel, { TrustStatus } from "./components/TrustLabel";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
