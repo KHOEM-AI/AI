@@ -49,6 +49,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      '@/pages': path.resolve(import.meta.dirname, 'src/components/pages'),
+      '@/hooks': path.resolve(import.meta.dirname, 'src/components/ui'),
+      '@/lib': path.resolve(import.meta.dirname, 'src/components/ui'),
       '@': path.resolve(import.meta.dirname, 'src'),
       '@assets': path.resolve(
         import.meta.dirname,

@@ -26,7 +26,7 @@ import {
   Wifi,
   X,
 } from 'lucide-react';
-import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+import { Link, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 type HlsLike = {
   loadSource: (source: string) => void;
@@ -67,17 +67,55 @@ type Channel = {
    *  and allows embedding. When set, we show their official YouTube
    *  embedded player instead of pulling any stream URL ourselves. */
   youtubeChannelId?: string;
+  /** True when this channel has no verified official live source yet and
+   *  is only wired to a public HLS test/demo stream. The UI must make this
+   *  obvious so nobody mistakes the demo feed for the real broadcaster. */
+  isTest?: boolean;
 };
 
 const STREAM_URL = 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8';
 const STORAGE_KEY = 'tvai_state';
 const DEFAULT_STATE: SavedState = { channel: 'cnn', volume: 50, brightness: 80, rotation: 0 };
 const CHANNELS: Channel[] = [
-  { id: 'cnn', short: 'CNN', name: 'CNN International', origin: 'United States', region: 'US' },
-  { id: 'bbc', short: 'BBC', name: 'BBC News', origin: 'United Kingdom', region: 'UK' },
+  { id: 'cnn', short: 'CNN', name: 'CNN International', origin: 'United States', region: 'US', isTest: true },
+  { id: 'bbc', short: 'BBC', name: 'BBC News', origin: 'United Kingdom', region: 'UK', isTest: true },
   { id: 'france24', short: 'F24', name: 'France 24', origin: 'France', region: 'FR', youtubeChannelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },
   { id: 'nhk', short: 'NHK', name: 'NHK World', origin: 'Japan', region: 'JP', youtubeChannelId: 'UCSPEjw8F2nQDtmUKPFNF7_A' },
+  { id: 'dw', short: 'DW', name: 'DW News', origin: 'Germany', region: 'DE', youtubeChannelId: 'UCknLrEdhRCp1aegoMqRaCZg' },
+  { id: 'aljazeera', short: 'AJE', name: 'Al Jazeera English', origin: 'Qatar', region: 'QA', youtubeChannelId: 'UCNye-wNBqNL5ZzHSJdba7Xg' },
+  { id: 'skynews', short: 'SKY', name: 'Sky News', origin: 'United Kingdom', region: 'UK', youtubeChannelId: 'UCb7sF7e_UVMKrBRpS-ZEAnQ' },
+  { id: 'arirang', short: 'ARG', name: 'Arirang News', origin: 'South Korea', region: 'KR', youtubeChannelId: 'UCF2MNNJXn5GCbxbLIoxPDEQ' },
+  { id: 'cgtn', short: 'CGT', name: 'CGTN', origin: 'China', region: 'CN', youtubeChannelId: 'UCQFiA77sHqGTFXnLKCVonqA' },
+  { id: 'abc_au', short: 'ABC', name: 'ABC News Australia', origin: 'Australia', region: 'AU', youtubeChannelId: 'UCVgO39Bk5sMo66-6o6Spn6Q' },
+  { id: 'cna', short: 'CNA', name: 'CNA', origin: 'Singapore', region: 'SG', youtubeChannelId: 'UC9owOLTTWKJFB0iM4n4Bqjg' },
+  { id: 'france24en', short: 'F24', name: 'France 24 English', origin: 'France', region: 'FR', youtubeChannelId: 'UCDmHjCHONDoqKcaIi-3V9iQ' },
   { id: 'explore', short: 'NAT', name: 'Explore Live Nature Cams', origin: 'Explore.org (non-profit)', region: 'US', youtubeChannelId: 'UC-2KSeUU5SMCX6XLRD-AEvw' },
+];
+
+type PartnerType = 'strategic' | 'sponsor' | 'technology' | 'media' | 'community';
+type PartnerStatus = 'draft' | 'pending' | 'active' | 'paused' | 'expired' | 'archived';
+
+type Partner = {
+  id: string;
+  type: PartnerType;
+  label: string;
+  icon: string;
+  description: string;
+  /** null means no live link yet — the UI must show "Coming soon", never a dead "#" link. */
+  link: string | null;
+  status: PartnerStatus;
+};
+
+// Data-driven partnership desk. Nothing here is a real partner yet — every
+// entry is a reserved, clearly-labelled placeholder. When a real partner
+// signs on, only this array needs to change (description/link/status),
+// never the rendering logic below.
+const PARTNERS: Partner[] = [
+  { id: 'strategic-1', type: 'strategic', label: 'Strategic Partner', icon: '🤝', description: 'For organizations and companies who want to collaborate.', link: null, status: 'draft' },
+  { id: 'sponsor-1', type: 'sponsor', label: 'Official Sponsor', icon: '⭐', description: 'A reserved space for future sponsors.', link: null, status: 'draft' },
+  { id: 'technology-1', type: 'technology', label: 'Technology Partner', icon: '💡', description: 'AI, cloud, and streaming technology collaboration.', link: null, status: 'draft' },
+  { id: 'media-1', type: 'media', label: 'Media Partner', icon: '🌍', description: 'Collaboration on news and content.', link: null, status: 'draft' },
+  { id: 'community-1', type: 'community', label: 'Community Supporter', icon: '❤️', description: 'For everyone who believes in this project.', link: null, status: 'draft' },
 ];
 
 const TICKER_TEXT =
@@ -166,6 +204,9 @@ function Home() {
   const [reconnectNonce, setReconnectNonce] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [sponsorSlotHidden, setSponsorSlotHidden] = useState(
+    () => typeof window !== 'undefined' && window.localStorage.getItem('tvai_sponsor_hidden') === '1'
+  );
   const videoRef = useRef<HTMLVideoElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
   const reconnectAttempts = useRef(0);
@@ -366,6 +407,10 @@ function Home() {
               Phnom Penh / local time
             </div>
             <div className="tv-live-pill"><span className="tv-live-dot" /> Desk online</div>
+            <nav style={{ display: "flex", gap: "8px", marginLeft: "14px" }} aria-label="Switch application">
+              <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" className="tv-btn">KSV</a>
+              <a href="http://localhost:5174" target="_blank" rel="noopener noreferrer" className="tv-btn">CAI</a>
+            </nav>
           </div>
         </header>
 
@@ -461,7 +506,11 @@ function Home() {
                 ? `${channel.name} · ${channel.origin}`
                 : 'Choose a channel to begin'}{' '}
               <span>•</span>{' '}
-              {channel?.youtubeChannelId ? 'Official YouTube live embed — all rights with the broadcaster' : 'HLS adaptive stream'}
+              {channel?.youtubeChannelId
+                ? 'Official YouTube live embed — all rights with the broadcaster'
+                : channel?.isTest
+                  ? 'Demo/test signal — not an official live feed from this broadcaster'
+                  : 'HLS adaptive stream'}
             </div>
           </div>
 
@@ -493,7 +542,14 @@ function Home() {
                     data-testid={`button-channel-${item.id}`}
                   >
                     <span className="tv-channel-mark">{item.short}</span>
-                    <span className="tv-channel-copy"><strong>{item.name}</strong><span>{item.origin}</span></span>
+                    <span className="tv-channel-copy">
+                      <strong>
+                        {item.name}
+                        {item.isTest ? <em className="tv-test-badge">TEST</em> : null}
+                        {item.youtubeChannelId ? <em className="tv-trust-badge">OFFICIAL</em> : null}
+                      </strong>
+                      <span>{item.isTest ? `${item.origin} · demo signal, not the live broadcast` : item.origin}</span>
+                    </span>
                     <span className={`tv-channel-live ${saved.channel === item.id ? '' : 'off'}`} aria-hidden="true" />
                   </button>
                 ))}
@@ -529,6 +585,97 @@ function Home() {
           <span>TV AI KHOEM-Ai / BROADCAST DESK 01</span>
           <span><Info size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} /> Streams use the supplied HLS test signal · Player falls back to native Safari HLS</span>
         </footer>
+
+        {!sponsorSlotHidden && (
+          <section className="tv-partnership-desk" aria-label="Partnership and support desk" data-testid="display-sponsor-slot">
+            <div className="tv-partnership-head">
+              <div>
+                <div className="tv-partnership-eyebrow">SUPPORT &amp; PARTNERSHIP</div>
+                <h2>Help us build a better international family media platform.</h2>
+              </div>
+              <AppButton
+                testId="button-sponsor-hide"
+                onClick={() => {
+                  setSponsorSlotHidden(true);
+                  window.localStorage.setItem('tvai_sponsor_hidden', '1');
+                }}
+              >
+                Hide
+              </AppButton>
+            </div>
+
+            <div className="tv-partnership-grid">
+              {PARTNERS.map((partner) => (
+                <div key={partner.id} className="tv-partnership-card" data-testid={`card-partner-${partner.id}`}>
+                  <span className="tv-partnership-icon" aria-hidden="true">{partner.icon}</span>
+                  <strong>{partner.label}</strong>
+                  <span>{partner.description}</span>
+                  <span className="tv-partnership-status">{partner.link ? <a href={partner.link}>Visit</a> : 'Coming soon'}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="tv-partnership-foot">
+              <span>Interested in supporting KHOEM_AI TV?</span>
+              <div className="tv-partnership-actions">
+                <Link href="/partner">
+                  <AppButton testId="button-become-partner" onClick={() => {}}>Become a Partner</AppButton>
+                </Link>
+                <AppButton testId="button-contact-us" onClick={() => {}} disabled>Contact</AppButton>
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function PartnerPage() {
+  return (
+    <main className="tv-app">
+      <div className="tv-shell">
+        <header className="tv-header">
+          <div className="tv-brand" data-testid="display-brand">
+            <div className="tv-brand-mark" aria-hidden="true"><Radio size={18} strokeWidth={1.7} /></div>
+            <div>
+              <div className="tv-brand-name">TV AI KHOEM-Ai</div>
+              <div className="tv-brand-sub">Partnership &amp; Support</div>
+            </div>
+          </div>
+          <Link href="/">
+            <AppButton testId="button-back-to-tv" onClick={() => {}}><X size={14} /> Back to TV</AppButton>
+          </Link>
+        </header>
+
+        <section className="tv-partner-page">
+          <div className="tv-eyebrow">SUPPORT &amp; PARTNERSHIP</div>
+          <h1>Why partner with KHOEM_AI TV?</h1>
+          <p>
+            KHOEM_AI TV is an independent, family-run international news desk. We only use official,
+            openly embeddable sources and we never claim ownership of a broadcaster&rsquo;s content. If your
+            organization shares that spirit, we&rsquo;d welcome the conversation.
+          </p>
+
+          <div className="tv-partner-types">
+            {PARTNERS.map((partner) => (
+              <div key={partner.id} className="tv-partner-type-card">
+                <span className="tv-partnership-icon" aria-hidden="true">{partner.icon}</span>
+                <strong>{partner.label}</strong>
+                <span>{partner.description}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="tv-partner-contact">
+            <h2>Get in touch</h2>
+            <p>This project does not yet have a public contact channel configured. Check back soon.</p>
+          </div>
+        </section>
+
+        <footer className="tv-footer">
+          <span>TV AI KHOEM-Ai / BROADCAST DESK 01</span>
+        </footer>
       </div>
     </main>
   );
@@ -541,6 +688,7 @@ function Router() {
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/partner" component={PartnerPage} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>

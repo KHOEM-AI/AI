@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function AI TV KHOEM-AISection() {
+export default function AISection() {
   return (
     <main style={{ padding: 20 }}>
       <h1>AI TV KHOEM-AI</h1>
