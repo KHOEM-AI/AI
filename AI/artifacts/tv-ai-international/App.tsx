@@ -80,14 +80,6 @@ const CHANNELS: Channel[] = [
   { id: 'bbc', short: 'BBC', name: 'BBC News', origin: 'United Kingdom', region: 'UK', isTest: true },
   { id: 'france24', short: 'F24', name: 'France 24', origin: 'France', region: 'FR', youtubeChannelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },
   { id: 'nhk', short: 'NHK', name: 'NHK World', origin: 'Japan', region: 'JP', youtubeChannelId: 'UCSPEjw8F2nQDtmUKPFNF7_A' },
-  { id: 'dw', short: 'DW', name: 'DW News', origin: 'Germany', region: 'DE', youtubeChannelId: 'UCknLrEdhRCp1aegoMqRaCZg' },
-  { id: 'aljazeera', short: 'AJE', name: 'Al Jazeera English', origin: 'Qatar', region: 'QA', youtubeChannelId: 'UCNye-wNBqNL5ZzHSJdba7Xg' },
-  { id: 'skynews', short: 'SKY', name: 'Sky News', origin: 'United Kingdom', region: 'UK', youtubeChannelId: 'UCb7sF7e_UVMKrBRpS-ZEAnQ' },
-  { id: 'arirang', short: 'ARG', name: 'Arirang News', origin: 'South Korea', region: 'KR', youtubeChannelId: 'UCF2MNNJXn5GCbxbLIoxPDEQ' },
-  { id: 'cgtn', short: 'CGT', name: 'CGTN', origin: 'China', region: 'CN', youtubeChannelId: 'UCQFiA77sHqGTFXnLKCVonqA' },
-  { id: 'abc_au', short: 'ABC', name: 'ABC News Australia', origin: 'Australia', region: 'AU', youtubeChannelId: 'UCVgO39Bk5sMo66-6o6Spn6Q' },
-  { id: 'cna', short: 'CNA', name: 'CNA', origin: 'Singapore', region: 'SG', youtubeChannelId: 'UC9owOLTTWKJFB0iM4n4Bqjg' },
-  { id: 'france24en', short: 'F24', name: 'France 24 English', origin: 'France', region: 'FR', youtubeChannelId: 'UCDmHjCHONDoqKcaIi-3V9iQ' },
   { id: 'explore', short: 'NAT', name: 'Explore Live Nature Cams', origin: 'Explore.org (non-profit)', region: 'US', youtubeChannelId: 'UC-2KSeUU5SMCX6XLRD-AEvw' },
 ];
 
@@ -406,10 +398,6 @@ function Home() {
               Phnom Penh / local time
             </div>
             <div className="tv-live-pill"><span className="tv-live-dot" /> Desk online</div>
-            <nav style={{ display: "flex", gap: "8px", marginLeft: "14px" }} aria-label="Switch application">
-              <a href="http://localhost:5173" target="_blank" rel="noopener noreferrer" className="tv-btn">KSV</a>
-              <a href="http://localhost:5174" target="_blank" rel="noopener noreferrer" className="tv-btn">CAI</a>
-            </nav>
           </div>
         </header>
 
