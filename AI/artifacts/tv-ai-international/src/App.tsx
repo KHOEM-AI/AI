@@ -81,12 +81,12 @@ const CHANNELS: Channel[] = [
   { id: 'france24', short: 'F24', name: 'France 24', origin: 'France', region: 'FR', youtubeChannelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },
   { id: 'nhk', short: 'NHK', name: 'NHK World', origin: 'Japan', region: 'JP', youtubeChannelId: 'UCSPEjw8F2nQDtmUKPFNF7_A' },
   { id: 'dw', short: 'DW', name: 'DW News', origin: 'Germany', region: 'DE', youtubeChannelId: 'UCknLrEdhRCp1aegoMqRaCZg' },
-  { id: 'aljazeera', short: 'AJE', name: 'Al Jazeera English', origin: 'Qatar', region: 'QA', youtubeChannelId: 'UCNye-wNBqNL5ZzHSJdba7Xg' },
-  { id: 'skynews', short: 'SKY', name: 'Sky News', origin: 'United Kingdom', region: 'UK', youtubeChannelId: 'UCb7sF7e_UVMKrBRpS-ZEAnQ' },
-  { id: 'arirang', short: 'ARG', name: 'Arirang News', origin: 'South Korea', region: 'KR', youtubeChannelId: 'UCF2MNNJXn5GCbxbLIoxPDEQ' },
-  { id: 'cgtn', short: 'CGT', name: 'CGTN', origin: 'China', region: 'CN', youtubeChannelId: 'UCQFiA77sHqGTFXnLKCVonqA' },
+  { id: 'aljazeera', short: 'AJE', name: 'Al Jazeera English', origin: 'Qatar', region: 'QA', youtubeChannelId: 'UCNye-wNBqNL5ZzHSJj3l8Bg' },
+  { id: 'skynews', short: 'SKY', name: 'Sky News', origin: 'United Kingdom', region: 'UK', youtubeChannelId: 'UCoMdktPbSTixAyNGwb-UYkQ' },
+  { id: 'arirang', short: 'ARG', name: 'Arirang News', origin: 'South Korea', region: 'KR', youtubeChannelId: 'UCzzno4xsv8bknubpyswtcuw' },
+  { id: 'cgtn', short: 'CGT', name: 'CGTN', origin: 'China', region: 'CN', youtubeChannelId: 'UCgrNz-aDmcr2uuto8_DL2jg' },
   { id: 'abc_au', short: 'ABC', name: 'ABC News Australia', origin: 'Australia', region: 'AU', youtubeChannelId: 'UCVgO39Bk5sMo66-6o6Spn6Q' },
-  { id: 'cna', short: 'CNA', name: 'CNA', origin: 'Singapore', region: 'SG', youtubeChannelId: 'UC9owOLTTWKJFB0iM4n4Bqjg' },
+  { id: 'cna', short: 'CNA', name: 'CNA', origin: 'Singapore', region: 'SG', youtubeChannelId: 'UC83jt4dlz1Gjl58fzQrrKZg' },
   { id: 'france24en', short: 'F24', name: 'France 24 English', origin: 'France', region: 'FR', youtubeChannelId: 'UCDmHjCHONDoqKcaIi-3V9iQ' },
   { id: 'explore', short: 'NAT', name: 'Explore Live Nature Cams', origin: 'Explore.org (non-profit)', region: 'US', youtubeChannelId: 'UC-2KSeUU5SMCX6XLRD-AEvw' },
 ];
@@ -370,10 +370,8 @@ function Home() {
     else videoRef.current.pause();
   };
   const rotate = () => updateSaved({ rotation: (saved.rotation + 90) % 360 });
-  const toggleFullscreen = async () => {
-    if (!screenRef.current) return;
-    if (document.fullscreenElement) await document.exitFullscreen?.();
-    else await screenRef.current.requestFullscreen?.();
+  const toggleFullscreen = () => {
+    setIsFullscreen((v) => !v);
   };
   const reset = () => {
     window.localStorage.removeItem(STORAGE_KEY);
@@ -388,6 +386,22 @@ function Home() {
   };
   const rotationClass = saved.rotation === 90 ? 'is-rotated' : saved.rotation === 180 ? 'is-rotated-180' : saved.rotation === 270 ? 'is-rotated-270' : '';
   const volumeIcon = saved.volume === 0 ? <VolumeX size={14} /> : <Volume2 size={14} />;
+
+  // Memoize YouTube iframe — it must NOT reload on volume/fullscreen/rotate.
+  const youtubePlayer = useMemo(() => {
+    if (!channel?.youtubeChannelId) return null;
+    return (
+      <iframe
+        className={`tv-video tv-youtube-embed ${rotationClass}`}
+        src={`https://www.youtube.com/embed/live_stream?channel=${channel.youtubeChannelId}`}
+        title={`${channel.name} \u2014 official live stream`}
+        data-testid="video-player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        frameBorder={0}
+      />
+    );
+  }, [channel?.youtubeChannelId, channel?.name, rotationClass]);
 
   return (
     <main className="tv-app">
@@ -439,20 +453,12 @@ function Home() {
               <div className={`tv-status-pill ${statusMeta.tone}`} data-testid="status-connection"><span className="tv-live-dot" /> {statusMeta.label}</div>
             </div>
             <div
-              className={`tv-screen ${status === 'connecting' || status === 'buffering' || status === 'reconnecting' ? 'is-loading' : ''}`}
+              className={`tv-screen ${status === 'connecting' || status === 'buffering' || status === 'reconnecting' ? 'is-loading' : ''} ${isFullscreen ? 'is-expanded' : ''}`}
               ref={screenRef}
               data-testid="display-live-screen"
             >
               {channel?.youtubeChannelId ? (
-                <iframe
-                  className={`tv-video tv-youtube-embed ${rotationClass}`}
-                  src={`https://www.youtube.com/embed/live_stream?channel=${channel.youtubeChannelId}&autoplay=1&mute=${saved.volume === 0 ? 1 : 0}`}
-                  title={`${channel.name} — official live stream`}
-                  data-testid="video-player"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  frameBorder={0}
-                />
+                youtubePlayer
               ) : (
                 <video
                   ref={videoRef}
@@ -487,6 +493,7 @@ function Home() {
                   <span className="tv-status-pill status-live"><span className="tv-live-dot" /> Official YouTube live</span>
                 </div>
               )}
+                <div className="tv-brightness-overlay" style={{ opacity: ((100 - saved.brightness) / 100) * 0.75 }} />
             </div>
             <div className="tv-screen-actions">
               <AppButton className="primary" onClick={togglePlayback} testId="button-play-toggle" title={isPlaying ? 'Pause broadcast' : 'Play broadcast'} disabled={Boolean(channel?.youtubeChannelId)}>

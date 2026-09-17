@@ -168,7 +168,7 @@
 .tv-monitor-top { min-height: 41px; display: flex; align-items: center; justify-content: space-between; padding: 0 5px 10px; }
 .tv-monitor-title { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 700; color: #e2e8e7; }
 .tv-monitor-title small { color: hsl(var(--muted-foreground)); font-family: var(--app-font-mono); font-size: 9px; font-weight: 400; letter-spacing: .08em; }
-.tv-screen { position: relative; aspect-ratio: 16 / 9; min-height: 290px; background: #071016; border-radius: 11px; overflow: hidden; border: 1px solid rgba(229, 237, 235, .12); display: flex; align-items: center; justify-content: center; filter: brightness(var(--tv-brightness, 80%)); }
+.tv-screen { position: relative; aspect-ratio: 16 / 9; min-height: 290px; background: #071016; border-radius: 11px; overflow: hidden; border: 1px solid rgba(229, 237, 235, .12); display: flex; align-items: center; justify-content: center; /* brightness via overlay (performance) */ }
 .tv-screen::after { content: ''; pointer-events: none; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.035), transparent 14%, transparent 84%, rgba(0,0,0,.2)); z-index: 2; }
 .tv-screen.is-loading::before { content: ''; pointer-events: none; position: absolute; top: -100%; left: 0; right: 0; height: 45%; background: linear-gradient(transparent, rgba(107, 207, 184, .07), transparent); animation: tv-scan 2.2s linear infinite; z-index: 3; }
 .tv-video { width: 100%; height: 100%; object-fit: contain; background: #071016; transition: transform .35s ease, opacity .35s ease; }
@@ -463,4 +463,345 @@
   .tv-intro h1 {
     font-size: 22px;
   }
+}
+
+/* Brightness overlay — GPU accelerated, replaces filter on iframe */
+.tv-brightness-overlay {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.15s ease;
+}
+
+/* ===== Performance overrides (mobile smooth) ===== */
+.tv-panel { backdrop-filter: blur(4px) !important; }
+.tv-screen-status { backdrop-filter: none !important; }
+.tv-header { backdrop-filter: blur(4px) !important; }
+
+/* GPU acceleration for animated elements */
+.tv-ticker-track { will-change: transform; }
+.tv-screen { will-change: contents; contain: layout style paint; }
+.tv-channel-card { will-change: transform; }
+
+/* Reduce transition cost */
+.tv-btn, .tv-channel-card { transition-duration: 0.1s !important; }
+
+/* Reduce ticker work */
+.tv-ticker-track { animation-duration: 60s !important; }
+
+/* ===== AGGGRESSIVE PERF: remove heavy visual effects ===== */
+
+/* បិទ blur ទាំងអស់ */
+.tv-panel,
+.tv-header,
+.tv-screen-status,
+.tv-status-pill,
+.tv-partnership-card,
+.tv-channel-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* បិទ box-shadow ធំ */
+.tv-panel {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+.tv-btn,
+.tv-channel-card {
+  box-shadow: none !important;
+}
+
+/* បិទ animation ទាំងអស់ លើកលែង ticker */
+* {
+  animation-duration: 0.01s !important;
+  animation-iteration-count: 1 !important;
+}
+.tv-ticker-track {
+  animation-duration: 90s !important;
+  animation-iteration-count: infinite !important;
+}
+
+/* Transition ខ្លីបំផុត */
+* {
+  transition-duration: 0.05s !important;
+}
+
+/* Content-visibility សម្រាប់ list វែង */
+.tv-channel-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 60px;
+}
+
+/* បិទ gradient ធ្ងន់ */
+.tv-app {
+  background: #0a0f14 !important;
+}
+
+/* Scroll smooth តែមិនធ្ងន់ */
+html { scroll-behavior: auto; }
+
+/* ============================================================================
+   UNIVERSAL COMPATIBILITY LAYER
+   Works on ALL devices: phones, tablets, TVs, desktops, any brand, any country.
+   All FEATURES stay enabled. Only VISUAL EFFECTS adapt automatically.
+   ============================================================================ */
+
+/* ---- 1. Detect low-power devices automatically ---- */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01s !important; transition-duration: 0.01s !important; }
+}
+
+/* ---- 2. Small screens (any phone, any brand) ---- */
+@media (max-width: 768px) {
+  .tv-panel, .tv-header {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .tv-screen-status, .tv-status-pill {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .tv-screen, .tv-ticker-track, .tv-channel-card {
+    will-change: auto !important;
+  }
+  .tv-ticker-track { animation-duration: 120s !important; }
+  .tv-panel { box-shadow: 0 1px 2px rgba(0,0,0,0.4) !important; }
+}
+
+/* ---- 3. Large screens: TV, desktop, laptop ---- */
+@media (min-width: 1200px) {
+  .tv-panel { backdrop-filter: blur(16px) !important; -webkit-backdrop-filter: blur(16px) !important; }
+  .tv-ticker-track { animation-duration: 45s !important; }
+}
+
+/* ---- 4. Touch devices (phones + tablets): better tap targets ---- */
+@media (hover: none) and (pointer: coarse) {
+  .tv-btn { min-height: 44px; padding: 12px 16px; }
+  .tv-channel-card { min-height: 60px; }
+  .tv-range { height: 28px; }
+}
+
+/* ---- 5. Keyboard / TV remote navigation ---- */
+.tv-btn:focus-visible,
+.tv-channel-card:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* ---- 6. Iframe isolation: prevents layout thrash on any device ---- */
+.tv-video, .tv-youtube-embed {
+  contain: strict;
+  transform: translateZ(0);
+}
+
+/* ---- 7. Channel list: virtualize rendering (all devices) ---- */
+.tv-channel-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 60px;
+}
+
+/* ---- 8. RTL & i18n safe ---- */
+.tv-app { direction: ltr; }
+[dir="rtl"] .tv-app { direction: rtl; }
+
+/* ---- 9. Old browser fallback (any country, old Android/iOS) ---- */
+@supports not (aspect-ratio: 16 / 9) {
+  .tv-screen { height: 0; padding-bottom: 56.25%; }
+}
+
+/* ===== FULLSCREEN: video fills the entire screen ===== */
+.tv-screen:fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: #000 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.tv-screen:fullscreen .tv-video,
+.tv-screen:fullscreen iframe,
+.tv-screen:fullscreen video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+/* Hide controls overlay in fullscreen */
+.tv-screen:fullscreen .tv-screen-actions,
+.tv-screen:fullscreen .tv-screen-status {
+  display: none !important;
+}
+
+/* Safari fallback */
+.tv-screen:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  aspect-ratio: auto !important;
+  background: #000 !important;
+}
+
+/* ===== CSS-only fullscreen (instant, no browser transition) ===== */
+.tv-screen.is-expanded {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  aspect-ratio: auto !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: #000 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.tv-screen.is-expanded .tv-video,
+.tv-screen.is-expanded iframe,
+.tv-screen.is-expanded video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+/* Prevent body scroll when expanded */
+body:has(.tv-screen.is-expanded) {
+  overflow: hidden !important;
+}
+
+/* ============================================================================
+   TV / SMART TV SUPPORT
+   - Large screens: bigger text, bigger buttons, bigger focus rings
+   - Remote control: clear focus indicators for arrow-key navigation
+   - All features stay enabled
+   ============================================================================ */
+
+/* ---- Large screens: TV, 4K, projectors ---- */
+@media (min-width: 1400px) {
+  .tv-shell { max-width: 1600px; margin: 0 auto; }
+  .tv-brand-name { font-size: 22px; }
+  .tv-brand-sub { font-size: 13px; }
+  .tv-intro h1 { font-size: 48px; }
+  .tv-intro p { font-size: 17px; }
+  .tv-channel-copy strong { font-size: 15px; }
+  .tv-channel-copy span { font-size: 13px; }
+  .tv-channel-card { min-height: 72px; padding: 14px; }
+  .tv-btn { font-size: 15px; padding: 12px 18px; min-height: 48px; }
+  .tv-monitor-title { font-size: 15px; }
+  .tv-side-heading h2 { font-size: 18px; }
+  .tv-control-label { font-size: 15px; }
+}
+
+/* ---- Ultra-wide: very large TV ---- */
+@media (min-width: 1920px) {
+  .tv-shell { max-width: 1800px; }
+  .tv-intro h1 { font-size: 56px; }
+  .tv-channel-copy strong { font-size: 16px; }
+}
+
+/* ---- TV remote / keyboard navigation: strong focus ring ---- */
+.tv-btn:focus-visible,
+.tv-channel-card:focus-visible,
+.tv-range:focus-visible,
+select:focus-visible {
+  outline: 3px solid hsl(var(--primary)) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(255, 200, 100, 0.25) !important;
+}
+
+/* ---- Auto-focus first channel on load (visual hint) ---- */
+.tv-channel-card:focus {
+  background: rgba(255, 200, 100, 0.08);
+}
+
+/* ---- Prevent overscroll bounce on TV browsers ---- */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* ---- TV browsers: disable hover states (no mouse) ---- */
+@media (hover: none) {
+  .tv-btn:hover { transform: none; }
+  .tv-channel-card:hover { transform: none; }
+}
+
+/* ---- Old TV browsers: fallback for grid ---- */
+@supports not (display: grid) {
+  .tv-layout { display: flex; flex-wrap: wrap; gap: 16px; }
+  .tv-monitor-panel { flex: 1 1 60%; }
+  .tv-side { flex: 1 1 30%; }
+}
+
+/* ============================================================================
+   TV / SMART TV SUPPORT
+   - Large screens: bigger text, bigger buttons, bigger focus rings
+   - Remote control: clear focus indicators for arrow-key navigation
+   - All features stay enabled
+   ============================================================================ */
+
+/* ---- Large screens: TV, 4K, projectors ---- */
+@media (min-width: 1400px) {
+  .tv-shell { max-width: 1600px; margin: 0 auto; }
+  .tv-brand-name { font-size: 22px; }
+  .tv-brand-sub { font-size: 13px; }
+  .tv-intro h1 { font-size: 48px; }
+  .tv-intro p { font-size: 17px; }
+  .tv-channel-copy strong { font-size: 15px; }
+  .tv-channel-copy span { font-size: 13px; }
+  .tv-channel-card { min-height: 72px; padding: 14px; }
+  .tv-btn { font-size: 15px; padding: 12px 18px; min-height: 48px; }
+  .tv-monitor-title { font-size: 15px; }
+  .tv-side-heading h2 { font-size: 18px; }
+  .tv-control-label { font-size: 15px; }
+}
+
+/* ---- Ultra-wide: very large TV ---- */
+@media (min-width: 1920px) {
+  .tv-shell { max-width: 1800px; }
+  .tv-intro h1 { font-size: 56px; }
+  .tv-channel-copy strong { font-size: 16px; }
+}
+
+/* ---- TV remote / keyboard navigation: strong focus ring ---- */
+.tv-btn:focus-visible,
+.tv-channel-card:focus-visible,
+.tv-range:focus-visible,
+select:focus-visible {
+  outline: 3px solid hsl(var(--primary)) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(255, 200, 100, 0.25) !important;
+}
+
+/* ---- Auto-focus first channel on load (visual hint) ---- */
+.tv-channel-card:focus {
+  background: rgba(255, 200, 100, 0.08);
+}
+
+/* ---- Prevent overscroll bounce on TV browsers ---- */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* ---- TV browsers: disable hover states (no mouse) ---- */
+@media (hover: none) {
+  .tv-btn:hover { transform: none; }
+  .tv-channel-card:hover { transform: none; }
+}
+
+/* ---- Old TV browsers: fallback for grid ---- */
+@supports not (display: grid) {
+  .tv-layout { display: flex; flex-wrap: wrap; gap: 16px; }
+  .tv-monitor-panel { flex: 1 1 60%; }
+  .tv-side { flex: 1 1 30%; }
 }
