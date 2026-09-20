@@ -561,8 +561,8 @@ body::after {
 
 /* ===== LOGO IMAGE + BIGGER CLEAR BUTTON ===== */
 .app__brand-mark {
-  width: 58px !important;
-  height: 58px !important;
+  width: 64px !important;
+  height: 64px !important;
   padding: 0 !important;
   overflow: hidden;
   background: #fff !important;
@@ -583,3 +583,26 @@ body::after {
 }
 
 .app__logo { object-fit: contain !important; padding: 2px; }
+
+.app__brand-mark {
+  -webkit-text-fill-color: #fff !important;
+  color: #fff !important;
+  font-size: 34px !important;
+  font-weight: 800;
+}
+
+/* ===== FINAL LOGO (image, transparent) ===== */
+.app__brand-mark {
+  width: 84px !important;
+  height: 72px !important;
+  font-size: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+.app__logo {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
