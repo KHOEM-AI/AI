@@ -641,3 +641,21 @@ body::after {
 .app__logo {
   filter: drop-shadow(0 0 5px rgba(56,189,248,.9)) drop-shadow(0 4px 4px rgba(0,0,0,.8)) !important;
 }
+
+/* ===== LOGO: sky-blue frame like the "hi" bubbles ===== */
+.app__brand-mark {
+  width: 96px !important;
+  height: 84px !important;
+  padding: 6px !important;
+  background: linear-gradient(145deg, #1b1b1f, #050507) !important;
+  border: 1px solid #38bdf8 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 0 14px rgba(56,189,248,.6), inset 0 0 10px rgba(56,189,248,.18) !important;
+  overflow: hidden !important;
+}
+.app__logo {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.7)) !important;
+}
