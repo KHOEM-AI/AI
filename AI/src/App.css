@@ -665,3 +665,43 @@ body::after {
   height: 100px !important;
   padding: 4px !important;
 }
+
+.app__brand-mark {
+  width: 100px !important;
+  height: 86px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.app__logo {
+  filter: drop-shadow(0 0 2px #7dd3fc) drop-shadow(0 0 5px rgba(56,189,248,.7)) !important;
+}
+
+.app__brand-mark {
+  width: 100px !important;
+  height: 86px !important;
+  padding: 8px !important;
+  background: linear-gradient(145deg, #1b1b1f, #050507) !important;
+  border: 2px solid #38bdf8 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 0 14px rgba(56,189,248,.6) !important;
+  overflow: hidden !important;
+}
+.app__logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: #38bdf8 !important;
+  filter: none !important;
+  -webkit-mask: url(/logo.png) center / contain no-repeat !important;
+  mask: url(/logo.png) center / contain no-repeat !important;
+}
+
+/* ===== GATE ===== */
+.gate { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 60px; gap: 18px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.gate__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.gate__eye { position: absolute; top: 50%; left: 50%; width: 130px; transform: translate(-50%, -50%); filter: drop-shadow(0 0 10px #38bdf8); }
+.gate__count { position: relative; font-size: 56px; font-weight: 800; color: #38bdf8; text-shadow: 0 0 14px #38bdf8; }
+.gate__btn { position: relative; touch-action: none; padding: 18px 34px; font-size: 18px; font-weight: 700; color: #04121c; background: linear-gradient(145deg, #bae6fd, #38bdf8, #0ea5e9); border: 1px solid #7dd3fc; border-radius: 18px; box-shadow: 0 0 20px rgba(56,189,248,.7); }
