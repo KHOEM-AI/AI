@@ -28,7 +28,7 @@ export default function App() {
       <header className="app__header">
         <div className="app__brand">
           <span className="app__brand-mark">K</span>
-          <span className="app__brand-name">𝒦𝒽𝑜𝑒𝓂 𝒮𝑜𝓀𝓈𝒾𝓋𝓊𝓉𝒽𝒶 AI</span>
+          <span className="app__brand-name">𝒦𝒽𝑜𝑒𝓂 𝒮𝑜𝓀𝓈𝒾𝓋𝓊𝓉𝒽𝒶</span>
         </div>
         {messages.length > 0 && (
           <button className="app__clear" onClick={clearConversation}>
