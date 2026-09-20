@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import App from "./App";
 
 type Seg = { x1: number; y1: number; x2: number; y2: number; c: string; w: number; t: number };
-const COLORS = ["#ffffff", "#38bdf8", "#ff5fa2", "#ffd93b", "#a78bfa", "#34d399", "#ff5f5f"];
+const COLORS = ["#4ade80", "#2dd4bf", "#38bdf8", "#a78bfa", "#f9a8d4", "#fbbf24"];
 const Q = Math.PI / 4;
 const N = 168;
 const pick = () => COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -61,7 +61,7 @@ export default function Gate() {
       ctx.strokeStyle = s.c;
       ctx.lineWidth = s.w;
       ctx.shadowColor = s.c;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 5;
       ctx.beginPath();
       ctx.moveTo(s.x1, s.y1);
       ctx.lineTo(s.x2, s.y2);
