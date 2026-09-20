@@ -715,3 +715,5 @@ body::after {
   45% { transform: translate(-50%, -50%) scale(1.12); }
   60% { transform: translate(-50%, -50%) scale(1); }
 }
+
+.gate__logo { width: 170px !important; filter: drop-shadow(0 0 12px rgba(56,189,248,.8)) !important; animation: none !important; transform: translate(-50%, -50%) !important; }
