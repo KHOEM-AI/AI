@@ -3,3 +3,6 @@ dist/
 .env
 *.backup
 server.mjs.before-*
+src/*.before-*
+src/ai/*.before-*
+src/*.black3d-small
