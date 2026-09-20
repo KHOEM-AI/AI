@@ -486,3 +486,75 @@ textarea {
     border-radius: 14px;
   }
 }
+
+/* ===== STARS + SKY BLUE THEME ===== */
+html, body { background: #000 !important; }
+
+#root { position: relative; z-index: 1; }
+#root .app, #root .app__body { background: transparent !important; }
+
+body::before, body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::before {
+  background-image:
+    radial-gradient(2px 2px at 8% 12%, #ffffff, transparent),
+    radial-gradient(2px 2px at 22% 38%, #38bdf8, transparent),
+    radial-gradient(3px 3px at 35% 8%, #ff5fa2, transparent),
+    radial-gradient(2px 2px at 48% 55%, #ffd93b, transparent),
+    radial-gradient(2px 2px at 63% 20%, #ffffff, transparent),
+    radial-gradient(3px 3px at 78% 42%, #a78bfa, transparent),
+    radial-gradient(2px 2px at 90% 15%, #38bdf8, transparent),
+    radial-gradient(2px 2px at 12% 72%, #ffd93b, transparent),
+    radial-gradient(3px 3px at 30% 88%, #ffffff, transparent),
+    radial-gradient(2px 2px at 55% 80%, #ff5fa2, transparent),
+    radial-gradient(2px 2px at 72% 68%, #38bdf8, transparent),
+    radial-gradient(3px 3px at 92% 85%, #ffffff, transparent);
+  animation: twinkleA 2.4s ease-in-out infinite;
+}
+
+body::after {
+  background-image:
+    radial-gradient(2px 2px at 5% 45%, #ffd93b, transparent),
+    radial-gradient(3px 3px at 16% 22%, #38bdf8, transparent),
+    radial-gradient(2px 2px at 27% 62%, #ffffff, transparent),
+    radial-gradient(2px 2px at 41% 30%, #a78bfa, transparent),
+    radial-gradient(3px 3px at 58% 10%, #ffd93b, transparent),
+    radial-gradient(2px 2px at 68% 92%, #ff5fa2, transparent),
+    radial-gradient(2px 2px at 82% 58%, #ffffff, transparent),
+    radial-gradient(3px 3px at 95% 32%, #38bdf8, transparent),
+    radial-gradient(2px 2px at 44% 95%, #a78bfa, transparent),
+    radial-gradient(2px 2px at 3% 92%, #ffffff, transparent);
+  animation: twinkleB 3.1s ease-in-out infinite;
+}
+
+@keyframes twinkleA { 0%,100% { opacity: .15; } 50% { opacity: 1; } }
+@keyframes twinkleB { 0%,100% { opacity: 1; } 50% { opacity: .15; } }
+
+/* Send button: sky blue */
+.composer__send {
+  color: #04121c !important;
+  background: linear-gradient(145deg, #bae6fd 0%, #38bdf8 45%, #0ea5e9 100%) !important;
+  border: 1px solid #7dd3fc !important;
+  box-shadow:
+    0 0 18px rgba(56,189,248,.65),
+    inset 2px 2px 3px rgba(255,255,255,.7),
+    inset -3px -3px 6px rgba(0,80,140,.35) !important;
+}
+
+/* Sky blue glow on both sides of the input and bubbles */
+.composer__input {
+  border: 1px solid #38bdf8 !important;
+  box-shadow: 0 0 14px rgba(56,189,248,.45), inset 5px 5px 12px rgba(0,0,0,.7) !important;
+}
+.composer__input:focus {
+  border-color: #7dd3fc !important;
+  box-shadow: 0 0 22px rgba(56,189,248,.8), inset 5px 5px 12px rgba(0,0,0,.7) !important;
+}
+.bubble { border: 1px solid #38bdf8 !important; box-shadow: 0 0 12px rgba(56,189,248,.4) !important; }
+.empty-state { border: 1px solid #38bdf8 !important; box-shadow: 0 0 20px rgba(56,189,248,.35) !important; }
