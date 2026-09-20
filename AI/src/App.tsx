@@ -27,7 +27,7 @@ export default function App() {
     <div className="app">
       <header className="app__header">
         <div className="app__brand">
-          <span className="app__brand-mark">K</span>
+          <span className="app__brand-mark"><img src="/logo.png" alt="logo" className="app__logo" /></span>
           <span className="app__brand-name">𝒦𝒽𝑜𝑒𝓂  𝒶𝒾</span>
         </div>
         {messages.length > 0 && (
