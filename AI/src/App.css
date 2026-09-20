@@ -593,8 +593,8 @@ body::after {
 
 /* ===== FINAL LOGO (image, transparent) ===== */
 .app__brand-mark {
-  width: 84px !important;
-  height: 72px !important;
+  width: 100px !important;
+  height: 86px !important;
   font-size: 0 !important;
   background: transparent !important;
   background-image: none !important;
