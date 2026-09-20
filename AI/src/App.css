@@ -659,3 +659,9 @@ body::after {
   object-fit: contain !important;
   filter: drop-shadow(0 2px 3px rgba(0,0,0,.7)) !important;
 }
+
+.app__brand-mark {
+  width: 118px !important;
+  height: 100px !important;
+  padding: 4px !important;
+}
