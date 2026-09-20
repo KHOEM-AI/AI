@@ -1,0 +1,83 @@
+import { useEffect, useRef, useState } from "react";
+import { useChat } from "./hooks/useChat";
+
+export default function App() {
+  const { messages, isSending, error, sendMessage, clearConversation } = useChat();
+  const [input, setInput] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, isSending]);
+
+  function handleSend() {
+    if (!input.trim()) return;
+    sendMessage(input);
+    setInput("");
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
+
+  return (
+    <div className="app">
+      <header className="app__header">
+        <div className="app__brand">
+          <span className="app__brand-mark">AI</span>
+          <span className="app__brand-name">ជំនួយការ AI</span>
+        </div>
+        {messages.length > 0 && (
+          <button className="app__clear" onClick={clearConversation}>
+            សម្អាតការសន្ទនា
+          </button>
+        )}
+      </header>
+
+      <main className="app__body" ref={scrollRef}>
+        {messages.length === 0 && (
+          <div className="empty-state">
+            <p className="empty-state__title">ចាប់ផ្ដើមសន្ទនាជាមួយ AI</p>
+            <p className="empty-state__hint">សរសេរសំណួរខាងក្រោម ហើយចុច Enter ដើម្បីផ្ញើ</p>
+          </div>
+        )}
+
+        {messages.map((m) => (
+          <div key={m.id} className={`bubble bubble--${m.role}`}>
+            <div className="bubble__text">{m.text}</div>
+          </div>
+        ))}
+
+        {isSending && (
+          <div className="bubble bubble--assistant bubble--pending">
+            <div className="bubble__text">កំពុងគិត…</div>
+          </div>
+        )}
+
+        {error && <div className="error-banner">{error}</div>}
+      </main>
+
+      <footer className="app__composer">
+        <textarea
+          className="composer__input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="សរសេរសំណួររបស់អ្នកនៅទីនេះ..."
+          rows={1}
+        />
+        <button
+          className="composer__send"
+          onClick={handleSend}
+          disabled={isSending || !input.trim()}
+          aria-label="ផ្ញើសារ"
+        >
+          ផ្ញើ
+        </button>
+      </footer>
+    </div>
+  );
+}
