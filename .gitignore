@@ -1,1 +1,5 @@
-
+node_modules/
+dist/
+.env
+*.backup
+server.mjs.before-*
