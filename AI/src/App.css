@@ -615,12 +615,29 @@ body::after {
 }
 .app__logo {
   filter:
-    drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff)
-    drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
-    drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000)
-    drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000)
-    drop-shadow(2px 0 0 #38bdf8) drop-shadow(-2px 0 0 #38bdf8)
-    drop-shadow(0 2px 0 #38bdf8) drop-shadow(0 -2px 0 #38bdf8)
+    drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff)
+    drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff)
+    drop-shadow(3px 0 0 #000) drop-shadow(-3px 0 0 #000)
+    drop-shadow(0 3px 0 #000) drop-shadow(0 -3px 0 #000)
+    drop-shadow(3px 0 0 #38bdf8) drop-shadow(-3px 0 0 #38bdf8)
+    drop-shadow(0 3px 0 #38bdf8) drop-shadow(0 -3px 0 #38bdf8)
     drop-shadow(0 0 8px rgba(56,189,248,.9))
     drop-shadow(0 7px 6px rgba(0,0,0,.85)) !important;
+}
+
+/* ===== LOGO FIX: thin outline, clear letters ===== */
+.app__brand-mark {
+  width: 130px !important;
+  height: 112px !important;
+}
+.app__logo {
+  filter:
+    drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff)
+    drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)
+    drop-shadow(0 0 3px #38bdf8)
+    drop-shadow(0 4px 4px rgba(0,0,0,.8)) !important;
+}
+
+.app__logo {
+  filter: drop-shadow(0 0 5px rgba(56,189,248,.9)) drop-shadow(0 4px 4px rgba(0,0,0,.8)) !important;
 }
