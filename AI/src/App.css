@@ -705,3 +705,13 @@ body::after {
 .gate__eye { position: absolute; top: 50%; left: 50%; width: 130px; transform: translate(-50%, -50%); filter: drop-shadow(0 0 10px #38bdf8); }
 .gate__count { position: relative; font-size: 56px; font-weight: 800; color: #38bdf8; text-shadow: 0 0 14px #38bdf8; }
 .gate__btn { position: relative; touch-action: none; padding: 18px 34px; font-size: 18px; font-weight: 700; color: #04121c; background: linear-gradient(145deg, #bae6fd, #38bdf8, #0ea5e9); border: 1px solid #7dd3fc; border-radius: 18px; box-shadow: 0 0 20px rgba(56,189,248,.7); }
+
+/* ===== HEARTBEAT ===== */
+.gate__heart { width: 150px !important; filter: drop-shadow(0 0 14px rgba(225,29,72,.9)) !important; animation: heartbeat 1s ease-in-out infinite; transform-origin: center; }
+@keyframes heartbeat {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  15% { transform: translate(-50%, -50%) scale(1.18); }
+  30% { transform: translate(-50%, -50%) scale(1.02); }
+  45% { transform: translate(-50%, -50%) scale(1.12); }
+  60% { transform: translate(-50%, -50%) scale(1); }
+}

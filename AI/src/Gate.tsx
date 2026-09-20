@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import App from "./App";
 
 type Seg = { x1: number; y1: number; x2: number; y2: number; c: string; w: number; t: number };
-const COLORS = ["#4ade80", "#2dd4bf", "#38bdf8", "#a78bfa", "#f9a8d4", "#fbbf24"];
+const COLORS = ["#ef4444", "#dc2626", "#f87171", "#4ade80", "#2dd4bf", "#38bdf8", "#a78bfa", "#f9a8d4", "#fbbf24"];
 const Q = Math.PI / 4;
 const N = 168;
 const pick = () => COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -100,10 +100,18 @@ export default function Gate() {
   return (
     <div className="gate">
       <canvas ref={cv} className="gate__canvas" />
-      <svg className="gate__eye" viewBox="0 0 200 100">
-        <path d="M10 50 Q100 -10 190 50 Q100 110 10 50Z" fill="none" stroke="#38bdf8" strokeWidth="3" />
-        <circle cx="100" cy="50" r="24" fill="none" stroke="#ff5fa2" strokeWidth="3" />
-        <circle cx="100" cy="50" r="10" fill="#ffd93b" />
+      <svg className="gate__eye gate__heart" viewBox="0 0 200 180" style={{ animationDuration: (1.1 - pct * 0.5) + "s" }}>
+        <defs>
+          <radialGradient id="hg" cx="40%" cy="30%" r="75%">
+            <stop offset="0" stopColor="#ff8a8a" />
+            <stop offset="0.55" stopColor="#e11d48" />
+            <stop offset="1" stopColor="#7f1024" />
+          </radialGradient>
+        </defs>
+        <path d="M100 168 C30 118 8 82 8 52 C8 26 28 8 52 8 C74 8 90 20 100 38 C110 20 126 8 148 8 C172 8 192 26 192 52 C192 82 170 118 100 168Z" fill="url(#hg)" stroke="#fecdd3" strokeWidth="2" />
+        <path d="M60 30 C44 32 32 44 32 60" fill="none" stroke="#ffe4e6" strokeWidth="4" strokeLinecap="round" opacity="0.7" />
+        <path d="M100 38 C96 70 98 110 100 150" fill="none" stroke="#9f1239" strokeWidth="3" opacity="0.6" />
+        <path d="M70 60 C90 66 110 66 132 58 M62 92 C88 100 112 100 140 88" fill="none" stroke="#fb7185" strokeWidth="3" opacity="0.7" />
       </svg>
       <div className="gate__count">{Math.ceil(pct * 100)}</div>
       <button
