@@ -581,3 +581,5 @@ body::after {
   font-size: 15px !important;
   border-radius: 14px !important;
 }
+
+.app__logo { object-fit: contain !important; padding: 2px; }
