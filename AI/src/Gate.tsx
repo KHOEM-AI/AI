@@ -1,36 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import App from "./App";
 
-type Seg = { x1: number; y1: number; x2: number; y2: number; c: string; w: number };
+type Seg = { x1: number; y1: number; x2: number; y2: number; c: string; w: number; t: number };
 const COLORS = ["#ffffff", "#38bdf8", "#ff5fa2", "#ffd93b", "#a78bfa", "#34d399", "#ff5f5f"];
 const Q = Math.PI / 4;
+const N = 168;
 const pick = () => COLORS[Math.floor(Math.random() * COLORS.length)];
 
 function build(w: number, h: number): Seg[] {
   const segs: Seg[] = [];
-  const grow = (x: number, y: number, a: number, len: number, d: number, c: string) => {
-    if (d > 4) return;
-    const steps = d === 0 ? 14 : 3 + Math.floor(Math.random() * 4);
-    let cx = x, cy = y, ca = a;
-    for (let i = 0; i < steps; i++) {
-      const l = len * (0.7 + Math.random() * 0.5);
-      const nx = cx + Math.cos(ca) * l;
-      const ny = cy + Math.sin(ca) * l;
+  const cx0 = w / 2, cy0 = h / 2;
+  for (let i = 0; i < N; i++) {
+    const right = i % 2 === 0;
+    const c = pick();
+    const spread = (Math.floor(i / 2) / (N / 2 - 1)) * 2 - 1;
+    let a = (right ? 0 : Math.PI) + spread * (Math.PI / 2.2) * (right ? 1 : -1);
+    a = Math.round(a / Q) * Q;
+    let x = cx0, y = cy0;
+    const step = Math.max(w, h) / 22;
+    const order = i / N;
+    let k = 0;
+    while (k < 40) {
+      const l = step * (0.7 + Math.random() * 0.6);
+      const nx = x + Math.cos(a) * l;
+      const ny = y + Math.sin(a) * l;
       if (nx < -20 || nx > w + 20 || ny < -20 || ny > h + 20) break;
-      segs.push({ x1: cx, y1: cy, x2: nx, y2: ny, c, w: Math.max(1, 2.6 - d * 0.4) });
-      cx = nx; cy = ny;
-      if (Math.random() < 0.25) ca += Math.random() < 0.5 ? -Q : Q;
-      if (Math.random() < 0.3)
-        grow(cx, cy, ca + (Math.random() < 0.5 ? -Q : Q), len * 0.7, d + 1, pick());
+      segs.push({ x1: x, y1: y, x2: nx, y2: ny, c, w: 1.6, t: order + k * 0.02 });
+      x = nx; y = ny; k++;
+      if (Math.random() < 0.3) a += Math.random() < 0.5 ? -Q : Q;
     }
-  };
-  const rows = 16;
-  for (let i = 0; i < rows; i++) {
-    const y = ((i + 0.5) * h) / rows;
-    grow(w / 2, y, 0, w / 12, 0, pick());
-    grow(w / 2, y, Math.PI, w / 12, 0, pick());
   }
-  return segs.sort((p, q) => Math.abs(p.x1 - w / 2) - Math.abs(q.x1 - w / 2));
+  return segs.sort((p, q) => p.t - q.t);
 }
 
 export default function Gate() {
