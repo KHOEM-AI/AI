@@ -606,3 +606,21 @@ body::after {
   height: 100% !important;
   object-fit: contain !important;
 }
+
+/* ===== 3D LOGO: white + black + sky-blue outline ===== */
+.app__brand-mark {
+  width: 110px !important;
+  height: 96px !important;
+  overflow: visible !important;
+}
+.app__logo {
+  filter:
+    drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff)
+    drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
+    drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000)
+    drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000)
+    drop-shadow(2px 0 0 #38bdf8) drop-shadow(-2px 0 0 #38bdf8)
+    drop-shadow(0 2px 0 #38bdf8) drop-shadow(0 -2px 0 #38bdf8)
+    drop-shadow(0 0 8px rgba(56,189,248,.9))
+    drop-shadow(0 7px 6px rgba(0,0,0,.85)) !important;
+}
