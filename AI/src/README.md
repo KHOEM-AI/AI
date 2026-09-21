@@ -1,3 +1,2257 @@
+KHOEM AI
+MASTER ARCHITECTURE + CONTROLLED AUTONOMY
+IMPLEMENTATION SPECIFICATION
+==============================================
+
+PROJECT
+-------
+KHOEM AI
+
+REPOSITORY
+----------
+~/ai-project/AI
+
+BRANCH
+------
+main
+
+MISSION
+-------
+Build KHOEM AI as a modular, observable, reliable,
+creative, autonomous-capable AI system while keeping
+human authority over privileged actions.
+
+IMPORTANT:
+
+This project is an AGI-oriented architecture.
+
+It must NOT claim that the system is AGI merely because
+it contains memory, planning, reasoning, tools, autonomy,
+or cognitive-state representations.
+
+The objective is:
+
+CREATIVE AUTONOMY
++
+HUMAN CONTROL
++
+VERIFIABILITY
++
+SAFETY
++
+RELIABILITY
++
+OBSERVABILITY
+
+========================================================
+0. NON-DESTRUCTIVE DEVELOPMENT CONTRACT
+========================================================
+
+ABSOLUTE RULE:
+
+Inspect first.
+Modify second.
+Test third.
+Commit last.
+
+Before modifying anything:
+
+1. inspect repository
+2. inspect Git status
+3. inspect existing architecture
+4. inspect README
+5. inspect current APIs
+6. inspect current AI modules
+7. inspect frontend
+8. inspect tests
+9. inspect configuration
+
+Never assume something is missing.
+
+If functionality already exists:
+
+EXTEND IT.
+
+Do NOT rewrite it unnecessarily.
+
+Never:
+
+- delete working files
+- replace files blindly
+- remove existing routes
+- remove existing tools
+- remove /learn
+- remove /learned
+- remove /forget
+- remove /scan
+- remove /read
+- remove /funcs
+- remove /check
+- remove /help
+- break /api/chat
+- remove Khmer support
+- remove English support
+- remove Black 3D UI
+- expose secrets
+- fabricate status
+- claim unverified success
+
+Do not use nano.
+
+Use:
+
+cat
+Python
+shell
+safe automated editing
+
+========================================================
+1. REPOSITORY AUDIT
+========================================================
+
+Run:
+
+pwd
+git rev-parse --show-toplevel
+git status --short
+git branch --show-current
+git remote -v
+git log --oneline -12
+
+Inspect:
+
+find . -maxdepth 3 -type f | sort
+
+Read the existing project README.
+
+Locate and inspect:
+
+- package.json
+- backend entry point
+- frontend entry point
+- /api/health
+- /api/status
+- status engine
+- AI Core
+- memory
+- learning
+- knowledge
+- tools
+- model
+- session
+- chat
+- frontend status UI
+- tests
+- configuration
+- environment handling
+
+Do not modify files during the initial audit.
+
+Produce:
+
+REPOSITORY AUDIT
+
+with:
+
+- existing architecture
+- existing features
+- existing APIs
+- existing state systems
+- existing gaps
+- files that must be preserved
+- files likely to be extended
+
+========================================================
+2. TARGET ARCHITECTURE
+========================================================
+
+The target architecture:
+
+KHOEM AI
+│
+├── SYSTEM HEALTH
+│
+├── AI CORE
+│
+├── TASK ENGINE
+│
+├── GOAL ENGINE
+│
+├── EXECUTION ENGINE
+│
+├── COGNITIVE STATE
+│
+├── MEMORY
+│
+├── KNOWLEDGE
+│
+├── LEARNING
+│
+├── IDEATION
+│
+├── PLANNING
+│
+├── REASONING
+│
+├── VERIFICATION
+│
+├── SELF-EVALUATION
+│
+├── CONFIDENCE
+│
+├── PROVENANCE
+│
+├── PERMISSION ENGINE
+│
+├── POLICY ENGINE
+│
+├── HUMAN APPROVAL
+│
+├── SANDBOX
+│
+├── EXPERIMENT ENGINE
+│
+├── VERSION / ROLLBACK
+│
+├── RESOURCE BUDGET
+│
+├── RELIABILITY
+│
+├── SECURITY
+│
+├── AUDIT / TRACE
+│
+├── OBSERVABILITY
+│
+└── CONTROL CENTER
+
+========================================================
+3. CORE DESIGN PRINCIPLE
+========================================================
+
+The system must distinguish:
+
+THINK
+PLAN
+PROPOSE
+SIMULATE
+EXECUTE
+
+These are NOT the same permission.
+
+AI may be allowed to:
+
+THINK
+PLAN
+GENERATE IDEAS
+
+without being allowed to:
+
+EXECUTE
+
+Therefore:
+
+AI CREATIVITY
+≠
+UNLIMITED AUTHORITY
+
+========================================================
+4. ROOT AUTHORITY
+========================================================
+
+Human operator is the root authority.
+
+Create a protected authority model.
+
+Concept:
+
+ROOT AUTHORITY
+      ↓
+POLICY
+      ↓
+PERMISSION
+      ↓
+AI ACTION
+      ↓
+EXECUTION
+
+The AI must not be able to silently elevate its own permissions.
+
+No self-escalation.
+
+No automatic privilege escalation.
+
+No bypass of approval gates.
+
+========================================================
+5. AUTONOMY LEVELS
+========================================================
+
+Define:
+
+L0 — OBSERVE
+
+AI can inspect permitted information.
+
+L1 — THINK
+
+AI can analyze.
+
+L2 — IDEATE
+
+AI can generate ideas.
+
+L3 — PLAN
+
+AI can create plans.
+
+L4 — SIMULATE
+
+AI can test plans in sandbox.
+
+L5 — PROPOSE
+
+AI can create proposals for human review.
+
+L6 — EXECUTE
+
+AI can execute explicitly allowed actions.
+
+L7 — PRIVILEGED
+
+Human approval required.
+
+Default:
+
+L3 or lower.
+
+Do not default to unrestricted execution.
+
+========================================================
+6. PERMISSION MODEL
+========================================================
+
+Do not use:
+
+canDoEverything = true
+
+Use explicit permissions.
+
+Examples:
+
+memory.read
+memory.write
+knowledge.read
+knowledge.write
+tool.execute
+file.read
+file.write
+code.generate
+code.test
+network.read
+external.action
+system.modify
+production.deploy
+
+Every action must have:
+
+action
+actor
+permission
+scope
+risk
+approvalRequired
+timestamp
+
+========================================================
+7. POLICY ENGINE
+========================================================
+
+Create a central policy layer.
+
+Before executing an action:
+
+ACTION
+ ↓
+POLICY CHECK
+ ↓
+PERMISSION CHECK
+ ↓
+RISK CHECK
+ ↓
+APPROVAL CHECK
+ ↓
+EXECUTE
+
+Policy engine decides:
+
+ALLOW
+DENY
+REQUIRE_APPROVAL
+SANDBOX_ONLY
+
+Never let individual tools independently invent
+their own security rules.
+
+========================================================
+8. RISK CLASSIFICATION
+========================================================
+
+Every action should have:
+
+LOW
+MEDIUM
+HIGH
+CRITICAL
+
+LOW:
+
+read-only inspection
+safe analysis
+sandbox experiment
+
+MEDIUM:
+
+controlled file changes
+non-critical configuration
+
+HIGH:
+
+production changes
+large data modifications
+external side effects
+
+CRITICAL:
+
+privileged system actions
+secret/security changes
+irreversible actions
+
+High and Critical require human approval.
+
+========================================================
+9. HUMAN APPROVAL GATE
+========================================================
+
+Create:
+
+APPROVAL_REQUIRED
+
+workflow.
+
+Example:
+
+AI generates proposal:
+
+Proposal ID
+Goal
+Reason
+Plan
+Files affected
+Expected result
+Risk
+Tests
+Rollback plan
+
+Then:
+
+PENDING_APPROVAL
+
+Human:
+
+APPROVE
+or
+REJECT
+
+Only APPROVE permits execution.
+
+Record:
+
+approvedBy
+approvedAt
+decision
+reason
+
+Never auto-approve privileged actions.
+
+========================================================
+10. CONTROL CENTER
+========================================================
+
+Create a Control Center UI.
+
+Show:
+
+SYSTEM HEALTH
+AUTONOMY LEVEL
+CURRENT TASK
+CURRENT EXECUTION
+CURRENT COGNITIVE STATE
+PENDING APPROVALS
+ACTIVE TASKS
+RESOURCE USAGE
+RECENT EVENTS
+RECENT ERRORS
+PERMISSIONS
+POLICY STATE
+
+Controls:
+
+PAUSE AUTONOMY
+RESUME AUTONOMY
+STOP TASK
+STOP ALL
+REVOKE PERMISSION
+REJECT PROPOSAL
+APPROVE PROPOSAL
+ROLLBACK
+
+========================================================
+11. KILL SWITCH
+========================================================
+
+Implement a protected emergency stop.
+
+STOP ALL must:
+
+- stop new autonomous execution
+- cancel cancellable tasks
+- prevent new privileged actions
+- preserve audit records
+
+It must not destroy memory or data.
+
+After stop:
+
+AUTONOMY = PAUSED
+
+Manual recovery required.
+
+========================================================
+12. TASK ENGINE
+========================================================
+
+Task states:
+
+CREATED
+QUEUED
+RUNNING
+WAITING
+BLOCKED
+COMPLETED
+FAILED
+CANCELLED
+TIMEOUT
+
+Every task:
+
+taskId
+goalId
+createdAt
+updatedAt
+state
+priority
+risk
+budget
+permissions
+owner
+metadata
+
+Prevent invalid state transitions.
+
+========================================================
+13. GOAL ENGINE
+========================================================
+
+Separate:
+
+GOAL
+TASK
+ACTION
+
+Example:
+
+GOAL:
+Improve English Brain.
+
+TASK:
+Analyze current English learning system.
+
+ACTION:
+Read learning module.
+
+A goal can contain multiple tasks.
+
+A task can contain multiple actions.
+
+Do not mix these concepts.
+
+========================================================
+14. EXECUTION STATE
+========================================================
+
+States:
+
+IDLE
+PROCESSING
+RETRIEVING
+TOOL_CALL
+LEARNING
+WAITING
+RESPONDING
+
+========================================================
+15. COGNITIVE STATE
+========================================================
+
+States:
+
+IDLE
+UNDERSTANDING
+RETRIEVING
+PLANNING
+REASONING
+VERIFYING
+ANSWERING
+
+These represent software processing stages.
+
+Do not claim human consciousness.
+
+========================================================
+16. IDEATION ENGINE
+========================================================
+
+Create an Idea Engine.
+
+Input:
+
+GOAL
+
+Output:
+
+multiple candidate ideas.
+
+Pipeline:
+
+GOAL
+ ↓
+OBSERVE
+ ↓
+IDENTIFY GAP
+ ↓
+GENERATE IDEAS
+ ↓
+COMBINE IDEAS
+ ↓
+COMPARE
+ ↓
+SIMULATE
+ ↓
+PROPOSE
+
+Each idea:
+
+ideaId
+title
+description
+reason
+expectedBenefit
+dependencies
+risk
+complexity
+estimatedCost
+testPlan
+rollbackPlan
+
+AI may create ideas automatically.
+
+Ideas are NOT automatically executed.
+
+========================================================
+17. CREATIVE DIVERSITY
+========================================================
+
+For non-critical creative tasks, generate alternatives.
+
+Example:
+
+IDEA A
+IDEA B
+IDEA C
+
+Compare:
+
+benefit
+cost
+risk
+complexity
+compatibility
+
+Do not always choose the first generated idea.
+
+========================================================
+18. PLANNING ENGINE
+========================================================
+
+Convert:
+
+GOAL
+
+into:
+
+PLAN
+
+Plan contains:
+
+steps
+dependencies
+required tools
+permissions
+risk
+budget
+verification criteria
+rollback plan
+
+Before execution:
+
+validate plan.
+
+========================================================
+19. SANDBOX
+========================================================
+
+Create isolated experimentation.
+
+AI may:
+
+generate code
+modify temporary files
+run tests
+run simulations
+compare results
+
+inside sandbox.
+
+AI must not directly modify production architecture
+from an experiment.
+
+Flow:
+
+IDEA
+ ↓
+SANDBOX
+ ↓
+TEST
+ ↓
+RESULT
+ ↓
+PROPOSAL
+ ↓
+HUMAN APPROVAL
+ ↓
+PRODUCTION
+
+========================================================
+20. EXPERIMENT ENGINE
+========================================================
+
+Experiments should have:
+
+experimentId
+goal
+hypothesis
+inputs
+changes
+results
+metrics
+status
+createdAt
+completedAt
+
+States:
+
+CREATED
+RUNNING
+COMPLETED
+FAILED
+CANCELLED
+
+Never overwrite production blindly.
+
+========================================================
+21. SELF-EVALUATION
+========================================================
+
+After executing a task, AI should evaluate:
+
+Did it achieve the goal?
+
+What changed?
+
+What failed?
+
+What evidence exists?
+
+What remains?
+
+Could the result be improved?
+
+Output:
+
+SUCCESS
+PARTIAL
+FAILED
+UNCERTAIN
+
+Self-evaluation is advisory.
+
+It does not override actual test results.
+
+========================================================
+22. VERIFICATION
+========================================================
+
+Knowledge:
+
+UNKNOWN
+KNOWN
+RETRIEVED
+VERIFYING
+VERIFIED
+CONFLICTING
+
+Verification must use explicit evidence.
+
+Generated text alone does not equal VERIFIED.
+
+========================================================
+23. CONFIDENCE
+========================================================
+
+Confidence:
+
+HIGH
+MEDIUM
+LOW
+UNCERTAIN
+
+Confidence must be evidence-based.
+
+If evidence is insufficient:
+
+UNCERTAIN
+
+========================================================
+24. PROVENANCE
+========================================================
+
+Track:
+
+source
+origin
+createdAt
+updatedAt
+version
+verified
+confidence
+
+Possible origin:
+
+user
+system
+imported
+generated
+tool
+external_source
+
+Do not misrepresent generated information.
+
+========================================================
+25. KNOWLEDGE CONFLICT RESOLUTION
+========================================================
+
+If two knowledge sources disagree:
+
+state:
+
+CONFLICTING
+
+Do not silently choose one.
+
+Record:
+
+sourceA
+sourceB
+conflict
+resolutionStatus
+
+Possible resolution:
+
+UNRESOLVED
+RESOLVED
+HUMAN_REVIEW
+
+========================================================
+26. MEMORY LIFECYCLE
+========================================================
+
+Separate:
+
+SHORT_TERM_MEMORY
+SESSION_MEMORY
+LONG_TERM_MEMORY
+LEARNED_MEMORY
+
+Define:
+
+creation
+retrieval
+update
+expiration
+deletion
+verification
+
+Do not automatically save every conversation forever.
+
+========================================================
+27. LEARNING ENGINE
+========================================================
+
+Preserve:
+
+/learn
+/learned
+/forget
+
+Learning must have:
+
+source
+timestamp
+confidence
+version
+
+Learning should not silently overwrite higher-confidence
+knowledge.
+
+========================================================
+28. MODEL ROUTING
+========================================================
+
+Support model/provider abstraction.
+
+Possible:
+
+LOCAL
+EXTERNAL
+FALLBACK
+
+Routing must consider:
+
+availability
+latency
+cost
+capability
+policy
+privacy
+
+Never expose API keys.
+
+========================================================
+29. MODEL FALLBACK
+========================================================
+
+If preferred model fails:
+
+check policy.
+
+Then:
+
+fallback model if configured.
+
+Record:
+
+primaryModel
+fallbackModel
+reason
+timestamp
+
+Do not silently change providers when policy prohibits it.
+
+========================================================
+30. RESOURCE BUDGET
+========================================================
+
+Every task can have:
+
+timeMs
+maxToolCalls
+maxRetries
+maxMemoryItems
+maxTokens
+maxCost
+
+When budget is exhausted:
+
+STOP
+
+or:
+
+REQUIRE_APPROVAL
+
+Never infinite loop.
+
+========================================================
+31. RELIABILITY
+========================================================
+
+Implement:
+
+TIMEOUT
+RETRY
+CIRCUIT_BREAKER
+DEPENDENCY_HEALTH
+DEGRADED_MODE
+
+Timeouts:
+
+health = 3s
+default API = 10s
+chat = 30s
+tool = 15s
+learning = 5s
+knowledge = 5s
+status polling = 10s
+
+Reuse existing constants where available.
+
+========================================================
+32. CIRCUIT BREAKER
+========================================================
+
+States:
+
+CLOSED
+OPEN
+HALF_OPEN
+
+Repeated dependency failure:
+
+CLOSED
+→ OPEN
+
+Recovery test:
+
+OPEN
+→ HALF_OPEN
+
+Successful recovery:
+
+HALF_OPEN
+→ CLOSED
+
+========================================================
+33. SERVICE STATUS
+========================================================
+
+GET:
+
+/api/status
+
+Must report:
+
+system
+api
+aiCore
+memory
+learning
+knowledge
+englishBrain
+khmerBrain
+tools
+model
+session
+
+Real status only.
+
+No fake READY.
+
+========================================================
+34. STATUS SCHEMA
+========================================================
+
+Each service:
+
+status
+reason
+lastChecked
+lastSuccessfulCheck
+responseTime
+error
+version
+available
+stale
+
+Use UNKNOWN when unavailable.
+
+========================================================
+35. SYSTEM HEALTH
+========================================================
+
+States:
+
+HEALTHY
+DEGRADED
+ERROR
+OFFLINE
+
+Define critical services.
+
+Do not let one non-critical module failure crash
+the entire status endpoint.
+
+========================================================
+36. EVENT TRACE
+========================================================
+
+Track:
+
+INPUT_RECEIVED
+TASK_CREATED
+TASK_STARTED
+UNDERSTANDING_STARTED
+MEMORY_RETRIEVED
+KNOWLEDGE_RETRIEVED
+PLAN_CREATED
+IDEA_CREATED
+APPROVAL_REQUESTED
+APPROVAL_GRANTED
+APPROVAL_REJECTED
+TOOL_CALL_STARTED
+TOOL_CALL_COMPLETED
+REASONING_STARTED
+VERIFICATION_STARTED
+VERIFICATION_COMPLETED
+EXPERIMENT_STARTED
+EXPERIMENT_COMPLETED
+RESPONSE_STARTED
+RESPONSE_COMPLETED
+MEMORY_UPDATED
+TASK_COMPLETED
+TASK_FAILED
+TASK_TIMEOUT
+ROLLBACK_STARTED
+ROLLBACK_COMPLETED
+AUTONOMY_PAUSED
+AUTONOMY_RESUMED
+
+Each event:
+
+id
+taskId
+timestamp
+type
+actor
+duration
+metadata
+
+========================================================
+37. AUDIT LOG
+========================================================
+
+Audit sensitive actions.
+
+Record:
+
+who
+what
+when
+why
+permission
+approval
+result
+
+Audit logs should be append-only where practical.
+
+Do not allow ordinary AI execution to erase audit history.
+
+========================================================
+38. VERSIONING
+========================================================
+
+Version:
+
+plans
+proposals
+knowledge
+learned data
+configuration
+prompts
+experiments
+
+Never silently replace important versions.
+
+========================================================
+39. ROLLBACK
+========================================================
+
+Every production-affecting proposal must have:
+
+rollbackPlan
+
+Where practical:
+
+beforeVersion
+afterVersion
+
+If execution fails:
+
+rollback available.
+
+Never claim rollback succeeded unless verified.
+
+========================================================
+40. CONFIGURATION SAFETY
+========================================================
+
+Protect:
+
+environment variables
+API keys
+tokens
+credentials
+private configuration
+
+Do not expose them through:
+
+/api/status
+logs
+UI
+trace
+error messages
+
+========================================================
+41. DATA SAFETY
+========================================================
+
+Before destructive changes:
+
+backup or version where appropriate.
+
+Avoid irreversible operations.
+
+Require approval for destructive operations.
+
+========================================================
+42. PRIVACY
+========================================================
+
+Do not store unnecessary personal information.
+
+Do not place sensitive user data into generic traces.
+
+Minimize logged content.
+
+Prefer IDs and metadata over raw private content.
+
+========================================================
+43. FRONTEND
+========================================================
+
+Keep existing Black 3D design.
+
+Do not rewrite the whole UI.
+
+Add:
+
+CONTROL CENTER
+
+with:
+
+SYSTEM HEALTH
+AUTONOMY LEVEL
+ACTIVE TASK
+EXECUTION STATE
+COGNITIVE STATE
+PENDING APPROVALS
+ACTIVE EXPERIMENTS
+RESOURCE USAGE
+RECENT EVENTS
+ERRORS
+
+Controls:
+
+PAUSE
+RESUME
+STOP
+APPROVE
+REJECT
+ROLLBACK
+
+========================================================
+44. STATUS CARD
+========================================================
+
+Each status card:
+
+module name
+status
+reason
+last checked
+response time
+version
+error if present
+
+Current modules:
+
+AI CORE
+MEMORY
+LEARNING
+KNOWLEDGE
+ENGLISH BRAIN
+KHMER BRAIN
+TOOLS
+API
+MODEL
+SESSION
+
+========================================================
+45. AUTONOMY UI
+========================================================
+
+Show:
+
+AUTONOMY LEVEL
+
+L0 OBSERVE
+L1 THINK
+L2 IDEATE
+L3 PLAN
+L4 SIMULATE
+L5 PROPOSE
+L6 EXECUTE
+L7 PRIVILEGED
+
+Default should be conservative.
+
+Human must be able to reduce autonomy.
+
+AI must not increase its own autonomy.
+
+========================================================
+46. APPROVAL UI
+========================================================
+
+Pending proposal:
+
+PROPOSAL #001
+
+Goal:
+...
+
+Plan:
+...
+
+Files:
+...
+
+Risk:
+...
+
+Expected result:
+...
+
+Tests:
+...
+
+Rollback:
+...
+
+Buttons:
+
+APPROVE
+REJECT
+
+Do not execute before approval.
+
+========================================================
+47. PAUSE / STOP
+========================================================
+
+Pause:
+
+blocks new autonomous execution.
+
+Stop:
+
+stops cancellable tasks.
+
+Revoke:
+
+removes selected permission.
+
+These actions must be auditable.
+
+========================================================
+48. SECURITY BOUNDARIES
+========================================================
+
+Separate:
+
+READ
+WRITE
+EXECUTE
+PRIVILEGED
+
+permissions.
+
+Do not give autonomous AI unrestricted:
+
+filesystem
+network
+shell
+production
+credentials
+
+access.
+
+Tools must declare required permissions.
+
+========================================================
+49. TOOL CONTRACT
+========================================================
+
+Every tool should define:
+
+name
+description
+permissions
+riskLevel
+timeout
+retryPolicy
+inputSchema
+outputSchema
+sideEffects
+
+Tool execution must pass policy checks.
+
+========================================================
+50. CHAT PIPELINE
+========================================================
+
+Chat request:
+
+INPUT
+ ↓
+TASK CREATED
+ ↓
+UNDERSTANDING
+ ↓
+MEMORY
+ ↓
+KNOWLEDGE
+ ↓
+PLANNING
+ ↓
+REASONING
+ ↓
+VERIFICATION
+ ↓
+RESPONSE
+ ↓
+MEMORY UPDATE
+ ↓
+TASK COMPLETED
+
+Not every simple request needs every expensive stage.
+
+Use lightweight paths where appropriate.
+
+========================================================
+51. SIMPLE REQUEST OPTIMIZATION
+========================================================
+
+Do not over-process simple requests.
+
+Example:
+
+"សួស្តី"
+
+may use:
+
+INPUT
+→ UNDERSTANDING
+→ RESPONSE
+
+without unnecessary tool calls.
+
+Complex tasks can use:
+
+memory
+knowledge
+planning
+tools
+verification
+
+========================================================
+52. AUTONOMOUS IMPROVEMENT LOOP
+========================================================
+
+Allow the AI to suggest improvements:
+
+OBSERVE
+ ↓
+IDENTIFY PROBLEM
+ ↓
+GENERATE IDEAS
+ ↓
+RANK CANDIDATES
+ ↓
+CREATE EXPERIMENT
+ ↓
+SANDBOX
+ ↓
+TEST
+ ↓
+EVALUATE
+ ↓
+PROPOSAL
+ ↓
+HUMAN APPROVAL
+ ↓
+IMPLEMENT
+ ↓
+VERIFY
+ ↓
+VERSION
+ ↓
+LEARN
+
+Important:
+
+AI does NOT directly rewrite protected core systems.
+
+========================================================
+53. SELF-MODIFICATION BOUNDARY
+========================================================
+
+AI may:
+
+analyze its architecture
+suggest improvements
+generate patches
+test patches in sandbox
+create proposals
+
+AI may NOT:
+
+silently modify protected core
+remove approval mechanisms
+disable security
+increase its own permissions
+disable audit logging
+remove kill switch
+hide actions from the operator
+
+========================================================
+54. PROTECTED COMPONENTS
+========================================================
+
+Protect:
+
+permission engine
+policy engine
+approval gate
+audit log
+kill switch
+security configuration
+secret handling
+root authority
+
+These components cannot be modified by autonomous execution
+without explicit human approval.
+
+========================================================
+55. FAILURE MODES
+========================================================
+
+Define:
+
+NORMAL
+DEGRADED
+PAUSED
+BLOCKED
+ERROR
+OFFLINE
+EMERGENCY_STOP
+
+When uncertain:
+
+FAIL SAFE.
+
+========================================================
+56. SELF-EVALUATION RULE
+========================================================
+
+AI self-evaluation is not authoritative.
+
+Actual evidence wins.
+
+Priority:
+
+TEST RESULT
+>
+SYSTEM RESULT
+>
+VERIFIED EVIDENCE
+>
+SELF-EVALUATION
+
+Never allow AI to mark its own failure as success
+without evidence.
+
+========================================================
+57. TESTING
+========================================================
+
+Test:
+
+/api/health
+/api/status
+/api/chat
+
+Test:
+
+status engine
+task engine
+goal engine
+permission engine
+policy engine
+approval engine
+idea engine
+planning engine
+sandbox
+experiment engine
+verification
+confidence
+provenance
+rollback
+audit
+kill switch
+resource budget
+circuit breaker
+
+Test:
+
+invalid permissions
+invalid state transitions
+missing status
+timeout
+offline
+dependency failure
+malformed input
+tool failure
+approval rejection
+approval requirement
+rollback
+pause
+stop
+
+========================================================
+58. REGRESSION TESTING
+========================================================
+
+Existing features must be tested after changes:
+
+/scan
+/read
+/funcs
+/check
+/help
+/learn
+/learned
+/forget
+
+And:
+
+POST /api/chat
+
+No regression allowed.
+
+========================================================
+59. STATIC CHECKS
+========================================================
+
+Use existing project scripts.
+
+Run:
+
+node --check
+
+for relevant JavaScript modules.
+
+Run:
+
+npx tsc --noEmit
+
+if TypeScript exists.
+
+Run:
+
+npm run build
+
+or the project's existing build command.
+
+Do not invent scripts.
+
+========================================================
+60. RUNTIME TESTING
+========================================================
+
+Start backend.
+
+Test:
+
+GET /api/health
+
+GET /api/status
+
+POST /api/chat
+
+Test existing commands.
+
+Start frontend.
+
+Verify:
+
+status cards
+control center
+approval flow
+pause
+stop
+task state
+error handling
+
+========================================================
+61. SECURITY TESTING
+========================================================
+
+Verify:
+
+No API keys in responses.
+
+No secrets in logs.
+
+No secret exposure in status.
+
+No permission escalation.
+
+No approval bypass.
+
+No audit deletion through normal AI tools.
+
+No autonomous modification of protected components.
+
+========================================================
+62. PERFORMANCE
+========================================================
+
+Do not make every simple request expensive.
+
+Use:
+
+lightweight path
+standard path
+complex path
+
+Track latency.
+
+Avoid unnecessary repeated retrieval.
+
+Cache only where safe.
+
+========================================================
+63. OBSERVABILITY
+========================================================
+
+Track:
+
+request count
+success
+error
+timeout
+latency
+tool calls
+task duration
+approval duration
+experiment duration
+
+Later:
+
+P50
+P95
+P99
+error rate
+timeout rate
+availability
+
+========================================================
+64. DOCUMENTATION
+========================================================
+
+Update existing README only after implementation.
+
+Document:
+
+architecture
+API
+status
+task lifecycle
+autonomy levels
+permissions
+policies
+approval
+sandbox
+experiments
+verification
+confidence
+provenance
+rollback
+audit
+kill switch
+timeouts
+retry
+circuit breaker
+resource budgets
+testing
+
+Do not duplicate existing documentation.
+
+========================================================
+65. IMPLEMENTATION ORDER
+========================================================
+
+DO NOT IMPLEMENT EVERYTHING AT ONCE.
+
+PHASE 0
+-------
+Repository audit.
+
+PHASE 1
+-------
+Real /api/status
+Status Engine
+Service checks
+
+PHASE 2
+-------
+System health aggregation.
+
+PHASE 3
+-------
+Task Engine.
+
+PHASE 4
+-------
+Execution State.
+
+PHASE 5
+-------
+Cognitive State.
+
+PHASE 6
+-------
+Goal Engine.
+
+PHASE 7
+-------
+Event / Trace.
+
+PHASE 8
+-------
+Knowledge State.
+
+PHASE 9
+-------
+Verification.
+
+PHASE 10
+--------
+Confidence.
+
+PHASE 11
+--------
+Provenance.
+
+PHASE 12
+--------
+Permission Engine.
+
+PHASE 13
+--------
+Policy Engine.
+
+PHASE 14
+--------
+Human Approval Gate.
+
+PHASE 15
+--------
+Idea Engine.
+
+PHASE 16
+--------
+Planning Engine.
+
+PHASE 17
+--------
+Sandbox.
+
+PHASE 18
+--------
+Experiment Engine.
+
+PHASE 19
+--------
+Self-Evaluation.
+
+PHASE 20
+--------
+Versioning + Rollback.
+
+PHASE 21
+--------
+Resource Budget.
+
+PHASE 22
+--------
+Timeout + Retry.
+
+PHASE 23
+--------
+Circuit Breaker.
+
+PHASE 24
+--------
+Model Routing / Fallback.
+
+PHASE 25
+--------
+Control Center.
+
+PHASE 26
+--------
+Audit + Security hardening.
+
+PHASE 27
+--------
+Metrics / Observability.
+
+PHASE 28
+--------
+Documentation.
+
+========================================================
+66. PHASE GATE
+========================================================
+
+Do NOT start the next phase until the previous phase:
+
+- compiles
+- passes tests
+- passes runtime checks
+- does not break existing functionality
+
+If a phase fails:
+
+STOP.
+
+Fix it first.
+
+========================================================
+67. 10-STAR ENGINEERING STANDARD
+========================================================
+
+★ 1 CORRECTNESS
+Real behavior.
+
+★ 2 RELIABILITY
+Safe failure.
+
+★ 3 OBSERVABILITY
+Know what is happening.
+
+★ 4 STATE CONSISTENCY
+States cannot contradict each other.
+
+★ 5 TRACEABILITY
+Actions can be reconstructed.
+
+★ 6 VERIFICATION
+Evidence is distinguishable from generation.
+
+★ 7 PROVENANCE
+Origins are known.
+
+★ 8 SECURITY
+Privileges and secrets are protected.
+
+★ 9 HUMAN CONTROL
+AI cannot bypass root authority.
+
+★ 10 MAINTAINABILITY
+Modular, tested, documented, extensible.
+
+========================================================
+68. FINAL ARCHITECTURE
+========================================================
+
+                    HUMAN
+                      │
+                ROOT AUTHORITY
+                      │
+                POLICY ENGINE
+                      │
+             PERMISSION ENGINE
+                      │
+              APPROVAL GATE
+                      │
+                 KHOEM AI
+                      │
+        ┌─────────────┼─────────────┐
+        │             │             │
+      MEMORY      KNOWLEDGE      TOOLS
+        │             │             │
+        └─────────────┼─────────────┘
+                      │
+                   TASK
+                      │
+                   GOAL
+                      │
+                 PLANNING
+                      │
+                 REASONING
+                      │
+                 VERIFICATION
+                      │
+                 SELF-EVAL
+                      │
+                PROPOSAL
+                      │
+                  SANDBOX
+                      │
+                 EXPERIMENT
+                      │
+                APPROVAL
+                      │
+                 EXECUTE
+                      │
+                 VERIFY
+                      │
+                 VERSION
+                      │
+                 ROLLBACK
+                      │
+                   LEARN
+                      │
+                 OBSERVE
+
+CONTROL LAYER:
+
+HEALTH
+TIMEOUT
+RETRY
+BUDGET
+AUDIT
+TRACE
+SECURITY
+KILL SWITCH
+
+========================================================
+69. FINAL ACCEPTANCE CRITERIA
+========================================================
+
+The project is considered mature only when:
+
+[ ] Real service status works
+[ ] System health works
+[ ] Task engine works
+[ ] Execution state works
+[ ] Cognitive state works
+[ ] Goal engine works
+[ ] Memory lifecycle works
+[ ] Knowledge states work
+[ ] Verification works
+[ ] Confidence works
+[ ] Provenance works
+[ ] Permission engine works
+[ ] Policy engine works
+[ ] Human approval works
+[ ] Idea engine works
+[ ] Planning works
+[ ] Sandbox works
+[ ] Experiments work
+[ ] Self-evaluation works
+[ ] Versioning works
+[ ] Rollback works
+[ ] Resource budgets work
+[ ] Timeout works
+[ ] Retry works
+[ ] Circuit breaker works
+[ ] Model fallback works
+[ ] Audit works
+[ ] Kill switch works
+[ ] Security boundaries work
+[ ] Frontend Control Center works
+[ ] Existing KHOEM features still work
+[ ] TypeScript passes
+[ ] Build passes
+[ ] Runtime tests pass
+[ ] Security tests pass
+[ ] Regression tests pass
+[ ] Documentation updated
+
+========================================================
+70. FINAL REPORT
+========================================================
+
+At the end provide:
+
+REPOSITORY AUDIT
+FILES INSPECTED
+FILES CHANGED
+FILES CREATED
+FILES PRESERVED
+
+ARCHITECTURE CHANGES
+
+API CHANGES
+
+STATUS ENGINE
+
+TASK ENGINE
+
+GOAL ENGINE
+
+COGNITIVE ENGINE
+
+MEMORY
+
+KNOWLEDGE
+
+VERIFICATION
+
+CONFIDENCE
+
+PROVENANCE
+
+PERMISSION
+
+POLICY
+
+APPROVAL
+
+IDEATION
+
+PLANNING
+
+SANDBOX
+
+EXPERIMENTS
+
+SELF-EVALUATION
+
+ROLLBACK
+
+RELIABILITY
+
+SECURITY
+
+AUDIT
+
+CONTROL CENTER
+
+TEST RESULTS
+
+BUILD RESULT
+
+RUNTIME RESULT
+
+GIT STATUS
+
+COMMIT HASH
+
+PUSH RESULT
+
+REMAINING WORK
+
+UNVERIFIED ITEMS
+
+========================================================
+71. TRUTHFUL REPORTING
+========================================================
+
+Never claim:
+
+100% complete
+
+unless actually verified.
+
+Use:
+
+VERIFIED
+NOT VERIFIED
+BLOCKED
+EXISTING — PRESERVED
+UPDATED
+CREATED
+
+Never hide failures.
+
+========================================================
+72. START COMMAND
+========================================================
+
+START NOW.
+
+STEP 1:
+
+Perform repository audit only.
+
+Do NOT modify files during the initial audit.
+
+Read the existing README.
+
+Inspect the existing implementation.
+
+Then report:
+
+1. What already exists.
+2. What is missing.
+3. What can be reused.
+4. What must be extended.
+5. What files should be changed.
+6. What risks exist.
+
+Then begin PHASE 1 only.
+
+Do not jump ahead.
+
+After Phase 1 is implemented:
+
+run tests
+run build
+run runtime verification
+show /api/status output
+show Git diff
+show Git status
+
+Only after Phase 1 is verified may you continue to Phase 2.
+
+========================================================
+END OF MASTER SPECIFICATION
+========================================================
+
 KHOEM AI — MASTER IMPLEMENTATION SPEC
 =====================================
 
@@ -16,6 +2270,35 @@ DO NOT fake READY/ONLINE values just to make the UI look good.
 0. NON-DESTRUCTIVE DEVELOPMENT RULES
 ==================================================
 
+Goal
+ ↓
+Idea
+ ↓
+Plan
+ ↓
+Sandbox
+ ↓
+Experiment
+ ↓
+Evaluate
+ ↓
+Proposal
+ ↓
+Permission
+ ↓
+Policy
+ ↓
+Human Approval
+ ↓
+Execute
+ ↓
+Verify
+ ↓
+Version
+ ↓
+Rollback
+ ↓
+Learn
 Before changing ANY file:
 
 1. Inspect the repository structure.
