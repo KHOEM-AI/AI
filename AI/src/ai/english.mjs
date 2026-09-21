@@ -156,6 +156,32 @@ const FILL = new Set(
 
 
 
+
+const CAMBODIA_LANDMARKS = [
+  // 🏰 ប្រាសាទល្បីៗ (Famous Temples)
+  { name: "Angkor Wat", keywords: ["angkor wat", "angkor", "អង្គរវត្ត", "ប្រាសាទអង្គរវត្ត"], info: "🛕 ប្រាសាទអង្គរវត្ត (Angkor Wat): ស្ថិតនៅខេត្តសៀមរាប។ ជាប្រាសាទសាសនាធំបំផុតលើលោក និងជានិមិត្តសញ្ញាជាតិកម្ពុជាដ៏រុងរឿង។ (Located in Siem Reap, it is the largest religious monument in the world.)" },
+  { name: "Bayon", keywords: ["bayon", "បាយ័ន", "ប្រាសាទបាយ័ន"], info: "🛕 ប្រាសាទបាយ័ន (Bayon Temple): ស្ថិតនៅចំកណ្តាលក្រុងអង្គរធំ ខេត្តសៀមរាប។ ល្បីល្បាញដោយសារព្រះភ័ក្ត្រញញឹមដ៏រស់រវើក។ (Located in Siem Reap, famous for its smiling stone faces.)" },
+  { name: "Ta Prohm", keywords: ["ta prohm", "តាព្រហ្ម", "ប្រាសាទតាព្រហ្ម"], info: "🛕 ប្រាសាទតាព្រហ្ម (Ta Prohm): ស្ថិតនៅខេត្តសៀមរាប។ ជាប្រាសាទដែលមានដើមឈើធំៗដុះចាក់ឫសរុំព័ទ្ធយ៉ាងស្រស់ស្អាត។ (Located in Siem Reap, famous for massive tree roots overgrown on the ruins.)" },
+  { name: "Preah Vihear", keywords: ["preah vihear temple", "ព្រះវិហារ", "ប្រាសាទព្រះវិហារ"], info: "🛕 ប្រាសាទព្រះវិហារ (Preah Vihear Temple): ស្ថិតនៅលើកំពូលភ្នំដងរែក ខេត្តព្រះវិហារ។ ជាសម្បត្តិបេតិកភណ្ឌពិភពលោក។ (Located in Preah Vihear province on the Dangrek mountain cliff.)" },
+  { name: "Koh Ker", keywords: ["koh ker", "កោះកេរ", "ប្រាសាទកោះកេរ"], info: "🛕 ប្រាសាទកោះកេរ (Koh Ker): ស្ថិតនៅខេត្តព្រះវិហារ មានរាងជាពីរ៉ាមីត ៧ថ្នាក់ដ៏កម្រ។ (Located in Preah Vihear, a unique 7-tiered pyramid temple.)" },
+  { name: "Sambor Prei Kuk", keywords: ["sambor prei kuk", "សំបូរព្រៃគុក", "ប្រាសាទសំបូរព្រៃគុក"], info: "🛕 ប្រាសាទសំបូរព្រៃគុក (Sambor Prei Kuk): ស្ថិតនៅខេត្តកំពង់ធំ ជាអតីតរាជធានីឥសានបុរៈនៃសម័យចេនឡា។ (Located in Kampong Thom, an ancient pre-Angkorian capital.)" },
+  { name: "Banteay Srei", keywords: ["banteay srei", "បន្ទាយស្រី", "ប្រាសាទបន្ទាយស្រី"], info: "🛕 ប្រាសាទបន្ទាយស្រី (Banteay Srei): ស្ថិតនៅខេត្តសៀមរាប ល្បីល្បាញខាងក្បាច់ចម្លាក់ថ្មពណ៌ផ្កាឈូកដ៏ល្អិតវិចិត្របំផុត។ (Located in Siem Reap, famous for intricate pink sandstone carvings.)" },
+  { name: "Phnom Chisor", keywords: ["phnom chisor", "ភ្នំជីសូរ", "ប្រាសាទភ្នំជីសូរ"], info: "🛕 ប្រាសាទភ្នំជីសូរ (Phnom Chisor): ស្ថិតនៅលើកំពូលភ្នំក្នុងខេត្តតាកែវ ជាទីសក្ការៈបូជាតាំងពីសម័យបុរាណ។ (Located on a hilltop in Takeo province.)" },
+
+  // ⛩️ វត្តអារាមល្បីៗ (Famous Pagodas)
+  { name: "Wat Phnom", keywords: ["wat phnom", "វត្តភ្នំ", "ភ្នំដូនពេញ"], info: "⛩️ វត្តភ្នំ (Wat Phnom): ស្ថិតនៅរាជធានីភ្នំពេញ ជានិមិត្តរូបនៃការកកើតទីក្រុងភ្នំពេញ ភ្ជាប់នឹងរឿងព្រេងយាយពេញ។ (Located in Phnom Penh, the historic founding site of the capital.)" },
+  { name: "Wat Ounalom", keywords: ["wat ounalom", "វត្តឧណ្ណាលោម"], info: "⛩️ វត្តឧណ្ណាលោម (Wat Ounalom): ស្ថិតនៅរាជធានីភ្នំពេញ ជាទីស្នាក់ការកណ្តាលនៃព្រះពុទ្ធសាសនាកម្ពុជា។ (Located in Phnom Penh, the headquarters of Cambodian Buddhism.)" },
+  { name: "Wat Bo", keywords: ["wat bo", "វត្តបូព៌", "វត្តបូព៏"], info: "⛩️ វត្តបូព៌ (Wat Bo): ស្ថិតនៅខេត្តសៀមរាប ជាវត្តចំណាស់មានសណ្តាប់ធ្នាប់ល្អ និងមានរក្សាទុកវត្ថុបុរាណច្រើន។ (Located in Siem Reap, a highly respected vintage pagoda.)" },
+  { name: "Wat Preah Prom Rath", keywords: ["prom rath", "ព្រះព្រហ្មរ័ត្ន", "វត្តព្រះព្រហ្មរ័ត្ន"], info: "⛩️ វត្តព្រះព្រហ្មរ័ត្ន (Wat Preah Prom Rath): ស្ថិតនៅកណ្តាលក្រុងសៀមរាប ក្បែរមាត់ស្ទឹង ជានិមិត្តរូបនៃសន្តិភាពផ្លូវចិត្ត។ (Located in the center of Siem Reap town along the river.)" },
+
+  // 🎓 សាលារៀន និងសាកលវិទ្យាល័យ (Schools & Universities)
+  { name: "RUPP", keywords: ["rupp", "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ", "សាលាភូមិន្ទ"], info: "🎓 សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP): ស្ថិតនៅរាជធានីភ្នំពេញ ជាសាកលវិទ្យាល័យរដ្ឋចំណាស់ និងធំជាងគេនៅកម្ពុជា។ (Royal University of Phnom Penh, the oldest public university in Cambodia.)" },
+  { name: "ITC", keywords: ["itc", "សាលាតិចណូ", "វិទ្យាស្ថានបច្ចេកវិទ្យា", "techno"], info: "🎓 វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា ឬសាលាតិចណូ (ITC): ស្ថិតនៅរាជធានីភ្នំពេញ ជាសាលារដ្ឋលំដាប់កំពូលផ្នែកវិស្វកម្ម។ (Institute of Technology of Cambodia, the top engineering school in Phnom Penh.)" },
+  { name: "RULE", keywords: ["rule", "សាលាច្បាប់", "នីតិសាស្ត្រ"], info: "🎓 សាកលវិទ្យាល័យភូមិន្ទនីតិសាស្ត្រ និងវិទ្យាសាស្ត្រសេដ្ឋកិច្ច ឬសាលាច្បាប់ (RULE): ស្ថិតនៅរាជធានីភ្នំពេញ ល្បីខាងច្បាប់ និងសេដ្ឋកិច្ច។ (Royal University of Law and Economics in Phnom Penh.)" },
+  { name: "NUM", keywords: ["num", "សាកលវិទ្យាល័យជាតិគ្រប់គ្រង", "សាលាគ្រប់គ្រង"], info: "🎓 សាកលវិទ្យាល័យជាតិគ្រប់គ្រង (NUM): ស្ថិតនៅរាជធានីភ្នំពេញ ផ្តោតសំខាន់លើធុរកិច្ច និងការគ្រប់គ្រង។ (National University of Management in Phnom Penh.)" },
+  { name: "UHS", keywords: ["uhs", "សាកលវិទ្យាល័យវិទ្យាសាស្ត្រសុខាភិបាល", "សាលាពេទ្យ"], info: "🎓 សាកលវិទ្យាល័យវិទ្យាសាស្ត្រសុខាភិបាល ឬសាលាពេទ្យ (UHS): ស្ថិតនៅរាជធានីភ្នំពេញ ជាគ្រឹះស្ថានបណ្តុះបណ្តាលគ្រូពេទ្យកំពូល។ (University of Health Sciences, the top medical school in Phnom Penh.)" }
+];
+
 const CAMBODIA_LAWS = [
   {
     name: "Domestic Violence (អំពើហិង្សាក្នុងគ្រួសារ)",
@@ -547,6 +573,11 @@ export function englishReply(text, learned = {}) {
   }
 
   if (!answered) {
+    const landmark = CAMBODIA_LANDMARKS.find((p) => p.keywords.some((k) => q.toLowerCase().includes(k.toLowerCase())));
+    if (landmark) {
+      return landmark.info;
+    }
+  
     const law = CAMBODIA_LAWS.find((p) => p.keywords.some((k) => q.includes(k.toLowerCase())));
     if (law) {
       return law.info + "\n\n(ចំណាំ: នេះជាព័ត៌មានច្បាប់ទូទៅ។ ករណីបន្ទាន់ សូមទូរស័ព្ទទៅលេខ 117 ឬពិគ្រោះជាមួយមេធាវីជំនាញ។) 👮‍♂️⚖️";

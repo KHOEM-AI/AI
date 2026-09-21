@@ -125,5 +125,20 @@ export async function khoemReply(conversation, honorific = "បង") {
 
   if (RE[l].hello.test(q)) return SAY[l].hello;
   if (RE[l].name.test(q)) return SAY[l].name;
+
+  // --- Bridge to english.mjs for Knowledge Base (Laws, Provinces, Landmarks) ---
+  try {
+    const enMod = await import("./english.mjs");
+    if (enMod.englishReply) {
+      // បញ្ជូនសំណួរទៅឆែកក្នុង Knowledge Base ទោះជាភាសាអ្វីក៏ដោយ
+      const kb = await enMod.englishReply(conversation);
+      if (kb && !kb.includes("I am sorry") && !kb.includes("I don't") && !kb.includes("unknown")) {
+        return kb;
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+  // -----------------------------------------------------------------------------
   return l === "km" ? SAY.km.unknown(honorific) : SAY.en.unknown;
 }
