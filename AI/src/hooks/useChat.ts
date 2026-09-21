@@ -6,7 +6,7 @@ function makeId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export function useChat() {
+export function useChat(honorific: string | null) {
   const [messages, setMessages] = useState<Message[]>(() => loadMessages());
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +31,7 @@ export function useChat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: nextMessages.map((m) => ({ role: m.role, content: m.text })),
+          honorific: honorific ?? undefined,
         }),
       });
 

@@ -55,7 +55,7 @@ app.get("/api/models", (req, res) => {
 registerApi(app);
 
 app.post("/api/chat", async (req, res) => {
-  const { messages } = req.body;
+  const { messages, honorific } = req.body;
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({
@@ -64,7 +64,7 @@ app.post("/api/chat", async (req, res) => {
   }
 
   try {
-    const result = await aiCore.chat(messages);
+    const result = await aiCore.chat(messages, { honorific });
     res.json(result);
   } catch (err) {
     console.error("AI Core error:", err);

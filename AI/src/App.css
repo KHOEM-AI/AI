@@ -755,3 +755,25 @@ body::after {
 .status-card__commands { display: flex; flex-wrap: wrap; gap: 6px; }
 .status-card__commands code { background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.3); color: #7dd3fc; border-radius: 6px; padding: 2px 8px; font-size: 12px; }
 @media (min-width: 640px) { .status-grid { grid-template-columns: 1fr 1fr; } }
+
+/* === HONORIFIC PROMPT === */
+.honorific-overlay {
+  position: fixed; inset: 0; z-index: 9997; background: rgba(0,0,0,.85);
+  display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+}
+.honorific-panel {
+  width: 100%; max-width: 420px; background: #04121c; border: 1px solid #38bdf8;
+  border-radius: 18px; box-shadow: 0 0 30px rgba(56,189,248,.35); padding: 22px; text-align: center;
+}
+.honorific-panel__title { font-size: 16px; color: #e2e8f0; margin: 0 0 16px; }
+.honorific-panel__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.honorific-btn {
+  background: rgba(56,189,248,.06); border: 1px solid #38bdf8; color: #7dd3fc;
+  border-radius: 12px; padding: 12px 0; font-size: 15px; font-weight: 700; cursor: pointer;
+}
+.honorific-btn:hover { background: rgba(56,189,248,.16); }
+.honorific-btn--active { background: #38bdf8; color: #04121c; }
+.honorific-panel__close {
+  margin-top: 16px; background: transparent; border: 1px solid rgba(56,189,248,.4);
+  color: #94a3b8; border-radius: 10px; padding: 6px 18px; font-size: 13px; cursor: pointer;
+}

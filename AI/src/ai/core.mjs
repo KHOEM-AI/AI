@@ -30,7 +30,7 @@ export class AICore {
     };
   }
 
-  async chat(messages, { sessionId = "default" } = {}) {
+  async chat(messages, { sessionId = "default", honorific } = {}) {
     if (!Array.isArray(messages) || messages.length === 0) {
       throw new Error("messages must contain at least one message");
     }

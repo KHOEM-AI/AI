@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
+import HonorificPrompt from "./components/HonorificPrompt";
+import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
 
 export default function App() {
-  const { messages, isSending, error, sendMessage, clearConversation } = useChat();
+  const [honorific, setHonorific] = useState<Honorific | null>(() => loadHonorific());
+  const [showHonorific, setShowHonorific] = useState(false);
+  const { messages, isSending, error, sendMessage, clearConversation } = useChat(honorific);
   const [input, setInput] = useState("");
   const [showStatus, setShowStatus] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -34,6 +38,9 @@ export default function App() {
         </div>
         <button className="app__status-btn" onClick={() => setShowStatus(true)}>
           ស្ថានភាព AI
+        </button>
+        <button className="app__status-btn" onClick={() => setShowHonorific(true)}>
+          ប្ដូរការហៅ
         </button>
         {messages.length > 0 && (
           <button className="app__clear" onClick={clearConversation}>
@@ -85,6 +92,18 @@ export default function App() {
       </footer>
 
       {showStatus && <AIStatus onClose={() => setShowStatus(false)} />}
+
+      {(!honorific || showHonorific) && (
+        <HonorificPrompt
+          current={honorific}
+          onSelect={(h) => {
+            saveHonorific(h);
+            setHonorific(h);
+            setShowHonorific(false);
+          }}
+          onClose={honorific ? () => setShowHonorific(false) : undefined}
+        />
+      )}
     </div>
   );
 }

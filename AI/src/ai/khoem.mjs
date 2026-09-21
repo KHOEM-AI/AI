@@ -90,10 +90,10 @@ const RE = {
 
 const SAY = {
   km: {
-    hello: "សួស្តីបង! 🙂\nប្អូនគឺ KHOEM-AI។\nវាយ /help ដើម្បីមើលពាក្យបញ្ជា។",
-    name: "ប្អូនឈ្មោះ KHOEM-AI ជាខួរតូចដែលដំណើរការលើទូរស័ព្ទបងផ្ទាល់ ហើយមិនហៅ API ខាងក្រៅទេ។",
-    unknown:
-      "ប្អូនមិនទាន់មានចម្លើយសម្រាប់សំណួរនេះទេ។ បងអាចបង្រៀនប្អូន៖ /learn សំណួរ = ចម្លើយ\nឬវាយ /help ដើម្បីមើលពាក្យបញ្ជា។",
+    hello: (h) => `ជម្រាបសួរ${h}! 🙏 ខ្ញុំគឺ KHOEM-AI។\nតើថ្ងៃនេះ${h}មានអ្វីឱ្យខ្ញុំជួយដែរឬទេ?\n(វាយ /help ដើម្បីមើលពាក្យបញ្ជា)`,
+    name: "ខ្ញុំឈ្មោះ KHOEM-AI ជាជំនួយការឆ្លាតវៃផ្ទាល់ខ្លួនរបស់អ្នក។ 🙂",
+    unknown: (h) =>
+      `សូមអភ័យទោស${h} ខ្ញុំមិនទាន់យល់ពីសំណួរនេះនៅឡើយទេ។ 😔\nប៉ុន្តែ${h}អាចបង្រៀនខ្ញុំបាន៖ /learn សំណួរ = ចម្លើយ\n(ឬវាយ /help ដើម្បីមើលពាក្យបញ្ជាផ្សេងៗ)`,
   },
   en: {
     hello: "Hello! 🙂\nI am KHOEM-AI.\nType /help to see my commands.",
@@ -103,14 +103,14 @@ const SAY = {
   },
 };
 
-export async function khoemReply(conversation) {
+export async function khoemReply(conversation, honorific = "បង") {
   const last = String(conversation.at(-1)?.content ?? "").trim();
   const q = last.toLowerCase();
   const l = lang(last);
 
   if (l === "en" && !q.startsWith("/") && q !== "help") return englishReply(last, load());
 
-  if (!q.startsWith("/") && RE[l].hello.test(q)) return SAY[l].hello;
+  if (!q.startsWith("/") && RE[l].hello.test(q)) return l === "km" ? SAY.km.hello(honorific) : SAY.en.hello;
   if (!q.startsWith("/") && RE[l].name.test(q)) return SAY[l].name;
 
   const learned = handleLearn(last);
@@ -125,5 +125,5 @@ export async function khoemReply(conversation) {
 
   if (RE[l].hello.test(q)) return SAY[l].hello;
   if (RE[l].name.test(q)) return SAY[l].name;
-  return SAY[l].unknown;
+  return l === "km" ? SAY.km.unknown(honorific) : SAY.en.unknown;
 }

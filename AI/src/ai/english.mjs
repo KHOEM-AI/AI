@@ -154,6 +154,135 @@ const FILL = new Set(
   "boy girl man bro brother sister friend dear sir there everyone all my me i you u ur your the a an is are am to and so oh well ok okay please really very just uncle aunt mr mrs ms miss team guys".split(" "),
 );
 
+
+const CAMBODIA_PROVINCES = [
+  {
+    name: "Phnom Penh",
+    keywords: ["phnom penh", "phnompenh", "capital", "aeon", "nagaworld"],
+    info: "Phnom Penh is the vibrant capital city along the Tonle Sap and Mekong rivers. Key attractions: Royal Palace, Riverside, Silk Island. Malls: Aeon Mall 1/2/3, Chip Mong Malls, Lucky Supermarket. Luxury Hotels: Rosewood Phnom Penh, NagaWorld, Hyatt Regency. Note: 10% VAT applies to most bills."
+  },
+  {
+    name: "Siem Reap",
+    keywords: ["siem reap", "siemreap", "angkor", "pub street", "raffles"],
+    info: "Siem Reap is famous for Angkor Wat and Tonle Sap lake floating villages. Shopping: Heritage Walk, Angkor Market, Phsar Chas (Old Market). Hotels: Raffles Grand Hotel d'Angkor, Sofitel Angkor. Great nightlife at Pub Street."
+  },
+  {
+    name: "Preah Sihanouk",
+    keywords: ["sihanouk", "sihanoukville", "smiting", "koh rong", "beach"],
+    info: "Preah Sihanouk is the main coastal hub with white sand beaches and Koh Rong islands. Malls: Furi Times Square, Prince Mall, Makro. Hotels: Sokha Beach Resort, Royal Sands Koh Rong, Moonlight Resort."
+  },
+  {
+    name: "Kampot",
+    keywords: ["kampot", "bokor", "pepper", "kampot river"],
+    info: "Kampot is peaceful with Kampot River views and Bokor National Park. Famous for Kampot Pepper. Stay at Le Bokor Palace or Castle Bayview. Shopping at Kampot Night Market and local minimarts."
+  },
+  {
+    name: "Kep",
+    keywords: ["kep", "crab market", "kep beach", "sailing club"],
+    info: "Kep is a serene coastal province famous for Fresh Crab Market, Kep National Park, and Rabbit Island (Koh Tonsay). Stay at Knai Bang Chatt or Samanea Beach Resort."
+  },
+  {
+    name: "Battambang",
+    keywords: ["battambang", "bamboo train", "sangker river", "banan"],
+    info: "Battambang is known for French colonial architecture, Sangker River, and the Bamboo Train. Hotels: Classy Hotel, Bambu Hotel. Shopping at Phsar Nat."
+  },
+  {
+    name: "Koh Kong",
+    keywords: ["koh kong", "tatai", "mangrove", "cardamom"],
+    info: "Koh Kong features eco-tourism, Tatai River, mangroves, and Cardamom Mountains. Stay at Canvas & Orchids Retreat floating lodge."
+  },
+  {
+    name: "Mondulkiri",
+    keywords: ["mondulkiri", "sen monorom", "elephant", "bou sra"],
+    info: "Mondulkiri is cool and hilly, famous for Bou Sra Waterfall, elephant sanctuaries, and local coffee farms. Stay at Pidoma Resort or Nature Lodge."
+  },
+  {
+    name: "Ratanakiri",
+    keywords: ["ratanakiri", "banlung", "yeak laom", "gemstones"],
+    info: "Ratanakiri is home to the stunning Yeak Laom Volcanic Crater Lake and tribal cultures. Hotels: Terres Rouges Lodge in Banlung."
+  },
+  {
+    name: "Kratie",
+    keywords: ["kratie", "dolphin", "mekong", "koh trong"],
+    info: "Kratie is famous for rare Irrawaddy river dolphins along the Mekong River and peaceful Koh Trong Island eco-resorts."
+  },
+  {
+    name: "Stung Treng",
+    keywords: ["stung treng", "sekong", "ramsar"],
+    info: "Stung Treng connects the Mekong and Sekong rivers, featuring the Ramsar wetland site and border eco-tourism."
+  },
+  {
+    name: "Preah Vihear",
+    keywords: ["preah vihear", "koh ker", "tbeng"],
+    info: "Preah Vihear hosts the famous cliffside Preah Vihear Temple (UNESCO World Heritage) and ancient Koh Ker pyramid temple."
+  },
+  {
+    name: "Kampong Cham",
+    keywords: ["kampong cham", "bamboo bridge", "koh pen", "hanchey"],
+    info: "Kampong Cham is a charming Mekong river town with the seasonal Bamboo Bridge and Koh Pen island. Stay at L'Ancapora Hotel."
+  },
+  {
+    name: "Tboung Khmum",
+    keywords: ["tboung khmum", "suong", "rubber"],
+    info: "Tboung Khmum features vast rubber plantations and Suong town commercial hub."
+  },
+  {
+    name: "Kampong Chhnang",
+    keywords: ["kampong chhnang", "pottery", "floating village"],
+    info: "Kampong Chhnang is famous for handcrafted clay pottery and Tonle Sap floating villages."
+  },
+  {
+    name: "Kampong Speu",
+    keywords: ["kampong speu", "kirirom", "aural", "palm sugar"],
+    info: "Kampong Speu features Kirirom National Park pine forests, Mt. Aural (highest peak), and famous Palm Sugar."
+  },
+  {
+    name: "Kampong Thom",
+    keywords: ["kampong thom", "sambor prei kuk", "stung sen"],
+    info: "Kampong Thom sits along Stung Sen River, hosting the pre-Angkorian Sambor Prei Kuk temples."
+  },
+  {
+    name: "Kandal",
+    keywords: ["kandal", "ta khmao", "koh dach", "chisor"],
+    info: "Kandal surrounds Phnom Penh, featuring Silk Island (Koh Dach) and historical sites near Ta Khmao."
+  },
+  {
+    name: "Pursat",
+    keywords: ["pursat", "kampong luong", "marble"],
+    info: "Pursat is known for fine marble carving, Cardamom mountains, and Kampong Luong floating village."
+  },
+  {
+    name: "Prey Veng",
+    keywords: ["prey veng", "neak loeung", "ba phnom"],
+    info: "Prey Veng lies in the fertile agricultural eastern plain near Neak Loeung Bridge over the Mekong."
+  },
+  {
+    name: "Svay Rieng",
+    keywords: ["svay rieng", "bavet", "sez"],
+    info: "Svay Rieng is a key border trade province featuring Bavet Special Economic Zone and casino resorts."
+  },
+  {
+    name: "Takeo",
+    keywords: ["takeo", "phnom da", "tonle bati", "lobster"],
+    info: "Takeo is considered the cradle of Khmer civilization, famous for Phnom Da, Tonle Bati, and freshwater giant lobsters."
+  },
+  {
+    name: "Oddar Meanchey",
+    keywords: ["oddar meanchey", "samraong", "anlong veng"],
+    info: "Oddar Meanchey features the Dangrek Mountain range and historical sites around Anlong Veng."
+  },
+  {
+    name: "Pailin",
+    keywords: ["pailin", "phnom yat", "gemstone", "coffee"],
+    info: "Pailin sits near the Thai border, historically famous for rubies, gemstones, Phnom Yat pagoda, and coffee."
+  },
+  {
+    name: "Banteay Meanchey",
+    keywords: ["banteay meanchey", "poipet", "banteay chhmar"],
+    info: "Banteay Meanchey hosts the major Poipet international border gateway and the ancient Banteay Chhmar temple complex."
+  }
+];
+
 const TOPICS = [
   {
     name: "Cambodia",
@@ -379,6 +508,11 @@ export function englishReply(text, learned = {}) {
   }
 
   if (!answered) {
+    const prov = CAMBODIA_PROVINCES.find((p) => p.keywords.some((k) => q.includes(k)));
+    if (prov) {
+      return prov.info + " Would you like to know more details about " + prov.name + "? 🙂";
+    }
+
     const term = has("what", "who", "mean", "means", "meaning", "explain", "define") && DEFS.find(([ws]) => has(...ws));
     if (term) push(term[1]);
   }
