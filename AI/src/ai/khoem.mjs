@@ -75,7 +75,7 @@ const HELP_EN =
   "- /find word  search the code";
 
 const lang = (s) =>
-  /[\u1780-\u17FF]/.test(s) || !/[a-z]/i.test(s) ? "km" : "en";
+  /[\u1780-\u17FF]/.test(s) ? "km" : "en";
 
 const RE = {
   km: {

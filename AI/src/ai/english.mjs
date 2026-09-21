@@ -259,12 +259,61 @@ const WORK = [
   [["schedule", "plan", "timeline"], "Let us plan it 🙂 Tell me the tasks and their dates."],
 ];
 
+const CRISIS =
+  "I am really sorry you feel this way. You matter, and you do not have to face this alone. Please talk to someone you trust, or contact a local emergency or crisis service right now.";
+const HUG = "Sending you a warm hug 🤗 I am a program, so I cannot hug, but I am here to listen.";
+
+const EMOJI_REPLY = [
+  [["👋"], "Hello! 👋 Do you have any question or problem? You can ask me."],
+  [["🙏"], "🙏 Of course. Is there something on your mind?"],
+  [["👌", "👍"], "👌 Great! What is next?"],
+  [["❤", "🥰", "😍"], "❤️ That is kind of you. What can I help you with?"],
+  [["😢", "😭", "😔", "💔", "🥺", "😞"], "I am here 🤗 Do you want to tell me what happened?"],
+  [["😡", "😠", "🤬"], "That looks upset 😔 What happened?"],
+  [["😰", "😨", "😱"], "That looks scary 😰 What happened?"],
+  [["🤗"], "🤗 Sending a warm hug back."],
+  [["😂", "🤣", "😆", "😄", "😁", "🙂", "😊"], "😄 Glad you are smiling! What is up?"],
+];
+
+const REL = [
+  [["forgive"], ["me"], "I am not the one you hurt 🙂 But a sincere sorry is a good start 🙏 Who do you want to say sorry to?"],
+  [["forgive", "forgiven", "forgiveness"], null, "Forgiving is not easy 🙏 It takes a big heart. Do you want to talk about it?"],
+  [["sorry", "apologize", "apologise", "regret", "regretful"], ["so", "very", "deeply", "truly", "really", "incredibly", "completely", "sincerely"], "Thank you for being honest 🙏 If you hurt someone, tell me what happened. I am listening."],
+  [["promise"], ["will", "never", "always"], "That is a big promise 🤝 What really counts is keeping it with actions, day by day."],
+  [["hurt", "hurts", "hurting", "heartbroken", "betrayed"], null, "I am sorry you are hurting 💔 It is okay to feel this way. Do you want to tell me what happened?"],
+  [["disappointed", "disappointing"], null, "That sounds disappointing 😔 What happened?"],
+  [["promised"], null, "Promises matter 🤝 Did they keep it?"],
+  [["trust", "trusted", "rely", "reliable"], null, "Trust grows slowly, with honest words and steady actions 🤝 What is on your mind about trust?"],
+  [["priority"], ["me", "you", "felt", "feel", "not"], "Everyone wants to feel like a priority 💛 Do you want to talk about how you feel?"],
+  [["granted"], null, "Everyone wants to feel valued 💛 Do you want to talk about how you feel?"],
+  [["fight", "argument", "argued", "quarrel"], null, "Arguments are hard 😔 It helps to talk when both people are calm. What was it about?"],
+  [["anniversary"], null, "An anniversary is a special day 🌹 Are you planning something, or did something go wrong?"],
+  [["hug"], null, HUG],
+  [["hold"], ["me"], HUG],
+  [["chance"], ["second", "another"], "Everyone deserves a chance to make things right 🙏 What happened?"],
+  [["love"], ["you", "her", "him", "wife", "husband", "girlfriend", "boyfriend", "mom", "dad", "mother", "father", "family"], "Love is beautiful ❤️ Showing up for the people we love matters as much as saying it."],
+];
+
 const UNSURE =
   "Sorry, I did not fully understand 🙂 Can you say it in a simpler way? You can also teach me: /learn question = answer";
 
 export function englishReply(text, learned = {}) {
   const q = clean(text);
-  if (!q) return UNSURE;
+  if (!q) {
+    const em = EMOJI_REPLY.find(([es]) => es.some((e) => String(text).includes(e)));
+    return em ? em[1] : UNSURE;
+  }
+  const cw = q.split(" ");
+  const cr = (...ws) => ws.some((w) => cw.includes(w));
+  if (
+    cr("suicide", "suicidal") ||
+    (cr("kill", "hurt", "harm", "cut") && cr("myself")) ||
+    (cr("want", "wanna") && cr("die")) ||
+    q.includes("end my life") ||
+    q.includes("better off dead")
+  ) {
+    return CRISIS;
+  }
 
   const pool = new Map(SEED);
   for (const [k, v] of Object.entries(learned)) {
@@ -298,7 +347,7 @@ export function englishReply(text, learned = {}) {
   const INTENTS = [
     [() => has("thanks", "thank", "thankyou"), "You are welcome! 🙂"],
     [() => has("bye", "goodbye"), "Goodbye! See you next time 🙂"],
-    [() => has("sorry"), "No problem at all 🙂"],
+    [() => has("sorry") && !has("so", "very", "deeply", "truly", "really", "incredibly", "completely", "sincerely", "forgive"), "No problem at all 🙂"],
     [() => has("favorite", "favourite"), "I do not have favorites because I am a program 🙂 What is your favorite?"],
     [() => has("how") && has("you", "ur", "u") && !has("old", "name", "know", "do", "can"), "I am fine, thank you 🙂 And you?"],
   ];
@@ -313,6 +362,11 @@ export function englishReply(text, learned = {}) {
     for (const [test, answer] of INTENTS) {
       if (test()) { push(answer); break; }
     }
+  }
+
+  if (!answered && !has("mean", "means", "meaning", "define")) {
+    const rel = REL.find(([ws, also]) => has(...ws) && (!also || has(...also)));
+    if (rel) push(rel[2]);
   }
 
   if (!answered && !has("mean", "means", "meaning", "define")) {
