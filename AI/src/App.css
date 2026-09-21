@@ -797,3 +797,27 @@ body::after {
 .bubble__action svg { width: 26px; height: 26px; }
 .bubble__action svg, .bubble__action svg * { stroke-width: 2.2; }
 .bubble__action:hover:not(:disabled), .bubble__action--active { color: #38bdf8; }
+
+/* ===== FINAL: circular flag badge, real colors, temple intact ===== */
+.app__brand-mark {
+  width: 90px !important;
+  height: 90px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+}
+.app__logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-image: url(/logo.png) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-color: transparent !important;
+  filter: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+}
