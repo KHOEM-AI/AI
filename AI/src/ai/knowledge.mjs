@@ -13,3 +13,18 @@ export function searchTechDB(query) {
   const match = TECH_DB.find(item => item.keywords.some(k => q.includes(k.toLowerCase())));
   return match ? match.info : null;
 }
+
+
+export const HISTORY_FOOD_DB = [
+  { keywords: ["អាម៉ុក", "amok", "ម្ហូប", "food", "recipe"], info: "🍲 អាម៉ុកត្រី (Fish Amok): ជាម្ហូបតំណាងជាតិកម្ពុជា។ ផ្សំពី ត្រីរ៉ស់ ឬត្រីឆ្តោ, គ្រឿងបុក (ស្លឹកគ្រៃ រមៀត ខ្ទឹម...), ខ្ទិះដូង, និងស្លឹកញ។ វាមានរសជាតិឈ្ងុយឆ្ងាញ់ និងចំហុយក្នុងកន្ទោងស្លឹកចេក។" },
+  { keywords: ["សម្លម្ជូរ", "ម្ជូរគ្រឿង", "machu"], info: "🍲 សម្លម្ជូរគ្រឿង (Samlor Machu Kroeung): ម្ហូបពេញនិយម ផ្សំពីសាច់គោ ឬត្រី, គ្រឿងបុក, ត្រកួន, ម្ជូរ (អំពិល ឬក្រសាំង), និងប្រហុក។ រសជាតិជូរប្រៃសាបតិចៗ។" },
+  { keywords: ["នំបញ្ចុក", "nom banh chok", "noodle"], info: "🍜 នំបញ្ចុក (Nom Banh Chok): អាហារពេលព្រឹកដ៏ពេញនិយម មានសរសៃនំធ្វើពីម្សៅអង្ករ ស្រូបទឹកសម្លប្រហើរ (ត្រី) ញ៉ាំផ្ទាប់ជាមួយបន្លែស្រស់ៗ (ត្រួយចេក សណ្តែកបណ្តុះ...)។" },
+  { keywords: ["ជ័យវរ្ម័ន", "jayavarman"], info: "👑 ព្រះបាទជ័យវរ្ម័នទី៧ (King Jayavarman VII): ជាព្រះមហាក្សត្រដ៏ខ្លាំងពូកែបំផុតនាសម័យអង្គរ (សតវត្សទី១២)។ ព្រះអង្គបានកសាងប្រាសាទបាយ័ន តាព្រហ្ម មន្ទីរពេទ្យ(អរោគ្យសាលា)១០២ និងសាលាសំណាក់១២១។" },
+  { keywords: ["អង្គរ", "angkor empire", "សម័យអង្គរ"], info: "🏛️ សម័យអង្គរ (Angkor Empire): ចាប់ផ្តើមនៅឆ្នាំ៨០២ ដោយព្រះបាទជ័យវរ្ម័នទី២ និងលាតសន្ធឹងយ៉ាងធំធេងនៅអាស៊ីអាគ្នេយ៍។ ជាសម័យកាលដ៏រុងរឿងបំផុតនៃប្រវត្តិសាស្ត្រខ្មែរ ដែលមានការកសាងប្រាសាទរាប់ពាន់។" }
+];
+
+export function searchHistoryFood(query) {
+  const q = query.toLowerCase();
+  const match = HISTORY_FOOD_DB.find(item => item.keywords.some(k => q.includes(k.toLowerCase())));
+  return match ? match.info : null;
+}
