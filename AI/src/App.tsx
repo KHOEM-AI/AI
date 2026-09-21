@@ -44,7 +44,7 @@ export default function App() {
           ប្ដូរការហៅ
         </button>
         {messages.length > 0 && (
-          <button className="app__clear" onClick={clearConversation}>
+          <button className="app__status-btn" onClick={clearConversation}>
             សម្អាតការសន្ទនា
           </button>
         )}
