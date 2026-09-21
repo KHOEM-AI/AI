@@ -4,6 +4,7 @@ import cors from "cors";
 import "dotenv/config";
 import { AICore } from "./src/ai/core.mjs";
 import { collectStatus, trackActivity } from "./src/ai/status.mjs";
+import { createTask, transition, getTask, getEvents, emit } from "./src/ai/tasks.mjs";
 
 const app = express();
 app.use(cors());
@@ -73,10 +74,19 @@ app.post("/api/chat", async (req, res) => {
     });
   }
 
+  let task = null;
   try {
+    task = createTask({ kind: "chat", messageCount: messages.length });
+    emit(task.taskId, "INPUT_RECEIVED", { messageCount: messages.length });
+    transition(task.taskId, "QUEUED", "chat request accepted");
+    transition(task.taskId, "RUNNING", "aiCore.chat started");
+    const t0 = Date.now();
     const result = await aiCore.chat(messages, { honorific });
+    transition(task.taskId, "COMPLETED", "reply generated");
+    emit(task.taskId, "RESPONSE_COMPLETED", {}, Date.now() - t0);
     res.json(result);
   } catch (err) {
+    if (task) { try { transition(task.taskId, "FAILED", "aiCore.chat failed"); } catch {} }
     console.error("AI Core error:", err);
 
     res.status(err.status === 401 || err.status === 402 ? 502 : 500).json({
@@ -85,6 +95,15 @@ app.post("/api/chat", async (req, res) => {
       status: err.status || 500,
     });
   }
+});
+
+app.get("/api/tasks", (req, res) => {
+  const key = process.env.KHOEM_API_KEY;
+  if (!key) return res.status(503).json({ error: "API key not configured" });
+  if (req.get("x-api-key") !== key) return res.status(401).json({ error: "Unauthorized" });
+  const id = req.query.id ? String(req.query.id) : null;
+  if (id) return res.json({ task: getTask(id), events: getEvents(id) });
+  res.json({ events: getEvents().slice(-50) });
 });
 
 app.listen(PORT, () => {
