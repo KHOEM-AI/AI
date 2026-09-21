@@ -90,13 +90,13 @@ const RE = {
 
 const SAY = {
   km: {
-    hello: "សួស្តីបង! ប្អូនគឺ KHOEM-AI។ វាយ /help ដើម្បីមើលពាក្យបញ្ជា។",
+    hello: "សួស្តីបង! 🙂\nប្អូនគឺ KHOEM-AI។\nវាយ /help ដើម្បីមើលពាក្យបញ្ជា។",
     name: "ប្អូនឈ្មោះ KHOEM-AI ជាខួរតូចដែលដំណើរការលើទូរស័ព្ទបងផ្ទាល់ ហើយមិនហៅ API ខាងក្រៅទេ។",
     unknown:
       "ប្អូនមិនទាន់មានចម្លើយសម្រាប់សំណួរនេះទេ។ បងអាចបង្រៀនប្អូន៖ /learn សំណួរ = ចម្លើយ\nឬវាយ /help ដើម្បីមើលពាក្យបញ្ជា។",
   },
   en: {
-    hello: "Hello! I am KHOEM-AI. Type /help to see my commands.",
+    hello: "Hello! 🙂\nI am KHOEM-AI.\nType /help to see my commands.",
     name: "I am KHOEM-AI, a small assistant that runs on this phone. I do not call any outside API.",
     unknown:
       "I do not have an answer for that yet. You can teach me: /learn question = answer\nOr type /help to see my commands.",
@@ -109,6 +109,9 @@ export async function khoemReply(conversation) {
   const l = lang(last);
 
   if (l === "en" && !q.startsWith("/") && q !== "help") return englishReply(last, load());
+
+  if (!q.startsWith("/") && RE[l].hello.test(q)) return SAY[l].hello;
+  if (!q.startsWith("/") && RE[l].name.test(q)) return SAY[l].name;
 
   const learned = handleLearn(last);
   if (learned !== null) return learned;

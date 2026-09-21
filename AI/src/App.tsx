@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "./hooks/useChat";
+import AIStatus from "./components/AIStatus";
 
 export default function App() {
   const { messages, isSending, error, sendMessage, clearConversation } = useChat();
   const [input, setInput] = useState("");
+  const [showStatus, setShowStatus] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,6 +32,9 @@ export default function App() {
           <span className="app__brand-mark"><span className="app__logo" /></span>
           <span className="app__brand-name">KHOEM-AI</span>
         </div>
+        <button className="app__status-btn" onClick={() => setShowStatus(true)}>
+          ស្ថានភាព AI
+        </button>
         {messages.length > 0 && (
           <button className="app__clear" onClick={clearConversation}>
             សម្អាតការសន្ទនា
@@ -78,6 +83,8 @@ export default function App() {
           ផ្ញើ
         </button>
       </footer>
+
+      {showStatus && <AIStatus onClose={() => setShowStatus(false)} />}
     </div>
   );
 }
