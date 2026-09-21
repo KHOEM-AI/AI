@@ -1,4 +1,5 @@
-import { handleLearn } from "./learn.mjs";
+import { handleLearn, load } from "./learn.mjs";
+import { englishReply } from "./english.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
 import fs from "node:fs";
@@ -106,6 +107,8 @@ export async function khoemReply(conversation) {
   const last = String(conversation.at(-1)?.content ?? "").trim();
   const q = last.toLowerCase();
   const l = lang(last);
+
+  if (l === "en" && !q.startsWith("/") && q !== "help") return englishReply(last, load());
 
   const learned = handleLearn(last);
   if (learned !== null) return learned;

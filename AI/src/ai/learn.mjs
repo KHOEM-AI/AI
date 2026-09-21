@@ -4,7 +4,7 @@ import path from "node:path";
 
 const FILE = path.join(os.homedir(), "khoem-learned.json");
 
-function load() {
+export function load() {
   try {
     return JSON.parse(fs.readFileSync(FILE, "utf8"));
   } catch {
