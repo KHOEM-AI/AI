@@ -1,3 +1,4 @@
+import { handleLearn } from "./learn.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import fs from "node:fs";
 import path from "node:path";
@@ -62,6 +63,8 @@ const HELP =
 export async function khoemReply(conversation) {
   const last = String(conversation.at(-1)?.content ?? "").trim();
   const q = last.toLowerCase();
+  const learned = handleLearn(last);
+  if (learned !== null) return learned;
   if (q === "/scan" || q.includes("ស្កេន")) return scan();
   if (q.startsWith("/read ")) return readFile(last.slice(6).trim());
   if (/^(សួស្ដី|សួស្តី|hello|hi)/.test(q)) return "សួស្ដីបង! " + HELP;

@@ -72,4 +72,7 @@ export const HELP_ALL =
   "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង\n" +
   "- /funcs src/Gate.tsx  បង្ហាញបញ្ជី function\n" +
   "- /check  រកបញ្ហាទូទៅ\n" +
-  "- /help  បង្ហាញបញ្ជីនេះ";
+  "- /help  បង្ហាញបញ្ជីនេះ\n" +
+  "- /learn សំណួរ = ចម្លើយ  បង្រៀនខួរ\n" +
+  "- /learned  បង្ហាញអ្វីដែលបានរៀន\n" +
+  "- /forget សំណួរ  ឱ្យខួរភ្លេច";
