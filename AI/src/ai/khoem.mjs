@@ -1,4 +1,4 @@
-import { searchTechDB, searchHistoryFood, searchMoreHistory, searchCompleteHistory, searchKhmerCakes, searchKhmerWine } from "./knowledge.mjs";
+import { searchTechDB, searchHistoryFood, searchMoreHistory, searchCompleteHistory, searchKhmerCakes, searchKhmerWine, searchCultureTradition } from "./knowledge.mjs";
 import { handleLearn, load } from "./learn.mjs";
 import { englishReply } from "./english.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
