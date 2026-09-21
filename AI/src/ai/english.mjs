@@ -151,7 +151,7 @@ const say = (a) => (typeof a === "function" ? a() : a);
 
 const GREETW = new Set(["hello", "hi", "hey", "yo", "good", "morning", "afternoon", "evening", "night"]);
 const FILL = new Set(
-  "boy girl man bro brother sister friend dear sir there everyone all my me i you u ur your the a an is are am to and so oh well ok okay please really very just".split(" "),
+  "boy girl man bro brother sister friend dear sir there everyone all my me i you u ur your the a an is are am to and so oh well ok okay please really very just uncle aunt mr mrs ms miss team guys".split(" "),
 );
 
 const TOPICS = [
@@ -180,6 +180,83 @@ const EMOTIONS = [
   [["stressed", "stress", "stressful", "overwhelmed"], "That sounds stressful 😟 What is making you feel that way?", false],
   [["tired", "sleepy", "exhausted"], "You sound tired 😴 Take a short break if you can.", false],
   [["haha", "hahaha", "lol", "lmao", "funny"], "Haha 😂 Glad you are laughing!", false],
+];
+
+const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+const MON_RE = "(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sept|sep|oct|nov|dec)";
+const DAY_MS = 86400000;
+const fmt = (t, o) => new Date(t).toLocaleDateString("en-US", { timeZone: "UTC", ...o });
+const label = (t) => fmt(t, { month: "long", day: "numeric" });
+const daysText = (n) => {
+  if (n < 7) return n + (n === 1 ? " day" : " days");
+  const w = Math.floor(n / 7);
+  const r = n % 7;
+  return w + (w === 1 ? " week" : " weeks") + (r ? " and " + r + (r === 1 ? " day" : " days") : "");
+};
+
+function findDates(q) {
+  const found = [];
+  const add = (m, mon, day) => {
+    const mi = MONTHS.findIndex((n) => n.startsWith(mon.slice(0, 3)));
+    found.push({ at: m.index, m: mi, d: Number(day) });
+  };
+  for (const m of q.matchAll(new RegExp("\\b" + MON_RE + " (\\d{1,2})(?:st|nd|rd|th)?\\b", "g"))) add(m, m[1], m[2]);
+  for (const m of q.matchAll(new RegExp("\\b(\\d{1,2})(?:st|nd|rd|th)? (?:of )?" + MON_RE + "\\b", "g"))) add(m, m[2], m[1]);
+  return found.sort((a, b) => a.at - b.at);
+}
+
+function dateReply(found, workish) {
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const next = (mi, d, from) => {
+    let t = Date.UTC(new Date(from).getUTCFullYear(), mi, d);
+    if (t < from) t = Date.UTC(new Date(from).getUTCFullYear() + 1, mi, d);
+    return new Date(t).getUTCMonth() === mi ? t : null;
+  };
+  const bad = "That date does not exist. Please check the day and month 🙂";
+  const a = next(found[0].m, found[0].d, today);
+  if (a === null) return bad;
+  if (found.length === 1) {
+    const n = (a - today) / DAY_MS;
+    const when = n === 0 ? "today" : n === 1 ? "tomorrow" : n + " days from today" + (n >= 7 ? " (" + daysText(n) + ")" : "");
+    return (workish ? "Got it 🙂 " : "") + label(a) + " is " + when + ", on a " + fmt(a, { weekday: "long" }) + "." + (workish ? " Do you want to plan the steps before then?" : "");
+  }
+  const b = next(found[1].m, found[1].d, a);
+  if (b === null) return bad;
+  const n = (b - a) / DAY_MS;
+  return label(a) + " to " + label(b) + " is " + n + " days" + (n >= 7 ? " (" + daysText(n) + ")" : "") + "." + (workish ? " Do you want to split it into phases?" : "");
+}
+
+const DEFS = [
+  [["sprint"], "A sprint is a short period of work, usually one to four weeks, with a clear goal."],
+  [["deadline"], "A deadline is the latest date or time when work must be finished."],
+  [["milestone"], "A milestone is an important point in a project, like finishing the design."],
+  [["prototype"], "A prototype is an early model of a product, used to test ideas before building the final one."],
+  [["wireframe"], "A wireframe is a simple sketch that shows the layout of a screen."],
+  [["beta"], "A beta version is an early version of an app that people test before the final release."],
+  [["launch"], "A launch is the day a product is released to the public."],
+  [["backend"], "The backend is the part of an app that runs on the server: data, accounts and logic."],
+  [["frontend"], "The frontend is the part of an app that people see and touch."],
+  [["bug", "bugs"], "A bug is a mistake in a program that makes it behave wrongly."],
+  [["database"], "A database is an organized place to store information so it can be found quickly."],
+  [["server"], "A server is a computer that gives data or services to other computers."],
+  [["cloud"], "The cloud means computers on the internet that store data and run programs for you."],
+  [["manager"], "A project manager plans the work, sets the schedule and keeps the team on track."],
+  [["developer", "programmer", "coder"], "A developer writes the code that makes an app or website work."],
+  [["designer", "ux", "ui"], "A UI/UX designer plans how an app looks and how easy it is to use."],
+  [["analyst"], "A data analyst studies data to find useful facts and patterns."],
+  [["tester", "qa"], "A QA tester checks software to find bugs before people use it."],
+  [["marketing"], "Marketing is how a company tells people about its product and gets them interested."],
+  [["operations"], "Operations keeps the tools, servers and daily work of a company running smoothly."],
+  [["guard"], "A security guard protects a building and checks who goes in and out."],
+  [["boss"], "A boss leads a team, gives directions and makes final decisions."],
+];
+
+const WORK = [
+  [["meeting", "meetings"], (at) => (at ? "A meeting at " + at + " 🙂 What is it about?" : "A meeting 🙂 What time is it, and what is it about?")],
+  [["deadline", "deadlines"], "When is the deadline? Tell me the date, for example: December 15 🙂"],
+  [["project", "projects"], "Tell me about the project 🙂 What is it, and when is the deadline?"],
+  [["schedule", "plan", "timeline"], "Let us plan it 🙂 Tell me the tasks and their dates."],
 ];
 
 const UNSURE =
@@ -248,6 +325,23 @@ export function englishReply(text, learned = {}) {
   }
 
   if (!answered) {
+    const term = has("what", "who", "mean", "means", "meaning", "explain", "define") && DEFS.find(([ws]) => has(...ws));
+    if (term) push(term[1]);
+  }
+  if (!answered) {
+    const found = findDates(q);
+    if (found.length) {
+      push(dateReply(found, has("deadline", "launch", "meeting", "project", "due", "finish", "start", "begin", "deliver", "ready", "release", "beta")));
+    }
+  }
+  if (!answered) {
+    const tm = q.match(/\b(\d{1,2})(?: (\d{2}))? ?(am|pm)\b/);
+    const at = tm ? Number(tm[1]) + ":" + (tm[2] || "00") + " " + tm[3].toUpperCase() : null;
+    const w = WORK.find(([ws]) => has(...ws));
+    if (w) push(typeof w[1] === "function" ? w[1](at) : w[1]);
+  }
+
+  if (!answered) {
     const t = TOPICS.find((t) => has(...t.words));
     if (t) {
       const ask = t.asks.find(([ks]) => has(...ks));
@@ -268,8 +362,7 @@ export function englishReply(text, learned = {}) {
     if (parts.length === 1 && greeting) {
       const rest = words.filter((w) => !GREETW.has(w) && !FILL.has(w));
       parts.push(
-        rest.length
-          ? "Can you say the rest in a simpler way?"
+        rest.length > 1 ? "Can you say the rest in a simpler way?"
           : "Do you have any question or problem? You can ask me.",
       );
     }

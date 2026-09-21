@@ -28,7 +28,7 @@ export default function App() {
       <header className="app__header">
         <div className="app__brand">
           <span className="app__brand-mark"><span className="app__logo" /></span>
-          <span className="app__brand-name">𝒦𝒽𝑜𝑒𝓂  𝒶𝒾</span>
+          <span className="app__brand-name">KHOEM-AI</span>
         </div>
         {messages.length > 0 && (
           <button className="app__clear" onClick={clearConversation}>
