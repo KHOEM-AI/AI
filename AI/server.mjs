@@ -9,10 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 8787;
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
-// NOTE: check https://docs.claude.com for the current model name/version
-// before shipping this — this one may be out of date by the time you read it.
 const MODEL = "khoem-local";
 const aiCore = new AICore({
   provider: "khoem",

@@ -7,12 +7,10 @@ export class AICore {
   constructor({
     provider = "khoem",
     model = "khoem-local",
-    apiKey = process.env.ANTHROPIC_API_KEY,
     memory = new AIMemory(),
   } = {}) {
     this.provider = provider;
     this.model = model;
-    this.apiKey = apiKey;
     this.memory = memory;
   }
 
@@ -55,61 +53,6 @@ export class AICore {
       };
     }
 
-    if (this.provider !== "anthropic") {
-      throw new Error(`Unsupported provider: ${this.provider}`);
-    }
-
-    if (!this.apiKey) {
-      throw new Error("ANTHROPIC_API_KEY is not configured");
-    }
-
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": this.apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: this.model,
-        max_tokens: 1024,
-        messages: conversation.map((m) => ({
-          role: m.role,
-          content: m.content,
-        })),
-      }),
-    });
-
-    const detail = await response.text();
-
-    let data = null;
-    try {
-      data = JSON.parse(detail);
-    } catch {}
-
-    if (!response.ok) {
-      const error = new Error(
-        data?.error?.message || `Anthropic API error (${response.status})`
-      );
-      error.status = response.status;
-      error.provider = this.provider;
-      throw error;
-    }
-
-    const reply =
-      data?.content?.find((block) => block.type === "text")?.text ?? "";
-
-    this.memory.add(sessionId, {
-      role: "assistant",
-      content: reply,
-    });
-
-    return {
-      reply,
-      provider: this.provider,
-      model: this.model,
-      sessionId,
-      memoryMessages: this.memory.get(sessionId).length,
-    };
+    throw new Error(`Unsupported provider: ${this.provider}`);
   }
 }
