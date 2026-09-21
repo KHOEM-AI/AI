@@ -1,4 +1,5 @@
 import express from "express";
+import { registerApi } from "./src/ai/api.mjs";
 import cors from "cors";
 import "dotenv/config";
 import { AICore } from "./src/ai/core.mjs";
@@ -12,7 +13,7 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 // NOTE: check https://docs.claude.com for the current model name/version
 // before shipping this — this one may be out of date by the time you read it.
-const MODEL = "claude-sonnet-4-5";
+const MODEL = "khoem-local";
 const aiCore = new AICore({
   provider: "khoem",
   model: MODEL,
@@ -23,7 +24,8 @@ app.get("/api/health", (req, res) => {
     status: "ok",
     service: "ai-project",
     port: PORT,
-    anthropicConfigured: Boolean(ANTHROPIC_API_KEY),
+    provider: aiCore.provider,
+    toolsProtected: Boolean(process.env.KHOEM_API_KEY),
   });
 });
 
@@ -36,6 +38,7 @@ app.get("/api", (req, res) => {
       health: "GET /api/health",
       chat: "POST /api/chat",
       models: "GET /api/models",
+      tools: "GET /api/scan /api/check /api/learned /api/funcs?file= /api/read?file= | POST /api/learn /api/forget (ត្រូវការ header x-api-key)",
     },
   });
 });
@@ -45,12 +48,14 @@ app.get("/api/models", (req, res) => {
     models: [
       {
         id: MODEL,
-        provider: "anthropic",
+        provider: "khoem",
         type: "chat",
       },
     ],
   });
 });
+
+registerApi(app);
 
 app.post("/api/chat", async (req, res) => {
   const { messages } = req.body;

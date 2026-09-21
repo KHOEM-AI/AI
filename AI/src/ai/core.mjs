@@ -5,8 +5,8 @@ const AI_NAME = "𝒦𝒽𝑜𝓮𝓂 𝒮𝑜𝓀𝓈𝒾𝓋𝓊𝓉𝒽𝒶 A
 
 export class AICore {
   constructor({
-    provider = "anthropic",
-    model = "claude-sonnet-4-5",
+    provider = "khoem",
+    model = "khoem-local",
     apiKey = process.env.ANTHROPIC_API_KEY,
     memory = new AIMemory(),
   } = {}) {
