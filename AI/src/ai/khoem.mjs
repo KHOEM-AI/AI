@@ -67,9 +67,9 @@ export async function khoemReply(conversation) {
   if (learned !== null) return learned;
   if (q === "/scan" || q.includes("ស្កេន")) return scan();
   if (q.startsWith("/read ")) return readFile(last.slice(6).trim());
-  if (/^(សួស្ដី|សួស្តី|hello|hi)/.test(q)) return "សួស្ដីបង! " + HELP;
+  if (/^(សួស្ដី|សួស្តី|hello|hi)/.test(q)) return "សួស្ដីបង! " + HELP_ALL;
   if (q === "/help") return HELP_ALL;
   if (q === "/check") return check();
   if (q.startsWith("/funcs ")) return funcs(last.slice(7).trim());
-  return HELP;
+  return HELP_ALL;
 }
