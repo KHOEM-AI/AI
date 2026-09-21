@@ -28,12 +28,9 @@ function dice(a, b) {
   return (2 * hit) / (a.length + b.length - 2);
 }
 
-const UNKNOWN =
-  "I do not have an answer for that yet. You can teach me: /learn question = answer\nOr type /help to see my commands.";
-
 const ENTRIES = [
   // greetings (10)
-  ["hello | hi | hey | hello there | hi there", "Hello! I am KHOEM-AI. How can I help you today?"],
+  ["hello | hi | hey | hello there | hi there", "Hello! 🙂 Do you have any question or problem? You can ask me."],
   ["good morning", "Good morning! What would you like to do today?"],
   ["good afternoon", "Good afternoon! How can I help?"],
   ["good evening", "Good evening! How can I help?"],
@@ -44,7 +41,8 @@ const ENTRIES = [
   ["i am bored", "Try something new: ask me to /scan your project, or teach me an answer with /learn."],
   ["what is up | sup | yo", "Not much, just waiting for your next question. What is up with you?"],
   // about me (12)
-  ["what is your name | who are you | what are you | what should i call you", "I am KHOEM-AI, a small assistant that runs on this phone. I do not call any outside API."],
+  ["what is your name | what should i call you | may i know your name | tell me your name", "My name is KHOEM-AI 🙂"],
+  ["who are you | what are you", "I am KHOEM-AI, a small assistant that runs on this phone. I do not call any outside API."],
   ["who made you | who created you | who built you", "I was built in this project, right here on this phone."],
   ["where do you live | where are you", "I live in the ai-project folder on this phone and I run in Termux."],
   ["how old are you | what is your age", "I am very new. My first version was written in September 2026."],
@@ -151,17 +149,132 @@ for (const [keys, answer] of ENTRIES)
 
 const say = (a) => (typeof a === "function" ? a() : a);
 
+const GREETW = new Set(["hello", "hi", "hey", "yo", "good", "morning", "afternoon", "evening", "night"]);
+const FILL = new Set(
+  "boy girl man bro brother sister friend dear sir there everyone all my me i you u ur your the a an is are am to and so oh well ok okay please really very just".split(" "),
+);
+
+const TOPICS = [
+  {
+    name: "Cambodia",
+    words: ["cambodia", "cambodian", "phnom", "penh", "angkor", "siem", "reap"],
+    about: "Cambodia is a country in Southeast Asia. Its capital is Phnom Penh.",
+    praise: "Cambodia has many wonderful places, like Angkor Wat.",
+    asks: [
+      [["capital"], "The capital of Cambodia is Phnom Penh."],
+      [["language", "speak", "speaks"], "The official language of Cambodia is Khmer."],
+      [["money", "currency", "riel", "dollar"], "Cambodia uses the riel, and US dollars are also widely used."],
+      [["food", "eat", "dish", "amok"], "A famous Cambodian dish is fish amok, a steamed fish curry."],
+      [["visit", "travel", "tourist", "place", "places", "famous", "see", "angkor"], "The most famous place is Angkor Wat, a huge temple complex near Siem Reap."],
+    ],
+  },
+];
+
+const SAD_REPLY = "I am sorry to hear that 😢 Do you want to tell me what happened?";
+const EMOTIONS = [
+  [["happy", "glad", "excited", "wonderful", "amazing", "congratulations", "won", "win", "winner"], "That is wonderful news! 🎉 Tell me more! 😄", true],
+  [["sad", "cry", "crying", "unhappy", "lonely"], SAD_REPLY, false],
+  [["angry", "mad", "furious", "annoyed", "upset", "rude"], "That sounds really frustrating 😔 It is okay to feel upset. What happened?", false],
+  [["scared", "afraid", "nervous", "anxious", "terrified", "worried", "fear"], "That sounds scary 😰 Take a deep breath. What are you worried about?", false],
+  [["surprised", "shocked", "wow", "whoa"], "Wow! 😲 Tell me what happened!", false],
+  [["stressed", "stress", "stressful", "overwhelmed"], "That sounds stressful 😟 What is making you feel that way?", false],
+  [["tired", "sleepy", "exhausted"], "You sound tired 😴 Take a short break if you can.", false],
+  [["haha", "hahaha", "lol", "lmao", "funny"], "Haha 😂 Glad you are laughing!", false],
+];
+
+const UNSURE =
+  "Sorry, I did not fully understand 🙂 Can you say it in a simpler way? You can also teach me: /learn question = answer";
+
 export function englishReply(text, learned = {}) {
   const q = clean(text);
-  if (!q) return UNKNOWN;
+  if (!q) return UNSURE;
 
   const pool = new Map(SEED);
   for (const [k, v] of Object.entries(learned)) {
     const c = clean(k);
     if (c) pool.set(c, v);
   }
-
   if (pool.has(q)) return say(pool.get(q));
+
+  const words = q.split(" ");
+  const has = (...ws) =>
+    ws.some((w) =>
+      words.some((x) => x === w || (w.length >= 4 && x.length >= 4 && dice(x, w) >= 0.8)),
+    );
+
+  const parts = [];
+  let answered = false;
+  const push = (t) => {
+    parts.push(t);
+    answered = true;
+  };
+
+  const gm = q.match(/\bgood (morning|afternoon|evening|night)\b/);
+  const greeting = gm
+    ? "Good " + gm[1] + "!"
+    : has("hello", "hallo", "hi", "hey", "yo")
+      ? "Hello!"
+      : null;
+  if (greeting) parts.push(greeting + " 🙂");
+
+  const nm = q.match(/\bmy name is ([a-z]+)/);
+  const INTENTS = [
+    [() => has("thanks", "thank", "thankyou"), "You are welcome! 🙂"],
+    [() => has("bye", "goodbye"), "Goodbye! See you next time 🙂"],
+    [() => has("sorry"), "No problem at all 🙂"],
+    [() => has("favorite", "favourite"), "I do not have favorites because I am a program 🙂 What is your favorite?"],
+    [() => has("how") && has("you", "ur", "u") && !has("old", "name", "know", "do", "can"), "I am fine, thank you 🙂 And you?"],
+  ];
+
+  if (nm) {
+    push("Nice to meet you, " + nm[1][0].toUpperCase() + nm[1].slice(1) + "! 🙂");
+  } else if (has("name") && has("my") && has("what", "who")) {
+    push("I do not know your name yet. You can tell me: my name is ...");
+  } else if (has("name") && has("you", "your", "ur", "u")) {
+    push("My name is KHOEM-AI 🙂");
+  } else {
+    for (const [test, answer] of INTENTS) {
+      if (test()) { push(answer); break; }
+    }
+  }
+
+  if (!answered && !has("mean", "means", "meaning", "define")) {
+    if (has("suicide", "suicidal") || (has("kill", "hurt") && has("myself")) || (has("want") && has("die"))) {
+      push("I am really sorry you feel this way. You matter, and you do not have to face this alone. Please talk to someone you trust, or contact a local emergency or crisis service right now.");
+    } else {
+      const hit = EMOTIONS.find(([ws, , pos]) => has(...ws) && !(pos && has("who", "what", "which", "where", "when", "how")));
+      if (hit) push(hit[2] && has("not", "never", "dont") ? SAD_REPLY : hit[1]);
+    }
+  }
+
+  if (!answered) {
+    const t = TOPICS.find((t) => has(...t.words));
+    if (t) {
+      const ask = t.asks.find(([ks]) => has(...ks));
+      const positive = has("good", "beautiful", "nice", "great", "wonderful", "love", "like", "amazing");
+      const out = [];
+      if (has("know")) out.push("Yes, I know a little about " + t.name + ".");
+      out.push(ask ? ask[1] : positive ? t.praise : t.about);
+      out.push(
+        ask
+          ? "Anything else you would like to know about " + t.name + "? 🙂"
+          : "What would you like to know about " + t.name + "? 🙂",
+      );
+      push(out.join(" "));
+    }
+  }
+
+  if (parts.length) {
+    if (parts.length === 1 && greeting) {
+      const rest = words.filter((w) => !GREETW.has(w) && !FILL.has(w));
+      parts.push(
+        rest.length
+          ? "Can you say the rest in a simpler way?"
+          : "Do you have any question or problem? You can ask me.",
+      );
+    }
+    return parts.join(" ");
+  }
 
   if (q.length >= 6) {
     let best = null;
@@ -173,5 +286,5 @@ export function englishReply(text, learned = {}) {
     if (best && score >= 0.9) return say(pool.get(best));
     if (best && score >= 0.65) return `Did you mean "${best}"? If so, please ask again.`;
   }
-  return UNKNOWN;
+  return UNSURE;
 }
