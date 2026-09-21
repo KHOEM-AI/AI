@@ -1,3 +1,4 @@
+import { searchTechDB } from "./knowledge.mjs";
 import { handleLearn, load } from "./learn.mjs";
 import { englishReply } from "./english.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
