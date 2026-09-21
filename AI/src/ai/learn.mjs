@@ -56,7 +56,7 @@ export function handleLearn(text) {
   if (t.startsWith("/forget ")) {
     const k = norm(t.slice(8));
     const d = load();
-    if (!(k in d)) return "ខ្ញុំមិនធ្លាប់រៀនអំពី: " + k;
+    if (!(k in d)) return "ប្អូនមិនធ្លាប់រៀនអំពី: " + k;
     delete d[k];
     save(d);
     return "បានភ្លេចហើយ: " + k;
@@ -65,8 +65,8 @@ export function handleLearn(text) {
   if (t === "/learned") {
     const keys = Object.keys(load());
     return keys.length
-      ? `ខ្ញុំបានរៀន ${keys.length} ចំណុច:\n` + keys.map((k) => "- " + k).join("\n")
-      : "ខ្ញុំមិនទាន់បានរៀនអ្វីទេ។ សាកល្បង: /learn សួស្ដី = សួស្ដីបង!";
+      ? `ប្អូនបានរៀន ${keys.length} ចំណុច:\n` + keys.map((k) => "- " + k).join("\n")
+      : "ប្អូនមិនទាន់បានរៀនអ្វីទេ។ សាកល្បង: /learn សួស្ដី = សួស្ដីបង!";
   }
 
   if (!t.startsWith("/")) {

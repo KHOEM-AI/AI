@@ -67,7 +67,7 @@ export function check() {
 }
 
 export const HELP_ALL =
-  "ពាក្យបញ្ជាដែលខ្ញុំយល់:\n" +
+  "ពាក្យបញ្ជាដែលប្អូនយល់:\n" +
   "- /scan  ស្កេនកូដក្នុងគម្រោង\n" +
   "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង\n" +
   "- /funcs src/Gate.tsx  បង្ហាញបញ្ជី function\n" +
