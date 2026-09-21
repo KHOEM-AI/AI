@@ -109,3 +109,33 @@ export function searchKhmerCakes(query) {
   const match = KHMER_CAKES_DB.find(item => item.keywords.some(k => q.includes(k.toLowerCase())));
   return match ? match.info : null;
 }
+
+
+export const KHMER_WINE_DB = [
+  { 
+    keywords: ["ស្រាត្នោត", "កំពង់ស្ពឺ", "ទឹកត្នោតជូរ"], 
+    info: "🍷 ស្រាត្នោត / ទឹកត្នោតជូរ ខេត្តកំពង់ស្ពឺ: ជាភេសជ្ជៈប្រពៃណីដ៏ល្បីល្បាញ មានរសជាតិផ្អែមស្រទន់លាយជូរអែម ទទួលការការពារជាផលិតផលសម្គាល់ភូមិសាស្ត្រ (GI)។" 
+  },
+  { 
+    keywords: ["ស្រាថ្នាំ", "ស្រាស្មုံ", "សៀមរាប"], 
+    info: "🍶 ស្រាស និងស្រាថ្នាំបុរាណ ខេត្តសៀមរាប: ជ្រលក់ជាមួយឫសឈើ ឬស្រាថ្នាំសម្រាប់ពង្រឹងកម្លាំង និងព្យាបាលរោគតាមជំនឿបុរាណ។" 
+  },
+  { 
+    keywords: ["ស្រាស", "ស្រាអង្ករ", "កណ្តាល", "កំពង់ចាម"], 
+    info: "🌾 ស្រាសស្រែ ខេត្តកណ្តាល និងកំពង់ចាម: បិតតាមគ្រួសារជនបទ ប្រើមេស្រាសបុរាណ និងអង្ករដំណុប មានក្លិនក្រអូបឈ្ងុយ។" 
+  },
+  { 
+    keywords: ["ស្រាពាង", "មណ្ឌលគីរី", "រតនគិរី", "ជនជាតិភាគតិច"], 
+    info: "🏺 ស្រាពាង ខេត្តមណ្ឌលគីរី និងរតនគិរី: ធ្វើពីអង្ករ ឬពោតបាយដំណុបหมักក្នុងពាងដី ប្រើបំពង់បឺតផឹកជុំគ្នាបង្ហាញសាមគ្គីភាព។" 
+  },
+  { 
+    keywords: ["ស្រាបៀរអង្គរ", "angkor beer", "ភ្នំពេញ"], 
+    info: "🍺 ស្រាបៀរអង្គរ (Angkor Beer): ស្រាបៀរជាតិលំដាប់អន្តរជាតិ បិតនិងផលិតដោយក្រុមហ៊ុន Cambrew ក្នុងរាជធានីភ្នំពេញ។" 
+  }
+];
+
+export function searchKhmerWine(query) {
+  const q = query.toLowerCase();
+  const match = KHMER_WINE_DB.find(item => item.keywords.some(k => q.includes(k.toLowerCase())));
+  return match ? match.info : null;
+}
