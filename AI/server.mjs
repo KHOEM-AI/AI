@@ -4,7 +4,7 @@ import cors from "cors";
 import "dotenv/config";
 import { AICore } from "./src/ai/core.mjs";
 import { collectStatus, trackActivity } from "./src/ai/status.mjs";
-import { createTask, transition, getTask, getEvents, emit } from "./src/ai/tasks.mjs";
+import { createTask, transition, getTask, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
 
 const app = express();
 app.use(cors());
@@ -81,7 +81,22 @@ app.post("/api/chat", async (req, res) => {
     transition(task.taskId, "QUEUED", "chat request accepted");
     transition(task.taskId, "RUNNING", "aiCore.chat started");
     const t0 = Date.now();
-    const result = await aiCore.chat(messages, { honorific });
+    const tid = task.taskId;
+    const step = (fn, to, reason) => {
+      try { fn(tid, to, reason); }
+      catch (e) { emit(tid, "STATE_TRANSITION_REJECTED", { to, reason: String(e.message).slice(0, 120) }); }
+    };
+    step(setExecution, "PROCESSING", "chat received");
+    step(setCognitive, "UNDERSTANDING", "chat received");
+    const onStage = (kind, reason) => {
+      step(setExecution, kind, reason);
+      if (kind === "RETRIEVING") step(setCognitive, "RETRIEVING", reason);
+    };
+    const result = await aiCore.chat(messages, { honorific, onStage });
+    step(setExecution, "RESPONDING", "reply ready");
+    step(setCognitive, "ANSWERING", "reply ready");
+    step(setExecution, "IDLE", "reply sent");
+    step(setCognitive, "IDLE", "reply sent");
     transition(task.taskId, "COMPLETED", "reply generated");
     emit(task.taskId, "RESPONSE_COMPLETED", {}, Date.now() - t0);
     res.json(result);

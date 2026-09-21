@@ -104,18 +104,18 @@ const SAY = {
   },
 };
 
-export async function khoemReply(conversation, honorific = "បង") {
+export async function khoemReply(conversation, honorific = "បង", onStage = null) {
   const last = String(conversation.at(-1)?.content ?? "").trim();
   const q = last.toLowerCase();
   const l = lang(last);
 
-  if (l === "en" && !q.startsWith("/") && q !== "help") return englishReply(last, load());
+  if (l === "en" && !q.startsWith("/") && q !== "help") { onStage?.("RETRIEVING", "english module"); return englishReply(last, load()); }
 
   if (!q.startsWith("/") && RE[l].hello.test(q)) return l === "km" ? SAY.km.hello(honorific) : SAY.en.hello;
   if (!q.startsWith("/") && RE[l].name.test(q)) return SAY[l].name;
 
   const learned = handleLearn(last);
-  if (learned !== null) return learned;
+  if (learned !== null) { onStage?.("LEARNING", "learn command handled"); return learned; }
 
   // សំណួរជាក់លាក់ស្តីពីបុណ្យភ្ជុំបិណ្ឌ
   if (!q.startsWith("/") && (q.includes("ទៅវត្តធ្វើអី") || q.includes("ធ្វើអីខ្លះក្នុងពិធីបុណ្យភ្ជុំបិណ្ឌ") || q.includes("ទៅវត្តធ្វើអ្វី") || q.includes("ធ្វើអ្វីនៅវត្ត") || q.includes("ធ្វើអីនៅវត្ត") || q.includes("ភ្ជុំបិណ្ឌធ្វើអី"))) {
@@ -125,6 +125,7 @@ export async function khoemReply(conversation, honorific = "បង") {
     return "🕯️ គោលបំណងនៃការទៅវត្តក្នុងអំឡុងពេលបុណ្យភ្ជុំបិណ្ឌរួមមាន៖\n- ឧទ្ទិសកុសលដល់ញាតិការទាំង ៧សន្តាន និងបុព្វបុរសដែលបានចែកឋានទៅ។\n- ដោះលែងព្រលឹងប្រេតដែលខុសបាប និងអនាថាឱ្យទទួលបានចំណីអាហារ និងរួចផុតពីទុក្ខវេទនា។\n- បំពេញកុសល និងពង្រឹងសាមគ្គីភាពគ្រួសារក្នុងថ្ងៃបុណ្យធំប្រចាំឆ្នាំ។";
   }
 
+  if (q === "/scan" || q.includes("ស្កេន") || q.startsWith("/read ") || q === "/check" || q.startsWith("/funcs ") || q.startsWith("/find ")) onStage?.("TOOL_CALL", "tool command");
   if (q === "/scan" || q.includes("ស្កេន")) return scan();
   if (q.startsWith("/read ")) return readFile(last.slice(6).trim());
   if (q === "/help" || q === "help") return l === "en" ? HELP_EN : HELP_ALL;
@@ -137,6 +138,7 @@ export async function khoemReply(conversation, honorific = "បង") {
 
   // --- Bridge to english.mjs for Knowledge Base (Laws, Provinces, Landmarks) ---
   try {
+    onStage?.("RETRIEVING", "knowledge base lookup");
     const enMod = await import("./english.mjs");
     if (enMod.englishReply) {
       // បញ្ជូនសំណួរទៅឆែកក្នុង Knowledge Base ទោះជាភាសាអ្វីក៏ដោយ

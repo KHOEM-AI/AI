@@ -30,7 +30,7 @@ export class AICore {
     };
   }
 
-  async chat(messages, { sessionId = "default", honorific } = {}) {
+  async chat(messages, { sessionId = "default", honorific, onStage = null } = {}) {
     if (!Array.isArray(messages) || messages.length === 0) {
       throw new Error("messages must contain at least one message");
     }
@@ -42,7 +42,7 @@ export class AICore {
     const conversation = this.memory.get(sessionId);
 
     if (this.provider === "khoem") {
-      const reply = await khoemReply(conversation);
+      const reply = await khoemReply(conversation, undefined, onStage);
       this.memory.add(sessionId, { role: "assistant", content: reply });
       return {
         reply,
