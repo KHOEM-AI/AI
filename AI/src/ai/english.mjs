@@ -155,6 +155,45 @@ const FILL = new Set(
 );
 
 
+
+const CAMBODIA_LAWS = [
+  {
+    name: "Domestic Violence (អំពើហិង្សាក្នុងគ្រួសារ)",
+    keywords: ["violence", "domestic", "abuse", "beat", "ហិង្សា", "វាយដំ", "វាយប្រពន្ធ", "វាយកូន", "ហិង្សាក្នុងគ្រួសារ"],
+    info: "⚖️ Domestic Violence (អំពើហិង្សាក្នុងគ្រួសារ): Under the 2005 Law on Prevention of Domestic Violence and the Penal Code, acts of physical, mental, or sexual abuse within a family are serious crimes. \n👉 ជាភាសាខ្មែរ៖ យោងតាមច្បាប់កម្ពុជា អំពើហិង្សាក្នុងគ្រួសារ គឺជាបទល្មើសព្រហ្មទណ្ឌ។ អ្នកប្រព្រឹត្តនឹងត្រូវផ្តន្ទាទោសដាក់ពន្ធនាគារយ៉ាងធ្ងន់ធ្ងរ ដើម្បីការពារជនរងគ្រោះ (ប្រពន្ធ ឬកូន)។ 🚨 ករណីបន្ទាន់ សូមទូរស័ព្ទទៅលេខ 117 (ប៉ូលីស)។"
+  },
+  {
+    name: "Theft & Snatching (អំពើលួច និងឆក់)",
+    keywords: ["theft", "steal", "snatch", "pickpocket", "លួច", "ឆក់", "ចោរលួច", "ចោរឆក់"],
+    info: "⚖️ Theft & Snatching (អំពើលួច និងឆក់): Punishable under Articles 353-356 of the Cambodian Penal Code. Basic theft carries a penalty of 6 months to 3 years in prison. Snatching in public triggers aggravated circumstances.\n👉 ជាភាសាខ្មែរ៖ បទល្មើសលួច និងឆក់ទ្រព្យសម្បត្តិអ្នកដទៃ ត្រូវផ្តន្ទាទោសដាក់ពន្ធនាគារពី ៦ខែ ទៅ ៣ឆ្នាំ (ឬលើសពីនេះបើមានស្ថានទម្ងន់ទោស ដូចជាបង្ករបួសស្នាមដល់ជនរងគ្រោះ)។"
+  },
+  {
+    name: "Armed Robbery (អំពើប្លន់ / លួចមានអំពើហិង្សា)",
+    keywords: ["robbery", "rob", "armed", "weapon", "ប្លន់", "ប្រដាប់អាវុធ", "ចោរប្លន់"],
+    info: "⚖️ Robbery (អំពើប្លន់): Governed by Article 357 of the Penal Code. Theft committed with violence or weapons is extremely serious. \n👉 ជាភាសាខ្មែរ៖ ការប្លន់ប្រដាប់អាវុធ ឬមានអំពើហិង្សា គឺជាបទឧក្រិដ្ឋ។ ជនល្មើសត្រូវផ្តន្ទាទោសជាប់ពន្ធនាគារពី ៣ឆ្នាំ ទៅ ១០ឆ្នាំ ដល់ ១៥ឆ្នាំ ឬអាចឈានដល់មួយជីវិតបើបណ្តាលឱ្យមានមនុស្សស្លាប់ ឬធ្វើទារុណកម្ម។"
+  },
+  {
+    name: "Drug Offenses (បទល្មើសគ្រឿងញៀន)",
+    keywords: ["drug", "meth", "trafficking", "គ្រឿងញៀន", "ថ្នាំញៀន", "ជួញដូរ", "ជក់"],
+    info: "⚖️ Drugs (គ្រឿងញៀន): Cambodia's Law on the Control of Drugs imposes severe penalties. Trafficking can result in Life imprisonment.\n👉 ជាភាសាខ្មែរ៖ ច្បាប់កម្ពុជាមានភាពតឹងរ៉ឹងបំផុតលើគ្រឿងញៀន។ ការជួញដូរ ផលិត ឬរក្សាទុកគ្រឿងញៀនខុសច្បាប់ ត្រូវប្រឈមនឹងការជាប់គុកពី ២០ឆ្នាំ ទៅដល់អស់មួយជីវិត ព្រមទាំងពិន័យជាប្រាក់រាប់សិបលានរៀល។"
+  },
+  {
+    name: "Gambling & Vices (ល្បែងស៊ីសងខុសច្បាប់)",
+    keywords: ["gamble", "gambling", "vice", "ល្បែង", "ល្បែងស៊ីសង", "អបាយមុខ", "ភ្នាល់"],
+    info: "⚖️ Illegal Gambling (ល្បែងស៊ីសងខុសច្បាប់): Under the Law on Suppression of Gambling, unauthorized gambling is prohibited.\n👉 ជាភាសាខ្មែរ៖ យោងតាមច្បាប់ស្តីពីការបង្ក្រាបល្បែងស៊ីសង (បៀ អាប៉ោង ឆ្នោតខុសច្បាប់ ជល់មាន់) អ្នកលេង និងអ្នកបើកបនល្បែង ត្រូវប្រឈមមុខនឹងការពិន័យជាប្រាក់យ៉ាងធ្ងន់ និងការជាប់ពន្ធនាគារចាប់ពី ១ខែ ទៅ ៥ឆ្នាំ។"
+  },
+  {
+    name: "Fraud & Scam (ការឆបោក)",
+    keywords: ["fraud", "scam", "cheat", "ឆបោក", "បោកប្រាស់", "បោកលុយ"],
+    info: "⚖️ Fraud (អំពើឆបោក): Defined in Article 377 of the Penal Code. Deceiving someone to hand over funds carries a penalty of 6 months to 3 years.\n👉 ជាភាសាខ្មែរ៖ អំពើឆបោកយកទ្រព្យសម្បត្តិ ឬប្រាក់កាសអ្នកដទៃតាមគ្រប់រូបភាព (រួមទាំងការឆបោកតាមអនឡាញ ឬតេឡេក្រាម) ត្រូវផ្តន្ទាទោសដាក់ពន្ធនាគារពី ៦ខែ ទៅ ៣ឆ្នាំ ព្រមទាំងសងការខូចខាតជាប្រាក់។"
+  },
+  {
+    name: "Self-Defense (សិទ្ធិការពារខ្លួន)",
+    keywords: ["defense", "defend", "ការពារខ្លួន", "តដៃ"],
+    info: "⚖️ Legitimate Defense (ការការពារស្របច្បាប់): Article 33 of the Penal Code allows for self-defense if proportionate.\n👉 ជាភាសាខ្មែរ៖ ការតដៃដើម្បីការពារខ្លួនស្របច្បាប់ មិនចាត់ទុកជាបទល្មើសទេ លុះត្រាតែការតដៃនោះមាន 'សមាមាត្រ' (Proportional) ទៅនឹងការវាយប្រហារជាក់ស្តែង និងទាន់ពេលវេលា។"
+  }
+];
+
 const CAMBODIA_PROVINCES = [
   {
     name: "Phnom Penh",
@@ -508,6 +547,11 @@ export function englishReply(text, learned = {}) {
   }
 
   if (!answered) {
+    const law = CAMBODIA_LAWS.find((p) => p.keywords.some((k) => q.includes(k.toLowerCase())));
+    if (law) {
+      return law.info + "\n\n(ចំណាំ: នេះជាព័ត៌មានច្បាប់ទូទៅ។ ករណីបន្ទាន់ សូមទូរស័ព្ទទៅលេខ 117 ឬពិគ្រោះជាមួយមេធាវីជំនាញ។) 👮‍♂️⚖️";
+    }
+
     const prov = CAMBODIA_PROVINCES.find((p) => p.keywords.some((k) => q.includes(k)));
     if (prov) {
       return prov.info + " Would you like to know more details about " + prov.name + "? 🙂";
