@@ -1,3 +1,4 @@
+import { funcs, check, HELP_ALL } from "./tools.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -64,5 +65,8 @@ export async function khoemReply(conversation) {
   if (q === "/scan" || q.includes("ស្កេន")) return scan();
   if (q.startsWith("/read ")) return readFile(last.slice(6).trim());
   if (/^(សួស្ដី|សួស្តី|hello|hi)/.test(q)) return "សួស្ដីបង! " + HELP;
+  if (q === "/help") return HELP_ALL;
+  if (q === "/check") return check();
+  if (q.startsWith("/funcs ")) return funcs(last.slice(7).trim());
   return HELP;
 }
