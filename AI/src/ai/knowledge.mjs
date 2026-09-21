@@ -28,3 +28,16 @@ export function searchHistoryFood(query) {
   const match = HISTORY_FOOD_DB.find(item => item.keywords.some(k => q.includes(k.toLowerCase())));
   return match ? match.info : null;
 }
+
+
+export const MORE_HISTORY_DB = [
+  { keywords: ["សូរ្យវរ្ម័ន", "suryavarman", "ប្រាសាទអង្គរវត្ត"], info: "🏛️ ព្រះបាទសូរ្យវរ្ម័នទី២ (King Suryavarman II): ជាព្រះមហាក្សត្រដ៏ខ្លាំងក្លានាសតវត្សរ៍ទី១២ ដែលបានកសាង 'ប្រាសាទអង្គរវត្ត' ដ៏អស្ចារ្យ ដើម្បីឧទ្ទិសថ្វាយដល់ព្រះវិស្ณុ និងពង្រីកទឹកដីខ្មែរបានធំធេងបំផុត។" },
+  { keywords: ["សុរិយាវង្ស", "នរោត្តម", "ហ៊ុន សែន", "សីហនុ", "sihaouku", "norodom"], info: "👑 ព្រះករុណា ព្រះបាទសម្តេចព្រះនរោត្តម សីហនុ (King Norodom Sihanouk): ព្រះបិតាឯករាជ្យជាតិ និងជាព្រះមហាក្សត្រដែលមានស្នាព្រះហស្ថធំធេងក្នុងការទាមទារឯករាជ្យពីប្រទេសបារាំង និងបង្រួបបង្រួមជាតិ។" },
+  { keywords: ["តាព្រហ្ម", "កសាង", "កិច្ចការសង្គម"], info: "📜 ប្រវត្តិសាស្ត្រសម័យអង្គរ៖ មិនត្រឹមតែល្បីល្បាញរឿងកសាងប្រាសាទថ្មដ៏ធំសម្បើមប៉ុណ្ណោះទេ ខ្មែរបុរាណក៏មានប្រព័ន្ធធារាសាស្ត្រទំនើប (បារាយណ៍ និងប្រព័ន្ធទឹក) សម្រាប់ធ្វើស្រែចំការបាន ៣ដងក្នុងមួយឆ្នាំផងដែរ។" }
+];
+
+export function searchMoreHistory(query) {
+  const q = query.toLowerCase();
+  const match = MORE_HISTORY_DB.find(item => item.keywords.some(k => q.includes(k.toLowerCase())));
+  return match ? match.info : null;
+}
