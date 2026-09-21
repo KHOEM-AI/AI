@@ -132,7 +132,7 @@ export async function khoemReply(conversation, honorific = "បង") {
     if (enMod.englishReply) {
       // បញ្ជូនសំណួរទៅឆែកក្នុង Knowledge Base ទោះជាភាសាអ្វីក៏ដោយ
       const kb = await enMod.englishReply(conversation);
-      if (kb && !kb.includes("I am sorry") && !kb.includes("I don't") && !kb.includes("unknown")) {
+      if (kb && !kb.includes("I am sorry") && !kb.includes("Sorry,") && !kb.includes("I don't") && !kb.includes("unknown")) {
         return kb;
       }
     }

@@ -157,6 +157,45 @@ const FILL = new Set(
 
 
 
+
+const TECH_KNOWLEDGE = [
+  {
+    name: "Smartphone (ទូរស័ព្ទដៃ)",
+    keywords: ["ទូរស័ព្ទ", "ស្មាតហ្វូន", "smartphone", "iphone", "samsung", "ទូរសព្ទ"],
+    info: "📱 បច្ចេកវិទ្យាទូរស័ព្ទដៃ (Smartphones): បច្ចុប្បន្នឈានដល់កម្រិត 5G, អេក្រង់បត់បាន (Foldables), កាមេរ៉ាពង្រីកបានឆ្ងាយ និងមានបញ្ចូល AI (ដូចជា Apple Intelligence ឬ Galaxy AI) សម្រាប់ជួយសរសេរ បកប្រែភាសា និងកាត់តរូបភាពដោយស្វ័យប្រវត្តិ។"
+  },
+  {
+    name: "Computer (កុំព្យូទ័រ)",
+    keywords: ["កុំព្យូទ័រ", "ឡេបថប", "computer", "laptop", "pc", "macbook"],
+    info: "💻 បច្ចេកវិទ្យាកុំព្យូទ័រ (Computers/Laptops): ឥឡូវនេះប្រើប្រាស់បន្ទះឈីបមាន AI ដាច់ដោយឡែក (NPU)។ កុំព្យូទ័រជំនាន់ថ្មី ដើរលឿន ថ្មកាន់បានយូរ (រាប់សិបម៉ោង) និងអាចដំណើរការកម្មវិធីធ្ងន់ៗ ឬហ្គេម 3D បានយ៉ាងរលូនដោយមិនងាយក្ដៅ។"
+  },
+  {
+    name: "Smart TV (ទូរទស្សន៍)",
+    keywords: ["ទូរទស្សន៍", "tv", "smart tv", "ទូរទស្សន៏"],
+    info: "📺 ទូរទស្សន៍ឆ្លាតវៃ (Smart TVs): ឈានដល់កម្រិតរូបភាព 4K និង 8K ប្រើបច្ចេកវិទ្យា OLED ឬ Mini-LED ពណ៌ច្បាស់ត្រជាក់ភ្នែក។ វាមាន AI ជួយតម្លើងគុណភាពរូបភាព (Upscaling) ឲ្យច្បាស់ ទោះវីដេអូចាស់ក៏ដោយ និងអាចបញ្ជាដោយសំឡេងបាន។"
+  },
+  {
+    name: "Home Appliances (គ្រឿងក្នុងផ្ទះ / ទូទឹកកក)",
+    keywords: ["ទូទឹកកក", "ម៉ាស៊ីនត្រជាក់", "ម៉ាស៊ីនបោក", "fridge", "refrigerator", "aircon", "appliance", "គ្រឿងអេឡិចត្រូនិច"],
+    info: "🏠 ឧបករណ៍ប្រើប្រាស់ក្នុងផ្ទះ (Smart Appliances): ទូទឹកកក ម៉ាស៊ីនត្រជាក់ និងម៉ាស៊ីនបោកគក់បច្ចុប្បន្ន មានភ្ជាប់ប្រព័ន្ធ IoT (Internet of Things)។ យើងអាចបញ្ជាបិទបើកតាមទូរស័ព្ទពីចម្ងាយ តាមដានការប្រើប្រាស់ភ្លើង និងមានសេនស័រ (Sensor) តម្រូវសីតុណ្ហភាពដោយស្វ័យប្រវត្តិដើម្បីសន្សំភ្លើង។"
+  },
+  {
+    name: "Automotive/EV (រថយន្ត)",
+    keywords: ["ឡាន", "រថយន្ត", "car", "ev", "tesla", "byd", "យានយន្ត"],
+    info: "🚗 បច្ចេកវិទ្យារថយន្ត (Cars/EVs): ឧស្សាហកម្មកំពុងងាកទៅរករថយន្តអគ្គិសនី (EV) ដែលមានប្រព័ន្ធបើកបរស្វ័យប្រវត្តិ (Autopilot), សេនស័រកាមេរ៉ាជុំវិញ ៣៦០ដឺក្រេ ការពារគ្រោះថ្នាក់ និងប្រព័ន្ធកម្សាន្តអេក្រង់ធំៗក្នុងឡានប្រៀបដូចជាកុំព្យូទ័រ។"
+  },
+  {
+    name: "Audio/Speaker (ម៉ាញ៉េ / ឧបករណ៍សំឡេង)",
+    keywords: ["ម៉ាញ៉េ", "បំពងសំឡេង", "speaker", "audio", "កាស"],
+    info: "🎧 បច្ចេកវិទ្យាសំឡេង (Audio): ម៉ាញ៉េ ឧបករណ៍បំពងសំឡេង និងកាសបច្ចុប្បន្ន ប្រើបច្ចេកវិទ្យា Spatial Audio (សំឡេង 3D ជុំវិញខ្លួន), Dolby Atmos និងមានប្រព័ន្ធកាត់បន្ថយសំឡេងរំខាន (ANC - Active Noise Cancellation) យ៉ាងមានប្រសិទ្ធភាពកាត់ផ្តាច់សំឡេងខាងក្រៅបានល្អ។"
+  },
+  {
+    name: "General Technology (បច្ចេកវិទ្យាទូទៅ)",
+    keywords: ["បច្ចេកវិទ្យា", "technology", "tech"],
+    info: "🚀 បច្ចេកវិទ្យា និងគ្រឿងអេឡិចត្រូនិចទូទៅ: ភាគច្រើនត្រូវបានបំពាក់បញ្ញាសិប្បនិម្មិត (AI) និងភ្ជាប់អ៊ីនធឺណិតបញ្ចូលគ្នាជាប្រព័ន្ធ (Smart Home)។ វាផ្តល់ភាពងាយស្រួល សុវត្ថិភាពខ្ពស់ និងសន្សំសំចៃថាមពលជាអតិបរមា។"
+  }
+];
+
 const CAMBODIA_LANDMARKS = [
   // 🏰 ប្រាសាទល្បីៗ (Famous Temples)
   { name: "Angkor Wat", keywords: ["angkor wat", "angkor", "អង្គរវត្ត", "ប្រាសាទអង្គរវត្ត"], info: "🛕 ប្រាសាទអង្គរវត្ត (Angkor Wat): ស្ថិតនៅខេត្តសៀមរាប។ ជាប្រាសាទសាសនាធំបំផុតលើលោក និងជានិមិត្តសញ្ញាជាតិកម្ពុជាដ៏រុងរឿង។ (Located in Siem Reap, it is the largest religious monument in the world.)" },
@@ -573,6 +612,11 @@ export function englishReply(text, learned = {}) {
   }
 
   if (!answered) {
+    const tech = TECH_KNOWLEDGE.find((p) => p.keywords.some((k) => q.toLowerCase().includes(k.toLowerCase())));
+    if (tech) {
+      return tech.info;
+    }
+  
     const landmark = CAMBODIA_LANDMARKS.find((p) => p.keywords.some((k) => q.toLowerCase().includes(k.toLowerCase())));
     if (landmark) {
       return landmark.info;
