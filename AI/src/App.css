@@ -779,3 +779,21 @@ body::after {
 }
 .status-card__diag { font-size: 12px; color: #cbd5e1; display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; padding-top: 8px; border-top: 1px dashed rgba(56,189,248,.25); }
 .status-card__err { color: #f87171; word-break: break-word; }
+
+.bubble__actions { display: flex; align-items: center; justify-content: flex-start; gap: 4px; margin-top: 8px; }
+.bubble__action { background: transparent; border: 0; padding: 6px; border-radius: 8px; color: rgba(255,255,255,0.65); cursor: pointer; display: inline-flex; line-height: 0; }
+.bubble__action svg { width: 18px; height: 18px; }
+.bubble__action:hover:not(:disabled) { color: #38bdf8; background: rgba(56,189,248,0.12); }
+.bubble__action:disabled { opacity: 0.4; cursor: not-allowed; }
+.bubble__action--active { color: #38bdf8; }
+
+/* actions sit below the AI bubble, outside it, bottom-left */
+.app__body > .bubble__actions { align-self: flex-start; margin: -14px 0 0 8px; }
+
+/* bigger, brighter, bolder action icons */
+.bubble__actions { gap: 10px; }
+.app__body > .bubble__actions { margin: -12px 0 0 6px; }
+.bubble__action { padding: 8px; color: rgba(255,255,255,0.95); }
+.bubble__action svg { width: 26px; height: 26px; }
+.bubble__action svg, .bubble__action svg * { stroke-width: 2.2; }
+.bubble__action:hover:not(:disabled), .bubble__action--active { color: #38bdf8; }

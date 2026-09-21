@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
+import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
 
 export default function App() {
   const [honorific, setHonorific] = useState<Honorific | null>(() => loadHonorific());
   const [showHonorific, setShowHonorific] = useState(false);
-  const { messages, isSending, error, sendMessage, clearConversation } = useChat(honorific);
+  const { messages, isSending, error, sendMessage, regenerate, setFeedback, clearConversation } = useChat(honorific);
   const [input, setInput] = useState("");
   const [showStatus, setShowStatus] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -57,10 +58,15 @@ export default function App() {
           </div>
         )}
 
-        {messages.map((m) => (
-          <div key={m.id} className={`bubble bubble--${m.role}`}>
+        {messages.map((m, idx) => (
+          <Fragment key={m.id}>
+          <div className={`bubble bubble--${m.role}`}>
             <div className="bubble__text">{m.text}</div>
-          </div>
+            </div>
+          {m.role === "assistant" && (
+            <MessageActions message={m} isLast={idx === messages.length - 1} disabled={isSending} onFeedback={setFeedback} onRegenerate={regenerate} onNewChat={clearConversation} />
+          )}
+        </Fragment>
         ))}
 
         {isSending && (

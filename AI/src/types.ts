@@ -1,6 +1,7 @@
 export type Role = "user" | "assistant";
 
 export interface Message {
+  feedback?: "like" | "dislike";
   id: string;
   role: Role;
   text: string;
