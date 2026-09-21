@@ -61,17 +61,63 @@ const HELP =
   "- /scan  ស្កេនកូដក្នុងគម្រោង\n" +
   "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង";
 
+const HELP_EN =
+  "Commands KHOEM-AI understands:\n" +
+  "- /scan  scan the project code\n" +
+  "- /read src/App.tsx  read the first 40 lines\n" +
+  "- /funcs src/Gate.tsx  list functions\n" +
+  "- /check  look for common problems\n" +
+  "- /help  show this list\n" +
+  "- /learn question = answer  teach the brain\n" +
+  "- /learned  show what it has learned\n" +
+  "- /forget question  make it forget\n" +
+  "- /find word  search the code";
+
+const lang = (s) =>
+  /[\u1780-\u17FF]/.test(s) || !/[a-z]/i.test(s) ? "km" : "en";
+
+const RE = {
+  km: {
+    hello: /^(សួស្តី|សួស្ដី|ជំរាបសួរ|ជម្រាបសួរ)/,
+    name: /ឈ្មោះ|(អ្នក|ប្អូន)ជា(អ្វី|នរណា|អ្នកណា)/,
+  },
+  en: {
+    hello: /^(hello|hi|hey)\b/,
+    name: /\b(your name|who are you|what are you)\b/,
+  },
+};
+
+const SAY = {
+  km: {
+    hello: "សួស្តីបង! ប្អូនគឺ KHOEM-AI។ វាយ /help ដើម្បីមើលពាក្យបញ្ជា។",
+    name: "ប្អូនឈ្មោះ KHOEM-AI ជាខួរតូចដែលដំណើរការលើទូរស័ព្ទបងផ្ទាល់ ហើយមិនហៅ API ខាងក្រៅទេ។",
+    unknown:
+      "ប្អូនមិនទាន់មានចម្លើយសម្រាប់សំណួរនេះទេ។ បងអាចបង្រៀនប្អូន៖ /learn សំណួរ = ចម្លើយ\nឬវាយ /help ដើម្បីមើលពាក្យបញ្ជា។",
+  },
+  en: {
+    hello: "Hello! I am KHOEM-AI. Type /help to see my commands.",
+    name: "I am KHOEM-AI, a small assistant that runs on this phone. I do not call any outside API.",
+    unknown:
+      "I do not have an answer for that yet. You can teach me: /learn question = answer\nOr type /help to see my commands.",
+  },
+};
+
 export async function khoemReply(conversation) {
   const last = String(conversation.at(-1)?.content ?? "").trim();
   const q = last.toLowerCase();
+  const l = lang(last);
+
   const learned = handleLearn(last);
   if (learned !== null) return learned;
+
   if (q === "/scan" || q.includes("ស្កេន")) return scan();
   if (q.startsWith("/read ")) return readFile(last.slice(6).trim());
-  if (/^(សួស្ដី|សួស្តី|hello|hi)/.test(q)) return "សួស្ដីបង! " + HELP_ALL;
-  if (q === "/help") return HELP_ALL;
+  if (q === "/help" || q === "help") return l === "en" ? HELP_EN : HELP_ALL;
   if (q === "/check") return check();
   if (q.startsWith("/funcs ")) return funcs(last.slice(7).trim());
   if (q.startsWith("/find ")) return find(last.slice(6).trim());
-  return HELP_ALL;
+
+  if (RE[l].hello.test(q)) return SAY[l].hello;
+  if (RE[l].name.test(q)) return SAY[l].name;
+  return SAY[l].unknown;
 }
