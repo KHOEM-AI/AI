@@ -3,10 +3,12 @@ import { registerApi } from "./src/ai/api.mjs";
 import cors from "cors";
 import "dotenv/config";
 import { AICore } from "./src/ai/core.mjs";
+import { collectStatus, trackActivity } from "./src/ai/status.mjs";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(trackActivity);
 
 const PORT = process.env.PORT || 8787;
 
@@ -53,6 +55,14 @@ app.get("/api/models", (req, res) => {
 });
 
 registerApi(app);
+
+app.get("/api/status", async (req, res) => {
+  try {
+    res.json(await collectStatus(aiCore));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.post("/api/chat", async (req, res) => {
   const { messages, honorific } = req.body;
