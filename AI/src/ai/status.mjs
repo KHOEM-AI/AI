@@ -100,6 +100,21 @@ function systemHealth(cards) {
   return { status: "HEALTHY", lastChecked, reasonKm: "Core services ចាំបាច់ទាំងអស់ឆ្លើយតបបាន", reasonEn: "All required core services respond" };
 }
 
+// ---- Phase 1: status schema extension (available / lastSuccessfulCheck / stale / version) ----
+const STALE_AFTER_MS = 30000;
+const APP_VERSION = process.env.npm_package_version || "unknown";
+const lastOk = new Map();
+
+function enrichCards(cards) {
+  return cards.map((c) => {
+    const ok = !PROBLEM.includes(c.status) && c.status !== "UNKNOWN";
+    if (ok) lastOk.set(c.id, c.lastChecked);
+    const last = lastOk.get(c.id) || null;
+    const stale = !last || Date.now() - Date.parse(last) > STALE_AFTER_MS;
+    return { ...c, available: ok, lastSuccessfulCheck: last, stale, version: APP_VERSION };
+  });
+}
+
 export async function collectStatus(aiCore) {
   const cards = await Promise.all([
     probe("core", API_HEALTH_TIMEOUT_MS, async () => {
@@ -198,7 +213,8 @@ export async function collectStatus(aiCore) {
     }),
   ]);
 
-  return { checkedAt: new Date().toISOString(), system: systemHealth(cards), cards };
+  const enriched = enrichCards(cards);
+  return { checkedAt: new Date().toISOString(), system: systemHealth(enriched), cards: enriched };
 }
 
 // ================= STATE MACHINE (Task / Execution / Cognitive) =================
