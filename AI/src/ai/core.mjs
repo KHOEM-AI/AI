@@ -1,3 +1,4 @@
+import { khoemReply } from "./khoem.mjs";
 import { AIMemory } from "./memory.mjs";
 
 const AI_NAME = "𝒦𝒽𝑜𝓮𝓂 𝒮𝑜𝓀𝓈𝒾𝓋𝓊𝓉𝒽𝒶 AI";
@@ -41,6 +42,18 @@ export class AICore {
     }
 
     const conversation = this.memory.get(sessionId);
+
+    if (this.provider === "khoem") {
+      const reply = await khoemReply(conversation);
+      this.memory.add(sessionId, { role: "assistant", content: reply });
+      return {
+        reply,
+        provider: this.provider,
+        model: "khoem-local",
+        sessionId,
+        memoryMessages: this.memory.get(sessionId).length,
+      };
+    }
 
     if (this.provider !== "anthropic") {
       throw new Error(`Unsupported provider: ${this.provider}`);

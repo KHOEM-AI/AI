@@ -14,7 +14,7 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 // before shipping this — this one may be out of date by the time you read it.
 const MODEL = "claude-sonnet-4-5";
 const aiCore = new AICore({
-  provider: "anthropic",
+  provider: "khoem",
   model: MODEL,
 });
 
