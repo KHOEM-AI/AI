@@ -26,6 +26,10 @@ export function registerApi(app) {
   app.get("/api/scan", guard, wrap(() => run("/scan")));
   app.get("/api/check", guard, wrap(() => run("/check")));
   app.get("/api/learned", guard, wrap(() => run("/learned")));
+  app.get("/api/find", guard, wrap((req) => {
+    if (!req.query.q) throw bad("ត្រូវការ ?q=ពាក្យ");
+    return run("/find " + req.query.q);
+  }));
   app.get("/api/funcs", guard, wrap((req) => {
     if (!req.query.file) throw bad("ត្រូវការ ?file=src/...");
     return run("/funcs " + req.query.file);

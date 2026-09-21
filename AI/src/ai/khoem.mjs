@@ -1,5 +1,6 @@
 import { handleLearn } from "./learn.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
+import { find } from "./find.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -71,5 +72,6 @@ export async function khoemReply(conversation) {
   if (q === "/help") return HELP_ALL;
   if (q === "/check") return check();
   if (q.startsWith("/funcs ")) return funcs(last.slice(7).trim());
+  if (q.startsWith("/find ")) return find(last.slice(6).trim());
   return HELP_ALL;
 }
