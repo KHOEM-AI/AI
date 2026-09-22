@@ -971,18 +971,3 @@ body::after {
     padding: 16px 14px;
   }
 }
-
-/* =========================
-   LANGUAGE PICKER GRID
-   ========================= */
-.language-panel__grid {
-  grid-template-columns: repeat(3, 1fr);
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-@media (max-width: 600px) {
-  .language-panel__grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}

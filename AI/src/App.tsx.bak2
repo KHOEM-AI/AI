@@ -4,15 +4,11 @@ import AIStatus from "./components/AIStatus";
 import ControlCenter from "./components/ControlCenter";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
-import LanguagePrompt from "./components/LanguagePrompt";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
-import { loadLanguage, saveLanguage, getLanguageLabel, type LanguageCode } from "./language";
 
 export default function App() {
   const [honorific, setHonorific] = useState<Honorific | null>(() => loadHonorific());
   const [showHonorific, setShowHonorific] = useState(false);
-  const [language, setLanguage] = useState<LanguageCode>(() => loadLanguage());
-  const [showLanguage, setShowLanguage] = useState(false);
   const { messages, isSending, error, sendMessage, regenerate, setFeedback, clearConversation } = useChat(honorific);
   const [input, setInput] = useState("");
   const [showStatus, setShowStatus] = useState(false);
@@ -40,12 +36,6 @@ export default function App() {
   function handleNewChat() {
     clearConversation();
     setShowMenu(false);
-  }
-
-  function handleSelectLanguage(code: LanguageCode) {
-    saveLanguage(code);
-    setLanguage(code);
-    setShowLanguage(false);
   }
 
   return (
@@ -90,9 +80,6 @@ export default function App() {
               </button>
               <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
                 ប្ដូរការហៅ
-              </button>
-              <button className="app__sidebar-item" onClick={() => { setShowLanguage(true); setShowMenu(false); }}>
-                ភាសា · {getLanguageLabel(language)}
               </button>
               {messages.length > 0 && (
                 <button className="app__sidebar-item" onClick={handleNewChat}>
@@ -153,10 +140,6 @@ export default function App() {
 
       {showStatus && <AIStatus onClose={() => setShowStatus(false)} />}
       {showControl && <ControlCenter onClose={() => setShowControl(false)} />}
-
-      {showLanguage && (
-        <LanguagePrompt current={language} onSelect={handleSelectLanguage} onClose={() => setShowLanguage(false)} />
-      )}
 
       {(!honorific || showHonorific) && (
         <HonorificPrompt
