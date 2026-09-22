@@ -7,7 +7,6 @@ import {
   API_HEALTH_TIMEOUT_MS, HEALTH_MAX_RETRIES,
   OFFLINE_AFTER_FAILED_CHECKS, STATUS_POLL_INTERVAL_MS,
 } from "../config/timeouts.mjs";
-import { useT, useLanguageCode, pickText } from "../i18n";
 
 interface Shown {
   status: StatusCode;
@@ -59,15 +58,13 @@ async function timedFetch(url: string, ms: number): Promise<Probe> {
 }
 
 function Diag({ s }: { s: Shown }) {
-  const t = useT();
-  const lang = useLanguageCode();
   const bad = !GOOD.has(s.status);
-  const reason = pickText(lang, s.reasonKm, s.reasonEn);
   return (
     <div className="status-card__diag">
-      {reason && <div>{reason}</div>}
+      {s.reasonKm && <div>{s.reasonKm}</div>}
+      {s.reasonEn && <div>{s.reasonEn}</div>}
       {s.status === "TIMEOUT" ? (
-        <div>{t.timeoutLabel}: {(s.ms ?? 0).toLocaleString("en-US")} ms</div>
+        <div>Timeout: {(s.ms ?? 0).toLocaleString("en-US")} ms</div>
       ) : (
         (s.http !== undefined || s.ms !== undefined) && (
           <div>
@@ -77,17 +74,15 @@ function Diag({ s }: { s: Shown }) {
           </div>
         )
       )}
-      {s.module && <div>{t.moduleLabel}: {s.module}</div>}
-      {s.error && <div className="status-card__err">{t.errorLabel}: {s.error}</div>}
-      <div>{t.lastChecked}: {fmtTime(s.lastChecked)}</div>
-      {bad && <div>{t.lastSuccessfulCheck}: {fmtTime(s.lastGood)}</div>}
+      {s.module && <div>Module: {s.module}</div>}
+      {s.error && <div className="status-card__err">Error: {s.error}</div>}
+      <div>Last checked — ពិនិត្យចុងក្រោយ: {fmtTime(s.lastChecked)}</div>
+      {bad && <div>Last successful check: {fmtTime(s.lastGood)}</div>}
     </div>
   );
 }
 
 export default function AIStatus({ onClose }: { onClose: () => void }) {
-  const t = useT();
-  const lang = useLanguageCode();
   const [snap, setSnap] = useState<Snapshot | null>(null);
 
   useEffect(() => {
@@ -228,25 +223,24 @@ export default function AIStatus({ onClose }: { onClose: () => void }) {
   const sysLabel = STATUS_LABELS[system.status];
 
   return (
-    <div className="status-overlay" role="dialog" aria-label={t.navStatus}>
+    <div className="status-overlay" role="dialog" aria-label="AI STATUS">
       <div className="status-panel">
         <div className="status-panel__head">
           <div>
             <div className="status-panel__ai-name">{AI_NAME}</div>
-            <div className="status-panel__page-title">{pickText(lang, PAGE_TITLE_KM, PAGE_TITLE_EN)}</div>
+            <div className="status-panel__page-title">{PAGE_TITLE_KM} — {PAGE_TITLE_EN}</div>
           </div>
-          <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
+          <button className="status-panel__close" onClick={onClose} aria-label="បិទ">✕</button>
         </div>
 
         <div className="status-panel__meta">
           <span className={system.status === "HEALTHY" ? "status-health status-health--good" : "status-health status-health--warn"}>
-            {t.systemHealthLabel}: {system.status}{lang === "km" ? ` — ${sysLabel.km}` : ""}
+            System Health — សុខភាពប្រព័ន្ធ: {system.status} — {sysLabel.km}
           </span>
-          {pickText(lang, system.reasonKm, system.reasonEn) && (
-            <span>{pickText(lang, system.reasonKm, system.reasonEn)}</span>
-          )}
-          <span>{t.lastChecked}: {fmtTime(system.lastChecked)}</span>
-          {!GOOD.has(system.status) && <span>{t.lastSuccessfulCheck}: {fmtTime(system.lastGood)}</span>}
+          {system.reasonKm && <span>{system.reasonKm}</span>}
+          {system.reasonEn && <span>{system.reasonEn}</span>}
+          <span>Last checked — ពិនិត្យចុងក្រោយ: {fmtTime(system.lastChecked)}</span>
+          {!GOOD.has(system.status) && <span>Last successful check: {fmtTime(system.lastGood)}</span>}
         </div>
 
         <div className="status-grid">
@@ -256,12 +250,13 @@ export default function AIStatus({ onClose }: { onClose: () => void }) {
             return (
               <div className="status-card" key={c.id}>
                 <div className="status-card__head">
-                  <span className="status-card__name">{pickText(lang, c.nameKm, c.nameEn)}</span>
+                  <span className="status-card__name">{c.nameEn} — {c.nameKm}</span>
                   <span className="status-badge" style={{ ["--badge-color" as any]: label.color }}>
-                    ● {s.status}{lang === "km" ? ` — ${label.km}` : ""}
+                    ● {s.status} — {label.km}
                   </span>
                 </div>
-                <p className="status-card__desc-km">{pickText(lang, c.descKm, c.descEn)}</p>
+                <p className="status-card__desc-km">{c.descKm}</p>
+                <p className="status-card__desc-en">{c.descEn}</p>
                 <Diag s={s} />
                 {c.extra && (
                   <div className="status-card__extra">

@@ -15,12 +15,6 @@ export function getTranslations(code: LanguageCode): Translations {
   return DICTIONARIES[code] ?? km;
 }
 
-// សម្រាប់ទិន្នន័យ (មិនមែន UI chrome) ដែលមានតែ km/en ២កំណែ (ឧ. ឈ្មោះ/ការពិពណ៌នា AI status card)៖
-// ខ្មែរ → km, ភាសាផ្សេងទាំងអស់ (រួមទាំង១១ភាសាមិនទាន់បកប្រែ) → fallback ទៅ en។
-export function pickText(code: LanguageCode, km: string, en: string): string {
-  return code === "km" ? km : en;
-}
-
 const LanguageContext = createContext<LanguageCode>("km");
 export const LanguageProvider = LanguageContext.Provider;
 

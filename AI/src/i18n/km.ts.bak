@@ -17,13 +17,6 @@ const km: Translations = {
   sendAria: "ផ្ញើសារ",
   languageTitle: "ជ្រើសរើសភាសា",
   languageClose: "បិទ",
-  close: "បិទ",
-  systemHealthLabel: "សុខភាពប្រព័ន្ធ",
-  lastChecked: "ពិនិត្យចុងក្រោយ",
-  lastSuccessfulCheck: "ការត្រួតពិនិត្យជោគជ័យចុងក្រោយ",
-  moduleLabel: "ម៉ូឌុល",
-  errorLabel: "កំហុស",
-  timeoutLabel: "អស់ពេលរង់ចាំ",
 };
 
 export default km;

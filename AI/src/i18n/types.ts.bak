@@ -15,11 +15,4 @@ export interface Translations {
   sendAria: string;
   languageTitle: string;
   languageClose: string;
-  close: string;
-  systemHealthLabel: string;
-  lastChecked: string;
-  lastSuccessfulCheck: string;
-  moduleLabel: string;
-  errorLabel: string;
-  timeoutLabel: string;
 }

@@ -17,13 +17,6 @@ const en: Translations = {
   sendAria: "Send message",
   languageTitle: "Select language",
   languageClose: "Close",
-  close: "Close",
-  systemHealthLabel: "System Health",
-  lastChecked: "Last checked",
-  lastSuccessfulCheck: "Last successful check",
-  moduleLabel: "Module",
-  errorLabel: "Error",
-  timeoutLabel: "Timeout",
 };
 
 export default en;
