@@ -1,3 +1,987 @@
+KHOEM AI — NEXT PHASE MASTER IMPLEMENTATION INSTRUCTION
+========================================================
+
+OBJECTIVE
+---------
+Continue development from the VERIFIED current state.
+
+The immediate next phase is:
+
+PHASE 14 — HUMAN APPROVAL GATE
+
+Do NOT jump directly to Idea Engine, Planning Engine, Sandbox,
+Experiment Engine, or autonomous HIGH/CRITICAL execution.
+
+The architecture must increase AI autonomy without allowing the AI
+to increase its own authority.
+
+CORE PRINCIPLE
+--------------
+THINK → PLAN → PROPOSE → SIMULATE → REQUEST APPROVAL → EXECUTE
+
+The AI may think, reason, generate ideas, create plans and proposals,
+but privileged execution must remain under explicit human authority.
+
+========================================================
+0. NON-DESTRUCTIVE DEVELOPMENT CONTRACT
+========================================================
+
+Before modifying anything:
+
+1. Inspect existing code.
+2. Understand existing architecture.
+3. Preserve existing behavior.
+4. Modify only what is necessary.
+5. Never blindly rewrite files.
+6. Never delete existing functionality without verification.
+7. Never remove existing security controls.
+8. Never weaken existing Permission/Policy checks.
+9. Never bypass audit logging.
+10. Never modify AIStatus unless explicitly required and verified.
+11. Never expose API keys, secrets, tokens, credentials or private data.
+12. Do not use nano.
+13. Prefer shell commands, cat, Python scripts and safe patching methods.
+14. Run tests before committing.
+15. Show git diff before commit.
+16. Commit only after verification.
+17. Push only after successful verification.
+
+IMPORTANT:
+If an existing mechanism already performs the required function,
+EXTEND it rather than creating a duplicate competing mechanism.
+
+========================================================
+1. CURRENT VERIFIED STATE
+========================================================
+
+The following already exists and must be PRESERVED:
+
+- /api/chat
+- /api/health
+- /api/models
+- /api/status
+- /api/control
+- /api/audit
+- /scan
+- /read
+- /funcs
+- /check
+- /help
+- /learn
+- /learned
+- /forget
+- Khmer brain
+- English brain
+- Memory
+- Learning
+- Knowledge
+- Tools
+- Task Engine
+- Execution State
+- Cognitive State
+- Permission Engine
+- Policy Engine
+- Permission Audit
+- Control Center
+- AIStatus
+- Black 3D UI
+- Existing LOW/MEDIUM tool behavior
+
+Do not regress any of these.
+
+========================================================
+2. PHASE 14 — HUMAN APPROVAL GATE
+========================================================
+
+Implement a proper approval workflow.
+
+Required states:
+
+PENDING_APPROVAL
+APPROVED
+REJECTED
+EXPIRED
+
+Required execution rule:
+
+LOW
+→ existing normal policy flow
+
+MEDIUM
+→ existing normal policy flow
+
+HIGH
+→ MUST require human approval
+
+CRITICAL
+→ MUST require human approval
+
+HIGH/CRITICAL actions MUST NEVER execute directly.
+
+There must be no hidden bypass.
+
+========================================================
+3. APPROVAL REQUEST DATA MODEL
+========================================================
+
+Create or extend the existing model with:
+
+ApprovalRequest
+
+Required fields:
+
+id
+taskId
+action
+actor
+permission
+risk
+reason
+createdAt
+expiresAt
+status
+requestedBy
+decidedBy
+decidedAt
+decisionReason
+
+Optional but recommended:
+
+metadata
+resource
+target
+policyVersion
+permissionVersion
+requestVersion
+
+Never store secrets in approval requests.
+
+Do not store:
+
+API keys
+passwords
+tokens
+private credentials
+raw authorization headers
+
+========================================================
+4. APPROVAL STATE MACHINE
+========================================================
+
+Allowed transitions:
+
+PENDING_APPROVAL
+    ├── APPROVED
+    ├── REJECTED
+    └── EXPIRED
+
+No invalid transitions.
+
+Examples:
+
+APPROVED → REJECTED
+APPROVED → EXPIRED
+REJECTED → APPROVED
+EXPIRED → APPROVED
+
+must be rejected.
+
+Approval must be one-time and bound to the specific:
+
+taskId
+action
+target/resource
+permission
+risk
+request id
+
+An approval for one action must NOT authorize another action.
+
+========================================================
+5. APPROVAL EXPIRATION
+========================================================
+
+Every approval request must have an expiration time.
+
+If expiresAt is reached:
+
+PENDING_APPROVAL → EXPIRED
+
+Expired approvals MUST NOT execute.
+
+The system must not silently renew approval.
+
+A new approval request must be created if the action is still required.
+
+========================================================
+6. HUMAN AUTHORITY
+========================================================
+
+Human authority is ROOT authority.
+
+The AI must NOT be able to:
+
+- approve itself
+- reject its own approval
+- increase its own permission
+- change its own risk classification
+- change policy to bypass approval
+- disable the approval gate
+- disable the audit log
+- disable the kill switch
+- modify protected security configuration
+
+The identity that requests an approval must not automatically become
+the identity that approves it.
+
+========================================================
+7. PERMISSION + POLICY + APPROVAL ORDER
+========================================================
+
+The execution pipeline must follow:
+
+REQUEST
+ ↓
+AUTHENTICATION / ACTOR IDENTIFICATION
+ ↓
+PERMISSION CHECK
+ ↓
+POLICY CHECK
+ ↓
+RISK CLASSIFICATION
+ ↓
+LOW/MEDIUM
+ └── normal execution path
+
+HIGH/CRITICAL
+ ↓
+PENDING_APPROVAL
+ ↓
+HUMAN DECISION
+ ├── APPROVE → final execution authorization → EXECUTE
+ ├── REJECT → BLOCKED/REJECTED
+ └── EXPIRE → EXPIRED
+
+Do not execute the action before approval.
+
+========================================================
+8. RACE CONDITION PROTECTION
+========================================================
+
+Approval must be atomic.
+
+Prevent:
+
+- double approval
+- approve-after-expiry
+- execute-after-rejection
+- execute-after-expiry
+- concurrent execution from duplicate approval requests
+
+The system must verify approval status immediately before execution.
+
+Example:
+
+PENDING_APPROVAL
+→ APPROVED
+→ verify request still valid
+→ verify permission still valid
+→ verify policy still valid
+→ verify target/action still matches
+→ execute
+
+If any verification fails:
+
+DO NOT EXECUTE.
+
+========================================================
+9. POLICY VERSION / STALE APPROVAL PROTECTION
+========================================================
+
+An approval must become invalid if important authorization context
+changes.
+
+At minimum consider:
+
+permission version
+policy version
+action
+target
+risk
+task
+
+If policy or permission changes after approval:
+
+mark request stale / invalid
+and require a new approval.
+
+Never reuse an approval under a different policy.
+
+========================================================
+10. AUDIT REQUIREMENTS
+========================================================
+
+Every approval lifecycle event must be audited:
+
+APPROVAL_REQUESTED
+APPROVAL_VIEWED
+APPROVAL_APPROVED
+APPROVAL_REJECTED
+APPROVAL_EXPIRED
+APPROVAL_INVALIDATED
+EXECUTION_AUTHORIZED
+EXECUTION_STARTED
+EXECUTION_COMPLETED
+EXECUTION_FAILED
+EXECUTION_BLOCKED
+
+Audit records must contain enough information to reconstruct what
+happened.
+
+Include:
+
+timestamp
+taskId
+approvalId
+actor
+action
+risk
+permission
+decision
+reason
+result
+
+Never log secrets.
+
+========================================================
+11. EVENT TRACE
+========================================================
+
+Connect Approval Gate with Task Engine.
+
+Example:
+
+TASK_CREATED
+INPUT_RECEIVED
+TASK_QUEUED
+TASK_STARTED
+EXECUTION_PROCESSING
+COGNITIVE_UNDERSTANDING
+PLANNING
+POLICY_CHECK
+PERMISSION_CHECK
+APPROVAL_REQUESTED
+WAITING_FOR_APPROVAL
+APPROVAL_APPROVED
+EXECUTION_AUTHORIZED
+EXECUTION_STARTED
+EXECUTION_COMPLETED
+TASK_COMPLETED
+
+Rejected:
+
+APPROVAL_REQUESTED
+WAITING_FOR_APPROVAL
+APPROVAL_REJECTED
+TASK_BLOCKED
+
+Expired:
+
+APPROVAL_REQUESTED
+WAITING_FOR_APPROVAL
+APPROVAL_EXPIRED
+TASK_TIMEOUT / TASK_BLOCKED
+
+Do not invent events that are not actually implemented.
+
+========================================================
+12. TASK ENGINE INTEGRATION
+========================================================
+
+If tasks.mjs already has:
+
+CREATED
+QUEUED
+RUNNING
+WAITING
+BLOCKED
+COMPLETED
+FAILED
+CANCELLED
+TIMEOUT
+
+reuse those states.
+
+Do not create a duplicate Task Engine.
+
+WAITING may represent waiting for approval if that is compatible
+with the existing architecture.
+
+If a dedicated state is required, document why before implementing it.
+
+========================================================
+13. SAFE MOCK ACTION
+========================================================
+
+Do NOT introduce a real dangerous HIGH/CRITICAL tool.
+
+Create only a safe test/mock action if required.
+
+Example:
+
+approval.test.high-risk
+
+The mock must perform no destructive operation.
+
+It exists only to test:
+
+permission
+policy
+risk
+approval
+audit
+task state
+execution authorization
+rejection
+expiration
+race protection
+
+========================================================
+14. API DESIGN
+========================================================
+
+First inspect existing API conventions.
+
+If compatible, add endpoints similar to:
+
+GET /api/approvals
+GET /api/approvals/:id
+
+POST /api/approvals/:id/approve
+POST /api/approvals/:id/reject
+
+Do not blindly add endpoints if an existing equivalent already exists.
+
+All approval mutations must:
+
+- validate request ID
+- validate current state
+- validate actor
+- validate authorization
+- write audit event
+- prevent duplicate decisions
+
+Never expose secrets.
+
+========================================================
+15. CONTROL CENTER INTEGRATION
+========================================================
+
+Control Center is currently read-only.
+
+Preserve the existing UI.
+
+Add a Pending Approvals section only after backend approval flow
+is correctly implemented.
+
+The UI should show:
+
+Approval ID
+Task ID
+Action
+Risk
+Permission
+Reason
+Created time
+Expiration time
+Current status
+
+For authorized human actions:
+
+APPROVE
+REJECT
+
+Do NOT add an approval button that merely changes UI state.
+
+The button must call the real backend and the backend must perform
+the actual authorization decision.
+
+========================================================
+16. AI AUTONOMY BOUNDARY
+========================================================
+
+The AI can:
+
+L0 OBSERVE
+L1 THINK
+L2 IDEATE
+L3 PLAN
+L4 SIMULATE
+L5 PROPOSE
+
+Privileged execution remains controlled:
+
+L6 EXECUTE
+L7 PRIVILEGED
+
+The AI must never self-escalate from L0-L5 to L6/L7.
+
+Permission elevation requires human-controlled policy.
+
+========================================================
+17. KILL SWITCH PREPARATION
+========================================================
+
+Do NOT implement the full Kill Switch in this phase unless the existing
+architecture already provides it.
+
+But ensure Approval Gate does not prevent future Kill Switch behavior.
+
+Future Kill Switch requirements:
+
+STOP new autonomous execution
+CANCEL cancellable tasks
+BLOCK new privileged actions
+PRESERVE audit records
+DO NOT delete evidence
+
+Do not create a fake kill switch.
+
+========================================================
+18. SECURITY BOUNDARIES
+========================================================
+
+Protected components must remain protected:
+
+Permission Engine
+Policy Engine
+Approval Gate
+Audit Log
+Kill Switch
+Security Configuration
+Secret Handling
+Root Authority
+
+AI-generated code must never be allowed to silently modify these
+components.
+
+========================================================
+19. ERROR HANDLING
+========================================================
+
+Define truthful errors for:
+
+approval not found
+already approved
+already rejected
+already expired
+invalid transition
+unauthorized approver
+permission changed
+policy changed
+target changed
+action changed
+duplicate approval
+execution authorization failed
+approval storage failure
+
+Never silently treat errors as approval.
+
+Fail closed for privileged actions.
+
+========================================================
+20. FAILURE SAFETY
+========================================================
+
+If approval storage fails:
+
+HIGH/CRITICAL action MUST NOT execute.
+
+If audit logging fails for a privileged decision:
+
+follow fail-closed policy unless an existing verified architecture
+explicitly defines another secure behavior.
+
+If policy cannot be evaluated:
+
+HIGH/CRITICAL action MUST NOT execute.
+
+If permission cannot be verified:
+
+HIGH/CRITICAL action MUST NOT execute.
+
+If approval state cannot be verified immediately before execution:
+
+DO NOT EXECUTE.
+
+========================================================
+21. OBSERVABILITY
+========================================================
+
+Measure or expose where appropriate:
+
+approval request count
+pending approval count
+approved count
+rejected count
+expired count
+approval latency
+execution authorization failures
+approval-related errors
+
+Do not fabricate metrics.
+
+If a metric does not exist, report NOT IMPLEMENTED.
+
+========================================================
+22. TEST PLAN
+========================================================
+
+Before claiming VERIFIED, test at minimum:
+
+A. LOW action
+→ executes normally
+
+B. MEDIUM action
+→ existing behavior preserved
+
+C. HIGH action
+→ PENDING_APPROVAL
+→ does not execute
+
+D. CRITICAL action
+→ PENDING_APPROVAL
+→ does not execute
+
+E. APPROVE
+→ action executes exactly once
+
+F. REJECT
+→ action does not execute
+
+G. EXPIRE
+→ action does not execute
+
+H. DOUBLE APPROVE
+→ second approval rejected
+
+I. APPROVE AFTER EXPIRY
+→ rejected
+
+J. EXECUTE AFTER REJECTION
+→ blocked
+
+K. ACTION CHANGED AFTER APPROVAL
+→ blocked
+
+L. TARGET CHANGED AFTER APPROVAL
+→ blocked
+
+M. POLICY VERSION CHANGED
+→ stale approval rejected
+
+N. PERMISSION VERSION CHANGED
+→ stale approval rejected
+
+O. DUPLICATE EXECUTION REQUEST
+→ no unintended duplicate execution
+
+P. AUDIT
+→ all lifecycle events recorded
+
+Q. SECRETS
+→ no API keys/tokens/passwords in response or audit payload
+
+R. EXISTING AIStatus
+→ unchanged and still working
+
+S. EXISTING /api/status
+→ unchanged and still working
+
+T. Control Center
+→ existing Recent Task Events still work
+→ existing Permission Audit still works
+→ Pending Approvals works only when backed by real API
+
+========================================================
+23. REGRESSION TESTS
+========================================================
+
+Re-test:
+
+/api/health
+/api/status
+/api/control
+/api/audit
+/api/chat
+/scan
+/read
+/funcs
+/check
+/help
+/learn
+/learned
+/forget
+
+Also test:
+
+npm run build
+npx tsc --noEmit
+node --check on modified .mjs files
+
+Do not report success if any required test failed.
+
+========================================================
+24. GIT SAFETY
+========================================================
+
+Before changes:
+
+git status --short
+git branch --show-current
+git log --oneline -8
+
+After changes:
+
+git diff --stat
+git diff -- <modified files>
+git status --short
+
+Before commit:
+
+build
+typecheck
+runtime tests
+approval tests
+security checks
+
+Only then commit.
+
+Do not commit unrelated user changes.
+
+Do not use:
+
+git reset --hard
+git clean -fd
+mass deletion
+blind file replacement
+
+unless explicitly authorized.
+
+========================================================
+25. TRUTHFUL REPORTING
+========================================================
+
+Use only these labels:
+
+VERIFIED
+NOT VERIFIED
+EXISTING — PRESERVED
+CREATED
+MODIFIED
+NOT IMPLEMENTED
+PARTIAL
+
+Never use:
+
+100% complete
+fully secure
+AGI achieved
+production safe
+
+unless objectively demonstrated and supported by tests.
+
+If something was inspected but not tested:
+
+NOT VERIFIED
+
+If something does not exist:
+
+NOT IMPLEMENTED
+
+If existing functionality was preserved:
+
+EXISTING — PRESERVED
+
+========================================================
+26. REQUIRED AUDIT-FIRST BEHAVIOR
+========================================================
+
+STOP BEFORE CODING.
+
+First inspect:
+
+src/ai/permission.mjs
+src/ai/tasks.mjs
+src/ai/api.mjs
+src/ai/status.mjs
+server.mjs
+src/components/ControlCenter.tsx
+src/App.tsx
+existing audit/event modules
+package.json
+
+Then report:
+
+1. Current permission flow
+2. Current policy flow
+3. Current risk classification
+4. Current task state machine
+5. Current event system
+6. Current audit system
+7. Current Control Center API
+8. Current Control Center UI
+9. Exact execution insertion point
+10. Approval data model proposal
+11. API proposal
+12. UI proposal
+13. Security risks
+14. Race-condition risks
+15. Failure-mode handling
+16. Test plan
+17. Exact files to modify
+18. Exact files to create
+19. Existing files that will remain untouched
+20. Any architectural conflict discovered
+
+DO NOT MODIFY FILES DURING THIS AUDIT.
+
+STOP AND WAIT FOR HUMAN APPROVAL.
+
+========================================================
+27. AFTER HUMAN APPROVES THE AUDIT
+========================================================
+
+Implement ONLY the approved Phase 14 scope.
+
+Then run:
+
+npm run build 2>&1 | tail -20
+
+npx tsc --noEmit
+
+node --check on every modified .mjs file
+
+Run all relevant API tests.
+
+Run all approval state tests.
+
+Run regression tests.
+
+Inspect:
+
+git diff --stat
+git diff
+git status --short
+
+Then report:
+
+- VERIFIED
+- NOT VERIFIED
+- EXISTING — PRESERVED
+- CREATED
+- MODIFIED
+- NOT IMPLEMENTED
+
+Do not commit until the human reviews the result.
+
+========================================================
+28. FUTURE PHASES — DO NOT IMPLEMENT YET
+========================================================
+
+After Human Approval Gate is VERIFIED, remaining roadmap:
+
+PHASE 15 — Ideation Engine
+PHASE 16 — Planning Engine
+PHASE 17 — Sandbox
+PHASE 18 — Experiment Engine
+PHASE 19 — Self-Evaluation
+PHASE 20 — Versioning / Rollback
+PHASE 21 — Resource Budget
+PHASE 22 — Timeout / Retry
+PHASE 23 — Circuit Breaker
+PHASE 24 — Model Routing / Fallback
+PHASE 25 — Control Center expansion
+PHASE 26 — Security hardening
+PHASE 27 — Metrics / Observability
+PHASE 28 — Documentation
+PHASE 29 — Automated Test Suite
+PHASE 30 — Full regression / acceptance
+
+Do not jump phases without verification.
+
+========================================================
+29. FINAL ARCHITECTURAL TARGET
+========================================================
+
+KHOEM AI should evolve toward:
+
+INPUT
+ ↓
+UNDERSTANDING
+ ↓
+MEMORY / KNOWLEDGE RETRIEVAL
+ ↓
+PLANNING
+ ↓
+REASONING
+ ↓
+IDEATION
+ ↓
+SIMULATION
+ ↓
+VERIFICATION
+ ↓
+POLICY
+ ↓
+PERMISSION
+ ↓
+RISK CLASSIFICATION
+ ↓
+ ┌─────────────────────────┐
+ │ LOW / MEDIUM             │
+ │ normal controlled action │
+ └─────────────────────────┘
+
+ ┌─────────────────────────┐
+ │ HIGH / CRITICAL          │
+ │ HUMAN APPROVAL REQUIRED  │
+ └─────────────────────────┘
+ ↓
+EXECUTION
+ ↓
+VERIFICATION
+ ↓
+AUDIT
+ ↓
+MEMORY UPDATE
+
+The AI may become increasingly capable,
+but its authority must remain explicitly bounded.
+
+========================================================
+30. MOST IMPORTANT RULE
+========================================================
+
+CAPABILITY ≠ AUTHORITY.
+
+The AI may become better at:
+
+thinking
+reasoning
+creating
+planning
+learning
+simulating
+proposing
+verifying
+
+without automatically gaining permission to execute privileged actions.
+
+Human authority remains the final control boundary.
+
+END OF INSTRUCTION
+
 KHOEM AI
 MASTER ARCHITECTURE + CONTROLLED AUTONOMY
 IMPLEMENTATION SPECIFICATION
