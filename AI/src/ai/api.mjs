@@ -8,6 +8,7 @@ import {
 import { emit, getAllTasks, getTask, getEvents } from "./tasks.mjs";
 import { isKilled, activateKillSwitch, deactivateKillSwitch, getKillSwitchStatus } from "./killswitch.mjs";
 import { createSnapshot, listSnapshots, getSnapshot, buildRollbackPlan } from "./rollback.mjs";
+import { runSandboxTest } from "./sandbox.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
@@ -183,6 +184,14 @@ export function registerApi(app) {
     const plan = buildRollbackPlan(req.params.id);
     if (!plan) throw bad("រកមិនឃើញ snapshot", 404);
     return plan;
+  }));
+  // ---- Phase 20: Sandbox (proposed change tested in temp copy only) ----
+  app.post("/api/sandbox/test", guard, policy("code.sandboxTest"), wrap((req) => {
+    const { relPath, newContent, reason } = req.body || {};
+    if (!relPath || typeof newContent !== "string") {
+      throw bad("relPath and newContent (string) are required");
+    }
+    return runSandboxTest({ relPath, newContent, reason });
   }));
 app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);

@@ -35,6 +35,10 @@ const REGISTRY = {
   // execution happens through the API, so LOW risk / auto-ALLOW is safe.
   "rollback.snapshot": { permission: "system.read", risk: RISK.LOW },
   "rollback.plan": { permission: "system.read", risk: RISK.LOW },
+  // Phase 20: sandbox tests run against a temp copy only — production
+  // is never touched, so MEDIUM/auto-ALLOW is appropriate. Applying a
+  // verified sandbox result to production (Phase 21) will be HIGH risk.
+  "code.sandboxTest": { permission: "tool.execute", risk: RISK.MEDIUM },
 };
 
 const MAX_AUDIT = 500;
