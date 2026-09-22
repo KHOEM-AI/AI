@@ -7,9 +7,10 @@ import th from "./th";
 import vi from "./vi";
 import my from "./my";
 import lo from "./lo";
+import hi from "./hi"; // ភាសាហិន្ទី
+import ar from "./ar"; // ភាសាអារ៉ាប់
+import ur from "./ur"; // ភាសាអូរទុ
 
-// ភាសាបានធ្វើ៖ km, en, th, vi, my, lo។ ៧ភាសាដែលនៅសល់ (fr, es, ar, pt, zh, hi, ru)
-// នឹងបន្ថែមក្នុងជំហានបន្ទាប់ — ដរាបណាមិនទាន់មាន dictionary, getTranslations() fallback ទៅខ្មែរ (មិនមែន crash/blank)។
 export const DICTIONARIES: Partial<Record<LanguageCode, Translations>> = {
   km,
   en,
@@ -17,14 +18,15 @@ export const DICTIONARIES: Partial<Record<LanguageCode, Translations>> = {
   vi,
   my,
   lo,
+  hi, // Hindi
+  ar, // Arabic
+  ur, // Urdu
 };
 
 export function getTranslations(code: LanguageCode): Translations {
   return DICTIONARIES[code] ?? km;
 }
 
-// សម្រាប់ទិន្នន័យ (មិនមែន UI chrome) ដែលមានតែ km/en ២កំណែ (ឧ. ឈ្មោះ/ការពិពណ៌នា AI status card)៖
-// ខ្មែរ → km, ភាសាផ្សេងទាំងអស់ (រួមទាំងភាសាមិនទាន់បកប្រែ) → fallback ទៅ en។
 export function pickText(code: LanguageCode, km: string, en: string): string {
   return code === "km" ? km : en;
 }
