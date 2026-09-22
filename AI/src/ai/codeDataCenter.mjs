@@ -43,6 +43,51 @@ const LANG_BY_EXT = {
   ".md": "markdown", ".css": "css", ".html": "html",
 };
 
+
+const CODE_EXTENSIONS = new Set([".mjs", ".js", ".ts", ".tsx", ".jsx"]);
+
+const RE_FUNCTION = /(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/g;
+const RE_CLASS = /(?:export\s+)?class\s+([A-Za-z_$][\w$]*)/g;
+const RE_CONST_FN = /export\s+const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\(/g;
+const RE_NAMED_EXPORT = /export\s+\{([^}]+)\}/g;
+const RE_DEFAULT_EXPORT = /export\s+default\s+([A-Za-z_$][\w$]*)/g;
+const RE_IMPORT = /import\s+(?:[\w$*{},\s]+)\s+from\s+["']([^"']+)["']/g;
+const RE_INTERFACE = /(?:export\s+)?interface\s+([A-Za-z_$][\w$]*)/g;
+const RE_TYPE = /(?:export\s+)?type\s+([A-Za-z_$][\w$]*)\s*=/g;
+
+function matchAll(re, text) {
+  const out = [];
+  let m;
+  re.lastIndex = 0;
+  while ((m = re.exec(text)) !== null) out.push(m[1]);
+  return out;
+}
+
+export function extractSymbols(absPath, source) {
+  const functions = matchAll(RE_FUNCTION, source).concat(matchAll(RE_CONST_FN, source));
+  const classes = matchAll(RE_CLASS, source);
+  const interfaces = matchAll(RE_INTERFACE, source);
+  const types = matchAll(RE_TYPE, source);
+  const defaultExport = matchAll(RE_DEFAULT_EXPORT, source)[0] || null;
+  const namedExportGroups = matchAll(RE_NAMED_EXPORT, source);
+  const namedExports = namedExportGroups
+    .flatMap((g) => g.split(","))
+    .map((s) => s.trim().split(/\s+as\s+/)[0].trim())
+    .filter(Boolean);
+  const imports = matchAll(RE_IMPORT, source);
+  const exportedFns = functions.filter((f) => source.includes("export function " + f) || source.includes("export const " + f));
+  const exportedClasses = classes.filter((c) => source.includes("export class " + c));
+  const allExports = namedExports.concat(exportedFns, exportedClasses);
+  if (defaultExport) allExports.push("default:" + defaultExport);
+  return {
+    functions: [...new Set(functions)],
+    classes: [...new Set(classes)],
+    interfaces: [...new Set(interfaces)],
+    types: [...new Set(types)],
+    exports: [...new Set(allExports)],
+    imports: [...new Set(imports)],
+  };
+}
 let fileIndex = [];
 let lastScan = null;
 
@@ -71,11 +116,13 @@ function indexOne(absPath) {
   const ext = path.extname(absPath);
   let lineCount = null;
   let hash = null;
+  let symbols = null;
   if (!BINARY_EXTENSIONS.has(ext)) {
     try {
       const content = fs.readFileSync(absPath, "utf8");
       lineCount = content.split("\n").length;
       hash = hashFile(content);
+      if (CODE_EXTENSIONS.has(ext)) symbols = extractSymbols(absPath, content);
     } catch {
       // unreadable — keep metadata, skip content-derived fields
     }
@@ -98,6 +145,7 @@ function indexOne(absPath) {
     language: LANG_BY_EXT[ext] || "unknown",
     module: rel.split(path.sep)[0] || rel,
     status: "indexed",
+    symbols,
   };
 }
 
@@ -119,4 +167,19 @@ export function isReady() {
 
 export function findFile(relPath) {
   return fileIndex.find((f) => f.path === relPath) || null;
+}
+
+export function findSymbol(name) {
+  const hits = [];
+  for (const f of fileIndex) {
+    if (!f.symbols) continue;
+    for (const kind of ["functions", "classes", "interfaces", "types", "exports"]) {
+      if (f.symbols[kind] && f.symbols[kind].includes(name)) hits.push({ path: f.path, kind, name });
+    }
+  }
+  return hits;
+}
+
+export function getSymbolIndex() {
+  return fileIndex.filter((f) => f.symbols).map((f) => ({ path: f.path, ...f.symbols }));
 }

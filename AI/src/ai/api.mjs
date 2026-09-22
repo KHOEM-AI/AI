@@ -91,6 +91,19 @@ export function registerApi(app) {
     return cdc.scanRepo();
   }));
 
+  app.get("/api/code/symbols", guard, wrap(async () => {
+    const cdc = await import("./codeDataCenter.mjs");
+    if (!cdc.isReady()) cdc.scanRepo();
+    return { files: cdc.getSymbolIndex() };
+  }));
+
+  app.get("/api/code/symbol", guard, wrap(async (req) => {
+    if (!req.query.name) throw bad("ត្រូវការ ?name=ឈ្មោះ symbol");
+    const cdc = await import("./codeDataCenter.mjs");
+    if (!cdc.isReady()) cdc.scanRepo();
+    return { name: req.query.name, hits: cdc.findSymbol(req.query.name) };
+  }));
+
   app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({
