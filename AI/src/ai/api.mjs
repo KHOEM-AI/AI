@@ -124,6 +124,11 @@ export function registerApi(app) {
     return { cycles: cdc.getCircularDependencies() };
   }));
 
+  app.get("/api/code/health", guard, wrap(async () => {
+    const cdc = await import("./codeDataCenter.mjs");
+    return cdc.getCodeHealth();
+  }));
+
   app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({

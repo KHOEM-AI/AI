@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { execSync } from "node:child_process";
 
 const ROOT = process.cwd();
 
@@ -179,12 +180,16 @@ function indexOne(absPath) {
   let lineCount = null;
   let hash = null;
   let symbols = null;
+  let todoCount = null;
+  let fixmeCount = null;
   if (!BINARY_EXTENSIONS.has(ext)) {
     try {
       const content = fs.readFileSync(absPath, "utf8");
       lineCount = content.split("\n").length;
       hash = hashFile(content);
       if (CODE_EXTENSIONS.has(ext)) symbols = extractSymbols(absPath, content);
+      todoCount = (content.match(/\bTODO\b/g) || []).length;
+      fixmeCount = (content.match(/\bFIXME\b/g) || []).length;
     } catch {
       // unreadable — keep metadata, skip content-derived fields
     }
@@ -208,6 +213,8 @@ function indexOne(absPath) {
     module: rel.split(path.sep)[0] || rel,
     status: "indexed",
     symbols,
+    todoCount,
+    fixmeCount,
   };
 }
 
@@ -266,4 +273,36 @@ export function getDependents(relPath) {
 export function getCircularDependencies() {
   if (!dependencyGraph) buildDependencyGraph();
   return detectCircular();
+}
+
+export function getCodeHealth() {
+  if (!fileIndex.length) scanRepo();
+  let tsOk = true;
+  let tsOutput = "";
+  try {
+    execSync("npx tsc --noEmit", { cwd: ROOT, stdio: ["ignore", "pipe", "pipe"], timeout: 60000 });
+  } catch (e) {
+    tsOk = false;
+    tsOutput = String((e.stdout || "") + (e.stderr || ""));
+  }
+  const tsErrorCount = tsOutput ? (tsOutput.match(/error TS\d+/g) || []).length : 0;
+
+  let todoCount = 0;
+  let fixmeCount = 0;
+  const oversizedFiles = [];
+  for (const f of fileIndex) {
+    if (typeof f.todoCount === "number") todoCount += f.todoCount;
+    if (typeof f.fixmeCount === "number") fixmeCount += f.fixmeCount;
+    if (typeof f.lineCount === "number" && f.lineCount > 500) {
+      oversizedFiles.push({ path: f.path, lineCount: f.lineCount });
+    }
+  }
+
+  return {
+    checkedAt: new Date().toISOString(),
+    build: { ok: tsOk, errorCount: tsErrorCount },
+    todoCount,
+    fixmeCount,
+    oversizedFiles,
+  };
 }

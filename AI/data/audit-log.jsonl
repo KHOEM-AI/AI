@@ -227,3 +227,31 @@
 {"event":"POLICY_REQUIRE_APPROVAL","at":"2026-09-22T20:09:44.273Z","data":{"id":"e38d131b-2235-4159-b15b-578899b81ad6","timestamp":"2026-09-22T20:09:44.273Z","actor":"tester","action":"approval.test.high-risk","permission":"system.modify","risk":"HIGH","approvalRequired":true,"decision":"REQUIRE_APPROVAL"}}
 {"event":"POLICY_ALLOW","at":"2026-09-22T20:09:44.276Z","data":{"id":"df3b3d06-cb1a-414b-9c6b-77d67a87860d","timestamp":"2026-09-22T20:09:44.276Z","actor":"tester","action":"tool.scan","permission":"tool.execute","risk":"LOW","approvalRequired":false,"decision":"ALLOW"}}
 {"event":"TEST_EVENT","at":"2026-09-22T20:09:46.310Z","data":{"note":"ok"}}
+{"event":"TASK_CREATED","at":"2026-09-22T20:14:10.160Z","data":{"taskId":"b6da98c8-e2a4-4793-afa5-532ae50bf605","duration":null}}
+{"event":"TASK_QUEUED","at":"2026-09-22T20:14:10.179Z","data":{"taskId":"b6da98c8-e2a4-4793-afa5-532ae50bf605","duration":null,"reason":""}}
+{"event":"TASK_STARTED","at":"2026-09-22T20:14:10.180Z","data":{"taskId":"b6da98c8-e2a4-4793-afa5-532ae50bf605","duration":null,"reason":""}}
+{"event":"TASK_COMPLETED","at":"2026-09-22T20:14:10.182Z","data":{"taskId":"b6da98c8-e2a4-4793-afa5-532ae50bf605","duration":null,"reason":""}}
+{"event":"TASK_CREATED","at":"2026-09-22T20:14:10.184Z","data":{"taskId":"t1","patch":{"task":"CREATED","taskId":"t1"}}}
+{"event":"TASK_QUEUED","at":"2026-09-22T20:14:10.204Z","data":{"taskId":"t1","patch":{"task":"QUEUED"}}}
+{"event":"TASK_RUNNING","at":"2026-09-22T20:14:10.205Z","data":{"taskId":"t1","patch":{"task":"RUNNING"}}}
+{"event":"TASK_CREATED","at":"2026-09-22T20:14:10.205Z","data":{"taskId":"caebed0a-bb2d-44af-9a2d-85ce98fb0fad","duration":null}}
+{"event":"TASK_COMPLETED","at":"2026-09-22T20:14:10.206Z","data":{"taskId":"t1","patch":{"task":"COMPLETED"}}}
+{"event":"TASK_QUEUED","at":"2026-09-22T20:14:10.212Z","data":{"taskId":"caebed0a-bb2d-44af-9a2d-85ce98fb0fad","duration":null,"reason":""}}
+{"event":"TASK_STARTED","at":"2026-09-22T20:14:10.213Z","data":{"taskId":"caebed0a-bb2d-44af-9a2d-85ce98fb0fad","duration":null,"reason":""}}
+{"event":"EXECUTION_PROCESSING","at":"2026-09-22T20:14:10.218Z","data":{"taskId":"caebed0a-bb2d-44af-9a2d-85ce98fb0fad","duration":null,"from":"IDLE","reason":""}}
+{"event":"COGNITIVE_UNDERSTANDING","at":"2026-09-22T20:14:10.226Z","data":{"taskId":"caebed0a-bb2d-44af-9a2d-85ce98fb0fad","duration":null,"from":"IDLE","reason":""}}
+{"event":"TASK_CREATED","at":"2026-09-22T20:14:10.237Z","data":{"taskId":"5e184a15-6e36-426c-8412-7cabdbcbce60","duration":null}}
+{"event":"TASK_QUEUED","at":"2026-09-22T20:14:10.239Z","data":{"taskId":"5e184a15-6e36-426c-8412-7cabdbcbce60","duration":null,"reason":""}}
+{"event":"SAFETY_REVIEW_REQUIRED","at":"2026-09-22T20:14:10.250Z","data":{"taskId":null,"patch":{"safety":"REVIEW_REQUIRED"}}}
+{"event":"CONFIDENCE_LOW","at":"2026-09-22T20:14:10.269Z","data":{"taskId":null,"patch":{"confidence":"LOW"}}}
+{"event":"POLICY_DENY","at":"2026-09-22T20:14:10.282Z","data":{"id":"db5f5bf0-1b67-4809-9ce1-36667c4c120d","timestamp":"2026-09-22T20:14:10.276Z","actor":"tester","action":"bogus.action","permission":null,"risk":"CRITICAL","approvalRequired":false,"decision":"DENY","reason":"unregistered action — fail safe"}}
+{"event":"APPROVAL_REQUESTED","at":"2026-09-22T20:14:10.291Z","data":{"taskId":"d933cb57-0515-4c24-a755-b15497dee798","duration":null,"approvalId":"d933cb57-0515-4c24-a755-b15497dee798","actor":"alice","action":"x","risk":"HIGH","permission":"p"}}
+{"event":"POLICY_ALLOW","at":"2026-09-22T20:14:10.298Z","data":{"id":"41a9ec86-3297-4d99-872c-29000fe5c0a9","timestamp":"2026-09-22T20:14:10.297Z","actor":"tester","action":"tool.scan","permission":"tool.execute","risk":"LOW","approvalRequired":false,"decision":"ALLOW"}}
+{"event":"POLICY_REQUIRE_APPROVAL","at":"2026-09-22T20:14:10.302Z","data":{"id":"db9de1ce-605a-4a81-8d48-f425650ddeba","timestamp":"2026-09-22T20:14:10.302Z","actor":"tester","action":"approval.test.high-risk","permission":"system.modify","risk":"HIGH","approvalRequired":true,"decision":"REQUIRE_APPROVAL"}}
+{"event":"POLICY_ALLOW","at":"2026-09-22T20:14:10.306Z","data":{"id":"848a0e85-390e-4b6d-803b-ff346d39f456","timestamp":"2026-09-22T20:14:10.306Z","actor":"tester","action":"tool.scan","permission":"tool.execute","risk":"LOW","approvalRequired":false,"decision":"ALLOW"}}
+{"event":"APPROVAL_REQUESTED","at":"2026-09-22T20:14:10.311Z","data":{"taskId":"9784349b-def8-407a-8ff8-b64cf19baa75","duration":null,"approvalId":"9784349b-def8-407a-8ff8-b64cf19baa75","actor":"alice","action":"x","risk":"HIGH","permission":"p"}}
+{"event":"APPROVAL_REQUESTED","at":"2026-09-22T20:14:10.316Z","data":{"taskId":"ca27f085-bebb-45ea-8321-58d6fe1b4a02","duration":null,"approvalId":"ca27f085-bebb-45ea-8321-58d6fe1b4a02","actor":"alice","action":"x","risk":"HIGH","permission":"p"}}
+{"event":"APPROVAL_APPROVED","at":"2026-09-22T20:14:10.317Z","data":{"taskId":"ca27f085-bebb-45ea-8321-58d6fe1b4a02","duration":null,"approvalId":"ca27f085-bebb-45ea-8321-58d6fe1b4a02","actor":"alice","action":"x","risk":"HIGH","permission":"p","decision":"APPROVED","reason":"looks fine"}}
+{"event":"APPROVAL_REQUESTED","at":"2026-09-22T20:14:10.326Z","data":{"taskId":"a5c73b4b-49b4-44de-8f14-0d35bd102dce","duration":null,"approvalId":"a5c73b4b-49b4-44de-8f14-0d35bd102dce","actor":"alice","action":"x","risk":"HIGH","permission":"p"}}
+{"event":"APPROVAL_REJECTED","at":"2026-09-22T20:14:10.329Z","data":{"taskId":"a5c73b4b-49b4-44de-8f14-0d35bd102dce","duration":null,"approvalId":"a5c73b4b-49b4-44de-8f14-0d35bd102dce","actor":"alice","action":"x","risk":"HIGH","permission":"p","decision":"REJECTED","reason":"no"}}
+{"event":"TEST_EVENT","at":"2026-09-22T20:14:13.097Z","data":{"note":"ok"}}
