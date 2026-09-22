@@ -7,9 +7,12 @@ import th from "./th";
 import vi from "./vi";
 import my from "./my";
 import lo from "./lo";
-import hi from "./hi"; // ភាសាហិន្ទី
-import ar from "./ar"; // ភាសាអារ៉ាប់
-import ur from "./ur"; // ភាសាអូរទុ
+import hi from "./hi";
+import ar from "./ar";
+import ur from "./ur";
+import ta from "./ta"; // Tamil
+import tr from "./tr"; // Turkish
+import fa from "./fa"; // Persian
 
 export const DICTIONARIES: Partial<Record<LanguageCode, Translations>> = {
   km,
@@ -18,9 +21,12 @@ export const DICTIONARIES: Partial<Record<LanguageCode, Translations>> = {
   vi,
   my,
   lo,
-  hi, // Hindi
-  ar, // Arabic
-  ur, // Urdu
+  hi,
+  ar,
+  ur,
+  ta, // Tamil
+  tr, // Turkish
+  fa, // Persian
 };
 
 export function getTranslations(code: LanguageCode): Translations {
