@@ -5,7 +5,7 @@ import {
   createApprovalRequest, getApproval, listApprovals,
   approveRequest, rejectRequest, verifyBeforeExecution, markExecuted,
 } from "./approvals.mjs";
-import { emit } from "./tasks.mjs";
+import { emit, getAllTasks, getTask, getEvents } from "./tasks.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
@@ -133,6 +133,17 @@ export function registerApi(app) {
     const cdc = await import("./codeDataCenter.mjs");
     return cdc.getFindings();
   }));
+
+  // ---- Phase 11: Task Engine observability (read-only) ----
+  app.get("/api/tasks", guard, (req, res) => {
+    res.json({ tasks: getAllTasks() });
+  });
+
+  app.get("/api/tasks/:id", guard, (req, res) => {
+    const task = getTask(req.params.id);
+    if (!task) return res.status(404).json({ error: "រកមិនឃើញ task" });
+    res.json({ task, events: getEvents(req.params.id) });
+  });
 
   app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);

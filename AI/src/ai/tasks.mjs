@@ -50,6 +50,7 @@ export function transition(taskId, to, reason = "") {
 }
 
 export const getTask = (id) => tasks.get(id) ?? null;
+export const getAllTasks = () => [...tasks.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 export const getEvents = (taskId) => (taskId ? events.filter((e) => e.taskId === taskId) : [...events]);
 
 // ================= EXECUTION + COGNITIVE STATE =================
