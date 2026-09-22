@@ -24,6 +24,20 @@ const th: Translations = {
   moduleLabel: "โมดูล",
   errorLabel: "ข้อผิดพลาด",
   timeoutLabel: "หมดเวลา",
+  honorificTitle: "คุณต้องการให้ฉันเรียกคุณว่าอย่างไร?",
+  honorificAriaLabel: "เลือกคำเรียก",
+  controlCenterSubtitle: "เหตุการณ์และการอนุญาต",
+  pendingApprovalsLabel: "รออนุมัติ",
+  noPendingApprovals: "ไม่มีคำขออนุมัติที่รออยู่",
+  recentEventsLabel: "เหตุการณ์งานล่าสุด",
+  noEvents: "ยังไม่มีเหตุการณ์",
+  permissionAuditLabel: "การตรวจสอบสิทธิ์",
+  noAuditEntries: "ยังไม่มีรายการตรวจสอบ",
+  apiKeyPrompt: "ป้อน x-api-key เพื่อตัดสินใจเกี่ยวกับการอนุมัตินี้:",
+  decisionFailed: "ล้มเหลว",
+  connectFailed: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+  approveAction: "อนุมัติ",
+  rejectAction: "ปฏิเสธ",
 };
 
 export default th;

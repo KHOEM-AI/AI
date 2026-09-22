@@ -72,7 +72,7 @@ export default function Gate() {
 
   const tick = () => {
     if (start.current === null) return;
-    const p = Math.min(1, (performance.now() - start.current) / 10000);
+    const p = Math.min(1, (performance.now() - start.current) / 9000);
     setPct(p);
     draw(p);
     if (p >= 1) { start.current = null; setOk(true); return; }
@@ -112,6 +112,7 @@ export default function Gate() {
         <text x="110" y="150" textAnchor="middle" fontSize="70" fontWeight="800" fill="#38bdf8" stroke="#ffffff" strokeWidth="1">AI</text>
       </svg>
       <div className="gate__count">{Math.ceil(pct * 100)}</div>
+      <div className="gate__title">KHOEM-AI</div>
       <button
         className="gate__btn"
         onPointerDown={down}
@@ -120,8 +121,9 @@ export default function Gate() {
         onPointerCancel={up}
         onContextMenu={(e) => e.preventDefault()}
       >
-        ចុចឱ្យជាប់ ១០ វិនាទី
+        HOLD FOR 9 SECONDS
       </button>
+      <div className="gate__hint">Counting from 0 to 100 to unlock the app</div>
     </div>
   );
 }

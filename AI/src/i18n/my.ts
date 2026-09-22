@@ -24,6 +24,20 @@ const my: Translations = {
   moduleLabel: "မော်ဂျူး",
   errorLabel: "အမှား",
   timeoutLabel: "အချိန်ကုန်",
+  honorificTitle: "ကျွန်ုပ်သည် သင့်ကို မည်သို့ခေါ်စေချင်ပါသလဲ?",
+  honorificAriaLabel: "ခေါ်ဝေါ်မှုရွေးချယ်ပါ",
+  controlCenterSubtitle: "ဖြစ်ရပ်များနှင့် ခွင့်ပြုချက်များ",
+  pendingApprovalsLabel: "အတည်ပြုရန်စောင့်ဆိုင်းနေသည်",
+  noPendingApprovals: "စောင့်ဆိုင်းနေသော အတည်ပြုချက် မရှိပါ",
+  recentEventsLabel: "မကြာသေးမီက လုပ်ငန်းစဉ်ဖြစ်ရပ်များ",
+  noEvents: "ဖြစ်ရပ် မရှိသေးပါ",
+  permissionAuditLabel: "ခွင့်ပြုချက် စစ်ဆေးမှု",
+  noAuditEntries: "စစ်ဆေးမှု မှတ်တမ်း မရှိသေးပါ",
+  apiKeyPrompt: "ဤအတည်ပြုချက်ကို ဆုံးဖြတ်ရန် x-api-key ထည့်ပါ:",
+  decisionFailed: "မအောင်မြင်ပါ",
+  connectFailed: "ဆာဗာသို့ ချိတ်ဆက်၍ မရပါ",
+  approveAction: "အတည်ပြုမည်",
+  rejectAction: "ငြင်းပယ်မည်",
 };
 
 export default my;

@@ -24,6 +24,20 @@ const vi: Translations = {
   moduleLabel: "Mô-đun",
   errorLabel: "Lỗi",
   timeoutLabel: "Hết thời gian chờ",
+  honorificTitle: "Bạn muốn tôi gọi bạn như thế nào?",
+  honorificAriaLabel: "Chọn cách xưng hô",
+  controlCenterSubtitle: "Sự kiện & Quyền hạn",
+  pendingApprovalsLabel: "Đang chờ phê duyệt",
+  noPendingApprovals: "Không có yêu cầu phê duyệt nào đang chờ",
+  recentEventsLabel: "Sự kiện tác vụ gần đây",
+  noEvents: "Chưa có sự kiện nào",
+  permissionAuditLabel: "Kiểm tra quyền hạn",
+  noAuditEntries: "Chưa có mục kiểm tra nào",
+  apiKeyPrompt: "Nhập x-api-key để quyết định về phê duyệt này:",
+  decisionFailed: "Thất bại",
+  connectFailed: "Không thể kết nối đến máy chủ",
+  approveAction: "PHÊ DUYỆT",
+  rejectAction: "TỪ CHỐI",
 };
 
 export default vi;

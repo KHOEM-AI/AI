@@ -6,8 +6,9 @@ import en from "./en";
 import th from "./th";
 import vi from "./vi";
 import my from "./my";
+import lo from "./lo";
 
-// ភាសាបានធ្វើ៖ km, en, th, vi, my។ ៨ភាសាដែលនៅសល់ (lo, fr, es, ar, pt, zh, hi, ru)
+// ភាសាបានធ្វើ៖ km, en, th, vi, my, lo។ ៧ភាសាដែលនៅសល់ (fr, es, ar, pt, zh, hi, ru)
 // នឹងបន្ថែមក្នុងជំហានបន្ទាប់ — ដរាបណាមិនទាន់មាន dictionary, getTranslations() fallback ទៅខ្មែរ (មិនមែន crash/blank)។
 export const DICTIONARIES: Partial<Record<LanguageCode, Translations>> = {
   km,
@@ -15,6 +16,7 @@ export const DICTIONARIES: Partial<Record<LanguageCode, Translations>> = {
   th,
   vi,
   my,
+  lo,
 };
 
 export function getTranslations(code: LanguageCode): Translations {

@@ -22,4 +22,18 @@ export interface Translations {
   moduleLabel: string;
   errorLabel: string;
   timeoutLabel: string;
+  honorificTitle: string;
+  honorificAriaLabel: string;
+  controlCenterSubtitle: string;
+  pendingApprovalsLabel: string;
+  noPendingApprovals: string;
+  recentEventsLabel: string;
+  noEvents: string;
+  permissionAuditLabel: string;
+  noAuditEntries: string;
+  apiKeyPrompt: string;
+  decisionFailed: string;
+  connectFailed: string;
+  approveAction: string;
+  rejectAction: string;
 }

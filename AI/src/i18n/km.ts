@@ -24,6 +24,20 @@ const km: Translations = {
   moduleLabel: "ម៉ូឌុល",
   errorLabel: "កំហុស",
   timeoutLabel: "អស់ពេលរង់ចាំ",
+  honorificTitle: "តើចង់ឱ្យខ្ញុំហៅអ្នកតាមរបៀបណា?",
+  honorificAriaLabel: "ជ្រើសរើសការហៅ",
+  controlCenterSubtitle: "ព្រឹត្តិការណ៍ និងការអនុញ្ញាត",
+  pendingApprovalsLabel: "រង់ចាំការសម្រេចចិត្ត",
+  noPendingApprovals: "មិនមាន approval កំពុងរង់ចាំទេ",
+  recentEventsLabel: "ព្រឹត្តិការណ៍ថ្មីៗ",
+  noEvents: "មិនទាន់មានព្រឹត្តិការណ៍ណាមួយទេ",
+  permissionAuditLabel: "កំណត់ត្រាការអនុញ្ញាត",
+  noAuditEntries: "មិនទាន់មានកំណត់ត្រាណាមួយទេ",
+  apiKeyPrompt: "បញ្ចូល x-api-key ដើម្បីសម្រេចចិត្តលើ approval នេះ៖",
+  decisionFailed: "បរាជ័យ",
+  connectFailed: "មិនអាចភ្ជាប់ទៅ server បានទេ",
+  approveAction: "អនុម័ត",
+  rejectAction: "បដិសេធ",
 };
 
 export default km;

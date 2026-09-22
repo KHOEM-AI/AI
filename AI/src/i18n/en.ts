@@ -24,6 +24,20 @@ const en: Translations = {
   moduleLabel: "Module",
   errorLabel: "Error",
   timeoutLabel: "Timeout",
+  honorificTitle: "How would you like me to address you?",
+  honorificAriaLabel: "Select honorific",
+  controlCenterSubtitle: "Events & Permissions",
+  pendingApprovalsLabel: "Pending Approvals",
+  noPendingApprovals: "No approvals pending",
+  recentEventsLabel: "Recent Task Events",
+  noEvents: "No events yet",
+  permissionAuditLabel: "Permission Audit",
+  noAuditEntries: "No audit entries yet",
+  apiKeyPrompt: "Enter x-api-key to decide on this approval:",
+  decisionFailed: "Failed",
+  connectFailed: "Could not connect to server",
+  approveAction: "APPROVE",
+  rejectAction: "REJECT",
 };
 
 export default en;
