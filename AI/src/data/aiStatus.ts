@@ -67,4 +67,9 @@ export const AI_STATUS_CARDS: StatusCard[] = [
     descKm: "Session បច្ចុប្បន្នកំពុងរក្សាទុកបរិបទនៃការសន្ទនា ដើម្បីឱ្យ AI អាចបន្តការសន្ទនាបានជាប់លាប់។",
     descEn: "The current session maintains supported conversation context so the AI can continue the interaction consistently.",
     extra: [{ labelEn: "Session", value: "default" }] },
+
+  { id: "codeDataCenter", nameKm: "មជ្ឈមណ្ឌលទិន្នន័យកូដ", nameEn: "CODE DATA CENTER",
+    descKm: "ប្រព័ន្ធវិភាគកូដកំពុងតាមដានឯកសារ, function/class, ទំនាក់ទំនងរវាងឯកសារ, និងសុខភាពកូដក្នុងគម្រោង។",
+    descEn: "The Code Data Center indexes files, symbols, dependencies, and code health across the project.",
+    commands: ["/api/code/index", "/api/code/scan", "/api/code/symbols", "/api/code/dependencies", "/api/code/health", "/api/code/findings"] },
 ];
