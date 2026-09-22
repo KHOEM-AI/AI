@@ -5,22 +5,24 @@ export type LanguageCode =
 export interface LanguageOption {
   code: LanguageCode;
   label: string;
+  nameEn: string;
+  flag: string;
 }
 
 export const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { code: "km", label: "ខ្មែរ" },
-  { code: "en", label: "English" },
-  { code: "th", label: "ไทย" },
-  { code: "lo", label: "ລາວ" },
-  { code: "my", label: "မြန်မာ" },
-  { code: "vi", label: "Tiếng Việt" },
-  { code: "fr", label: "Français" },
-  { code: "es", label: "Español" },
-  { code: "ar", label: "العربية" },
-  { code: "pt", label: "Português" },
-  { code: "zh", label: "中文" },
-  { code: "hi", label: "हिन्दी" },
-  { code: "ru", label: "Русский" },
+  { code: "km", label: "ខ្មែរ", nameEn: "Khmer", flag: "🇰🇭" },
+  { code: "en", label: "English", nameEn: "English", flag: "🇬🇧" },
+  { code: "th", label: "ไทย", nameEn: "Thai", flag: "🇹🇭" },
+  { code: "lo", label: "ລາວ", nameEn: "Lao", flag: "🇱🇦" },
+  { code: "my", label: "မြန်မာ", nameEn: "Myanmar", flag: "🇲🇲" },
+  { code: "vi", label: "Tiếng Việt", nameEn: "Vietnamese", flag: "🇻🇳" },
+  { code: "fr", label: "Français", nameEn: "French", flag: "🇫🇷" },
+  { code: "es", label: "Español", nameEn: "Spanish", flag: "🇪🇸" },
+  { code: "ar", label: "العربية", nameEn: "Arabic", flag: "🇸🇦" },
+  { code: "pt", label: "Português", nameEn: "Portuguese", flag: "🇵🇹" },
+  { code: "zh", label: "中文", nameEn: "Chinese", flag: "🇨🇳" },
+  { code: "hi", label: "हिन्दी", nameEn: "Hindi", flag: "🇮🇳" },
+  { code: "ru", label: "Русский", nameEn: "Russian", flag: "🇷🇺" },
 ];
 
 const STORAGE_KEY = "ai-project:language";

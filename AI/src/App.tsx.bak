@@ -4,8 +4,9 @@ import AIStatus from "./components/AIStatus";
 import ControlCenter from "./components/ControlCenter";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
+import LanguagePrompt from "./components/LanguagePrompt";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
-import { loadLanguage, saveLanguage, getLanguageLabel, LANGUAGE_OPTIONS, type LanguageCode } from "./language";
+import { loadLanguage, saveLanguage, getLanguageLabel, type LanguageCode } from "./language";
 import { LanguageProvider, getTranslations } from "./i18n";
 
 function AppInner() {
@@ -93,30 +94,9 @@ function AppInner() {
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
                   {t.navHonorific}
                 </button>
-                <button className="app__sidebar-item" onClick={() => setShowLanguage((v) => !v)}>
+                <button className="app__sidebar-item" onClick={() => { setShowLanguage(true); setShowMenu(false); }}>
                   {t.navLanguage} · {getLanguageLabel(language)}
                 </button>
-                {showLanguage && (
-                  <div className="language-panel__list language-panel__list--inline">
-                    {LANGUAGE_OPTIONS.map((o) => (
-                      <button
-                        key={o.code}
-                        className={`language-option${language === o.code ? " language-option--active" : ""}`}
-                        onClick={() => { handleSelectLanguage(o.code); setShowLanguage(false); setShowMenu(false); }}
-                      >
-                        <span className="language-option__flag">{o.flag}</span>
-                        <span className="language-option__names">
-                          <span className="language-option__native">{o.label}</span>
-                          <span className="language-option__en">{o.nameEn}</span>
-                        </span>
-                        {language === o.code && <span className="language-option__check">✓</span>}
-                      </button>
-                    ))}
-                    <button className="language-panel__back" onClick={() => setShowLanguage(false)}>
-                      ← {t.languageClose}
-                    </button>
-                  </div>
-                )}
                 {messages.length > 0 && (
                   <button className="app__sidebar-item" onClick={handleNewChat}>
                     {t.navClearChat}
@@ -176,6 +156,10 @@ function AppInner() {
 
         {showStatus && <AIStatus onClose={() => setShowStatus(false)} />}
         {showControl && <ControlCenter onClose={() => setShowControl(false)} />}
+
+        {showLanguage && (
+          <LanguagePrompt current={language} onSelect={handleSelectLanguage} onClose={() => setShowLanguage(false)} />
+        )}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt

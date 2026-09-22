@@ -15,19 +15,14 @@ export default function LanguagePrompt({
     <div className="honorific-overlay" role="dialog" aria-label={t.languageTitle}>
       <div className="honorific-panel">
         <p className="honorific-panel__title">{t.languageTitle}</p>
-        <div className="language-panel__list">
+        <div className="honorific-panel__grid language-panel__grid">
           {LANGUAGE_OPTIONS.map((o) => (
             <button
               key={o.code}
-              className={`language-option${current === o.code ? " language-option--active" : ""}`}
+              className={`honorific-btn${current === o.code ? " honorific-btn--active" : ""}`}
               onClick={() => onSelect(o.code)}
             >
-              <span className="language-option__flag">{o.flag}</span>
-              <span className="language-option__names">
-                <span className="language-option__native">{o.label}</span>
-                <span className="language-option__en">{o.nameEn}</span>
-              </span>
-              {current === o.code && <span className="language-option__check">✓</span>}
+              {o.label}
             </button>
           ))}
         </div>
