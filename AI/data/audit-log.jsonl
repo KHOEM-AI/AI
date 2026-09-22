@@ -1,0 +1,7 @@
+{"event":"TASK_CREATED","at":"2026-09-22T17:55:34.861Z","data":{"taskId":"t1","patch":{"task":"CREATED","taskId":"t1"}}}
+{"event":"TASK_QUEUED","at":"2026-09-22T17:55:34.865Z","data":{"taskId":"t1","patch":{"task":"QUEUED"}}}
+{"event":"TASK_RUNNING","at":"2026-09-22T17:55:34.866Z","data":{"taskId":"t1","patch":{"task":"RUNNING"}}}
+{"event":"TASK_COMPLETED","at":"2026-09-22T17:55:34.866Z","data":{"taskId":"t1","patch":{"task":"COMPLETED"}}}
+{"event":"SAFETY_REVIEW_REQUIRED","at":"2026-09-22T17:55:34.892Z","data":{"taskId":null,"patch":{"safety":"REVIEW_REQUIRED"}}}
+{"event":"CONFIDENCE_LOW","at":"2026-09-22T17:55:34.900Z","data":{"taskId":null,"patch":{"confidence":"LOW"}}}
+{"event":"TEST_EVENT","at":"2026-09-22T17:55:34.940Z","data":{"note":"ok"}}

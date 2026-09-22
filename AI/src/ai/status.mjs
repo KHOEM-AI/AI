@@ -9,6 +9,8 @@ import {
   DEVELOPING_MODULES,
 } from "../config/timeouts.mjs";
 import { recordAuditEvent } from "./audit.mjs";
+import { checkModelHealth } from "./model.mjs";
+import { checkSessionHealth } from "./session.mjs";
 
 // Actual count of requests currently in progress (used for ACTIVE)
 export const active = { chat: 0, learn: 0, tool: 0 };
@@ -123,17 +125,7 @@ export async function collectStatus(aiCore) {
       return { status: "ONLINE", reasonKm: "AI Core កំពុងដំណើរការ និងមាន chat()", reasonEn: "AI Core is running and exposes chat()", module: String(aiCore.provider) };
     }),
 
-    probe("model", API_HEALTH_TIMEOUT_MS, async () => {
-      if (!aiCore?.provider)
-        return { status: "OFFLINE", reasonKm: "រកមិនឃើញ provider ក្នុង configuration", reasonEn: "No provider in model configuration" };
-      const busy = active.chat > 0;
-      return {
-        status: pickStatus(["READY", busy ? "ACTIVE" : "READY"]),
-        reasonKm: busy ? "Model កំពុង process request" : "Model configuration មាន និងអាចប្រើបាន",
-        reasonEn: busy ? "Model is processing a request" : "Model configuration exists and is usable",
-        module: String(aiCore.provider),
-      };
-    }),
+    probe("model", API_HEALTH_TIMEOUT_MS, async () => checkModelHealth(aiCore, active)),
 
     probe("memory", API_HEALTH_TIMEOUT_MS, async () => {
       const m = await loadModule("./memory.mjs");
@@ -206,12 +198,7 @@ export async function collectStatus(aiCore) {
       };
     }),
 
-    probe("session", API_HEALTH_TIMEOUT_MS, async () => {
-      const mem = aiCore?.memory;
-      if (!mem || typeof mem.add !== "function" || typeof mem.get !== "function")
-        throw new Error("session memory interface missing");
-      return { status: "READY", reasonKm: "Session memory មាន add/get និងអាចប្រើបាន", reasonEn: "Session memory exposes add/get and is usable", module: "memory.mjs" };
-    }),
+    probe("session", API_HEALTH_TIMEOUT_MS, async () => checkSessionHealth(aiCore)),
   ]);
 
   const enriched = enrichCards(cards);
@@ -351,7 +338,7 @@ class AIStatus {
       throw new Error(`Invalid TASK_STATE: ${next}`);
     }
     const allowed = TASK_TRANSITIONS[this.state.task] || [];
-    if (this.state.task !== next && allowed.length && !allowed.includes(next)) {
+    if (this.state.task !== next && !allowed.includes(next)) {
       throw new Error(`Illegal task transition: ${this.state.task} -> ${next}`);
     }
     this._emit(`TASK_${next}`, { task: next });
