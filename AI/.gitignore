@@ -1,1 +1,3 @@
 *.bak*
+data/audit-log.jsonl
+*.bak-phase*
