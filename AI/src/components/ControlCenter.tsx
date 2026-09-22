@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface TaskEvent {
   id: string;
@@ -21,9 +21,22 @@ interface AuditEntry {
   reason?: string;
 }
 
+interface ApprovalItem {
+  id: string;
+  action: string;
+  actor: string;
+  permission: string | null;
+  risk: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  reason: string;
+  createdAt: string;
+  expiresAt: string;
+  status: "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "EXPIRED";
+}
+
 interface ControlData {
   events: TaskEvent[];
   audit: AuditEntry[];
+  approvals: ApprovalItem[];
 }
 
 const RISK_COLOR: Record<string, string> = {
@@ -37,28 +50,51 @@ const fmtTime = (iso?: string) => (iso ? new Date(iso).toLocaleTimeString("en-GB
 
 export default function ControlCenter({ onClose }: { onClose: () => void }) {
   const [data, setData] = useState<ControlData | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const r = await fetch("/api/control", { cache: "no-store" });
+      const d = await r.json();
+      setData(d);
+    } catch {
+      // silent: control center is observability-only, never blocks the app
+    }
+  }, []);
 
   useEffect(() => {
-    let stopped = false;
-    const load = async () => {
-      try {
-        const r = await fetch("/api/control", { cache: "no-store" });
-        const d = await r.json();
-        if (!stopped) setData(d);
-      } catch {
-        // silent: control center is observability-only, never blocks the app
-      }
-    };
     load();
     const timer = window.setInterval(load, 5000);
-    return () => {
-      stopped = true;
-      clearInterval(timer);
-    };
-  }, []);
+    return () => clearInterval(timer);
+  }, [load]);
+
+  async function decide(id: string, action: "approve" | "reject") {
+    const key = window.prompt("បញ្ចូល x-api-key ដើម្បីសម្រេចចិត្តលើ approval នេះ៖");
+    if (!key) return;
+    setBusyId(id);
+    try {
+      const r = await fetch(`/api/approvals/${id}/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": key },
+        body: JSON.stringify({ decidedBy: "control-center" }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        alert(`បរាជ័យ: ${d.error || r.status}`);
+        return;
+      }
+      await load();
+    } catch {
+      alert("មិនអាចភ្ជាប់ទៅ server បានទេ");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   const events = data?.events ?? [];
   const audit = data?.audit ?? [];
+  const approvals = data?.approvals ?? [];
+  const pending = approvals.filter((a) => a.status === "PENDING_APPROVAL");
 
   return (
     <div className="status-overlay" role="dialog" aria-label="CONTROL CENTER">
@@ -72,6 +108,37 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="status-panel__meta">
+          <span>Pending Approvals — រង់ចាំការសម្រេចចិត្ត ({pending.length})</span>
+        </div>
+        <div className="status-grid">
+          {pending.length === 0 && (
+            <div className="status-card">
+              <p className="status-card__desc-km">មិនមាន approval កំពុងរង់ចាំទេ</p>
+            </div>
+          )}
+          {pending.map((a) => (
+            <div className="status-card" key={a.id}>
+              <div className="status-card__head">
+                <span className="status-card__name">{a.action}</span>
+                <span className="status-badge" style={{ ["--badge-color" as any]: RISK_COLOR[a.risk] }}>
+                  {a.risk}
+                </span>
+              </div>
+              <p className="status-card__desc-en">permission: {a.permission ?? "—"} · actor: {a.actor}</p>
+              <div className="status-card__extra">
+                <div>Reason: {a.reason}</div>
+                <div>Created: {fmtTime(a.createdAt)}</div>
+                <div>Expires: {fmtTime(a.expiresAt)}</div>
+              </div>
+              <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <button disabled={busyId === a.id} onClick={() => decide(a.id, "approve")}>APPROVE</button>
+                <button disabled={busyId === a.id} onClick={() => decide(a.id, "reject")}>REJECT</button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
           <span>Recent Task Events — ព្រឹត្តិការណ៍ថ្មីៗ ({events.length})</span>
         </div>
         <div className="status-grid">

@@ -6,6 +6,7 @@ import { AICore } from "./src/ai/core.mjs";
 import { collectStatus, trackActivity } from "./src/ai/status.mjs";
 import { createTask, transition, getTask, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
 import { getAudit } from "./src/ai/permission.mjs";
+import { listApprovals } from "./src/ai/approvals.mjs";
 
 const app = express();
 app.use(cors());
@@ -40,6 +41,7 @@ app.get("/api", (req, res) => {
       chat: "POST /api/chat",
       models: "GET /api/models",
       tools: "GET /api/scan /api/check /api/learned /api/funcs?file= /api/read?file= | POST /api/learn /api/forget (ត្រូវការ header x-api-key)",
+      approvals: "GET /api/approvals | GET /api/approvals/:id | POST /api/approvals/:id/approve|reject|execute (ត្រូវការ header x-api-key)",
     },
   });
 });
@@ -116,8 +118,8 @@ app.post("/api/chat", async (req, res) => {
 app.get("/api/control", (req, res) => {
   // Read-only, unauthenticated observability feed for the frontend Control Center.
   // Contains no secrets: task events carry only counts/reasons, audit entries carry
-  // only action/permission/risk/decision metadata.
-  res.json({ events: getEvents().slice(-20), audit: getAudit(20) });
+  // only action/permission/risk/decision metadata, approvals carry no credentials.
+  res.json({ events: getEvents().slice(-20), audit: getAudit(20), approvals: listApprovals() });
 });
 
 app.get("/api/tasks", (req, res) => {

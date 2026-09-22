@@ -6,6 +6,13 @@ export const DECISION = Object.freeze({
   ALLOW: "ALLOW", DENY: "DENY", REQUIRE_APPROVAL: "REQUIRE_APPROVAL", SANDBOX_ONLY: "SANDBOX_ONLY",
 });
 
+// Phase 14 (spec 4.9): ប្រើដើម្បីស្គាល់ថា policy/permission បានផ្លាស់ប្តូរ
+// ក្រោយពេល approval ស្នើសុំរួច។ Bump ដោយដៃបើ REGISTRY ខាងក្រោមផ្លាស់ប្តូរ។
+const POLICY_VERSION = 1;
+const PERMISSION_VERSION = 1;
+export const getPolicyVersion = () => POLICY_VERSION;
+export const getPermissionVersion = () => PERMISSION_VERSION;
+
 // registry: action -> { permission, risk }
 const REGISTRY = {
   "tool.scan": { permission: "tool.execute", risk: RISK.LOW },
@@ -16,6 +23,8 @@ const REGISTRY = {
   "knowledge.readLearned": { permission: "knowledge.read", risk: RISK.LOW },
   "learning.write": { permission: "knowledge.write", risk: RISK.MEDIUM },
   "learning.delete": { permission: "knowledge.write", risk: RISK.MEDIUM },
+  // Phase 14 (spec 4.13): mock ត្រឹមតែសាកល្បង pipeline — គ្មានផលប៉ះពាល់ពិត
+  "approval.test.high-risk": { permission: "system.modify", risk: RISK.HIGH },
 };
 
 const MAX_AUDIT = 500;
@@ -37,7 +46,6 @@ export function policyCheck(action, actor = "user") {
       reason: "unregistered action — fail safe",
     });
   }
-  // Policy: LOW/MEDIUM => ALLOW. HIGH/CRITICAL => REQUIRE_APPROVAL (none exist yet).
   const decision = (spec.risk === RISK.HIGH || spec.risk === RISK.CRITICAL)
     ? DECISION.REQUIRE_APPROVAL
     : DECISION.ALLOW;
