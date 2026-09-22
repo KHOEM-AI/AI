@@ -8,6 +8,7 @@ import {
   TOOL_TIMEOUT_MS,
   DEVELOPING_MODULES,
 } from "../config/timeouts.mjs";
+import { recordAuditEvent } from "./audit.mjs";
 
 // Actual count of requests currently in progress (used for ACTIVE)
 export const active = { chat: 0, learn: 0, tool: 0 };
@@ -257,6 +258,19 @@ export const COGNITIVE_STATE = Object.freeze({
   ANSWERING: 'ANSWERING',
 });
 
+export const SAFETY_STATE = Object.freeze({
+  SAFE: 'SAFE',
+  REVIEW_REQUIRED: 'REVIEW_REQUIRED',
+  BLOCKED: 'BLOCKED',
+});
+
+export const CONFIDENCE_STATE = Object.freeze({
+  HIGH: 'HIGH',
+  MEDIUM: 'MEDIUM',
+  LOW: 'LOW',
+  UNCERTAIN: 'UNCERTAIN',
+});
+
 // Legal task transitions — prevents e.g. COMPLETED -> RUNNING by mistake
 const TASK_TRANSITIONS = {
   CREATED: ['QUEUED', 'CANCELLED'],
@@ -277,6 +291,8 @@ function createInitialState() {
     task: TASK_STATE.CREATED,
     execution: EXECUTION_STATE.IDLE,
     cognitive: null,
+    safety: SAFETY_STATE.SAFE,
+    confidence: CONFIDENCE_STATE.MEDIUM,
     taskId: null,
     updatedAt: new Date().toISOString(),
     history: [], // event trace for debug/audit — not shown to end user
@@ -312,6 +328,7 @@ class AIStatus {
     };
     this.state.history.push({ event: eventName, at: this.state.updatedAt });
     if (this.state.history.length > MAX_HISTORY) this.state.history.shift();
+    recordAuditEvent(eventName, { taskId: this.state.taskId, patch });
     for (const fn of this.listeners) fn(this.getState());
   }
 
@@ -354,6 +371,22 @@ class AIStatus {
       throw new Error(`Invalid COGNITIVE_STATE: ${next}`);
     }
     this._emit(next ? `COGNITIVE_${next}` : 'COGNITIVE_CLEARED', { cognitive: next });
+  }
+
+  // ---- Safety ----
+  setSafetyState(next) {
+    if (!Object.values(SAFETY_STATE).includes(next)) {
+      throw new Error(`Invalid SAFETY_STATE: ${next}`);
+    }
+    this._emit(`SAFETY_${next}`, { safety: next });
+  }
+
+  // ---- Confidence ----
+  setConfidenceState(next) {
+    if (!Object.values(CONFIDENCE_STATE).includes(next)) {
+      throw new Error(`Invalid CONFIDENCE_STATE: ${next}`);
+    }
+    this._emit(`CONFIDENCE_${next}`, { confidence: next });
   }
 
   reset() {
