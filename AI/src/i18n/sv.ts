@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const sv: Translations = {
+  menuOpen: "Öppna meny", menuClose: "Stäng meny", newChat: "Ny chatt",
+  navStatus: "AI-status", navControlCenter: "Kontrollcentral", navHonorific: "Ändra tilltal",
+  navLanguage: "Språk", navClearChat: "Rensa chatt",
+  emptyTitle: "Starta en konversation med AI", emptyHint: "Skriv din fråga nedan och tryck på Enter för att skicka",
+  thinking: "Tänker…", composerPlaceholder: "Skriv din fråga här...",
+  send: "Skicka", sendAria: "Skicka meddelande",
+  languageTitle: "Välj språk", languageClose: "Stäng", close: "Stäng",
+  systemHealthLabel: "Systemhälsa", lastChecked: "Senast kontrollerad", lastSuccessfulCheck: "Senaste lyckade kontroll",
+  moduleLabel: "Modul", errorLabel: "Fel", timeoutLabel: "Tidsgräns",
+  honorificTitle: "Hur vill du bli tilltalad?", honorificAriaLabel: "Välj tilltal",
+  controlCenterSubtitle: "Händelser och behörigheter", pendingApprovalsLabel: "Väntande godkännanden",
+  noPendingApprovals: "Inga väntande godkännanden", recentEventsLabel: "Senaste uppgiftshändelser",
+  noEvents: "Inga händelser än", permissionAuditLabel: "Behörighetsgranskning",
+  noAuditEntries: "Inga granskningsposter än",
+  apiKeyPrompt: "Ange x-api-key för att besluta om detta godkännande:",
+  decisionFailed: "Misslyckades", connectFailed: "Kunde inte ansluta till servern",
+  approveAction: "GODKÄNN", rejectAction: "AVVISA",
+};
+export default sv;

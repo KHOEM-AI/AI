@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const tl: Translations = {
+  menuOpen: "Buksan ang menu", menuClose: "Isara ang menu", newChat: "Bagong chat",
+  navStatus: "Katayuan ng AI", navControlCenter: "Control Center", navHonorific: "Baguhin ang pagtawag",
+  navLanguage: "Wika", navClearChat: "I-clear ang chat",
+  emptyTitle: "Simulan ang isang pag-uusap sa AI", emptyHint: "I-type ang iyong tanong sa ibaba at pindutin ang Enter para ipadala",
+  thinking: "Nag-iisip…", composerPlaceholder: "I-type ang iyong tanong dito...",
+  send: "Ipadala", sendAria: "Ipadala ang mensahe",
+  languageTitle: "Pumili ng wika", languageClose: "Isara", close: "Isara",
+  systemHealthLabel: "Kalusugan ng Sistema", lastChecked: "Huling na-check", lastSuccessfulCheck: "Huling matagumpay na pagsusuri",
+  moduleLabel: "Module", errorLabel: "Error", timeoutLabel: "Timeout",
+  honorificTitle: "Paano mo gustong tawagin ka?", honorificAriaLabel: "Pumili ng pagtawag",
+  controlCenterSubtitle: "Mga Kaganapan at Pahintulot", pendingApprovalsLabel: "Mga nakabinbing pag-apruba",
+  noPendingApprovals: "Walang nakabinbing pag-apruba", recentEventsLabel: "Kamakailang mga kaganapan ng gawain",
+  noEvents: "Wala pang kaganapan", permissionAuditLabel: "Pag-audit ng Pahintulot",
+  noAuditEntries: "Wala pang entry ng audit",
+  apiKeyPrompt: "Ilagay ang x-api-key para magpasya sa pag-apruba na ito:",
+  decisionFailed: "Nabigo", connectFailed: "Hindi makakonekta sa server",
+  approveAction: "APRUBAHAN", rejectAction: "TANGGIHAN",
+};
+export default tl;

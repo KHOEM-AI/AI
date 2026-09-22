@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const uk: Translations = {
+  menuOpen: "Відкрити меню", menuClose: "Закрити меню", newChat: "Новий чат",
+  navStatus: "Статус ШІ", navControlCenter: "Центр керування", navHonorific: "Змінити звертання",
+  navLanguage: "Мова", navClearChat: "Очистити чат",
+  emptyTitle: "Почніть розмову зі ШІ", emptyHint: "Введіть питання нижче та натисніть Enter, щоб надіслати",
+  thinking: "Думаю…", composerPlaceholder: "Введіть тут своє питання...",
+  send: "Надіслати", sendAria: "Надіслати повідомлення",
+  languageTitle: "Виберіть мову", languageClose: "Закрити", close: "Закрити",
+  systemHealthLabel: "Стан системи", lastChecked: "Остання перевірка", lastSuccessfulCheck: "Остання успішна перевірка",
+  moduleLabel: "Модуль", errorLabel: "Помилка", timeoutLabel: "Тайм-аут",
+  honorificTitle: "Як до вас звертатися?", honorificAriaLabel: "Виберіть звертання",
+  controlCenterSubtitle: "Події та дозволи", pendingApprovalsLabel: "Очікувані затвердження",
+  noPendingApprovals: "Немає очікуваних затверджень", recentEventsLabel: "Останні події завдань",
+  noEvents: "Подій ще немає", permissionAuditLabel: "Аудит дозволів",
+  noAuditEntries: "Записів аудиту ще немає",
+  apiKeyPrompt: "Введіть x-api-key, щоб вирішити щодо цього затвердження:",
+  decisionFailed: "Не вдалося", connectFailed: "Не вдалося підключитися до сервера",
+  approveAction: "ЗАТВЕРДИТИ", rejectAction: "ВІДХИЛИТИ",
+};
+export default uk;

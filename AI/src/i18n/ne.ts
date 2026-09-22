@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const ne: Translations = {
+  menuOpen: "मेनु खोल्नुहोस्", menuClose: "मेनु बन्द गर्नुहोस्", newChat: "नयाँ कुराकानी",
+  navStatus: "AI स्थिति", navControlCenter: "नियन्त्रण केन्द्र", navHonorific: "सम्बोधन परिवर्तन गर्नुहोस्",
+  navLanguage: "भाषा", navClearChat: "कुराकानी खाली गर्नुहोस्",
+  emptyTitle: "AI सँग कुराकानी सुरु गर्नुहोस्", emptyHint: "तल आफ्नो प्रश्न टाइप गर्नुहोस् र पठाउन Enter थिच्नुहोस्",
+  thinking: "सोच्दै…", composerPlaceholder: "यहाँ आफ्नो प्रश्न टाइप गर्नुहोस्...",
+  send: "पठाउनुहोस्", sendAria: "सन्देश पठाउनुहोस्",
+  languageTitle: "भाषा छान्नुहोस्", languageClose: "बन्द गर्नुहोस्", close: "बन्द गर्नुहोस्",
+  systemHealthLabel: "प्रणाली स्वास्थ्य", lastChecked: "अन्तिम पटक जाँच गरिएको", lastSuccessfulCheck: "अन्तिम सफल जाँच",
+  moduleLabel: "मोड्युल", errorLabel: "त्रुटि", timeoutLabel: "समय सकियो",
+  honorificTitle: "म तपाईंलाई कसरी सम्बोधन गरूँ?", honorificAriaLabel: "सम्बोधन छान्नुहोस्",
+  controlCenterSubtitle: "घटना र अनुमतिहरू", pendingApprovalsLabel: "बाँकी स्वीकृतिहरू",
+  noPendingApprovals: "कुनै बाँकी स्वीकृति छैन", recentEventsLabel: "हालैका कार्य घटनाहरू",
+  noEvents: "अहिलेसम्म कुनै घटना छैन", permissionAuditLabel: "अनुमति लेखा परीक्षण",
+  noAuditEntries: "अहिलेसम्म कुनै लेखा परीक्षण प्रविष्टि छैन",
+  apiKeyPrompt: "यो स्वीकृतिको बारेमा निर्णय गर्न x-api-key प्रविष्ट गर्नुहोस्:",
+  decisionFailed: "असफल भयो", connectFailed: "सर्भरसँग जडान गर्न सकिएन",
+  approveAction: "स्वीकृत गर्नुहोस्", rejectAction: "अस्वीकार गर्नुहोस्",
+};
+export default ne;

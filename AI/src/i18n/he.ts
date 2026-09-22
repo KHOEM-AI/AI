@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const he: Translations = {
+  menuOpen: "פתח תפריט", menuClose: "סגור תפריט", newChat: "שיחה חדשה",
+  navStatus: "מצב AI", navControlCenter: "מרכז בקרה", navHonorific: "שנה פנייה",
+  navLanguage: "שפה", navClearChat: "נקה שיחה",
+  emptyTitle: "התחל שיחה עם ה-AI", emptyHint: "הקלד את שאלתך למטה ולחץ Enter לשליחה",
+  thinking: "חושב…", composerPlaceholder: "הקלד כאן את שאלתך...",
+  send: "שלח", sendAria: "שלח הודעה",
+  languageTitle: "בחר שפה", languageClose: "סגור", close: "סגור",
+  systemHealthLabel: "תקינות המערכת", lastChecked: "נבדק לאחרונה", lastSuccessfulCheck: "בדיקה מוצלחת אחרונה",
+  moduleLabel: "מודול", errorLabel: "שגיאה", timeoutLabel: "פסק זמן",
+  honorificTitle: "כיצד תרצה שאפנה אליך?", honorificAriaLabel: "בחר פנייה",
+  controlCenterSubtitle: "אירועים והרשאות", pendingApprovalsLabel: "אישורים ממתינים",
+  noPendingApprovals: "אין אישורים ממתינים", recentEventsLabel: "אירועי משימות אחרונים",
+  noEvents: "אין אירועים עדיין", permissionAuditLabel: "ביקורת הרשאות",
+  noAuditEntries: "אין רשומות ביקורת עדיין",
+  apiKeyPrompt: "הזן x-api-key כדי להחליט לגבי אישור זה:",
+  decisionFailed: "נכשל", connectFailed: "לא ניתן להתחבר לשרת",
+  approveAction: "אשר", rejectAction: "דחה",
+};
+export default he;

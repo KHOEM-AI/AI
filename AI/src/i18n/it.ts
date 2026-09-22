@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const it: Translations = {
+  menuOpen: "Apri menu", menuClose: "Chiudi menu", newChat: "Nuova chat",
+  navStatus: "Stato IA", navControlCenter: "Centro di controllo", navHonorific: "Cambia formula di cortesia",
+  navLanguage: "Lingua", navClearChat: "Cancella chat",
+  emptyTitle: "Inizia una conversazione con l'IA", emptyHint: "Digita la tua domanda qui sotto e premi Invio per inviare",
+  thinking: "Sto pensando…", composerPlaceholder: "Scrivi qui la tua domanda...",
+  send: "Invia", sendAria: "Invia messaggio",
+  languageTitle: "Seleziona lingua", languageClose: "Chiudi", close: "Chiudi",
+  systemHealthLabel: "Stato del sistema", lastChecked: "Ultimo controllo", lastSuccessfulCheck: "Ultimo controllo riuscito",
+  moduleLabel: "Modulo", errorLabel: "Errore", timeoutLabel: "Timeout",
+  honorificTitle: "Come vuoi essere chiamato?", honorificAriaLabel: "Seleziona formula di cortesia",
+  controlCenterSubtitle: "Eventi e permessi", pendingApprovalsLabel: "Approvazioni in sospeso",
+  noPendingApprovals: "Nessuna approvazione in sospeso", recentEventsLabel: "Eventi recenti delle attività",
+  noEvents: "Nessun evento ancora", permissionAuditLabel: "Controllo dei permessi",
+  noAuditEntries: "Nessuna voce di controllo ancora",
+  apiKeyPrompt: "Inserisci x-api-key per decidere su questa approvazione:",
+  decisionFailed: "Fallito", connectFailed: "Impossibile connettersi al server",
+  approveAction: "APPROVA", rejectAction: "RIFIUTA",
+};
+export default it;

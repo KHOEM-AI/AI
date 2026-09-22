@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const mn: Translations = {
+  menuOpen: "Цэс нээх", menuClose: "Цэс хаах", newChat: "Шинэ чат",
+  navStatus: "AI төлөв", navControlCenter: "Удирдлагын төв", navHonorific: "Хандлагыг өөрчлөх",
+  navLanguage: "Хэл", navClearChat: "Чатыг цэвэрлэх",
+  emptyTitle: "AI-тай харилцан яриа эхлүүлээрэй", emptyHint: "Асуултаа доор бичээд илгээхийн тулд Enter товчийг дарна уу",
+  thinking: "Бодож байна…", composerPlaceholder: "Асуултаа энд бичнэ үү...",
+  send: "Илгээх", sendAria: "Мессеж илгээх",
+  languageTitle: "Хэл сонгох", languageClose: "Хаах", close: "Хаах",
+  systemHealthLabel: "Системийн байдал", lastChecked: "Сүүлд шалгасан", lastSuccessfulCheck: "Сүүлийн амжилттай шалгалт",
+  moduleLabel: "Модуль", errorLabel: "Алдаа", timeoutLabel: "Хугацаа дууссан",
+  honorificTitle: "Би таныг хэрхэн хандах ёстой вэ?", honorificAriaLabel: "Хандлага сонгох",
+  controlCenterSubtitle: "Үйл явдал ба зөвшөөрөл", pendingApprovalsLabel: "Хүлээгдэж буй зөвшөөрлүүд",
+  noPendingApprovals: "Хүлээгдэж буй зөвшөөрөл байхгүй", recentEventsLabel: "Сүүлийн үеийн даалгаврын үйл явдлууд",
+  noEvents: "Одоогоор үйл явдал байхгүй", permissionAuditLabel: "Зөвшөөрлийн аудит",
+  noAuditEntries: "Одоогоор аудитын бичлэг байхгүй",
+  apiKeyPrompt: "Энэ зөвшөөрлийн талаар шийдвэр гаргахын тулд x-api-key оруулна уу:",
+  decisionFailed: "Амжилтгүй боллоо", connectFailed: "Серверт холбогдож чадсангүй",
+  approveAction: "ЗӨВШӨӨРӨХ", rejectAction: "ТАТГАЛЗАХ",
+};
+export default mn;

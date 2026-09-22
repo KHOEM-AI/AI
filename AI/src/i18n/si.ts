@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const si: Translations = {
+  menuOpen: "මෙනුව විවෘත කරන්න", menuClose: "මෙනුව වසන්න", newChat: "නව කතාබහ",
+  navStatus: "AI තත්ත්වය", navControlCenter: "පාලන මධ්‍යස්ථානය", navHonorific: "ආමන්ත්‍රණය වෙනස් කරන්න",
+  navLanguage: "භාෂාව", navClearChat: "කතාබහ මකන්න",
+  emptyTitle: "AI සමඟ සංවාදයක් ආරම්භ කරන්න", emptyHint: "පහත ඔබේ ප්‍රශ්නය ටයිප් කර යැවීමට Enter ඔබන්න",
+  thinking: "සිතමින්…", composerPlaceholder: "ඔබේ ප්‍රශ්නය මෙහි ටයිප් කරන්න...",
+  send: "යවන්න", sendAria: "පණිවිඩය යවන්න",
+  languageTitle: "භාෂාව තෝරන්න", languageClose: "වසන්න", close: "වසන්න",
+  systemHealthLabel: "පද්ධති සෞඛ්‍යය", lastChecked: "අවසන් වරට පරීක්ෂා කළේ", lastSuccessfulCheck: "අවසන් සාර්ථක පරීක්ෂාව",
+  moduleLabel: "මොඩියුලය", errorLabel: "දෝෂය", timeoutLabel: "කාල නිමාව",
+  honorificTitle: "ඔබට කැඳවිය යුත්තේ කෙසේද?", honorificAriaLabel: "ආමන්ත්‍රණය තෝරන්න",
+  controlCenterSubtitle: "සිදුවීම් සහ අවසර", pendingApprovalsLabel: "විභාග කරමින් පවතින අනුමැතීන්",
+  noPendingApprovals: "විභාග කරමින් පවතින අනුමැතීන් නැත", recentEventsLabel: "මෑත කාර්ය සිදුවීම්",
+  noEvents: "තවම සිදුවීම් නැත", permissionAuditLabel: "අවසර විගණනය",
+  noAuditEntries: "තවම විගණන ඇතුළත් කිරීම් නැත",
+  apiKeyPrompt: "මෙම අනුමැතිය පිළිබඳ තීරණය කිරීමට x-api-key ඇතුළත් කරන්න:",
+  decisionFailed: "අසාර්ථකයි", connectFailed: "සේවාදායකයට සම්බන්ධ විය නොහැක",
+  approveAction: "අනුමත කරන්න", rejectAction: "ප්‍රතික්ෂේප කරන්න",
+};
+export default si;

@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const ru: Translations = {
+  menuOpen: "Открыть меню", menuClose: "Закрыть меню", newChat: "Новый чат",
+  navStatus: "Статус ИИ", navControlCenter: "Центр управления", navHonorific: "Изменить обращение",
+  navLanguage: "Язык", navClearChat: "Очистить чат",
+  emptyTitle: "Начните разговор с ИИ", emptyHint: "Введите свой вопрос ниже и нажмите Enter для отправки",
+  thinking: "Думаю…", composerPlaceholder: "Введите свой вопрос здесь...",
+  send: "Отправить", sendAria: "Отправить сообщение",
+  languageTitle: "Выберите язык", languageClose: "Закрыть", close: "Закрыть",
+  systemHealthLabel: "Состояние системы", lastChecked: "Последняя проверка", lastSuccessfulCheck: "Последняя успешная проверка",
+  moduleLabel: "Модуль", errorLabel: "Ошибка", timeoutLabel: "Тайм-аут",
+  honorificTitle: "Как к вам обращаться?", honorificAriaLabel: "Выберите обращение",
+  controlCenterSubtitle: "События и разрешения", pendingApprovalsLabel: "Ожидающие подтверждения",
+  noPendingApprovals: "Нет ожидающих подтверждений", recentEventsLabel: "Недавние события задач",
+  noEvents: "Пока нет событий", permissionAuditLabel: "Аудит разрешений",
+  noAuditEntries: "Пока нет записей аудита",
+  apiKeyPrompt: "Введите x-api-key, чтобы принять решение по этому подтверждению:",
+  decisionFailed: "Не удалось", connectFailed: "Не удалось подключиться к серверу",
+  approveAction: "ОДОБРИТЬ", rejectAction: "ОТКЛОНИТЬ",
+};
+export default ru;

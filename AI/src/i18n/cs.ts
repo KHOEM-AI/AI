@@ -1,0 +1,21 @@
+import type { Translations } from "./types";
+const cs: Translations = {
+  menuOpen: "Otevřít nabídku", menuClose: "Zavřít nabídku", newChat: "Nový chat",
+  navStatus: "Stav AI", navControlCenter: "Řídicí centrum", navHonorific: "Změnit oslovení",
+  navLanguage: "Jazyk", navClearChat: "Vymazat chat",
+  emptyTitle: "Zahajte konverzaci s AI", emptyHint: "Napište svůj dotaz níže a stiskněte Enter pro odeslání",
+  thinking: "Přemýšlím…", composerPlaceholder: "Zde napište svůj dotaz...",
+  send: "Odeslat", sendAria: "Odeslat zprávu",
+  languageTitle: "Vyberte jazyk", languageClose: "Zavřít", close: "Zavřít",
+  systemHealthLabel: "Stav systému", lastChecked: "Naposledy zkontrolováno", lastSuccessfulCheck: "Poslední úspěšná kontrola",
+  moduleLabel: "Modul", errorLabel: "Chyba", timeoutLabel: "Časový limit",
+  honorificTitle: "Jak si přejete být oslovováni?", honorificAriaLabel: "Vyberte oslovení",
+  controlCenterSubtitle: "Události a oprávnění", pendingApprovalsLabel: "Čekající schválení",
+  noPendingApprovals: "Žádná čekající schválení", recentEventsLabel: "Nedávné události úkolů",
+  noEvents: "Zatím žádné události", permissionAuditLabel: "Audit oprávnění",
+  noAuditEntries: "Zatím žádné záznamy auditu",
+  apiKeyPrompt: "Zadejte x-api-key pro rozhodnutí o tomto schválení:",
+  decisionFailed: "Selhalo", connectFailed: "Nelze se připojit k serveru",
+  approveAction: "SCHVÁLIT", rejectAction: "ZAMÍTNOUT",
+};
+export default cs;
