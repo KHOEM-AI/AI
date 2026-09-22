@@ -10,5 +10,5 @@ export const HEALTH_MAX_RETRIES = 2;
 export const TOOL_MAX_RETRIES = 1;
 export const OFFLINE_AFTER_FAILED_CHECKS = 3;
 
-// module ដែលមានហើយ តែនៅកំពុងបន្ថែម capability (បង្ហាញ DEVELOPING)
+// module that exists but is still gaining capability (shown as DEVELOPING)
 export const DEVELOPING_MODULES = ["english"];

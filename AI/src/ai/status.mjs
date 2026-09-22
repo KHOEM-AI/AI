@@ -9,7 +9,7 @@ import {
   DEVELOPING_MODULES,
 } from "../config/timeouts.mjs";
 
-// ចំនួន request ដែលកំពុងដំណើរការពិតប្រាកដ (សម្រាប់ ACTIVE)
+// Actual count of requests currently in progress (used for ACTIVE)
 export const active = { chat: 0, learn: 0, tool: 0 };
 
 export function trackActivity(req, res, next) {
@@ -35,7 +35,7 @@ export function trackActivity(req, res, next) {
 const PRIORITY = ["ERROR", "OFFLINE", "TIMEOUT", "LOADING", "UPDATING", "ACTIVE", "READY", "ONLINE", "DEVELOPING", "UNKNOWN"];
 const pickStatus = (list) => list.slice().sort((a, b) => PRIORITY.indexOf(a) - PRIORITY.indexOf(b))[0];
 
-// មិនបង្ហាញ path ឬ stack ក្នុង error
+// Do not expose file path or stack trace in error output
 const safeMsg = (m) =>
   String(m ?? "unknown error").replace(/(file:\/\/)?(\/[^\s:'"]+)+/g, "[path]").slice(0, 200);
 

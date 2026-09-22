@@ -17,7 +17,7 @@ const ALLOWED = {
   EXPIRED: [],
 };
 
-const DEFAULT_TTL_MS = 15 * 60 * 1000; // 15 នាទី
+const DEFAULT_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_REQUESTS = 200;
 const requests = new Map();
 
@@ -87,11 +87,11 @@ function transitionApproval(id, to, { decidedBy, decisionReason }) {
   if (!ALLOWED[req.status]?.includes(to)) {
     return { error: `INVALID_TRANSITION (${req.status} -> ${to})` };
   }
-  // spec 4.6: អ្នកស្នើសុំ មិនអាចជាអ្នកសម្រេចចិត្តលើសំណើររបស់ខ្លួនឯងបានទេ
+  // spec 4.6: the requester cannot also be the approver of their own request
   if (decidedBy && decidedBy === req.requestedBy) {
     return { error: "SELF_APPROVAL_FORBIDDEN" };
   }
-  // spec 4.9: policy/permission ត្រូវតែដូចពេលស្នើសុំ បើមិនដូច — ចាស់ (stale)
+  // spec 4.9: policy/permission must match what it was at request time — otherwise it is stale
   if (req.policyVersion !== getPolicyVersion() || req.permissionVersion !== getPermissionVersion()) {
     req.status = APPROVAL.EXPIRED;
     req.decidedAt = new Date().toISOString();

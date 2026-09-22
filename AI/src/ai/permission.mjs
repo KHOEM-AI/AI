@@ -6,8 +6,8 @@ export const DECISION = Object.freeze({
   ALLOW: "ALLOW", DENY: "DENY", REQUIRE_APPROVAL: "REQUIRE_APPROVAL", SANDBOX_ONLY: "SANDBOX_ONLY",
 });
 
-// Phase 14 (spec 4.9): ប្រើដើម្បីស្គាល់ថា policy/permission បានផ្លាស់ប្តូរ
-// ក្រោយពេល approval ស្នើសុំរួច។ Bump ដោយដៃបើ REGISTRY ខាងក្រោមផ្លាស់ប្តូរ។
+// Phase 14 (spec 4.9): used to detect that policy/permission has changed
+// after an approval request is made. Bump manually if the REGISTRY below changes.
 const POLICY_VERSION = 1;
 const PERMISSION_VERSION = 1;
 export const getPolicyVersion = () => POLICY_VERSION;
@@ -23,7 +23,7 @@ const REGISTRY = {
   "knowledge.readLearned": { permission: "knowledge.read", risk: RISK.LOW },
   "learning.write": { permission: "knowledge.write", risk: RISK.MEDIUM },
   "learning.delete": { permission: "knowledge.write", risk: RISK.MEDIUM },
-  // Phase 14 (spec 4.13): mock ត្រឹមតែសាកល្បង pipeline — គ្មានផលប៉ះពាល់ពិត
+  // Phase 14 (spec 4.13): mock only to test the pipeline — no real effect
   "approval.test.high-risk": { permission: "system.modify", risk: RISK.HIGH },
 };
 
