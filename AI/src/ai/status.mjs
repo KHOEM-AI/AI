@@ -199,6 +199,19 @@ export async function collectStatus(aiCore) {
     }),
 
     probe("session", API_HEALTH_TIMEOUT_MS, async () => checkSessionHealth(aiCore)),
+
+    probe("codeDataCenter", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./codeDataCenter.mjs");
+      if (!m.isReady()) m.scanRepo();
+      const { files } = m.getFileIndex();
+      if (!Array.isArray(files) || files.length === 0) throw new Error("file index is empty after scan");
+      return {
+        status: "READY",
+        reasonKm: `Index មានឯកសារ ${files.length} ក្នុងប្រព័ន្ធ`,
+        reasonEn: `File index has ${files.length} files`,
+        module: "codeDataCenter.mjs",
+      };
+    }),
   ]);
 
   const enriched = enrichCards(cards);

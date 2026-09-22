@@ -79,6 +79,18 @@ export function registerApi(app) {
     if (!req.body?.q) throw bad("ត្រូវការ q");
     return run("/forget " + req.body.q);
   }));
+  // ---- Phase 3: Code Data Center (read/analyze only, spec Part 3) ----
+  app.get("/api/code/index", guard, wrap(async () => {
+    const cdc = await import("./codeDataCenter.mjs");
+    if (!cdc.isReady()) cdc.scanRepo();
+    return cdc.getFileIndex();
+  }));
+
+  app.post("/api/code/scan", guard, wrap(async () => {
+    const cdc = await import("./codeDataCenter.mjs");
+    return cdc.scanRepo();
+  }));
+
   app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({
