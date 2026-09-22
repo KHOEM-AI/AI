@@ -10,6 +10,19 @@ import { execSync } from "node:child_process";
 
 const ROOT = process.cwd();
 
+// Phase 8: Version/Provenance (spec Part 2.E)
+const INDEX_VERSION = "1.0.0";
+
+function getGitInfo() {
+  try {
+    const commit = execSync("git rev-parse HEAD", { cwd: ROOT }).toString().trim();
+    const branch = execSync("git rev-parse --abbrev-ref HEAD", { cwd: ROOT }).toString().trim();
+    return { commit, branch };
+  } catch {
+    return { commit: null, branch: null };
+  }
+}
+
 const IGNORE_DIRS = new Set([
   "node_modules", ".git", "dist", "build", "out", ".next",
   ".vite", "coverage", ".cache", ".turbo",
@@ -225,11 +238,25 @@ export function scanRepo(root = ROOT) {
   dependencyGraph = null;
   buildDependencyGraph();
   lastScan = new Date().toISOString();
-  return { fileCount: fileIndex.length, scannedAt: lastScan };
+  const git = getGitInfo();
+  return {
+    fileCount: fileIndex.length,
+    scannedAt: lastScan,
+    indexVersion: INDEX_VERSION,
+    gitCommit: git.commit,
+    gitBranch: git.branch,
+  };
 }
 
 export function getFileIndex() {
-  return { scannedAt: lastScan, files: fileIndex };
+  const git = getGitInfo();
+  return {
+    scannedAt: lastScan,
+    indexVersion: INDEX_VERSION,
+    gitCommit: git.commit,
+    gitBranch: git.branch,
+    files: fileIndex,
+  };
 }
 
 export function isReady() {
