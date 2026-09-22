@@ -1,4 +1,5 @@
 import { LANGUAGE_OPTIONS, type LanguageCode } from "../language";
+import { useT } from "../i18n";
 
 export default function LanguagePrompt({
   current,
@@ -9,10 +10,11 @@ export default function LanguagePrompt({
   onSelect: (code: LanguageCode) => void;
   onClose?: () => void;
 }) {
+  const t = useT();
   return (
-    <div className="honorific-overlay" role="dialog" aria-label="ជ្រើសរើសភាសា">
+    <div className="honorific-overlay" role="dialog" aria-label={t.languageTitle}>
       <div className="honorific-panel">
-        <p className="honorific-panel__title">ជ្រើសរើសភាសា</p>
+        <p className="honorific-panel__title">{t.languageTitle}</p>
         <div className="honorific-panel__grid language-panel__grid">
           {LANGUAGE_OPTIONS.map((o) => (
             <button
@@ -26,7 +28,7 @@ export default function LanguagePrompt({
         </div>
         {onClose && (
           <button className="honorific-panel__close" onClick={onClose}>
-            បិទ
+            {t.languageClose}
           </button>
         )}
       </div>
