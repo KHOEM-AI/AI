@@ -104,6 +104,26 @@ export function registerApi(app) {
     return { name: req.query.name, hits: cdc.findSymbol(req.query.name) };
   }));
 
+  app.get("/api/code/dependencies", guard, wrap(async (req) => {
+    if (!req.query.file) throw bad("ត្រូវការ ?file=src/...");
+    const cdc = await import("./codeDataCenter.mjs");
+    if (!cdc.isReady()) cdc.scanRepo();
+    return { file: req.query.file, dependencies: cdc.getDependencies(req.query.file) };
+  }));
+
+  app.get("/api/code/dependents", guard, wrap(async (req) => {
+    if (!req.query.file) throw bad("ត្រូវការ ?file=src/...");
+    const cdc = await import("./codeDataCenter.mjs");
+    if (!cdc.isReady()) cdc.scanRepo();
+    return { file: req.query.file, dependents: cdc.getDependents(req.query.file) };
+  }));
+
+  app.get("/api/code/circular", guard, wrap(async () => {
+    const cdc = await import("./codeDataCenter.mjs");
+    if (!cdc.isReady()) cdc.scanRepo();
+    return { cycles: cdc.getCircularDependencies() };
+  }));
+
   app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({

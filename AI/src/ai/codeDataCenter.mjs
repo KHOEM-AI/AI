@@ -90,6 +90,68 @@ export function extractSymbols(absPath, source) {
 }
 let fileIndex = [];
 let lastScan = null;
+let dependencyGraph = null;
+
+function resolveImportPath(fromRelPath, importPath) {
+  if (!importPath.startsWith(".")) return null; // skip bare/package imports (node_modules)
+  const fromDir = path.dirname(fromRelPath);
+  const base = path.normalize(path.join(fromDir, importPath));
+  const exts = [...CODE_EXTENSIONS];
+  const candidates = [
+    base,
+    ...exts.map((e) => base + e),
+    ...exts.map((e) => path.join(base, "index" + e)),
+  ];
+  for (const c of candidates) {
+    if (fileIndex.some((f) => f.path === c)) return c;
+  }
+  return null;
+}
+
+function buildDependencyGraph() {
+  const deps = {};
+  const dependents = {};
+  for (const f of fileIndex) {
+    if (!f.symbols || !f.symbols.imports) continue;
+    const resolved = [];
+    for (const imp of f.symbols.imports) {
+      const r = resolveImportPath(f.path, imp);
+      if (r) resolved.push(r);
+    }
+    deps[f.path] = resolved;
+    for (const r of resolved) {
+      if (!dependents[r]) dependents[r] = [];
+      dependents[r].push(f.path);
+    }
+  }
+  dependencyGraph = { deps, dependents, builtAt: new Date().toISOString() };
+}
+
+function detectCircular() {
+  if (!dependencyGraph) return [];
+  const deps = dependencyGraph.deps;
+  const color = {};
+  const stack = [];
+  const cycles = [];
+  function visit(node) {
+    color[node] = 1;
+    stack.push(node);
+    for (const dep of deps[node] || []) {
+      if (color[dep] === 1) {
+        const idx = stack.indexOf(dep);
+        cycles.push(stack.slice(idx).concat(dep));
+      } else if (!color[dep]) {
+        visit(dep);
+      }
+    }
+    stack.pop();
+    color[node] = 2;
+  }
+  for (const node of Object.keys(deps)) {
+    if (!color[node]) visit(node);
+  }
+  return cycles;
+}
 
 function walk(dir, out) {
   let entries;
@@ -153,6 +215,8 @@ export function scanRepo(root = ROOT) {
   const files = [];
   walk(root, files);
   fileIndex = files.map(indexOne);
+  dependencyGraph = null;
+  buildDependencyGraph();
   lastScan = new Date().toISOString();
   return { fileCount: fileIndex.length, scannedAt: lastScan };
 }
@@ -182,4 +246,24 @@ export function findSymbol(name) {
 
 export function getSymbolIndex() {
   return fileIndex.filter((f) => f.symbols).map((f) => ({ path: f.path, ...f.symbols }));
+}
+
+export function getDependencyGraph() {
+  if (!dependencyGraph) buildDependencyGraph();
+  return dependencyGraph;
+}
+
+export function getDependencies(relPath) {
+  if (!dependencyGraph) buildDependencyGraph();
+  return dependencyGraph.deps[relPath] || [];
+}
+
+export function getDependents(relPath) {
+  if (!dependencyGraph) buildDependencyGraph();
+  return dependencyGraph.dependents[relPath] || [];
+}
+
+export function getCircularDependencies() {
+  if (!dependencyGraph) buildDependencyGraph();
+  return detectCircular();
 }
