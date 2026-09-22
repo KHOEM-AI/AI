@@ -9,6 +9,7 @@ import { emit, getAllTasks, getTask, getEvents } from "./tasks.mjs";
 import { isKilled, activateKillSwitch, deactivateKillSwitch, getKillSwitchStatus } from "./killswitch.mjs";
 import { createSnapshot, listSnapshots, getSnapshot, buildRollbackPlan } from "./rollback.mjs";
 import { runSandboxTest } from "./sandbox.mjs";
+import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
@@ -192,6 +193,32 @@ export function registerApi(app) {
       throw bad("relPath and newContent (string) are required");
     }
     return runSandboxTest({ relPath, newContent, reason });
+  }));
+  // ---- Phase 21: Safe Code Patch Proposal (propose -> approve -> apply) ----
+  app.post("/api/patch/propose", guard, policy("code.proposePatch"), wrap((req) => {
+    const { relPath, newContent, reason } = req.body || {};
+    if (!relPath || typeof newContent !== "string") {
+      throw bad("relPath and newContent (string) are required");
+    }
+    return proposePatch({ relPath, newContent, reason, actor: actorOf(req) });
+  }));
+
+  app.get("/api/patch/proposals", guard, (req, res) => {
+    res.json({ proposals: listProposals() });
+  });
+
+  app.get("/api/patch/proposals/:id", guard, (req, res) => {
+    const p = getProposal(req.params.id);
+    if (!p) return res.status(404).json({ error: "រកមិនឃើញ proposal" });
+    res.json({ proposal: p });
+  });
+
+  app.post("/api/patch/apply", guard, wrap((req) => {
+    const { proposalId, approvalId } = req.body || {};
+    if (!proposalId || !approvalId) throw bad("proposalId and approvalId are required");
+    const result = applyPatch(proposalId, approvalId, actorOf(req));
+    if (!result.ok) throw bad(result.error, 409);
+    return result;
   }));
 app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);

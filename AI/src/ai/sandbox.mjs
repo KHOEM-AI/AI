@@ -13,7 +13,22 @@ import { randomUUID } from "node:crypto";
 const ROOT = process.cwd();
 const EXCLUDE = new Set(["node_modules", ".git", "dist", "data"]);
 
-function assertSafeRelPath(relPath) {
+// Test files that themselves call runSandboxTest(). If the whole repo is
+// copied into a sandbox and its test suite is run there, these files would
+// spawn another sandbox from inside the sandbox — unbounded recursion. They
+// are excluded from the copy; their correctness is verified by running them
+// directly against the real repo (outside any sandbox), not recursively.
+const RECURSION_UNSAFE_TEST_FILES = [
+  "src/ai/__tests__/sandbox.test.mjs",
+  "src/ai/__tests__/patch.test.mjs",
+];
+
+// Defense in depth: if somehow invoked from inside an already-running
+// sandbox (e.g. a future caller forgets to exclude a recursive test file),
+// refuse immediately instead of recursing.
+const NESTED = process.env.KHOEM_SANDBOX_NESTED === "1";
+
+export function assertSafeRelPath(relPath) {
   if (typeof relPath !== "string" || !relPath.startsWith("src/")) {
     throw Object.assign(new Error("relPath must start with 'src/'"), { status: 400 });
   }
@@ -30,6 +45,9 @@ function createSandboxDir() {
   for (const entry of fs.readdirSync(ROOT)) {
     if (EXCLUDE.has(entry)) continue;
     fs.cpSync(path.join(ROOT, entry), path.join(dir, entry), { recursive: true });
+  }
+  for (const rel of RECURSION_UNSAFE_TEST_FILES) {
+    fs.rmSync(path.join(dir, rel), { force: true });
   }
   try {
     fs.symlinkSync(path.join(ROOT, "node_modules"), path.join(dir, "node_modules"), "dir");
@@ -49,7 +67,12 @@ function cleanupSandbox(dir) {
 
 function runCheck(cmd, cwd, timeout) {
   try {
-    const output = execSync(cmd, { cwd, stdio: ["ignore", "pipe", "pipe"], timeout }).toString();
+    const output = execSync(cmd, {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout,
+      env: { ...process.env, KHOEM_SANDBOX_NESTED: "1" },
+    }).toString();
     return { ok: true, output: output.slice(-2000) };
   } catch (e) {
     return {
@@ -63,6 +86,9 @@ function runCheck(cmd, cwd, timeout) {
 // Runs a proposed change against a temporary sandbox copy only.
 // Never touches the real repository. Always cleans up the sandbox dir.
 export function runSandboxTest({ relPath, newContent, reason = "manual" }) {
+  if (NESTED) {
+    throw Object.assign(new Error("nested sandbox run refused (recursion guard)"), { status: 409 });
+  }
   const safeRelPath = assertSafeRelPath(relPath);
   if (typeof newContent !== "string") {
     throw Object.assign(new Error("newContent must be a string"), { status: 400 });
@@ -77,7 +103,7 @@ export function runSandboxTest({ relPath, newContent, reason = "manual" }) {
 
     const tsc = runCheck("npx tsc --noEmit", dir, 60000);
     const build = tsc.ok ? runCheck("npm run build", dir, 90000) : { ok: false, output: "", error: "skipped — tsc failed" };
-    const tests = build.ok ? runCheck("npx vitest run", dir, 60000) : { ok: false, output: "", error: "skipped — build failed" };
+    const tests = build.ok ? runCheck("npx vitest run", dir, 120000) : { ok: false, output: "", error: "skipped — build failed" };
 
     const overallOk = tsc.ok && build.ok && tests.ok;
     return {

@@ -39,6 +39,11 @@ const REGISTRY = {
   // is never touched, so MEDIUM/auto-ALLOW is appropriate. Applying a
   // verified sandbox result to production (Phase 21) will be HIGH risk.
   "code.sandboxTest": { permission: "tool.execute", risk: RISK.MEDIUM },
+  // Phase 21: proposing a patch only runs it in sandbox (no production
+  // write) so MEDIUM/auto-ALLOW is safe. Applying it is a real write to
+  // src/ and always requires human approval regardless of sandbox result.
+  "code.proposePatch": { permission: "tool.execute", risk: RISK.MEDIUM },
+  "code.applyPatch": { permission: "code.write", risk: RISK.HIGH },
 };
 
 const MAX_AUDIT = 500;
