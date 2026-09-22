@@ -129,6 +129,11 @@ export function registerApi(app) {
     return cdc.getCodeHealth();
   }));
 
+  app.get("/api/code/findings", guard, wrap(async () => {
+    const cdc = await import("./codeDataCenter.mjs");
+    return cdc.getFindings();
+  }));
+
   app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({
