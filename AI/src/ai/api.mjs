@@ -7,6 +7,7 @@ import {
 } from "./approvals.mjs";
 import { emit, getAllTasks, getTask, getEvents } from "./tasks.mjs";
 import { isKilled, activateKillSwitch, deactivateKillSwitch, getKillSwitchStatus } from "./killswitch.mjs";
+import { createSnapshot, listSnapshots, getSnapshot, buildRollbackPlan } from "./rollback.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
@@ -161,6 +162,27 @@ export function registerApi(app) {
 
   app.post("/api/system/resume", guard, policy("system.resume"), wrap(() => {
     return deactivateKillSwitch();
+  }));
+  // ---- Phase 13: Rollback Strategy (snapshot + plan, read-only) ----
+  app.post("/api/rollback/snapshot", guard, policy("rollback.snapshot"), wrap((req) => {
+    const reason = String(req.body?.reason || "manual");
+    return createSnapshot(reason);
+  }));
+
+  app.get("/api/rollback/snapshots", guard, policy("rollback.plan"), wrap(() => {
+    return { snapshots: listSnapshots() };
+  }));
+
+  app.get("/api/rollback/snapshots/:id", guard, policy("rollback.plan"), wrap((req) => {
+    const snap = getSnapshot(req.params.id);
+    if (!snap) throw bad("រកមិនឃើញ snapshot", 404);
+    return snap;
+  }));
+
+  app.get("/api/rollback/plan/:id", guard, policy("rollback.plan"), wrap((req) => {
+    const plan = buildRollbackPlan(req.params.id);
+    if (!plan) throw bad("រកមិនឃើញ snapshot", 404);
+    return plan;
   }));
 app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);

@@ -31,6 +31,10 @@ const REGISTRY = {
   // pipeline exists for real (non-mock) actions.
   "system.kill": { permission: "system.modify", risk: RISK.MEDIUM },
   "system.resume": { permission: "system.modify", risk: RISK.MEDIUM },
+  // Phase 13: rollback snapshots/plans are read-only — no destructive
+  // execution happens through the API, so LOW risk / auto-ALLOW is safe.
+  "rollback.snapshot": { permission: "system.read", risk: RISK.LOW },
+  "rollback.plan": { permission: "system.read", risk: RISK.LOW },
 };
 
 const MAX_AUDIT = 500;
