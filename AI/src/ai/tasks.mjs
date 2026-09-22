@@ -1,5 +1,6 @@
 // src/ai/tasks.mjs — Task engine + trace events (standalone, additive)
 import { randomUUID } from "node:crypto";
+import { recordAuditEvent } from "./audit.mjs";
 
 export const TASK = Object.freeze({
   CREATED: "CREATED", QUEUED: "QUEUED", RUNNING: "RUNNING", WAITING: "WAITING",
@@ -23,6 +24,7 @@ export function emit(taskId, type, metadata = {}, duration = null) {
   const ev = { id: randomUUID(), taskId, type, timestamp: new Date().toISOString(), duration, metadata };
   events.push(ev);
   if (events.length > MAX_EVENTS) events.shift();
+  recordAuditEvent(type, { taskId, duration, ...metadata });
   return ev;
 }
 

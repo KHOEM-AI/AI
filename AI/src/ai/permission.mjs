@@ -1,5 +1,6 @@
 // src/ai/permission.mjs — Permission + Policy Engine (standalone, additive)
 import { randomUUID } from "node:crypto";
+import { recordAuditEvent } from "./audit.mjs";
 
 export const RISK = Object.freeze({ LOW: "LOW", MEDIUM: "MEDIUM", HIGH: "HIGH", CRITICAL: "CRITICAL" });
 export const DECISION = Object.freeze({
@@ -33,6 +34,7 @@ const auditLog = [];
 function recordAudit(entry) {
   auditLog.push(entry);
   if (auditLog.length > MAX_AUDIT) auditLog.shift();
+  recordAuditEvent("POLICY_" + entry.decision, entry);
   return entry;
 }
 
@@ -42,7 +44,7 @@ export function policyCheck(action, actor = "user") {
   if (!spec) {
     return recordAudit({
       id: randomUUID(), timestamp, actor, action, permission: null,
-      risk: RISK.CRITICAL, approvalRequired: true, decision: DECISION.DENY,
+      risk: RISK.CRITICAL, approvalRequired: false, decision: DECISION.DENY,
       reason: "unregistered action — fail safe",
     });
   }

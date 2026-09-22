@@ -87,8 +87,12 @@ function transitionApproval(id, to, { decidedBy, decisionReason }) {
   if (!ALLOWED[req.status]?.includes(to)) {
     return { error: `INVALID_TRANSITION (${req.status} -> ${to})` };
   }
-  // spec 4.6: the requester cannot also be the approver of their own request
-  if (decidedBy && decidedBy === req.requestedBy) {
+  // spec 4.6: a decision must be attributable to someone, and the requester
+  // cannot also be the approver of their own request
+  if (!decidedBy) {
+    return { error: "DECIDER_REQUIRED" };
+  }
+  if (decidedBy === req.requestedBy) {
     return { error: "SELF_APPROVAL_FORBIDDEN" };
   }
   // spec 4.9: policy/permission must match what it was at request time — otherwise it is stale
