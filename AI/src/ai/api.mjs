@@ -6,6 +6,7 @@ import {
   approveRequest, rejectRequest, verifyBeforeExecution, markExecuted,
 } from "./approvals.mjs";
 import { emit, getAllTasks, getTask, getEvents } from "./tasks.mjs";
+import { isKilled, activateKillSwitch, deactivateKillSwitch, getKillSwitchStatus } from "./killswitch.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
@@ -28,6 +29,9 @@ function guard(req, res, next) {
 function policy(action) {
   return (req, res, next) => {
     const actor = actorOf(req);
+    if (isKilled() && action !== "system.kill" && action !== "system.resume") {
+      return res.status(503).json({ error: "ប្រព័ន្ធត្រូវបានផ្អាក (kill switch active)", action });
+    }
     const rec = policyCheck(action, actor);
     if (rec.decision === DECISION.DENY) {
       return res.status(403).json({ error: "សកម្មភាពនេះមិនត្រូវបានអនុញ្ញាត", action, risk: rec.risk });
@@ -145,7 +149,20 @@ export function registerApi(app) {
     res.json({ task, events: getEvents(req.params.id) });
   });
 
-  app.get("/api/audit", guard, (req, res) => {
+    // ---- Phase 12: Kill Switch (emergency stop) ----
+  app.get("/api/system/status", guard, (req, res) => {
+    res.json(getKillSwitchStatus());
+  });
+
+  app.post("/api/system/kill", guard, policy("system.kill"), wrap((req) => {
+    const reason = String(req.body?.reason || "manual");
+    return activateKillSwitch(reason);
+  }));
+
+  app.post("/api/system/resume", guard, policy("system.resume"), wrap(() => {
+    return deactivateKillSwitch();
+  }));
+app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({
       policyDecisions: getAudit(limit),

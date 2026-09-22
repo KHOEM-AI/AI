@@ -26,6 +26,11 @@ const REGISTRY = {
   "learning.delete": { permission: "knowledge.write", risk: RISK.MEDIUM },
   // Phase 14 (spec 4.13): mock only to test the pipeline — no real effect
   "approval.test.high-risk": { permission: "system.modify", risk: RISK.HIGH },
+  // Phase 12: emergency stop / resume. MEDIUM = auto-ALLOW so kill is instant.
+  // TODO: raise "system.resume" to RISK.HIGH once execute-after-approval
+  // pipeline exists for real (non-mock) actions.
+  "system.kill": { permission: "system.modify", risk: RISK.MEDIUM },
+  "system.resume": { permission: "system.modify", risk: RISK.MEDIUM },
 };
 
 const MAX_AUDIT = 500;
