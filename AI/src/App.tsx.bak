@@ -13,7 +13,6 @@ export default function App() {
   const [input, setInput] = useState("");
   const [showStatus, setShowStatus] = useState(false);
   const [showControl, setShowControl] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,63 +32,28 @@ export default function App() {
     }
   }
 
-  function handleNewChat() {
-    clearConversation();
-    setShowMenu(false);
-  }
-
   return (
     <div className="app">
       <header className="app__header">
-        <button className="app__menu-btn" onClick={() => setShowMenu(true)} aria-label="បើកម៉ឺនុយ">
-          <span className="app__menu-line" />
-          <span className="app__menu-line" />
-          <span className="app__menu-line" />
-        </button>
-
         <div className="app__brand">
           <span className="app__brand-mark"><span className="app__logo" /></span>
           <span className="app__brand-name">KHOEM-AI</span>
         </div>
-
-        <button className="app__new-btn" onClick={handleNewChat} aria-label="ការសន្ទនាថ្មី">
-          +
+        <button className="app__status-btn" onClick={() => setShowStatus(true)}>
+          ស្ថានភាព AI
         </button>
+        <button className="app__status-btn" onClick={() => setShowControl(true)}>
+          Control Center
+        </button>
+        <button className="app__status-btn" onClick={() => setShowHonorific(true)}>
+          ប្ដូរការហៅ
+        </button>
+        {messages.length > 0 && (
+          <button className="app__status-btn" onClick={clearConversation}>
+            សម្អាតការសន្ទនា
+          </button>
+        )}
       </header>
-
-      {showMenu && (
-        <>
-          <div className="app__overlay" onClick={() => setShowMenu(false)} />
-          <aside className="app__sidebar">
-            <div className="app__sidebar-top">
-              <div className="app__brand">
-                <span className="app__brand-mark"><span className="app__logo" /></span>
-                <span className="app__brand-name">KHOEM-AI</span>
-              </div>
-              <button className="app__sidebar-close" onClick={() => setShowMenu(false)} aria-label="បិទម៉ឺនុយ">
-                ✕
-              </button>
-            </div>
-
-            <nav className="app__sidebar-nav">
-              <button className="app__sidebar-item" onClick={() => { setShowStatus(true); setShowMenu(false); }}>
-                ស្ថានភាព AI
-              </button>
-              <button className="app__sidebar-item" onClick={() => { setShowControl(true); setShowMenu(false); }}>
-                Control Center
-              </button>
-              <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
-                ប្ដូរការហៅ
-              </button>
-              {messages.length > 0 && (
-                <button className="app__sidebar-item" onClick={handleNewChat}>
-                  សម្អាតការសន្ទនា
-                </button>
-              )}
-            </nav>
-          </aside>
-        </>
-      )}
 
       <main className="app__body" ref={scrollRef}>
         {messages.length === 0 && (
