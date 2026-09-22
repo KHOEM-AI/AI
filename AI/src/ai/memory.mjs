@@ -1,11 +1,17 @@
+const MAX_SESSIONS = 1000;
+
 export class AIMemory {
-  constructor({ maxMessages = 50 } = {}) {
+  constructor({ maxMessages = 50, maxSessions = MAX_SESSIONS } = {}) {
     this.maxMessages = maxMessages;
+    this.maxSessions = maxSessions;
     this.sessions = new Map();
   }
 
   createSession(sessionId) {
     if (!this.sessions.has(sessionId)) {
+      if (this.sessions.size >= this.maxSessions) {
+        this.sessions.delete(this.sessions.keys().next().value);
+      }
       this.sessions.set(sessionId, []);
     }
 

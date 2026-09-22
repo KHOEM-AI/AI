@@ -6,8 +6,13 @@ import {
   approveRequest, rejectRequest, verifyBeforeExecution, markExecuted,
 } from "./approvals.mjs";
 import { emit } from "./tasks.mjs";
+import { readRecentAuditEvents } from "./audit.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
+// Caller-supplied identity. Still only as trustworthy as the shared API key —
+// there is one guard() key for everyone — but this at least lets requester
+// and approver be recorded as different people so self-approval can be caught.
+const actorOf = (req) => String(req.get("x-actor") || "user");
 const bad = (m, status = 400) => Object.assign(new Error(m), { status });
 
 function guard(req, res, next) {
@@ -22,13 +27,14 @@ function guard(req, res, next) {
 
 function policy(action) {
   return (req, res, next) => {
-    const rec = policyCheck(action, "user");
+    const actor = actorOf(req);
+    const rec = policyCheck(action, actor);
     if (rec.decision === DECISION.DENY) {
       return res.status(403).json({ error: "សកម្មភាពនេះមិនត្រូវបានអនុញ្ញាត", action, risk: rec.risk });
     }
     if (rec.decision === DECISION.REQUIRE_APPROVAL) {
       const approval = createApprovalRequest({
-        action, actor: "user", permission: rec.permission, risk: rec.risk,
+        action, actor, permission: rec.permission, risk: rec.risk,
         reason: "risk requires human approval",
       });
       return res.status(202).json({
@@ -74,7 +80,11 @@ export function registerApi(app) {
     return run("/forget " + req.body.q);
   }));
   app.get("/api/audit", guard, (req, res) => {
-    res.json({ audit: getAudit(50) });
+    const limit = Math.min(Number(req.query.limit) || 50, 500);
+    res.json({
+      policyDecisions: getAudit(limit),
+      events: readRecentAuditEvents(limit),
+    });
   });
 
   // ---- Phase 14: Human Approval Gate ----
@@ -96,14 +106,14 @@ export function registerApi(app) {
   });
 
   app.post("/api/approvals/:id/approve", guard, (req, res) => {
-    const decidedBy = "human:" + (req.body?.decidedBy || "control-center");
+    const decidedBy = "human:" + (req.body?.decidedBy || actorOf(req));
     const result = approveRequest(req.params.id, decidedBy, req.body?.reason);
     if (result.error) return res.status(409).json({ error: result.error });
     res.json({ approval: result.request });
   });
 
   app.post("/api/approvals/:id/reject", guard, (req, res) => {
-    const decidedBy = "human:" + (req.body?.decidedBy || "control-center");
+    const decidedBy = "human:" + (req.body?.decidedBy || actorOf(req));
     const result = rejectRequest(req.params.id, decidedBy, req.body?.reason);
     if (result.error) return res.status(409).json({ error: result.error });
     res.json({ approval: result.request });
