@@ -5,6 +5,7 @@ import "dotenv/config";
 import { AICore } from "./src/ai/core.mjs";
 import { collectStatus, trackActivity } from "./src/ai/status.mjs";
 import { createTask, transition, getTask, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
+import { getAudit } from "./src/ai/permission.mjs";
 
 const app = express();
 app.use(cors());
@@ -110,6 +111,13 @@ app.post("/api/chat", async (req, res) => {
       status: err.status || 500,
     });
   }
+});
+
+app.get("/api/control", (req, res) => {
+  // Read-only, unauthenticated observability feed for the frontend Control Center.
+  // Contains no secrets: task events carry only counts/reasons, audit entries carry
+  // only action/permission/risk/decision metadata.
+  res.json({ events: getEvents().slice(-20), audit: getAudit(20) });
 });
 
 app.get("/api/tasks", (req, res) => {

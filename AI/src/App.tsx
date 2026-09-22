@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
+import ControlCenter from "./components/ControlCenter";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
@@ -11,6 +12,7 @@ export default function App() {
   const { messages, isSending, error, sendMessage, regenerate, setFeedback, clearConversation } = useChat(honorific);
   const [input, setInput] = useState("");
   const [showStatus, setShowStatus] = useState(false);
+  const [showControl, setShowControl] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,6 +41,9 @@ export default function App() {
         </div>
         <button className="app__status-btn" onClick={() => setShowStatus(true)}>
           ស្ថានភាព AI
+        </button>
+        <button className="app__status-btn" onClick={() => setShowControl(true)}>
+          Control Center
         </button>
         <button className="app__status-btn" onClick={() => setShowHonorific(true)}>
           ប្ដូរការហៅ
@@ -98,6 +103,7 @@ export default function App() {
       </footer>
 
       {showStatus && <AIStatus onClose={() => setShowStatus(false)} />}
+      {showControl && <ControlCenter onClose={() => setShowControl(false)} />}
 
       {(!honorific || showHonorific) && (
         <HonorificPrompt
