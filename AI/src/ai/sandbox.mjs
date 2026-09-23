@@ -11,7 +11,7 @@ import { execSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 
 const ROOT = process.cwd();
-const EXCLUDE = new Set(["node_modules", ".git", "dist", "data"]);
+const EXCLUDE = new Set(["node_modules", ".git", "dist", "data", ".env", ".env.local"]);
 
 // Test files that themselves call runSandboxTest(). If the whole repo is
 // copied into a sandbox and its test suite is run there, these files would
