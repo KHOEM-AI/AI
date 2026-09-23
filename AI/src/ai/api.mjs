@@ -13,6 +13,7 @@ import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mj
 import { createBudget, recordUsage, checkBudget, getBudget, listBudgets } from "./budget.mjs";
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
 import { getMetrics } from "./metrics.mjs";
+import { createGoal, getGoal, listGoals, linkTaskToGoal, getGoalProgress, setGoalStatus } from "./goal.mjs";
 import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
@@ -264,6 +265,33 @@ export function registerApi(app) {
   // ---- Phase 27: Metrics / Observability (read-only, real counters only) ----
   app.get("/api/metrics", guard, policy("metrics.read"), wrap(() => {
     return getMetrics();
+  }));
+
+  // ---- Phase 6: Goal Engine ----
+  app.post("/api/goals", guard, policy("goal.create"), wrap((req) => {
+    const { title, metadata } = req.body || {};
+    return createGoal(title, metadata || {});
+  }));
+  app.get("/api/goals", guard, policy("goal.read"), wrap(() => {
+    return { goals: listGoals() };
+  }));
+  app.get("/api/goals/:id", guard, policy("goal.read"), wrap((req) => {
+    const g = getGoal(req.params.id);
+    if (!g) throw bad("រកមិនឃើញ goal", 404);
+    return g;
+  }));
+  app.get("/api/goals/:id/progress", guard, policy("goal.read"), wrap((req) => {
+    const p = getGoalProgress(req.params.id);
+    if (!p) throw bad("រកមិនឃើញ goal", 404);
+    return p;
+  }));
+  app.post("/api/goals/:id/link", guard, policy("goal.link"), wrap((req) => {
+    const { taskId } = req.body || {};
+    return linkTaskToGoal(req.params.id, taskId);
+  }));
+  app.post("/api/goals/:id/status", guard, policy("goal.setStatus"), wrap((req) => {
+    const { status } = req.body || {};
+    return setGoalStatus(req.params.id, status);
   }));
 
   app.get("/api/audit", guard, (req, res) => {

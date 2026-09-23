@@ -56,6 +56,11 @@ const REGISTRY = {
   "circuit.check": { permission: "system.read", risk: RISK.LOW },
   // Phase 27: metrics are read-only aggregates of existing counters.
   "metrics.read": { permission: "system.read", risk: RISK.LOW },
+  // Phase 6: goals are user-facing organizational objects, not privileged actions.
+  "goal.create": { permission: "system.write", risk: RISK.LOW },
+  "goal.read": { permission: "system.read", risk: RISK.LOW },
+  "goal.link": { permission: "system.write", risk: RISK.LOW },
+  "goal.setStatus": { permission: "system.write", risk: RISK.LOW },
 };
 
 const MAX_AUDIT = 500;
