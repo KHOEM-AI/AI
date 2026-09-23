@@ -61,6 +61,8 @@ const REGISTRY = {
   "goal.read": { permission: "system.read", risk: RISK.LOW },
   "goal.link": { permission: "system.write", risk: RISK.LOW },
   "goal.setStatus": { permission: "system.write", risk: RISK.LOW },
+  // Phase 24: routing decision is read-only, never changes provider without policy check inside decideProvider().
+  "model.route": { permission: "system.read", risk: RISK.LOW },
 };
 
 const MAX_AUDIT = 500;

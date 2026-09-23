@@ -14,6 +14,7 @@ import { createBudget, recordUsage, checkBudget, getBudget, listBudgets } from "
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
 import { getMetrics } from "./metrics.mjs";
 import { createGoal, getGoal, listGoals, linkTaskToGoal, getGoalProgress, setGoalStatus } from "./goal.mjs";
+import { decideProvider, listProviders, getRoutingHistory } from "./modelRouting.mjs";
 import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
@@ -292,6 +293,19 @@ export function registerApi(app) {
   app.post("/api/goals/:id/status", guard, policy("goal.setStatus"), wrap((req) => {
     const { status } = req.body || {};
     return setGoalStatus(req.params.id, status);
+  }));
+
+  // ---- Phase 24: Model Routing / Fallback (read-only decision) ----
+  app.get("/api/model/route", guard, policy("model.route"), wrap((req) => {
+    const preferred = req.query.preferred || "khoem";
+    const allowFallback = req.query.allowFallback !== "false";
+    return decideProvider(preferred, { allowFallback });
+  }));
+  app.get("/api/model/providers", guard, policy("model.route"), wrap(() => {
+    return { providers: listProviders() };
+  }));
+  app.get("/api/model/routing-history", guard, policy("model.route"), wrap(() => {
+    return { history: getRoutingHistory(50) };
   }));
 
   app.get("/api/audit", guard, (req, res) => {
