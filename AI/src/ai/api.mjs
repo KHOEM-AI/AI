@@ -12,6 +12,7 @@ import { runSandboxTest } from "./sandbox.mjs";
 import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mjs";
 import { createBudget, recordUsage, checkBudget, getBudget, listBudgets } from "./budget.mjs";
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
+import { getMetrics } from "./metrics.mjs";
 import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
@@ -258,6 +259,11 @@ export function registerApi(app) {
   }));
   app.get("/api/circuit", guard, policy("circuit.check"), wrap(() => {
     return { breakers: listBreakers() };
+  }));
+
+  // ---- Phase 27: Metrics / Observability (read-only, real counters only) ----
+  app.get("/api/metrics", guard, policy("metrics.read"), wrap(() => {
+    return getMetrics();
   }));
 
   app.get("/api/audit", guard, (req, res) => {

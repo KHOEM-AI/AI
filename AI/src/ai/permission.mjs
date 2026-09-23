@@ -54,6 +54,8 @@ const REGISTRY = {
   "budget.check": { permission: "system.read", risk: RISK.LOW },
   // Phase 23: circuit breaker status is read-only.
   "circuit.check": { permission: "system.read", risk: RISK.LOW },
+  // Phase 27: metrics are read-only aggregates of existing counters.
+  "metrics.read": { permission: "system.read", risk: RISK.LOW },
 };
 
 const MAX_AUDIT = 500;
