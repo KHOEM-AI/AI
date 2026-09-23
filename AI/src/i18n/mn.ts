@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const mn: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Цэс нээх", menuClose: "Цэс хаах", newChat: "Шинэ чат",
   navStatus: "AI төлөв", navControlCenter: "Удирдлагын төв", navHonorific: "Хандлагыг өөрчлөх",
   navLanguage: "Хэл", navClearChat: "Чатыг цэвэрлэх",

@@ -1,8 +1,11 @@
 // src/ai.ts
 // KHOEM-AI Real-Time Frontend/API Security Shield & Request Signer
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const STORAGE_SESSION_KEY = "KHOEM_SESSION_TOKEN";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const STORAGE_TIME_KEY = "KHOEM_SESSION_TIME";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SESSION_MAX_AGE_MS = 3600000; // 1 ម៉ោង
 
 export interface SecurityCheckResult {

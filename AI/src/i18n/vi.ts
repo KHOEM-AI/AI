@@ -38,6 +38,14 @@ const vi: Translations = {
   connectFailed: "Không thể kết nối đến máy chủ",
   approveAction: "PHÊ DUYỆT",
   rejectAction: "TỪ CHỐI",
+  navVideo: "Video",
+  videoTitle: "Xưởng Video (Trình chiếu)",
+  videoClose: "Đóng",
+  videoAddImages: "Thêm hình ảnh",
+  videoGenerate: "Tạo video",
+  videoGenerating: "Đang tạo…",
+  videoDownload: "Tải video xuống",
+  videoNoImages: "Thêm ít nhất 2 hình ảnh",
 };
 
 export default vi;

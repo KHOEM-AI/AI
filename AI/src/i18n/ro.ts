@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const ro: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Deschide meniul", menuClose: "Închide meniul", newChat: "Chat nou",
   navStatus: "Stare AI", navControlCenter: "Centru de control", navHonorific: "Schimbă formula de adresare",
   navLanguage: "Limbă", navClearChat: "Șterge chatul",

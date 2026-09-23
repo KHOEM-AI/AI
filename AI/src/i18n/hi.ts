@@ -1,5 +1,13 @@
 // ភាសាហិន្ទី (Hindi)
 export default {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "मेनू खोलें",
   menuClose: "मेनू बंद करें",
   newChat: "नया चैट",

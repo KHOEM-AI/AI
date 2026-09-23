@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const si: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "මෙනුව විවෘත කරන්න", menuClose: "මෙනුව වසන්න", newChat: "නව කතාබහ",
   navStatus: "AI තත්ත්වය", navControlCenter: "පාලන මධ්‍යස්ථානය", navHonorific: "ආමන්ත්‍රණය වෙනස් කරන්න",
   navLanguage: "භාෂාව", navClearChat: "කතාබහ මකන්න",

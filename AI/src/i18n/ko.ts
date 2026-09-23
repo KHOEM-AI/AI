@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const ko: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "메뉴 열기", menuClose: "메뉴 닫기", newChat: "새 채팅",
   navStatus: "AI 상태", navControlCenter: "제어 센터", navHonorific: "호칭 변경",
   navLanguage: "언어", navClearChat: "채팅 지우기",

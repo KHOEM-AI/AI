@@ -36,4 +36,12 @@ export interface Translations {
   connectFailed: string;
   approveAction: string;
   rejectAction: string;
+  navVideo: string;
+  videoTitle: string;
+  videoClose: string;
+  videoAddImages: string;
+  videoGenerate: string;
+  videoGenerating: string;
+  videoDownload: string;
+  videoNoImages: string;
 }

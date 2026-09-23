@@ -38,6 +38,14 @@ const lo: Translations = {
   connectFailed: "ບໍ່ສາມາດເຊື່ອມຕໍ່ກັບເຊີບເວີໄດ້",
   approveAction: "ອະນຸມັດ",
   rejectAction: "ປະຕິເສດ",
+  navVideo: "Video",
+  videoTitle: "Video Studio (Slideshow)",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating…",
+  videoDownload: "Download video",
+  videoNoImages: "Add at least 2 images",
 };
 
 export default lo;

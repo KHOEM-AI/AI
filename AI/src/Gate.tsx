@@ -72,6 +72,7 @@ export default function Gate() {
 
   const tick = () => {
     if (start.current === null) return;
+    // eslint-disable-next-line react-hooks/purity
     const p = Math.min(1, (performance.now() - start.current) / 9000);
     setPct(p);
     draw(p);

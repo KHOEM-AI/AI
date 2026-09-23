@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const hu: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Menü megnyitása", menuClose: "Menü bezárása", newChat: "Új beszélgetés",
   navStatus: "AI állapot", navControlCenter: "Vezérlőközpont", navHonorific: "Megszólítás módosítása",
   navLanguage: "Nyelv", navClearChat: "Beszélgetés törlése",

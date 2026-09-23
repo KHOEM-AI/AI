@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const id: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Buka menu", menuClose: "Tutup menu", newChat: "Obrolan baru",
   navStatus: "Status AI", navControlCenter: "Pusat Kontrol", navHonorific: "Ubah sapaan",
   navLanguage: "Bahasa", navClearChat: "Hapus obrolan",

@@ -38,6 +38,14 @@ const my: Translations = {
   connectFailed: "ဆာဗာသို့ ချိတ်ဆက်၍ မရပါ",
   approveAction: "အတည်ပြုမည်",
   rejectAction: "ငြင်းပယ်မည်",
+  navVideo: "ဗီဒီယို",
+  videoTitle: "ဗီဒီယို စတူဒီယို (Slideshow)",
+  videoClose: "ပိတ်ရန်",
+  videoAddImages: "ပုံများ ထည့်ရန်",
+  videoGenerate: "ဗီဒီယို ဖန်တီးရန်",
+  videoGenerating: "ဖန်တီးနေသည်…",
+  videoDownload: "ဗီဒီယို ဒေါင်းလုဒ်လုပ်ရန်",
+  videoNoImages: "အနည်းဆုံး ပုံ ၂ ပုံ ထည့်ပါ",
 };
 
 export default my;

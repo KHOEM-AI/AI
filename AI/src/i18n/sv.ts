@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const sv: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Öppna meny", menuClose: "Stäng meny", newChat: "Ny chatt",
   navStatus: "AI-status", navControlCenter: "Kontrollcentral", navHonorific: "Ändra tilltal",
   navLanguage: "Språk", navClearChat: "Rensa chatt",

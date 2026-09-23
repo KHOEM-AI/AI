@@ -38,6 +38,14 @@ const en: Translations = {
   connectFailed: "Could not connect to server",
   approveAction: "APPROVE",
   rejectAction: "REJECT",
+  navVideo: "Video",
+  videoTitle: "Video Studio (Slideshow)",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating…",
+  videoDownload: "Download video",
+  videoNoImages: "Add at least 2 images",
 };
 
 export default en;

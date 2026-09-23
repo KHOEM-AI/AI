@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const cs: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Otevřít nabídku", menuClose: "Zavřít nabídku", newChat: "Nový chat",
   navStatus: "Stav AI", navControlCenter: "Řídicí centrum", navHonorific: "Změnit oslovení",
   navLanguage: "Jazyk", navClearChat: "Vymazat chat",

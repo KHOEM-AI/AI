@@ -1,4 +1,12 @@
 export default {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "منو را باز کنید",
   menuClose: "منو را ببندید",
   newChat: "چت جدید",

@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const ms: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Buka menu", menuClose: "Tutup menu", newChat: "Sembang baharu",
   navStatus: "Status AI", navControlCenter: "Pusat Kawalan", navHonorific: "Tukar sapaan",
   navLanguage: "Bahasa", navClearChat: "Kosongkan sembang",

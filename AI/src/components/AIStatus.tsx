@@ -30,6 +30,7 @@ interface ServerData {
   cards: ServerCard[];
 }
 interface Snapshot { api: Shown; system: Shown; cards: Record<string, Shown> }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface Probe { kind: "response" | "timeout" | "network"; ok: boolean; http?: number; ms: number; data?: any }
 
 const GOOD = new Set<string>(["ONLINE", "READY", "ACTIVE", "DEVELOPING", "HEALTHY"]);
@@ -50,6 +51,7 @@ async function timedFetch(url: string, ms: number): Promise<Probe> {
     if (!isJson) return { kind: "network", ok: false, http: r.status, ms: elapsed };
     const data = await r.json().catch(() => null);
     return { kind: "response", ok: r.ok, http: r.status, ms: elapsed, data };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     const elapsed = Math.round(performance.now() - t0);
     return { kind: e?.name === "AbortError" ? "timeout" : "network", ok: false, ms: elapsed };
@@ -257,7 +259,9 @@ export default function AIStatus({ onClose }: { onClose: () => void }) {
               <div className="status-card" key={c.id}>
                 <div className="status-card__head">
                   <span className="status-card__name">{pickText(lang, c.nameKm, c.nameEn)}</span>
-                  <span className="status-badge" style={{ ["--badge-color" as any]: label.color }}>
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  <span className="status-badge" style={{ "--badge-color": label.color } as React.CSSProperties}>
                     ● {s.status}{lang === "km" ? ` — ${label.km}` : ""}
                   </span>
                 </div>

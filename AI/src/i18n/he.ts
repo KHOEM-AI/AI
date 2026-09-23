@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const he: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "פתח תפריט", menuClose: "סגור תפריט", newChat: "שיחה חדשה",
   navStatus: "מצב AI", navControlCenter: "מרכז בקרה", navHonorific: "שנה פנייה",
   navLanguage: "שפה", navClearChat: "נקה שיחה",

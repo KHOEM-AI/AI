@@ -38,6 +38,14 @@ const th: Translations = {
   connectFailed: "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
   approveAction: "อนุมัติ",
   rejectAction: "ปฏิเสธ",
+  navVideo: "วิดีโอ",
+  videoTitle: "สตูดิโอวิดีโอ (สไลด์โชว์)",
+  videoClose: "ปิด",
+  videoAddImages: "เพิ่มรูปภาพ",
+  videoGenerate: "สร้างวิดีโอ",
+  videoGenerating: "กำลังสร้าง…",
+  videoDownload: "ดาวน์โหลดวิดีโอ",
+  videoNoImages: "เพิ่มรูปภาพอย่างน้อย 2 รูป",
 };
 
 export default th;

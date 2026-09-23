@@ -1,5 +1,13 @@
 // ភាសាអារ៉ាប់ (Arabic)
 export default {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "افتح القائمة",
   menuClose: "اغلق القائمة",
   newChat: "دردشة جديدة",

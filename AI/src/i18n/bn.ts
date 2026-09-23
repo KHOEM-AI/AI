@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const bn: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "মেনু খুলুন", menuClose: "মেনু বন্ধ করুন", newChat: "নতুন চ্যাট",
   navStatus: "AI স্ট্যাটাস", navControlCenter: "নিয়ন্ত্রণ কেন্দ্র", navHonorific: "সম্বোধন পরিবর্তন করুন",
   navLanguage: "ভাষা", navClearChat: "চ্যাট পরিষ্কার করুন",

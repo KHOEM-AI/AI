@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const tl: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Buksan ang menu", menuClose: "Isara ang menu", newChat: "Bagong chat",
   navStatus: "Katayuan ng AI", navControlCenter: "Control Center", navHonorific: "Baguhin ang pagtawag",
   navLanguage: "Wika", navClearChat: "I-clear ang chat",

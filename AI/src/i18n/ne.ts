@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const ne: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "मेनु खोल्नुहोस्", menuClose: "मेनु बन्द गर्नुहोस्", newChat: "नयाँ कुराकानी",
   navStatus: "AI स्थिति", navControlCenter: "नियन्त्रण केन्द्र", navHonorific: "सम्बोधन परिवर्तन गर्नुहोस्",
   navLanguage: "भाषा", navClearChat: "कुराकानी खाली गर्नुहोस्",

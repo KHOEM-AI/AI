@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const zh: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "打开菜单", menuClose: "关闭菜单", newChat: "新对话",
   navStatus: "AI 状态", navControlCenter: "控制中心", navHonorific: "更改称呼",
   navLanguage: "语言", navClearChat: "清除对话",

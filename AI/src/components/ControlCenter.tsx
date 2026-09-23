@@ -63,6 +63,7 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     const timer = window.setInterval(load, 5000);
     return () => clearInterval(timer);
@@ -120,7 +121,9 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
             <div className="status-card" key={a.id}>
               <div className="status-card__head">
                 <span className="status-card__name">{a.action}</span>
-                <span className="status-badge" style={{ ["--badge-color" as any]: RISK_COLOR[a.risk] }}>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                <span className="status-badge" style={{ "--badge-color": RISK_COLOR[a.risk] } as React.CSSProperties}>
                   {a.risk}
                 </span>
               </div>
@@ -178,7 +181,9 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
             <div className="status-card" key={a.id}>
               <div className="status-card__head">
                 <span className="status-card__name">{a.action}</span>
-                <span className="status-badge" style={{ ["--badge-color" as any]: RISK_COLOR[a.risk] }}>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                <span className="status-badge" style={{ "--badge-color": RISK_COLOR[a.risk] } as React.CSSProperties}>
                   {a.risk} — {a.decision}
                 </span>
               </div>

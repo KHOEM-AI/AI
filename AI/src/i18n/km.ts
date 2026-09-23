@@ -38,6 +38,14 @@ const km: Translations = {
   connectFailed: "មិនអាចភ្ជាប់ទៅ server បានទេ",
   approveAction: "អនុម័ត",
   rejectAction: "បដិសេធ",
+  navVideo: "វីដេអូ",
+  videoTitle: "បង្កើតវីដេអូ (Slideshow)",
+  videoClose: "បិទ",
+  videoAddImages: "បន្ថែមរូបភាព",
+  videoGenerate: "បង្កើតវីដេអូ",
+  videoGenerating: "កំពុងបង្កើត…",
+  videoDownload: "ទាញយកវីដេអូ",
+  videoNoImages: "សូមបន្ថែមរូបភាពយ៉ាងតិច ២សន្លឹក",
 };
 
 export default km;

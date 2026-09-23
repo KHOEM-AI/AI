@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const uk: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "Відкрити меню", menuClose: "Закрити меню", newChat: "Новий чат",
   navStatus: "Статус ШІ", navControlCenter: "Центр керування", navHonorific: "Змінити звертання",
   navLanguage: "Мова", navClearChat: "Очистити чат",

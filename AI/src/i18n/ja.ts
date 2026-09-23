@@ -1,5 +1,13 @@
 import type { Translations } from "./types";
 const ja: Translations = {
+  navVideo: "Video",
+  videoTitle: "Create video",
+  videoClose: "Close",
+  videoAddImages: "Add images",
+  videoGenerate: "Generate video",
+  videoGenerating: "Generating...",
+  videoDownload: "Download",
+  videoNoImages: "No images yet",
   menuOpen: "メニューを開く", menuClose: "メニューを閉じる", newChat: "新しいチャット",
   navStatus: "AIステータス", navControlCenter: "コントロールセンター", navHonorific: "呼び方を変更",
   navLanguage: "言語", navClearChat: "チャットをクリア",
