@@ -10,6 +10,7 @@ import { isKilled, activateKillSwitch, deactivateKillSwitch, getKillSwitchStatus
 import { createSnapshot, listSnapshots, getSnapshot, buildRollbackPlan } from "./rollback.mjs";
 import { runSandboxTest } from "./sandbox.mjs";
 import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mjs";
+import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
@@ -220,6 +221,18 @@ export function registerApi(app) {
     if (!result.ok) throw bad(result.error, 409);
     return result;
   }));
+  // ---- Phase 22: Testing + Verification Pipeline (evidence-based) ----
+  app.post("/api/verify", guard, policy("code.verify"), wrap((req) => {
+    return runVerification(String(req.body?.reason || "manual"));
+  }));
+
+  app.get("/api/verify/last", guard, (req, res) => {
+    res.json({ verification: getLastVerification() });
+  });
+
+  app.get("/api/verify/history", guard, (req, res) => {
+    res.json({ history: listVerifications() });
+  });
 app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({

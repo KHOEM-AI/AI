@@ -7,7 +7,10 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOG_DIR = path.join(__dirname, "..", "..", "data");
-const LOG_FILE = path.join(LOG_DIR, "audit-log.jsonl");
+const LOG_FILE = path.join(
+  LOG_DIR,
+  process.env.VITEST ? "audit-log.test.jsonl" : "audit-log.jsonl"
+);
 const MAX_FIELD_LEN = 500;
 
 function safeTrim(v) {

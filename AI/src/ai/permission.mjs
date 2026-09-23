@@ -44,6 +44,12 @@ const REGISTRY = {
   // src/ and always requires human approval regardless of sandbox result.
   "code.proposePatch": { permission: "tool.execute", risk: RISK.MEDIUM },
   "code.applyPatch": { permission: "code.write", risk: RISK.HIGH },
+  // Phase 22 verification (tsc/build/tests):
+  // - cannot modify source files
+  // - may generate temporary/runtime test artifacts (e.g. audit-log.test.jsonl)
+  // - cannot perform production actions
+  // - cannot bypass permission/policy checks
+  "code.verify": { permission: "tool.execute", risk: RISK.LOW },
 };
 
 const MAX_AUDIT = 500;
