@@ -858,7 +858,7 @@ PHASE 20 — Versioning + Rollback                              ✅ VERIFIED (ro
 PHASE 21 — Resource Budget                                    ❌ NOT IMPLEMENTED (patch.mjs is a different feature, mislabeled Phase 21 in its commit)
 PHASE 22 — Timeout + Retry                                    ⚠️ PARTIAL (timeout via status.mjs withTimeout(); no retry logic found)
 PHASE 23 — Circuit Breaker                                    ❌ NOT IMPLEMENTED
-PHASE 24 — Model Routing / Fallback                           ❌ NOT IMPLEMENTED (model.mjs = health check only; core.mjs supports one provider)
+PHASE 24 — Model Routing / Fallback                           ✅ VERIFIED (modelRouting.mjs — decideProvider() honest NO_FALLBACK, no fabricated providers, 6 tests)
 PHASE 25 — Control Center                                     ✅ VERIFIED (~30-language i18n, Pending Approvals UI)
 PHASE 26 — Audit + Security hardening                         ✅ VERIFIED (secret-scrubbing, stale-approval detection)
 PHASE 27 — Metrics / Observability                            ❌ NOT IMPLEMENTED
@@ -1033,7 +1033,6 @@ Every event: `{id, taskId, timestamp, type, actor, duration, metadata}`.
 - Ideation, Planning, Sandbox, Experiment Engines (Phase 15–18)
 - Self-Evaluation, Versioning, Rollback (Phase 19–20)
 - Resource Budget enforcement, Circuit Breaker (Phase 21, 23)
-- Model Routing/Fallback (Phase 24)
 - Kill Switch (Part 6 of this document)
 - Automated test suite (Phase 29) — all testing so far is manual curl-based
 

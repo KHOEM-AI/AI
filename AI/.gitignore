@@ -1,2 +1,3 @@
 data/audit-log.test.jsonl
 data/audit-log.jsonl
+*.bak
