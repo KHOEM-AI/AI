@@ -17,6 +17,10 @@ import { createGoal, getGoal, listGoals, linkTaskToGoal, getGoalProgress, setGoa
 import { decideProvider, listProviders, getRoutingHistory } from "./modelRouting.mjs";
 import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
+import * as Ideas from "./ideas.mjs";
+import * as Planning from "./planning.mjs";
+import * as Experiments from "./experiments.mjs";
+import * as SelfEval from "./selfEval.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
 // Caller-supplied identity. Still only as trustworthy as the shared API key —
@@ -68,6 +72,40 @@ const wrap = (fn) => async (req, res) => {
 };
 
 export function registerApi(app) {
+  // ---- Phases 15/16/18/19: Idea / Planning / Experiment / Self-Evaluation ----
+  // Records only: nothing here executes, applies, or approves anything.
+  // guard() = API key; engineGate = respect the kill switch.
+  const engineGate = (req, res, next) => {
+    if (isKilled()) return res.status(503).json({ error: "kill switch active" });
+    next();
+  };
+  const found = (v, what) => {
+    if (!v) throw bad(what + " not found", 404);
+    return v;
+  };
+
+  app.get("/api/ideas", guard, engineGate, wrap(() => Ideas.listIdeas()));
+  app.get("/api/ideas/rank", guard, engineGate, wrap(() => Ideas.rankIdeas()));
+  app.post("/api/ideas", guard, engineGate, wrap((req) => Ideas.createIdea(req.body || {})));
+  app.get("/api/ideas/:id", guard, engineGate, wrap((req) => found(Ideas.getIdea(req.params.id), "idea")));
+
+  app.get("/api/plans", guard, engineGate, wrap(() => Planning.listPlans()));
+  app.post("/api/plans", guard, engineGate, wrap((req) => Planning.createPlan(req.body || {})));
+  app.get("/api/plans/:id", guard, engineGate, wrap((req) => found(Planning.getPlan(req.params.id), "plan")));
+
+  app.get("/api/experiments", guard, engineGate, wrap(() => Experiments.listExperiments()));
+  app.post("/api/experiments", guard, engineGate, wrap((req) => Experiments.createExperiment(req.body || {})));
+  app.get("/api/experiments/:id", guard, engineGate, wrap((req) => found(Experiments.getExperiment(req.params.id), "experiment")));
+  app.post("/api/experiments/:id/transition", guard, engineGate, wrap((req) => {
+    const { to, results, metrics } = req.body || {};
+    if (typeof to !== "string") throw bad("to required");
+    const r = Experiments.transitionExperiment(req.params.id, to, { results, metrics });
+    if (!r.ok) throw bad(r.error, r.error === "NOT_FOUND" ? 404 : 409);
+    return r.experiment;
+  }));
+
+  app.post("/api/selfeval", guard, engineGate, wrap((req) => SelfEval.selfEvaluate(req.body || {})));
+
   app.get("/api/scan", guard, policy("tool.scan"), wrap(() => run("/scan")));
   app.get("/api/check", guard, policy("tool.check"), wrap(() => run("/check")));
   app.get("/api/learned", guard, policy("knowledge.readLearned"), wrap(() => run("/learned")));
