@@ -7,6 +7,7 @@ import HonorificPrompt from "./components/HonorificPrompt";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
 import { loadLanguage, saveLanguage, getLanguageLabel, LANGUAGE_OPTIONS, type LanguageCode } from "./language";
 import { LanguageProvider, getTranslations } from "./i18n";
+import { APP_NAME } from "./lib/app";
 
 function AppInner() {
   const [honorific, setHonorific] = useState<Honorific | null>(() => loadHonorific());
@@ -61,7 +62,7 @@ function AppInner() {
 
           <div className="app__brand">
             <span className="app__brand-mark"><span className="app__logo" /></span>
-            <span className="app__brand-name">KHOEM-AI</span>
+            <span className="app__brand-name">{APP_NAME}</span>
           </div>
 
           <button className="app__new-btn" onClick={handleNewChat} aria-label={t.newChat}>
@@ -76,7 +77,7 @@ function AppInner() {
               <div className="app__sidebar-top">
                 <div className="app__brand">
                   <span className="app__brand-mark"><span className="app__logo" /></span>
-                  <span className="app__brand-name">KHOEM-AI</span>
+                  <span className="app__brand-name">{APP_NAME}</span>
                 </div>
                 <button className="app__sidebar-close" onClick={() => setShowMenu(false)} aria-label={t.menuClose}>
                   ✕
