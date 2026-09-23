@@ -1,13 +1,8 @@
 // src/ai/goal.mjs
-// Goal Engine (spec Part 7): separates GOAL -> TASK -> ACTION.
-// A goal can contain multiple tasks; a task belongs to at most one goal.
-// This module only tracks the linkage — it does not create or run tasks
-// itself (tasks.mjs remains the single source of truth for task state).
-
 import { randomUUID } from "node:crypto";
 import { getTask } from "./tasks.mjs";
 
-const goals = new Map(); // goalId -> { id, title, createdAt, updatedAt, taskIds: Set, status }
+const goals = new Map();
 const MAX_GOALS = 200;
 
 export const GOAL_STATUS = Object.freeze({
@@ -27,6 +22,8 @@ export function createGoal(title, metadata = {}) {
     metadata,
     status: GOAL_STATUS.ACTIVE,
     taskIds: new Set(),
+    ideaIds: new Set(),
+    planIds: new Set(),
     createdAt: now,
     updatedAt: now,
   };
@@ -47,9 +44,6 @@ export function listGoals() {
     .map(serialize);
 }
 
-// Links an existing task (from tasks.mjs) to a goal. Does not create the
-// task — the task must already exist. Fails loudly rather than silently
-// linking a non-existent task.
 export function linkTaskToGoal(goalId, taskId) {
   const goal = goals.get(goalId);
   if (!goal) return { ok: false, reason: "GOAL_NOT_FOUND" };
@@ -60,8 +54,6 @@ export function linkTaskToGoal(goalId, taskId) {
   return { ok: true, goal: serialize(goal) };
 }
 
-// Read-only progress view: counts real task states via tasks.mjs — never
-// invents a completion percentage from anything but actual task state.
 export function getGoalProgress(goalId) {
   const goal = goals.get(goalId);
   if (!goal) return null;
@@ -71,8 +63,6 @@ export function getGoalProgress(goalId) {
     goalId,
     totalTasks: tasks.length,
     completedTasks: completed,
-    // Only meaningful once at least one task is linked — avoid a
-    // misleading 0% / divide-by-zero display.
     progressPct: tasks.length ? Math.round((completed / tasks.length) * 100) : null,
   };
 }
@@ -88,6 +78,39 @@ export function setGoalStatus(goalId, status) {
   return { ok: true, goal: serialize(goal) };
 }
 
+// ===== NEW (additive only) =====
+
+// Link an idea (from ideas.mjs) to a goal without validating idea existence
+// here — ideas.mjs remains the source of truth; caller passes a real ideaId.
+export function linkIdeaToGoal(goalId, ideaId) {
+  const goal = goals.get(goalId);
+  if (!goal) return { ok: false, reason: "GOAL_NOT_FOUND" };
+  goal.ideaIds.add(ideaId);
+  goal.updatedAt = new Date().toISOString();
+  return { ok: true, goal: serialize(goal) };
+}
+
+// Link a plan (from planning.mjs) to a goal.
+export function linkPlanToGoal(goalId, planId) {
+  const goal = goals.get(goalId);
+  if (!goal) return { ok: false, reason: "GOAL_NOT_FOUND" };
+  goal.planIds.add(planId);
+  goal.updatedAt = new Date().toISOString();
+  return { ok: true, goal: serialize(goal) };
+}
+
+// Filter goals by status without touching listGoals()'s existing contract.
+export function listGoalsByStatus(status) {
+  return listGoals().filter((g) => g.status === status);
+}
+
+// Simple case-insensitive title search.
+export function searchGoals(query) {
+  const q = String(query || "").toLowerCase();
+  if (!q) return [];
+  return listGoals().filter((g) => g.title.toLowerCase().includes(q));
+}
+
 function serialize(goal) {
   return {
     id: goal.id,
@@ -95,6 +118,8 @@ function serialize(goal) {
     metadata: goal.metadata,
     status: goal.status,
     taskIds: [...goal.taskIds],
+    ideaIds: [...(goal.ideaIds || [])],
+    planIds: [...(goal.planIds || [])],
     createdAt: goal.createdAt,
     updatedAt: goal.updatedAt,
   };

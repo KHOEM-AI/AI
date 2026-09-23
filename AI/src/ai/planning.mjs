@@ -44,3 +44,19 @@ export function createPlan({ goal, steps, verificationCriteria = [], rollbackPla
 
 export const getPlan = (id) => plans.get(id) ?? null;
 export const listPlans = () => [...plans.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+// ===== NEW (additive only) =====
+
+export function listPlansByStatus(status) {
+  return listPlans().filter((p) => p.status === status);
+}
+
+export function listPlansByRisk(risk) {
+  return listPlans().filter((p) => p.risk === risk);
+}
+
+export function searchPlans(query) {
+  const q = String(query || "").toLowerCase();
+  if (!q) return [];
+  return listPlans().filter((p) => p.goal.toLowerCase().includes(q));
+}
