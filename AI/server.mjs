@@ -1,5 +1,6 @@
 import express from "express";
 import { registerApi } from "./src/ai/api.mjs";
+import { summarizeEngines } from "./src/ai/enginesSummary.mjs";
 import cors from "cors";
 import "dotenv/config";
 import { AICore } from "./src/ai/core.mjs";
@@ -119,7 +120,7 @@ app.get("/api/control", (req, res) => {
   // Read-only, unauthenticated observability feed for the frontend Control Center.
   // Contains no secrets: task events carry only counts/reasons, audit entries carry
   // only action/permission/risk/decision metadata, approvals carry no credentials.
-  res.json({ events: getEvents().slice(-20), audit: getAudit(20), approvals: listApprovals() });
+  res.json({ events: getEvents().slice(-20), audit: getAudit(20), approvals: listApprovals(), engines: summarizeEngines() });
 });
 
 app.get("/api/tasks", (req, res) => {

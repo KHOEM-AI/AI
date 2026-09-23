@@ -33,10 +33,17 @@ interface ApprovalItem {
   status: "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "EXPIRED";
 }
 
+interface EngineSummary {
+  ideas: { total: number; byRisk: Record<string, number> };
+  plans: { total: number; byStatus: Record<string, number>; needingApproval: number };
+  experiments: { total: number; byStatus: Record<string, number> };
+}
+
 interface ControlData {
   events: TaskEvent[];
   audit: AuditEntry[];
   approvals: ApprovalItem[];
+  engines?: EngineSummary;
 }
 
 const RISK_COLOR: Record<string, string> = {
@@ -96,6 +103,7 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
   const audit = data?.audit ?? [];
   const approvals = data?.approvals ?? [];
   const pending = approvals.filter((a) => a.status === "PENDING_APPROVAL");
+  const engines = data?.engines;
 
   return (
     <div className="status-overlay" role="dialog" aria-label="CONTROL CENTER">
@@ -107,6 +115,27 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label="បិទ">✕</button>
         </div>
+
+        {engines && (
+          <>
+            <div className="status-panel__meta">
+              <span>Engines (read-only) — Ideas {engines.ideas.total} · Plans {engines.plans.total} · Experiments {engines.experiments.total}</span>
+            </div>
+            <div className="status-grid">
+              <div className="status-card">
+                <p className="status-card__desc-km">
+                  Ideas — risk: {((o) => Object.entries(o).map(([k, v]) => k + " " + v).join(" · ") || "—")(engines.ideas.byRisk)}
+                </p>
+                <p className="status-card__desc-km">
+                  Plans — {((o) => Object.entries(o).map(([k, v]) => k + " " + v).join(" · ") || "—")(engines.plans.byStatus)} · ត្រូវការ approval: {engines.plans.needingApproval}
+                </p>
+                <p className="status-card__desc-km">
+                  Experiments — {((o) => Object.entries(o).map(([k, v]) => k + " " + v).join(" · ") || "—")(engines.experiments.byStatus)}
+                </p>
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="status-panel__meta">
           <span>Pending Approvals — រង់ចាំការសម្រេចចិត្ត ({pending.length})</span>
