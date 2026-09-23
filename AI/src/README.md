@@ -837,35 +837,38 @@ implementation state (Appendix B) shows we are past Phase 13.*
 PHASE 0  — Repository audit                              ✅ DONE
 PHASE 1  — Real /api/status, Status Engine, service checks ✅ VERIFIED
 PHASE 2  — System health aggregation                       ✅ VERIFIED
-PHASE 3  — Task Engine                                     ✅ VERIFIED (pre-existing)
-PHASE 4  — Execution State                                 ✅ VERIFIED (pre-existing)
-PHASE 5  — Cognitive State                                 ✅ VERIFIED (pre-existing)
+PHASE 3  — Task Engine                                     ✅ VERIFIED
+PHASE 4  — Execution State                                 ✅ VERIFIED
+PHASE 5  — Cognitive State                                 ✅ VERIFIED
 PHASE 6  — Goal Engine                                     ❌ NOT IMPLEMENTED
-PHASE 7  — Event / Trace                                   ✅ VERIFIED (pre-existing)
-PHASE 8  — Knowledge State                                 ❌ NOT IMPLEMENTED
-PHASE 9  — Verification                                    ❌ NOT IMPLEMENTED
-PHASE 10 — Confidence                                       ❌ NOT IMPLEMENTED
-PHASE 11 — Provenance                                        ❌ NOT IMPLEMENTED
-PHASE 12 — Permission Engine                                ✅ VERIFIED (created this session)
-PHASE 13 — Policy Engine                                    ✅ VERIFIED (created this session)
-PHASE 14 — Human Approval Gate                               ⏳ IN PROGRESS (this document, Part 4)
+PHASE 7  — Event / Trace                                   ✅ VERIFIED
+PHASE 8  — Knowledge State                                 ⚠️ PARTIAL (knowledge.mjs = static keyword DB only, no state machine)
+PHASE 9  — Verification                                    ✅ VERIFIED (verification.mjs, real tsc→build→vitest)
+PHASE 10 — Confidence                                       ✅ VERIFIED (status.mjs CONFIDENCE_STATE, tested)
+PHASE 11 — Provenance                                        ⚠️ PARTIAL (codeDataCenter.mjs findings have "evidence" field only)
+PHASE 12 — Permission Engine                                ✅ VERIFIED
+PHASE 13 — Policy Engine                                    ✅ VERIFIED
+PHASE 14 — Human Approval Gate                               ✅ VERIFIED (approvals.mjs, commit e7cf938)
 PHASE 15 — Idea Engine                                       ❌ NOT IMPLEMENTED
 PHASE 16 — Planning Engine                                   ❌ NOT IMPLEMENTED
-PHASE 17 — Sandbox                                            ❌ NOT IMPLEMENTED
+PHASE 17 — Sandbox                                            ✅ VERIFIED (sandbox.mjs)
 PHASE 18 — Experiment Engine                                  ❌ NOT IMPLEMENTED
 PHASE 19 — Self-Evaluation                                    ❌ NOT IMPLEMENTED
-PHASE 20 — Versioning + Rollback                              ❌ NOT IMPLEMENTED
-PHASE 21 — Resource Budget                                    ❌ NOT IMPLEMENTED
-PHASE 22 — Timeout + Retry                                    ⚠️ PARTIAL (constants defined, no circuit breaker)
+PHASE 20 — Versioning + Rollback                              ✅ VERIFIED (rollback.mjs — plan-only, never auto-executes by design)
+PHASE 21 — Resource Budget                                    ❌ NOT IMPLEMENTED (patch.mjs is a different feature, mislabeled Phase 21 in its commit)
+PHASE 22 — Timeout + Retry                                    ⚠️ PARTIAL (timeout via status.mjs withTimeout(); no retry logic found)
 PHASE 23 — Circuit Breaker                                    ❌ NOT IMPLEMENTED
-PHASE 24 — Model Routing / Fallback                           ❌ NOT IMPLEMENTED
-PHASE 25 — Control Center                                     ✅ VERIFIED (created this session, read-only)
-PHASE 26 — Audit + Security hardening                         ⚠️ PARTIAL (basic audit log exists)
+PHASE 24 — Model Routing / Fallback                           ❌ NOT IMPLEMENTED (model.mjs = health check only; core.mjs supports one provider)
+PHASE 25 — Control Center                                     ✅ VERIFIED (~30-language i18n, Pending Approvals UI)
+PHASE 26 — Audit + Security hardening                         ✅ VERIFIED (secret-scrubbing, stale-approval detection)
 PHASE 27 — Metrics / Observability                            ❌ NOT IMPLEMENTED
-PHASE 28 — Documentation                                      ⚠️ PARTIAL (this document)
-PHASE 29 — Automated Test Suite                               ❌ NOT IMPLEMENTED (manual curl tests only)
+PHASE 28 — Documentation                                      ⚠️ PARTIAL (corrected 2026-09-23)
+PHASE 29 — Automated Test Suite                               ✅ VERIFIED (13 files / 50 tests; api.mjs, codeDataCenter.mjs, core.mjs, english.mjs, knowledge.mjs, learn.mjs, tools.mjs untested)
 PHASE 30 — Full regression / acceptance                       ❌ NOT IMPLEMENTED
-```
+
+NOTE (audit 2026-09-23): commit-message phase numbers do not match this table
+(e.g. Sandbox commit says "Phase 20" but is Phase 17 here). This table is the
+source of truth going forward, not commit messages.
 
 ## Phase Gate
 Do NOT start the next phase until the previous phase compiles, passes
