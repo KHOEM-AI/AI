@@ -72,3 +72,13 @@ Generated: 2026-09-22
 ## UNVERIFIED ITEMS
 - Long-term memory/task growth behavior under sustained load (only tested with a handful of requests)
 - Behavior when a tool module fails to load (probe() timeout/error paths exist in code but not exercised live in this session)
+
+## UPDATE — 2026-09-23 (supersedes "Automated test suite... not yet implemented" above)
+- Automated test suite: IMPLEMENTED. 19 test files, 77/77 passing (vitest).
+  Covers: rollback, retry, circuitBreaker, killswitch, budget, tasks, status,
+  memory, metrics, permission, verification, session, model, audit, patch, sandbox.
+- Phase 24 (Model Routing/Fallback) complete: decideProvider() honest NO_FALLBACK,
+  no fabricated providers. Endpoints: /api/model/route, /api/model/providers,
+  /api/model/routing-history.
+- Rule going forward: this file MUST be updated in the same commit as any
+  phase/feature change. A stale PHASE_REPORT.md is treated as a bug.
