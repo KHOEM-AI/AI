@@ -8,7 +8,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import { assertSafeRelPath, runSandboxTest } from "./sandbox.mjs";
 import {
   createApprovalRequest,
@@ -32,6 +32,13 @@ export function proposePatch({ relPath, newContent, reason = "manual", actor = "
 
   const sandboxResult = runSandboxTest({ relPath: safeRelPath, newContent, reason });
 
+  // Hash the target file as it stood at propose time. The sandbox result
+  // only proves newContent is safe against THIS repo state — if the file
+  // (or anything it depends on) changes before apply, that proof is stale.
+  const absPathAtPropose = path.resolve(ROOT, safeRelPath);
+  const baseContent = fs.existsSync(absPathAtPropose) ? fs.readFileSync(absPathAtPropose, "utf8") : "";
+  const baseHash = createHash("sha256").update(baseContent).digest("hex");
+
   const proposal = {
     id: randomUUID(),
     relPath: safeRelPath,
@@ -41,11 +48,18 @@ export function proposePatch({ relPath, newContent, reason = "manual", actor = "
     createdAt: new Date().toISOString(),
     sandboxOk: sandboxResult.ok,
     sandboxChecks: sandboxResult.checks,
+    baseHash,
     approvalId: null,
   };
   proposals.set(proposal.id, proposal);
-  const ids = [...proposals.keys()];
-  if (ids.length > MAX_PROPOSALS) proposals.delete(ids[0]);
+  if (proposals.size > MAX_PROPOSALS) {
+    for (const [pid, p] of proposals) {
+      if (pid === proposal.id) break;
+      // Only evict proposals that can no longer be applied anyway
+      // (rejected by sandbox, or never got an approval request).
+      if (p.status !== "PENDING_APPROVAL" && !p.approvalId) { proposals.delete(pid); break; }
+    }
+  }
 
   if (!sandboxResult.ok) {
     return { ...proposal, status: "REJECTED_BY_SANDBOX" };
@@ -97,10 +111,20 @@ export function applyPatch(proposalId, approvalId, actor = "user") {
     return { ok: false, error: verify.error };
   }
 
+  // Staleness guard: the sandbox result only proves newContent is safe
+  // against the repo state at propose time. If the target file changed
+  // since then (another patch, a manual edit), that proof no longer
+  // holds — refuse rather than silently overwrite an unverified state.
+  const absPath = path.resolve(ROOT, proposal.relPath);
+  const currentContent = fs.existsSync(absPath) ? fs.readFileSync(absPath, "utf8") : "";
+  const currentHash = createHash("sha256").update(currentContent).digest("hex");
+  if (currentHash !== proposal.baseHash) {
+    return { ok: false, error: "STALE_PROPOSAL: target file changed since sandbox verification — re-propose the patch" };
+  }
+
   // Automatic rollback point before any production write (Phase 13 link).
   const snapshot = createSnapshot(`before applying patch ${proposalId} to ${proposal.relPath}`);
 
-  const absPath = path.resolve(ROOT, proposal.relPath);
   fs.mkdirSync(path.dirname(absPath), { recursive: true });
   fs.writeFileSync(absPath, proposal.newContent, "utf8");
 

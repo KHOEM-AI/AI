@@ -49,3 +49,59 @@ describe("patch.mjs — sandbox rejection (slower: runs real tsc)", () => {
     expect(result.ok).toBe(false);
   });
 });
+
+describe("patch.mjs — full propose -> approve -> apply (slow: real sandbox run)", () => {
+  it("applies a sandbox-verified, approved patch and creates a rollback snapshot", async () => {
+    const { approveRequest } = await import("../approvals.mjs");
+    const relPath = "src/ai/__tests__/__fixtures__/patchable.mjs";
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    fs.mkdirSync(path.dirname(relPath), { recursive: true });
+    fs.writeFileSync(relPath, "export const value = 1;\n");
+
+    const proposal = proposePatch({
+      relPath,
+      newContent: "export const value = 2;\n",
+      reason: "happy-path regression test",
+      actor: "tester",
+    });
+    expect(proposal.status).toBe("PENDING_APPROVAL");
+    expect(proposal.approval).toBeTruthy();
+
+    const decision = approveRequest(proposal.approval.id, "reviewer", "looks safe");
+    expect(decision.ok).toBe(true);
+
+    const result = applyPatch(proposal.id, proposal.approval.id, "tester");
+    expect(result.ok).toBe(true);
+    expect(result.rollbackSnapshotId).toBeTruthy();
+    expect(fs.readFileSync(relPath, "utf8")).toContain("value = 2");
+
+    fs.rmSync(relPath, { force: true });
+  }, 120000);
+
+  it("refuses to apply when the target file changed since propose (STALE_PROPOSAL)", async () => {
+    const { approveRequest } = await import("../approvals.mjs");
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const relPath = "src/ai/__tests__/__fixtures__/patchable2.mjs";
+    fs.mkdirSync(path.dirname(relPath), { recursive: true });
+    fs.writeFileSync(relPath, "export const value = 1;\n");
+
+    const proposal = proposePatch({
+      relPath,
+      newContent: "export const value = 2;\n",
+      reason: "staleness regression test",
+      actor: "tester",
+    });
+    approveRequest(proposal.approval.id, "reviewer", "ok");
+
+    // simulate drift: someone else edits the file after the proposal was sandboxed
+    fs.writeFileSync(relPath, "export const value = 999;\n");
+
+    const result = applyPatch(proposal.id, proposal.approval.id, "tester");
+    expect(result.ok).toBe(false);
+    expect(result.error).toMatch(/STALE_PROPOSAL/);
+
+    fs.rmSync(relPath, { force: true });
+  }, 120000);
+});
