@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import App from "./App";
+import GatePoem from "./components/GatePoem";
 
 type Seg = { x1: number; y1: number; x2: number; y2: number; c: string; w: number; t: number };
 const COLORS = ["#ef4444", "#38bdf8", "#a78bfa", "#3b82f6", "#22c55e", "#fbbf24"];
@@ -36,6 +37,7 @@ function build(w: number, h: number): Seg[] {
 export default function Gate() {
   const [ok, setOk] = useState(false);
   const [pct, setPct] = useState(0);
+  const [poemDone, setPoemDone] = useState(false);
   const cv = useRef<HTMLCanvasElement>(null);
   const segs = useRef<Seg[]>([]);
   const drawn = useRef(0);
@@ -96,6 +98,7 @@ export default function Gate() {
     setPct(0);
   };
 
+  if (ok && !poemDone) return <GatePoem onContinue={() => setPoemDone(true)} />;
   if (ok) return <App />;
 
   return (
