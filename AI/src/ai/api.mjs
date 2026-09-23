@@ -10,6 +10,7 @@ import { isKilled, activateKillSwitch, deactivateKillSwitch, getKillSwitchStatus
 import { createSnapshot, listSnapshots, getSnapshot, buildRollbackPlan } from "./rollback.mjs";
 import { runSandboxTest } from "./sandbox.mjs";
 import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mjs";
+import { createBudget, recordUsage, checkBudget, getBudget, listBudgets } from "./budget.mjs";
 import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
@@ -233,7 +234,22 @@ export function registerApi(app) {
   app.get("/api/verify/history", guard, (req, res) => {
     res.json({ history: listVerifications() });
   });
-app.get("/api/audit", guard, (req, res) => {
+// ---- Phase 21: Resource Budget (read-only checks + creation) ----
+  app.post("/api/budget/create", guard, policy("budget.check"), wrap((req) => {
+    const { taskId, limits } = req.body || {};
+    if (!taskId) throw bad("taskId ត្រូវការ", 400);
+    return createBudget(taskId, limits || {});
+  }));
+  app.get("/api/budget/:taskId", guard, policy("budget.check"), wrap((req) => {
+    const b = getBudget(req.params.taskId);
+    if (!b) throw bad("រកមិនឃើញ budget", 404);
+    return checkBudget(req.params.taskId);
+  }));
+  app.get("/api/budget", guard, policy("budget.check"), wrap(() => {
+    return { budgets: listBudgets() };
+  }));
+
+  app.get("/api/audit", guard, (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({
       policyDecisions: getAudit(limit),
