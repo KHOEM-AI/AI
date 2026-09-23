@@ -14,12 +14,27 @@ import {
   createApprovalRequest,
   verifyBeforeExecution,
   markExecuted,
+  getApproval,
 } from "./approvals.mjs";
 import { createSnapshot } from "./rollback.mjs";
 
 const ROOT = process.cwd();
 const proposals = new Map();
 const MAX_PROPOSALS = 200;
+
+// Evict proposals that can no longer be applied (no approval, REJECTED,
+// EXPIRED, or already executed). Live approvals are never evicted.
+export function pruneProposals(map, keepId, max = MAX_PROPOSALS) {
+  let removed = 0;
+  for (const [pid, p] of map) {
+    if (map.size <= max) break;
+    if (pid === keepId) continue;
+    const a = p.approvalId ? getApproval(p.approvalId) : null;
+    const dead = !a || a.status === "REJECTED" || a.status === "EXPIRED" || Boolean(a.executedAt);
+    if (dead) { map.delete(pid); removed++; }
+  }
+  return removed;
+}
 
 // Step 1: PROPOSE + RISK CHECK (sandbox). Never touches the real file.
 // Returns a proposal id + sandbox result. If sandbox fails, no approval
@@ -52,14 +67,7 @@ export function proposePatch({ relPath, newContent, reason = "manual", actor = "
     approvalId: null,
   };
   proposals.set(proposal.id, proposal);
-  if (proposals.size > MAX_PROPOSALS) {
-    for (const [pid, p] of proposals) {
-      if (pid === proposal.id) break;
-      // Only evict proposals that can no longer be applied anyway
-      // (rejected by sandbox, or never got an approval request).
-      if (p.status !== "PENDING_APPROVAL" && !p.approvalId) { proposals.delete(pid); break; }
-    }
-  }
+  pruneProposals(proposals, proposal.id);
 
   if (!sandboxResult.ok) {
     return { ...proposal, status: "REJECTED_BY_SANDBOX" };

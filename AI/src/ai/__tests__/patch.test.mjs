@@ -105,3 +105,40 @@ describe("patch.mjs — full propose -> approve -> apply (slow: real sandbox run
     fs.rmSync(relPath, { force: true });
   }, 120000);
 });
+
+describe("patch.mjs — pruneProposals (fast)", () => {
+  async function setup() {
+    const { pruneProposals } = await import("../patch.mjs");
+    const ap = await import("../approvals.mjs");
+    const mk = () => ap.createApprovalRequest({
+      action: "code.applyPatch", actor: "tester", permission: "code.write",
+      risk: "HIGH", target: "t", resource: "src/x.mjs",
+    });
+    return { pruneProposals, ap, mk };
+  }
+  it("evicts dead proposals, keeps live approvals", async () => {
+    const { pruneProposals, ap, mk } = await setup();
+    const pending = mk();
+    const rejected = mk(); ap.rejectRequest(rejected.id, "reviewer", "no");
+    const approved = mk(); ap.approveRequest(approved.id, "reviewer", "ok");
+    const executed = mk(); ap.approveRequest(executed.id, "reviewer", "ok"); ap.markExecuted(executed.id);
+    const map = new Map([
+      ["p1", { approvalId: null }], ["p2", { approvalId: pending.id }],
+      ["p3", { approvalId: rejected.id }], ["p4", { approvalId: approved.id }],
+      ["p5", { approvalId: executed.id }], ["p6", { approvalId: null }],
+    ]);
+    expect(pruneProposals(map, "p6", 3)).toBe(3);
+    expect([...map.keys()]).toEqual(["p2", "p4", "p6"]);
+  });
+  it("never evicts live proposals even over the cap", async () => {
+    const { pruneProposals, mk } = await setup();
+    const map = new Map([["p1", { approvalId: mk().id }], ["p2", { approvalId: mk().id }], ["p3", { approvalId: mk().id }]]);
+    expect(pruneProposals(map, "p3", 1)).toBe(0);
+    expect(map.size).toBe(3);
+  });
+  it("does nothing under the cap", async () => {
+    const { pruneProposals } = await setup();
+    const map = new Map([["p1", { approvalId: null }]]);
+    expect(pruneProposals(map, "p1", 5)).toBe(0);
+  });
+});
