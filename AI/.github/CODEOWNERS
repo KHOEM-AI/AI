@@ -1,0 +1,23 @@
+# KHOEM-AI — Protected Core Files
+# These files require CODEOWNER review before modification.
+# Repository owner: KHOEM-AI
+
+/src/ai/memory.mjs              @KHOEM-AI
+/src/ai/status.mjs              @KHOEM-AI
+/src/ai/tasks.mjs               @KHOEM-AI
+/src/ai/permission.mjs          @KHOEM-AI
+/src/ai/approvals.mjs           @KHOEM-AI
+/src/ai/audit.mjs               @KHOEM-AI
+/src/ai/model.mjs               @KHOEM-AI
+/src/ai/session.mjs             @KHOEM-AI
+/src/ai/killswitch.mjs          @KHOEM-AI
+/src/ai/rollback.mjs            @KHOEM-AI
+/src/ai/sandbox.mjs              @KHOEM-AI
+/src/ai/patch.mjs                @KHOEM-AI
+/src/ai/verification.mjs         @KHOEM-AI
+/src/ai/budget.mjs               @KHOEM-AI
+/src/ai/circuitBreaker.mjs       @KHOEM-AI
+/src/ai/metrics.mjs              @KHOEM-AI
+/src/ai/retry.mjs                @KHOEM-AI
+/src/ai/goal.mjs                 @KHOEM-AI
+/src/ai/modelRouting.mjs         @KHOEM-AI
