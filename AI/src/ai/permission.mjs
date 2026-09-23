@@ -9,8 +9,8 @@ export const DECISION = Object.freeze({
 
 // Phase 14 (spec 4.9): used to detect that policy/permission has changed
 // after an approval request is made. Bump manually if the REGISTRY below changes.
-const POLICY_VERSION = 1;
-const PERMISSION_VERSION = 1;
+const POLICY_VERSION = 2;
+const PERMISSION_VERSION = 2;
 export const getPolicyVersion = () => POLICY_VERSION;
 export const getPermissionVersion = () => PERMISSION_VERSION;
 
@@ -63,6 +63,16 @@ const REGISTRY = {
   "goal.setStatus": { permission: "system.write", risk: RISK.LOW },
   // Phase 24: routing decision is read-only, never changes provider without policy check inside decideProvider().
   "model.route": { permission: "system.read", risk: RISK.LOW },
+  // Phases 15/16/18/19: engines only record proposals/plans/experiments.
+  // Nothing here executes or applies anything, so LOW is appropriate.
+  "ideas.read": { permission: "system.read", risk: RISK.LOW },
+  "ideas.create": { permission: "system.write", risk: RISK.LOW },
+  "plan.read": { permission: "system.read", risk: RISK.LOW },
+  "plan.create": { permission: "system.write", risk: RISK.LOW },
+  "experiment.read": { permission: "system.read", risk: RISK.LOW },
+  "experiment.create": { permission: "system.write", risk: RISK.LOW },
+  "experiment.transition": { permission: "system.write", risk: RISK.LOW },
+  "selfeval.run": { permission: "system.read", risk: RISK.LOW },
 };
 
 const MAX_AUDIT = 500;

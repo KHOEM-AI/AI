@@ -74,29 +74,25 @@ const wrap = (fn) => async (req, res) => {
 export function registerApi(app) {
   // ---- Phases 15/16/18/19: Idea / Planning / Experiment / Self-Evaluation ----
   // Records only: nothing here executes, applies, or approves anything.
-  // guard() = API key; engineGate = respect the kill switch.
-  const engineGate = (req, res, next) => {
-    if (isKilled()) return res.status(503).json({ error: "kill switch active" });
-    next();
-  };
+  // guard() = API key; policy() = permission registry + audit + kill switch.
   const found = (v, what) => {
     if (!v) throw bad(what + " not found", 404);
     return v;
   };
 
-  app.get("/api/ideas", guard, engineGate, wrap(() => Ideas.listIdeas()));
-  app.get("/api/ideas/rank", guard, engineGate, wrap(() => Ideas.rankIdeas()));
-  app.post("/api/ideas", guard, engineGate, wrap((req) => Ideas.createIdea(req.body || {})));
-  app.get("/api/ideas/:id", guard, engineGate, wrap((req) => found(Ideas.getIdea(req.params.id), "idea")));
+  app.get("/api/ideas", guard, policy("ideas.read"), wrap(() => Ideas.listIdeas()));
+  app.get("/api/ideas/rank", guard, policy("ideas.read"), wrap(() => Ideas.rankIdeas()));
+  app.post("/api/ideas", guard, policy("ideas.create"), wrap((req) => Ideas.createIdea(req.body || {})));
+  app.get("/api/ideas/:id", guard, policy("ideas.read"), wrap((req) => found(Ideas.getIdea(req.params.id), "idea")));
 
-  app.get("/api/plans", guard, engineGate, wrap(() => Planning.listPlans()));
-  app.post("/api/plans", guard, engineGate, wrap((req) => Planning.createPlan(req.body || {})));
-  app.get("/api/plans/:id", guard, engineGate, wrap((req) => found(Planning.getPlan(req.params.id), "plan")));
+  app.get("/api/plans", guard, policy("plan.read"), wrap(() => Planning.listPlans()));
+  app.post("/api/plans", guard, policy("plan.create"), wrap((req) => Planning.createPlan(req.body || {})));
+  app.get("/api/plans/:id", guard, policy("plan.read"), wrap((req) => found(Planning.getPlan(req.params.id), "plan")));
 
-  app.get("/api/experiments", guard, engineGate, wrap(() => Experiments.listExperiments()));
-  app.post("/api/experiments", guard, engineGate, wrap((req) => Experiments.createExperiment(req.body || {})));
-  app.get("/api/experiments/:id", guard, engineGate, wrap((req) => found(Experiments.getExperiment(req.params.id), "experiment")));
-  app.post("/api/experiments/:id/transition", guard, engineGate, wrap((req) => {
+  app.get("/api/experiments", guard, policy("experiment.read"), wrap(() => Experiments.listExperiments()));
+  app.post("/api/experiments", guard, policy("experiment.create"), wrap((req) => Experiments.createExperiment(req.body || {})));
+  app.get("/api/experiments/:id", guard, policy("experiment.read"), wrap((req) => found(Experiments.getExperiment(req.params.id), "experiment")));
+  app.post("/api/experiments/:id/transition", guard, policy("experiment.transition"), wrap((req) => {
     const { to, results, metrics } = req.body || {};
     if (typeof to !== "string") throw bad("to required");
     const r = Experiments.transitionExperiment(req.params.id, to, { results, metrics });
@@ -104,7 +100,7 @@ export function registerApi(app) {
     return r.experiment;
   }));
 
-  app.post("/api/selfeval", guard, engineGate, wrap((req) => SelfEval.selfEvaluate(req.body || {})));
+  app.post("/api/selfeval", guard, policy("selfeval.run"), wrap((req) => SelfEval.selfEvaluate(req.body || {})));
 
   app.get("/api/scan", guard, policy("tool.scan"), wrap(() => run("/scan")));
   app.get("/api/check", guard, policy("tool.check"), wrap(() => run("/check")));
