@@ -3,8 +3,6 @@ import os from "node:os";
 import path from "node:path";
 
 const FILE = path.join(os.homedir(), "khoem-learned.json");
-const BACKUP_DIR = path.join(os.homedir(), "khoem-learned-backups");
-const MAX_BACKUPS = 10;
 
 export function load() {
   try {
@@ -13,29 +11,9 @@ export function load() {
     return {};
   }
 }
-
-function backupCurrent() {
-  try {
-    if (!fs.existsSync(FILE)) return;
-    if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
-    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-    fs.copyFileSync(FILE, path.join(BACKUP_DIR, `learned-${stamp}.json`));
-    const files = fs.readdirSync(BACKUP_DIR).sort();
-    while (files.length > MAX_BACKUPS) {
-      fs.unlinkSync(path.join(BACKUP_DIR, files.shift()));
-    }
-  } catch (e) {
-    console.error("[learn] backup failed:", e && e.message);
-  }
-}
-
 function save(d) {
-  backupCurrent();
-  const tmp = FILE + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(d, null, 2), "utf8");
-  fs.renameSync(tmp, FILE);
+  fs.writeFileSync(FILE, JSON.stringify(d, null, 2));
 }
-
 const norm = (s) =>
   s.trim().toLowerCase().replace(/\s+/g, " ").replace(/[?!។.\s]+$/g, "");
 
@@ -49,7 +27,6 @@ const grams = (s) => {
   }
   return g;
 };
-
 function dice(a, b) {
   if (a === b) return 1;
   if (a.length < 2 || b.length < 2) return 0;
@@ -90,16 +67,6 @@ export function handleLearn(text) {
     return keys.length
       ? `ប្អូនបានរៀន ${keys.length} ចំណុច:\n` + keys.map((k) => "- " + k).join("\n")
       : "ប្អូនមិនទាន់បានរៀនអ្វីទេ។ សាកល្បង: /learn សួស្ដី = សួស្ដីបង!";
-  }
-
-  // NEW: /stats — quick health view of learned data
-  if (t === "/stats") {
-    const d = load();
-    const keys = Object.keys(d);
-    const avgLen = keys.length
-      ? Math.round(keys.reduce((n, k) => n + d[k].length, 0) / keys.length)
-      : 0;
-    return `ចំនុចដែលបានរៀន: ${keys.length}\nប្រវែងចម្លើយជាមធ្យម: ${avgLen} តួអក្សរ\nឯកសារ: ${FILE}`;
   }
 
   if (!t.startsWith("/")) {

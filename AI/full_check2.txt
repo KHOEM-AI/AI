@@ -1,0 +1,340 @@
+===== 📦 package.json =====
+{
+  "name": "ai-project",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "server": "node server.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.70.1",
+    "vite": "^5.4.6",
+    "vitest": "^2.1.1"
+  }
+}
+
+===== 🖥️ server.mjs =====
+import express from "express";
+import { registerApi } from "./src/ai/api.mjs";
+import { summarizeEngines } from "./src/ai/enginesSummary.mjs";
+import cors from "cors";
+import "dotenv/config";
+import { AICore } from "./src/ai/core.mjs";
+import { collectStatus, trackActivity } from "./src/ai/status.mjs";
+import { createTask, transition, getTask, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
+import { getAudit } from "./src/ai/permission.mjs";
+import { listApprovals } from "./src/ai/approvals.mjs";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(trackActivity);
+
+const PORT = process.env.PORT || 8787;
+
+const MODEL = "khoem-local";
+const aiCore = new AICore({
+  provider: "khoem",
+  model: MODEL,
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "ai-project",
+    port: PORT,
+    provider: aiCore.provider,
+    toolsProtected: Boolean(process.env.KHOEM_API_KEY),
+  });
+});
+
+app.get("/api", (req, res) => {
+  res.json({
+    name: "ai-project API",
+    version: "1.0.0",
+    status: "online",
+    endpoints: {
+      health: "GET /api/health",
+      chat: "POST /api/chat",
+      models: "GET /api/models",
+      tools: "GET /api/scan /api/check /api/learned /api/funcs?file= /api/read?file= | POST /api/learn /api/forget (ត្រូវការ header x-api-key)",
+      approvals: "GET /api/approvals | GET /api/approvals/:id | POST /api/approvals/:id/approve|reject|execute (ត្រូវការ header x-api-key)",
+    },
+  });
+});
+
+app.get("/api/models", (req, res) => {
+  res.json({
+    models: [
+      {
+        id: MODEL,
+        provider: "khoem",
+        type: "chat",
+      },
+    ],
+  });
+});
+
+registerApi(app);
+
+app.get("/api/status", async (req, res) => {
+  try {
+    res.json(await collectStatus(aiCore));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/chat", async (req, res) => {
+  const { messages, honorific } = req.body;
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({
+      error: "សូមផ្ញើសារយ៉ាងហោចណាស់មួយ",
+    });
+  }
+
+  let task = null;
+  try {
+    task = createTask({ kind: "chat", messageCount: messages.length });
+    emit(task.taskId, "INPUT_RECEIVED", { messageCount: messages.length });
+    transition(task.taskId, "QUEUED", "chat request accepted");
+    transition(task.taskId, "RUNNING", "aiCore.chat started");
+    const t0 = Date.now();
+    const tid = task.taskId;
+    const step = (fn, to, reason) => {
+      try { fn(tid, to, reason); }
+      catch (e) { emit(tid, "STATE_TRANSITION_REJECTED", { to, reason: String(e.message).slice(0, 120) }); }
+    };
+    step(setExecution, "PROCESSING", "chat received");
+    step(setCognitive, "UNDERSTANDING", "chat received");
+    const onStage = (kind, reason) => {
+      step(setExecution, kind, reason);
+      if (kind === "RETRIEVING") step(setCognitive, "RETRIEVING", reason);
+    };
+    const result = await aiCore.chat(messages, { honorific, onStage });
+    step(setExecution, "RESPONDING", "reply ready");
+    step(setCognitive, "ANSWERING", "reply ready");
+    step(setExecution, "IDLE", "reply sent");
+    step(setCognitive, "IDLE", "reply sent");
+    transition(task.taskId, "COMPLETED", "reply generated");
+    emit(task.taskId, "RESPONSE_COMPLETED", {}, Date.now() - t0);
+    res.json(result);
+  } catch (err) {
+    if (task) { try { transition(task.taskId, "FAILED", "aiCore.chat failed"); } catch {} }
+    console.error("AI Core error:", err);
+
+    res.status(err.status === 401 || err.status === 402 ? 502 : 500).json({
+      error: err.message || "មានបញ្ហាបច្ចេកទេសក្នុង AI Core",
+      provider: err.provider || aiCore.provider,
+      status: err.status || 500,
+    });
+  }
+});
+
+app.get("/api/control", (req, res) => {
+  // Read-only, unauthenticated observability feed for the frontend Control Center.
+  // Contains no secrets: task events carry only counts/reasons, audit entries carry
+  // only action/permission/risk/decision metadata, approvals carry no credentials.
+  res.json({ events: getEvents().slice(-20), audit: getAudit(20), approvals: listApprovals(), engines: summarizeEngines() });
+});
+
+app.get("/api/tasks", (req, res) => {
+  const key = process.env.KHOEM_API_KEY;
+  if (!key) return res.status(503).json({ error: "API key not configured" });
+  if (req.get("x-api-key") !== key) return res.status(401).json({ error: "Unauthorized" });
+  const id = req.query.id ? String(req.query.id) : null;
+  if (id) return res.json({ task: getTask(id), events: getEvents(id) });
+  res.json({ events: getEvents().slice(-50) });
+});
+
+app.listen(PORT, () => {
+  console.log(`server.mjs listening on port ${PORT}`);
+});
+
+===== 📁 src/ FULL STRUCTURE =====
+src/App.css
+src/App.tsx
+src/App.tsx.bak2
+src/Gate.tsx
+src/README.md
+src/ai.ts
+src/ai/__tests__/approvals.test.mjs
+src/ai/__tests__/audit.test.mjs
+src/ai/__tests__/budget.test.mjs
+src/ai/__tests__/circuitBreaker.test.mjs
+src/ai/__tests__/engines-api.test.mjs
+src/ai/__tests__/engines-policy.test.mjs
+src/ai/__tests__/engines-summary.test.mjs
+src/ai/__tests__/goal.test.mjs
+src/ai/__tests__/killswitch.test.mjs
+src/ai/__tests__/memory.test.mjs
+src/ai/__tests__/metrics.test.mjs
+src/ai/__tests__/model.test.mjs
+src/ai/__tests__/modelRouting.test.mjs
+src/ai/__tests__/patch.test.mjs
+src/ai/__tests__/patch.test.mjs.bak-phase23
+src/ai/__tests__/permission.test.mjs
+src/ai/__tests__/phase15-19.test.mjs
+src/ai/__tests__/retry.test.mjs
+src/ai/__tests__/rollback.test.mjs
+src/ai/__tests__/sandbox.test.mjs
+src/ai/__tests__/session.test.mjs
+src/ai/__tests__/status.test.mjs
+src/ai/__tests__/tasks.test.mjs
+src/ai/__tests__/verification.test.mjs
+src/ai/api.mjs
+src/ai/approvals.mjs
+src/ai/audit.mjs
+src/ai/audit.mjs.bak
+src/ai/budget.mjs
+src/ai/circuitBreaker.mjs
+src/ai/codeDataCenter.mjs
+src/ai/core.mjs
+src/ai/enginesSummary.mjs
+src/ai/english.mjs
+src/ai/experiments.mjs
+src/ai/find.mjs
+src/ai/goal.mjs
+src/ai/ideas.mjs
+src/ai/khoem.mjs
+src/ai/killswitch.mjs
+src/ai/knowledge.mjs
+src/ai/learn.mjs
+src/ai/memory.mjs
+src/ai/metrics.mjs
+src/ai/model.mjs
+src/ai/modelRouting.mjs
+src/ai/patch.mjs
+src/ai/patch.mjs.bak-phase23
+src/ai/permission.mjs
+src/ai/planning.mjs
+src/ai/retry.mjs
+src/ai/rollback.mjs
+src/ai/sandbox.mjs
+src/ai/selfEval.mjs
+src/ai/session.mjs
+src/ai/status.mjs
+src/ai/status.mjs.bak-phase2
+src/ai/tasks.mjs
+src/ai/tools.mjs
+src/ai/verification.mjs
+src/components/AIStatus.tsx
+src/components/AIStatus.tsx.bak
+src/components/ControlCenter.tsx
+src/components/GatePoem.tsx
+src/components/HonorificPrompt.tsx
+src/components/MessageActions.tsx
+src/config/timeouts.d.mts
+src/config/timeouts.mjs
+src/data/aiStatus.ts
+src/honorific.ts
+src/hooks/useChat.ts
+src/i18n/ar.ts
+src/i18n/bn.ts
+src/i18n/cs.ts
+src/i18n/de.ts
+src/i18n/el.ts
+src/i18n/en.ts
+src/i18n/en.ts.bak
+src/i18n/es.ts
+src/i18n/fa.ts
+src/i18n/fr.ts
+src/i18n/he.ts
+src/i18n/hi.ts
+src/i18n/hu.ts
+src/i18n/id.ts
+src/i18n/index.ts
+src/i18n/index.ts.bak
+src/i18n/it.ts
+src/i18n/ja.ts
+src/i18n/km.ts
+src/i18n/km.ts.bak
+src/i18n/ko.ts
+src/i18n/lo.ts
+src/i18n/mn.ts
+src/i18n/ms.ts
+src/i18n/my.ts
+src/i18n/my.ts.bak
+src/i18n/ne.ts
+src/i18n/nl.ts
+src/i18n/pl.ts
+src/i18n/pt.ts
+src/i18n/ro.ts
+src/i18n/ru.ts
+src/i18n/si.ts
+src/i18n/sv.ts
+src/i18n/ta.ts
+src/i18n/th.ts
+src/i18n/th.ts.bak
+src/i18n/tl.ts
+src/i18n/tr.ts
+src/i18n/types.ts
+src/i18n/types.ts.bak
+src/i18n/uk.ts
+src/i18n/ur.ts
+src/i18n/vi.ts
+src/i18n/vi.ts.bak
+src/i18n/zh.ts
+src/language.ts
+src/lib/app.ts
+src/main.tsx
+src/storage.ts
+src/types.ts
+
+===== ⚙️ vite.config.ts / tsconfig.json =====
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5175,
+    proxy: {
+      // frontend calls fetch("/api/chat"); Vite forwards it to server.mjs
+      "/api": {
+        target: "http://localhost:8787",
+        changeOrigin: true,
+      },
+    },
+  },
+});
+---
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
