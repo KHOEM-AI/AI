@@ -52,6 +52,8 @@ const REGISTRY = {
   "code.verify": { permission: "tool.execute", risk: RISK.LOW },
   // Phase 21: budget check is read-only (no execution), safe to auto-ALLOW.
   "budget.check": { permission: "system.read", risk: RISK.LOW },
+  // Phase 23: circuit breaker status is read-only.
+  "circuit.check": { permission: "system.read", risk: RISK.LOW },
 };
 
 const MAX_AUDIT = 500;

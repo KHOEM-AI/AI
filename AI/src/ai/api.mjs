@@ -11,6 +11,7 @@ import { createSnapshot, listSnapshots, getSnapshot, buildRollbackPlan } from ".
 import { runSandboxTest } from "./sandbox.mjs";
 import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mjs";
 import { createBudget, recordUsage, checkBudget, getBudget, listBudgets } from "./budget.mjs";
+import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
 import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
 
@@ -247,6 +248,16 @@ export function registerApi(app) {
   }));
   app.get("/api/budget", guard, policy("budget.check"), wrap(() => {
     return { budgets: listBudgets() };
+  }));
+
+  // ---- Phase 23: Circuit Breaker (read-only status) ----
+  app.get("/api/circuit/:name", guard, policy("circuit.check"), wrap((req) => {
+    const b = getBreakerState(req.params.name);
+    if (!b) throw bad("រកមិនឃើញ circuit breaker", 404);
+    return b;
+  }));
+  app.get("/api/circuit", guard, policy("circuit.check"), wrap(() => {
+    return { breakers: listBreakers() };
   }));
 
   app.get("/api/audit", guard, (req, res) => {
