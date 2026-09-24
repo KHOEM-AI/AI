@@ -21,3 +21,21 @@
 /src/ai/retry.mjs                @KHOEM-AI
 /src/ai/goal.mjs                 @KHOEM-AI
 /src/ai/modelRouting.mjs         @KHOEM-AI
+
+# Added — previously unprotected core AI modules
+/src/ai/api.mjs                  @KHOEM-AI
+/src/ai/chinese.mjs              @KHOEM-AI
+/src/ai/codeDataCenter.mjs       @KHOEM-AI
+/src/ai/core.mjs                 @KHOEM-AI
+/src/ai/enginesSummary.mjs       @KHOEM-AI
+/src/ai/english.mjs              @KHOEM-AI
+/src/ai/experiments.mjs          @KHOEM-AI
+/src/ai/find.mjs                 @KHOEM-AI
+/src/ai/ideas.mjs                @KHOEM-AI
+/src/ai/khoem.mjs                @KHOEM-AI
+/src/ai/knowledge.mjs            @KHOEM-AI
+/src/ai/langCheckers.mjs         @KHOEM-AI
+/src/ai/learn.mjs                @KHOEM-AI
+/src/ai/planning.mjs             @KHOEM-AI
+/src/ai/selfEval.mjs             @KHOEM-AI
+/src/ai/tools.mjs                @KHOEM-AI
