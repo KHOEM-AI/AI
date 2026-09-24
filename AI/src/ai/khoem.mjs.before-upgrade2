@@ -1,7 +1,6 @@
 import { searchTechDB, searchHistoryFood, searchMoreHistory, searchCompleteHistory, searchKhmerCakes, searchKhmerWine, searchCultureTradition } from "./knowledge.mjs";
 import { handleLearn, load } from "./learn.mjs";
 import { englishReply } from "./english.mjs";
-import { chineseReply } from "./chinese.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
 import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mjs";
@@ -86,13 +85,8 @@ const HELP_EN =
   "- /reject id  reject a proposal\n" +
   "- /proposals  list pending proposals";
 
-// NEW: detect Chinese via CJK Unicode range, checked before the km/en split
-// so Chinese input never falls through to englishReply's Latin-only logic.
-const lang = (s) => {
-  if (/[\u1780-\u17FF]/.test(s)) return "km";
-  if (/[\u4e00-\u9fff]/.test(s)) return "zh";
-  return "en";
-};
+const lang = (s) =>
+  /[\u1780-\u17FF]/.test(s) ? "km" : "en";
 
 const RE = {
   km: {
@@ -102,10 +96,6 @@ const RE = {
   en: {
     hello: /^(hello|hi|hey)\b/,
     name: /\b(your name|who are you|what are you)\b/,
-  },
-  zh: {
-    hello: /^(你好|您好|嗨|哈喽)/,
-    name: /(你叫什么名字|你的名字|你是谁)/,
   },
 };
 
@@ -146,7 +136,7 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
           .join("\n");
         return `❌ Sandbox ច្រានចោល (proposal ${result.id}):\n${failed || "(no detail)"}`;
       }
-      return `✅ បានស្នើសុំកែឯកសារ ${relPath}\nProposal ID: ${result.id}\nSandbox: ${result.sandboxOk ? "OK  ✅" : "FAIL ❌"}\nត្រូវការការអនុម័ត — វាយ "/approve ${result.id}" ដើម្បីអនុវត្ត ឬ "/reject ${result.id}" ដើម្បីបដិសេធ`;
+      return `✅ បានស្នើសុំកែឯកសារ ${relPath}\nProposal ID: ${result.id}\nSandbox: ${result.sandboxOk ? "OK ✅" : "FAIL ❌"}\nត្រូវការការអនុម័ត — វាយ "/approve ${result.id}" ដើម្បីអនុវត្ត ឬ "/reject ${result.id}" ដើម្បីបដិសេធ`;
     } catch (e) {
       return "❌ បញ្ហា: " + (e.message || String(e));
     }
@@ -184,13 +174,10 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
   }
   // ===== END NEW =====
 
-  // NEW: route Chinese input to chineseReply before the English branch.
-  if (l === "zh" && !q.startsWith("/")) { onStage?.("RETRIEVING", "chinese module"); return chineseReply(last, load()); }
-
   if (l === "en" && !q.startsWith("/") && q !== "help") { onStage?.("RETRIEVING", "english module"); return englishReply(last, load()); }
 
-  if (!q.startsWith("/") && RE[l].hello.test(q)) return l === "km" ? SAY.km.hello(honorific) : l === "en" ? SAY.en.hello : null;
-  if (!q.startsWith("/") && RE[l].name.test(q)) return SAY[l]?.name;
+  if (!q.startsWith("/") && RE[l].hello.test(q)) return l === "km" ? SAY.km.hello(honorific) : SAY.en.hello;
+  if (!q.startsWith("/") && RE[l].name.test(q)) return SAY[l].name;
 
   const learned = handleLearn(last);
   if (learned !== null) { onStage?.("LEARNING", "learn command handled"); return learned; }
@@ -210,8 +197,8 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
   if (q.startsWith("/funcs ")) return funcs(last.slice(7).trim());
   if (q.startsWith("/find ")) return find(last.slice(6).trim());
 
-  if (RE[l]?.hello?.test(q)) return SAY[l]?.hello;
-  if (RE[l]?.name?.test(q)) return SAY[l]?.name;
+  if (RE[l].hello.test(q)) return SAY[l].hello;
+  if (RE[l].name.test(q)) return SAY[l].name;
 
   try {
     onStage?.("RETRIEVING", "knowledge base lookup");
