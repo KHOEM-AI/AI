@@ -9,16 +9,23 @@ import path from "node:path";
 import os from "node:os";
 import { execSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { detectLanguage, checkLanguage } from "./langCheckers.mjs";
 
 const ROOT = process.cwd();
 const EXCLUDE = new Set(["node_modules", ".git", "dist", "data", ".env", ".env.local"]);
 
+// Test files that themselves call runSandboxTest(). If the whole repo is
+// copied into a sandbox and its test suite is run there, these files would
+// spawn another sandbox from inside the sandbox — unbounded recursion. They
+// are excluded from the copy; their correctness is verified by running them
+// directly against the real repo (outside any sandbox), not recursively.
 const RECURSION_UNSAFE_TEST_FILES = [
   "src/ai/__tests__/sandbox.test.mjs",
   "src/ai/__tests__/patch.test.mjs",
 ];
 
+// Defense in depth: if somehow invoked from inside an already-running
+// sandbox (e.g. a future caller forgets to exclude a recursive test file),
+// refuse immediately instead of recursing.
 const NESTED = process.env.KHOEM_SANDBOX_NESTED === "1";
 
 export function assertSafeRelPath(relPath) {
@@ -94,26 +101,10 @@ export function runSandboxTest({ relPath, newContent, reason = "manual" }) {
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
     fs.writeFileSync(targetPath, newContent, "utf8");
 
-    // NEW: non-JS/TS languages get their own lightweight syntax checker
-    // instead of the JS-specific tsc/build/vitest pipeline.
-    const lang = detectLanguage(safeRelPath);
-    if (lang) {
-      const langCheck = checkLanguage(lang, targetPath);
-      return {
-        id,
-        relPath: safeRelPath,
-        reason,
-        createdAt: new Date().toISOString(),
-        ok: langCheck.ok === true,
-        checks: { language: lang, syntax: langCheck },
-        note: "Sandbox only — the real repository was never modified. This result does not apply the change.",
-      };
-    }
-
-    // Default (unchanged): JS/TS pipeline.
     const tsc = runCheck("npx tsc --noEmit", dir, 60000);
     const build = tsc.ok ? runCheck("npm run build", dir, 90000) : { ok: false, output: "", error: "skipped — tsc failed" };
     const tests = build.ok ? runCheck("npx vitest run", dir, 120000) : { ok: false, output: "", error: "skipped — build failed" };
+
     const overallOk = tsc.ok && build.ok && tests.ok;
     return {
       id,

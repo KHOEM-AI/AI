@@ -1,0 +1,10 @@
+node: /data/data/com.termux/files/usr/bin/node
+python3: /data/data/com.termux/files/usr/bin/python3
+g++: /data/data/com.termux/files/usr/bin/g++
+gcc: /data/data/com.termux/files/usr/bin/gcc
+java: 
+javac: 
+go: /data/data/com.termux/files/usr/bin/go
+rustc: /data/data/com.termux/files/usr/bin/rustc
+ruby: /data/data/com.termux/files/usr/bin/ruby
+php: 
