@@ -4,7 +4,7 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 const SRC = path.join(ROOT, "src");
-const CODE = /\.(tsx?|mjs|js|jsx|cpp|cc|cxx|c|h|hpp|hxx|cs|py|java|go|rb|php|swift|kt|kts|rs|scala|dart|lua|sh|sql)$/;
+const CODE = /\.(tsx?|mjs|js)$/;
 const isBackup = (n) =>
   n.includes(".before-") || n.endsWith(".backup") || n.includes("black3d-small");
 
@@ -23,13 +23,13 @@ export function funcs(rel) {
   if (!p.startsWith(SRC + path.sep)) return "អានបានតែឯកសារក្នុងថត src/ ប៉ុណ្ណោះ";
   if (!fs.existsSync(p) || !fs.statSync(p).isFile()) return "រកមិនឃើញឯកសារ: " + rel;
   const re =
-    /^\s*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+(\w+)|^\s*(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(|^\s*(?:export\s+)?(?:default\s+)?class\s+(\w+)|^\s*(?:public|private|protected|static)?\s*(?:async\s+)?(?:void|int|string|bool|var|def)\s+(\w+)\s*\(|^\s*def\s+(\w+)|^\s*func\s+(\w+)/;
+    /^\s*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+(\w+)|^\s*(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(|^\s*(?:export\s+)?(?:default\s+)?class\s+(\w+)/;
   const out = [];
   fs.readFileSync(p, "utf8")
     .split("\n")
     .forEach((l, i) => {
       const m = l.match(re);
-      if (m) out.push(`- ${m[1] || m[2] || m[3] || m[4] || m[5] || m[6]} (បន្ទាត់ ${i + 1})`);
+      if (m) out.push(`- ${m[1] || m[2] || m[3]} (បន្ទាត់ ${i + 1})`);
     });
   return out.length ? `${rel}:\n` + out.join("\n") : "រកមិនឃើញ function ក្នុង " + rel;
 }
@@ -68,7 +68,7 @@ export function check() {
 
 export const HELP_ALL =
   "ពាក្យបញ្ជាដែលប្អូនយល់:\n" +
-  "- /scan  ស្កេនកូដក្នុងគម្រោង (ស្គាល់ជាង ២០ភាសា)\n" +
+  "- /scan  ស្កេនកូដក្នុងគម្រោង\n" +
   "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង\n" +
   "- /funcs src/Gate.tsx  បង្ហាញបញ្ជី function\n" +
   "- /check  រកបញ្ហាទូទៅ\n" +
