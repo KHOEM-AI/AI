@@ -41,6 +41,9 @@ describe("languageRegistry.mjs", () => {
     expect(LANGUAGE_REGISTRY.zh.status).toBe("active");
     expect(LANGUAGE_REGISTRY.zh.module).toBe("./chinese.mjs");
     expect(LANGUAGE_REGISTRY.zh.replyExport).toBe("chineseReply");
+    expect(LANGUAGE_REGISTRY.th.status).toBe("active");
+    expect(LANGUAGE_REGISTRY.th.module).toBe("./thai.mjs");
+    expect(LANGUAGE_REGISTRY.th.replyExport).toBe("thaiReply");
   });
 
   it("LANGUAGE_REGISTRY is frozen", () => {
@@ -48,5 +51,6 @@ describe("languageRegistry.mjs", () => {
     expect(Object.isFrozen(LANGUAGE_REGISTRY.en)).toBe(true);
     expect(Object.isFrozen(LANGUAGE_REGISTRY.zh)).toBe(true);
     expect(Object.isFrozen(LANGUAGE_REGISTRY.km)).toBe(true);
+    expect(Object.isFrozen(LANGUAGE_REGISTRY.th)).toBe(true);
   });
 });

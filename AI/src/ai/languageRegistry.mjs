@@ -6,6 +6,7 @@
 export const detectLanguage = (s) => {
   if (/[\u1780-\u17FF]/.test(s)) return "km";
   if (/[\u4e00-\u9fff]/.test(s)) return "zh";
+  if (/[\u0E00-\u0E7F]/.test(s)) return "th";
   return "en";
 };
 
@@ -25,6 +26,11 @@ export const LANGUAGE_REGISTRY = Object.freeze({
     replyExport: "chineseReply",
     status: "active",
   }),
+  th: Object.freeze({
+    module: "./thai.mjs",
+    replyExport: "thaiReply",
+    status: "active",
+  }),
 });
 
 export const RE = {
@@ -39,6 +45,10 @@ export const RE = {
   zh: {
     hello: /^(你好|您好|嗨|哈喽)/,
     name: /(你叫什么名字|你的名字|你是谁)/,
+  },
+  th: {
+    hello: /^(สวัสดี|หวัดดี|สวัสดีครับ|สวัสดีค่ะ)/,
+    name: /(คุณชื่ออะไร|ชื่ออะไร|คุณเป็นใคร)/,
   },
 };
 
@@ -60,5 +70,10 @@ export const SAY = {
     hello: "你好！🙂 我是 KHOEM-AI。\n输入 /help 查看命令。",
     name: "我是 KHOEM-AI，一个在这部手机上运行的小助手。我不调用任何外部 API。",
     unknown: "我还没有这个问题的答案。你可以教我：/learn 问题 = 答案\n或输入 /help 查看命令。",
+  },
+  th: {
+    hello: "สวัสดี! 🙂 ฉันคือ KHOEM-AI",
+    name: "ฉันคือ KHOEM-AI ผู้ช่วยอัจฉริยะส่วนตัวของคุณ",
+    unknown: "ฉันยังไม่มีคำตอบสำหรับคำถามนี้ คุณสามารถสอนฉันได้: /learn คำถาม = คำตอบ",
   },
 };
