@@ -1,5 +1,1232 @@
-# KHOEM-AI
+## 🇰🇭 KHOEM-AI
 
+## 🌐 AI
+
+AI PROJECT — MASTER LANGUAGE ARCHITECTURE & IMPLEMENTATION INSTRUCTIONS
+
+0. SCOPE — IMPORTANT
+
+This work is ONLY for the AI Project:
+
+~/ai-project/AI
+
+DO NOT mix this work with:
+
+KSV
+KHOEM SMART HOME
+KHOEM INDUSTRIAL SYSTEM
+
+The AI Project must be treated as an independent project.
+
+The current objective is to build a scalable Language Architecture supporting both:
+
+1. Human Languages
+2. Programming / Code Languages
+
+The main Core is:
+
+src/ai/khoem.mjs
+
+"khoem.mjs" is the Master/Core/Router.
+
+Do NOT turn "khoem.mjs" into a giant language-content file.
+
+---
+
+1. PRIMARY RULE
+
+Before changing anything:
+
+SCAN
+↓
+UNDERSTAND
+↓
+VERIFY
+↓
+PLAN
+↓
+CHANGE ONLY THE REQUIRED LANGUAGE AREA
+↓
+TEST
+↓
+VERIFY FILE LOCATION
+↓
+GIT STATUS
+↓
+COMMIT
+↓
+PUSH TO CORRECT GITHUB LOCATION
+
+Never:
+
+GUESS
+↓
+CREATE RANDOM FILES
+↓
+MOVE RANDOM FILES
+↓
+PUSH
+
+Do not modify unrelated systems while working on Language Architecture.
+
+---
+
+2. DO NOT ASSUME A LANGUAGE IS MISSING
+
+Some programming languages are already implemented.
+
+Therefore:
+
+DO NOT say:
+
+«"JavaScript is missing."»
+
+DO NOT say:
+
+«"Python needs to be created."»
+
+until the project has actually been scanned.
+
+Instead:
+
+Project Scan
+↓
+Find existing source files
+↓
+Find language detection/routing logic
+↓
+Find tests
+↓
+Find registries
+↓
+Find documentation
+↓
+Determine current support
+
+Existing files must be reused when appropriate.
+
+If a useful file already exists:
+
+DO NOT CREATE DUPLICATE FILE
+
+Instead:
+
+inspect
+↓
+repair
+↓
+refactor if necessary
+↓
+connect to the correct Center
+↓
+test
+
+Only create a new file when the required capability genuinely does not exist.
+
+---
+
+3. HUMAN LANGUAGE COVERAGE
+
+The Human Language architecture should be expandable globally.
+
+Priority groups:
+
+Core / Priority Languages
+
+Khmer — km / kh
+English — en
+Chinese / Mandarin — zh
+Thai — th
+Japanese — ja
+Korean — ko
+Vietnamese — vi
+Indonesian — id
+Malay — ms
+Filipino / Tagalog — fil
+Lao — lo
+Burmese — my
+Hindi — hi
+Bengali — bn
+Urdu — ur
+Tamil — ta
+Telugu — te
+Marathi — mr
+Gujarati — gu
+Punjabi — pa
+Arabic — ar
+Persian — fa
+Hebrew — he
+Turkish — tr
+Russian — ru
+Ukrainian — uk
+Polish — pl
+Czech — cs
+Slovak — sk
+German — de
+French — fr
+Spanish — es
+Portuguese — pt
+Italian — it
+Dutch — nl
+Greek — el
+Romanian — ro
+Hungarian — hu
+Swedish — sv
+Danish — da
+Norwegian — no
+Finnish — fi
+Icelandic — is
+Swahili — sw
+Zulu — zu
+Afrikaans — af
+
+This is a starting priority list, NOT a claim that all these languages are already implemented.
+
+The project must determine actual support by scanning the repository.
+
+The architecture must allow additional languages later without changing the Core unnecessarily.
+
+---
+
+4. HUMAN LANGUAGE CATEGORIES
+
+Human languages should be represented through a Language Center.
+
+Conceptually:
+
+Language Center
+│
+├── Detection
+├── Normalization
+├── Routing
+├── Retrieval
+├── Interpretation
+├── Explanation
+└── Response
+
+Do not put all language content into:
+
+khoem.mjs
+
+Instead:
+
+khoem.mjs
+    ↓
+Language Center
+    ↓
+specific language module
+
+Example:
+
+Khmer request
+    ↓
+Language Center
+    ↓
+Khmer module
+
+Chinese request
+    ↓
+Language Center
+    ↓
+Chinese module
+
+---
+
+5. PROGRAMMING / CODE LANGUAGE COVERAGE
+
+The Code Language architecture should be expandable.
+
+Priority languages include:
+
+JavaScript
+TypeScript
+Python
+Java
+C
+C++
+C#
+Go
+Rust
+PHP
+Ruby
+Swift
+Kotlin
+Dart
+Lua
+R
+Scala
+Objective-C
+Perl
+Haskell
+Elixir
+Erlang
+Julia
+Fortran
+COBOL
+Assembly
+MATLAB
+Groovy
+PowerShell
+Visual Basic / VB.NET
+
+Again:
+
+DO NOT assume these are missing.
+
+First scan the project.
+
+---
+
+6. MARKUP LANGUAGES
+
+Important markup/document languages include:
+
+HTML
+XML
+SVG
+Markdown
+LaTeX
+XHTML
+YAML
+TOML
+
+Some of these may overlap with configuration/data formats.
+
+Classification should be based on actual language semantics and project usage rather than forcing everything into one category.
+
+---
+
+7. QUERY LANGUAGES
+
+Important query languages include:
+
+SQL
+GraphQL
+SPARQL
+Cypher
+Gremlin
+PromQL
+Datalog
+
+Database-specific SQL dialects may also need recognition later:
+
+PostgreSQL SQL
+MySQL SQL
+SQLite SQL
+T-SQL
+PL/SQL
+
+Do not create separate modules for every dialect unless the project actually needs different behavior.
+
+---
+
+8. SHELL / COMMAND LANGUAGES
+
+Important shell/command systems include:
+
+Bash
+POSIX sh
+Zsh
+Fish
+PowerShell
+Windows CMD / Batch
+Tcsh
+KornShell
+
+The project is being developed in:
+
+Termux
+
+Therefore Termux/Linux shell behavior must be considered when implementing shell-language detection or testing.
+
+---
+
+9. CONFIGURATION / DATA LANGUAGES
+
+Important formats include:
+
+JSON
+JSON5
+YAML
+TOML
+INI
+CSV
+XML
+Protocol Buffers
+MessagePack
+HCL
+
+These should generally be treated as data/configuration, not executable programming languages.
+
+---
+
+10. DOMAIN-SPECIFIC LANGUAGES
+
+Potential DSL categories include:
+
+Dockerfile syntax
+Nginx configuration
+Apache configuration
+GitHub Actions YAML
+Kubernetes YAML
+Terraform HCL
+SQL dialects
+Regex
+Cron expressions
+Makefile syntax
+CMake
+Gradle DSL
+Maven configuration
+GraphQL
+PromQL
+
+Do not create a separate module for every DSL immediately.
+
+Use a scalable registry.
+
+---
+
+11. IMPORTANT SECURITY BOUNDARY
+
+The system MUST distinguish:
+
+CODE AS TEXT
+
+from:
+
+CODE EXECUTION
+
+Example:
+
+User:
+"Explain this Python code."
+
+This is analysis.
+
+NOT execution.
+
+But:
+
+User:
+"Run this Python code."
+
+This is execution.
+
+Execution must pass through the existing security/policy/sandbox/approval architecture.
+
+Downloaded code must NEVER automatically become executable merely because the Language Center detected it.
+
+The flow should be:
+
+Downloaded Content
+        ↓
+Untrusted Data
+        ↓
+Parse / Validate
+        ↓
+Language Detection
+        ↓
+Analysis
+        ↓
+Policy / Security
+        ↓
+Sandbox / Approval
+        ↓
+Execution ONLY IF AUTHORIZED
+
+---
+
+12. TARGET ARCHITECTURE
+
+Recommended conceptual architecture:
+
+                         KHOEM CORE
+                         khoem.mjs
+                             │
+                             ↓
+                    LANGUAGE CENTER
+                             │
+              ┌──────────────┴──────────────┐
+              ↓                             ↓
+       HUMAN LANGUAGES                CODE LANGUAGES
+              │                             │
+      ┌───────┼───────┐              ┌──────┼──────┐
+      ↓       ↓       ↓              ↓      ↓      ↓
+     KM      EN      ZH             JS     TS     PY
+      ↓       ↓       ↓              ↓      ↓      ↓
+    ...     ...     ...            ...    ...    ...
+              │                             │
+              └──────────────┬──────────────┘
+                             ↓
+                       KNOWLEDGE
+                       RETRIEVAL
+                             ↓
+                        INTERPRET
+                             ↓
+                      POLICY / SECURITY
+                             ↓
+                           AUDIT
+                             ↓
+                         RESPONSE
+
+---
+
+13. KHOEM.MJS RESPONSIBILITY
+
+"khoem.mjs" should be:
+
+MASTER CORE
+ROUTER
+ORCHESTRATOR
+
+It should NOT contain:
+
+all Khmer content
+all Chinese content
+all English content
+all programming language knowledge
+all documentation
+all explanations
+
+Instead it should coordinate:
+
+request
+↓
+detect
+↓
+route
+↓
+load required center/module
+↓
+retrieve
+↓
+interpret
+↓
+respond
+
+---
+
+14. LANGUAGE REGISTRY
+
+The architecture should have one authoritative registry describing available language modules.
+
+Conceptually:
+
+Language Registry
+│
+├── Human
+│   ├── km
+│   ├── en
+│   ├── zh
+│   └── ...
+│
+└── Code
+    ├── javascript
+    ├── typescript
+    ├── python
+    └── ...
+
+The registry should answer:
+
+What language is this?
+Where is its module?
+What category does it belong to?
+Is it available?
+How should it be loaded?
+What capabilities does it provide?
+
+Do not duplicate this information across many unrelated files.
+
+---
+
+15. LAZY LOADING
+
+Language modules should be loaded only when necessary.
+
+Example concept:
+
+Application starts
+    ↓
+Core loads
+    ↓
+Registry loads
+    ↓
+NO need to load every language
+
+Then:
+
+Chinese request
+    ↓
+load Chinese module
+
+while:
+
+Python request
+    ↓
+load Python module
+
+This reduces unnecessary startup work and memory usage.
+
+Do not load hundreds of language modules on every request.
+
+---
+
+16. AVOID CIRCULAR DEPENDENCIES
+
+Do NOT create:
+
+Khmer → Chinese → English → Khmer
+
+or:
+
+Language A
+   ↓
+Language B
+   ↓
+Core
+   ↓
+Language A
+
+Preferred:
+
+             KHOEM CORE
+                 │
+          LANGUAGE CENTER
+                 │
+       ┌─────────┼─────────┐
+       ↓         ↓         ↓
+      KM        EN        ZH
+
+Centers communicate through defined interfaces/contracts.
+
+They should not directly control each other's internal state.
+
+---
+
+17. KNOWLEDGE FILES
+
+Knowledge should be separated from executable modules.
+
+Conceptually:
+
+Language Module
+      ↓
+Knowledge Index
+      ↓
+Relevant Documents
+      ↓
+Retrieve only what is needed
+
+Do not make the Core scan every document for every request.
+
+The system should eventually support:
+
+HOT knowledge
+WARM knowledge
+COLD knowledge
+
+and indexed retrieval.
+
+---
+
+18. PROJECT SCAN — FIRST ACTION
+
+Before writing language code, scan the actual repository.
+
+Start:
+
+cd ~/ai-project/AI
+
+Then inspect:
+
+find src/ai -maxdepth 5 -type f | sort
+
+Inspect broader project structure:
+
+find . -maxdepth 3 -type f | sort
+
+Search language references:
+
+grep -RniE 'javascript|typescript|python|java|c\+\+|csharp|golang|rust|php|ruby|swift|kotlin|dart|sql|bash|shell|html|css|khmer|english|chinese|mandarin|thai' src/ai
+
+Also inspect package configuration and tests before deciding what already exists.
+
+The exact commands may be adjusted after seeing the real project structure.
+
+---
+
+19. WHAT THE SCAN MUST DETERMINE
+
+The scan must produce an inventory:
+
+Language
+Category
+Existing File
+Existing Module
+Existing Router
+Existing Test
+Existing Documentation
+Current Status
+Needs Repair?
+Needs Connection?
+Missing?
+
+Example:
+
+Chinese
+Human Language
+src/ai/chinese.mjs
+YES
+YES
+YES
+Needs Core integration verification
+
+This is an example of the inventory format only.
+
+Never fabricate the actual result.
+
+---
+
+20. DO NOT CREATE DUPLICATE FILES
+
+Before:
+
+mkdir
+touch
+cat > new-file
+
+check whether an equivalent file already exists.
+
+If it exists:
+
+inspect
+↓
+repair
+↓
+connect
+
+If it does not exist:
+
+design
+↓
+create
+↓
+test
+↓
+connect
+
+---
+
+21. UNUSED FILES
+
+A file that appears unnecessary must NOT immediately be deleted.
+
+First determine:
+
+Is it imported?
+Is it referenced?
+Is it tested?
+Is it documented?
+Is it a backup?
+Is it generated?
+Is it historical?
+Is it required by another module?
+
+Only after verification should deletion be considered.
+
+If deleting:
+
+verify references
+↓
+remove
+↓
+run tests
+↓
+inspect git diff
+
+Never delete blindly.
+
+---
+
+22. TERMUX DEVELOPMENT RULE
+
+Development environment:
+
+Termux
+
+Do NOT instruct the developer to use "nano".
+
+Use command-line inspection/editing methods appropriate to the workflow.
+
+The preferred principle is:
+
+clean code
+clean file
+clean structure
+clean diff
+
+When creating a new file, create it deliberately and verify it immediately.
+
+When modifying an existing file, preserve unrelated code.
+
+---
+
+23. DO NOT ASK UNNECESSARY QUESTIONS
+
+The assistant should not repeatedly ask:
+
+«"Should I do this?"»
+
+when the requested scope and next technical action are already clear.
+
+Instead:
+
+Inspect
+↓
+Explain what was found
+↓
+Propose exact change
+↓
+If the change is potentially destructive or ambiguous, ask for confirmation
+↓
+Implement
+↓
+Test
+
+Questions are appropriate when:
+
+- deleting an important file
+- changing architecture beyond the requested scope
+- changing public API behavior
+- changing security behavior
+- ambiguity could damage existing functionality
+
+Do NOT ask unnecessary questions for routine inspection, testing, or verification.
+
+---
+
+24. WORK ONE AREA AT A TIME
+
+If the current task is:
+
+LANGUAGE
+
+then work on:
+
+LANGUAGE
+
+Do NOT start modifying:
+
+database
+authentication
+UI
+KSV
+industrial system
+unrelated APIs
+
+unless the language integration genuinely requires a minimal change there.
+
+The principle is:
+
+Language task
+→ inspect language area
+→ repair language area
+→ test language area
+→ verify integration
+→ stop
+
+---
+
+25. TESTING
+
+Language routing must eventually have tests for:
+
+language detection
+routing
+supported language
+unsupported language
+fallback behavior
+lazy loading
+module loading failure
+human language routing
+code language routing
+category classification
+registry correctness
+
+Also test that:
+
+code-as-text
+
+does NOT automatically become:
+
+code execution
+
+---
+
+26. PERFORMANCE
+
+The objective is:
+
+small Core
++
+small initial load
++
+lazy language modules
++
+indexed knowledge
++
+minimal repeated work
+
+Do NOT solve performance by putting everything into one huge file.
+
+Do NOT solve it by loading every language at startup.
+
+---
+
+27. GITHUB RULE
+
+GitHub repository:
+
+https://github.com/KHOEM-AI/AI.git
+
+Before pushing:
+
+check current branch
+check current directory
+check repository root
+check file path
+check git status
+check diff
+check tests
+
+Commands:
+
+pwd
+git branch --show-current
+git status --short
+git diff --check
+git diff --stat
+
+Then run the relevant tests.
+
+Only after verification:
+
+git add <correct-files>
+git diff --cached --check
+git diff --cached --stat
+git commit -m "..."
+git push origin main
+
+Never:
+
+git add .
+
+blindly when unrelated files may exist.
+
+The correct project directory and correct target folder must be verified before pushing.
+
+---
+
+28. GITHUB DIRECTORY RULE
+
+Files must be committed according to their actual architecture.
+
+For example:
+
+src/ai/khoem.mjs
+
+must remain under:
+
+src/ai/
+
+Language modules must be placed under the agreed language architecture.
+
+Do NOT push files into random folders merely because GitHub accepts the path.
+
+Before adding a new file:
+
+Where does this responsibility belong?
+Does that folder already exist?
+Does another file already perform this job?
+Does the Core know how to reach it?
+Are tests located consistently?
+
+---
+
+29. THREE-PASS VERIFICATION
+
+Before any significant change, verify the instruction three times conceptually:
+
+PASS 1 — Scope
+
+Is this actually a Language task?
+
+PASS 2 — Existing System
+
+Does the required file/module already exist?
+
+PASS 3 — Impact
+
+Will this change affect unrelated project functionality?
+
+Only then implement.
+
+---
+
+30. IMPLEMENTATION PHASES
+
+Phase 1 — Inventory
+
+Scan:
+
+files
+folders
+modules
+tests
+language references
+registries
+documentation
+
+Do not modify code.
+
+---
+
+Phase 2 — Language Map
+
+Create the actual map of:
+
+Human Languages
+Code Languages
+Markup
+Query
+Shell
+Configuration/Data
+DSL
+
+Mark each:
+
+EXISTS
+PARTIAL
+MISSING
+UNKNOWN
+
+Only "UNKNOWN" items require further inspection.
+
+---
+
+Phase 3 — Architecture Verification
+
+Determine whether current files already provide:
+
+Core
+Language Router
+Language Registry
+Language Modules
+Knowledge Retrieval
+Tests
+
+Reuse existing architecture wherever possible.
+
+---
+
+Phase 4 — Minimal Repair
+
+Repair existing modules first.
+
+Do not create replacements unless necessary.
+
+---
+
+Phase 5 — Language Registry
+
+Introduce or repair one authoritative registry if one does not already exist.
+
+---
+
+Phase 6 — Language Center
+
+Connect:
+
+khoem.mjs
+    ↓
+Language Center
+    ↓
+Registry
+    ↓
+Specific Module
+
+---
+
+Phase 7 — Lazy Loading
+
+Implement lazy loading only after routing is stable.
+
+---
+
+Phase 8 — Knowledge Retrieval
+
+Connect language modules to appropriate knowledge sources/indexes without putting all knowledge into Core.
+
+---
+
+Phase 9 — Security Boundary
+
+Verify:
+
+Code text
+≠
+Code execution
+
+and preserve the existing sandbox/policy/approval system.
+
+---
+
+Phase 10 — Tests
+
+Run targeted language tests first.
+
+Then run the full project suite.
+
+Because the existing project contains expensive sandbox/patch tests, do not unnecessarily run the full suite after every tiny edit.
+
+Use:
+
+targeted test
+↓
+verify
+↓
+group related changes
+↓
+full suite
+
+---
+
+Phase 11 — Git Verification
+
+Before commit:
+
+git status --short
+git diff --check
+git diff --stat
+
+Confirm:
+
+Only intended Language files changed.
+No KSV files changed.
+No unrelated files changed.
+No secrets changed.
+No accidental backup/generated files added.
+
+---
+
+Phase 12 — Commit and Push
+
+Only after all verification:
+
+git add <verified files>
+git diff --cached --check
+git commit
+git push origin main
+
+Then verify:
+
+git status
+
+The working tree should be understood and clean according to the intended workflow.
+
+---
+
+31. FINAL ARCHITECTURE GOAL
+
+The final direction is:
+
+                         KHOEM
+                      MASTER CORE
+                     khoem.mjs
+                          │
+                          ↓
+                   CENTER REGISTRY
+                          │
+                          ↓
+                  LANGUAGE CENTER
+                     /          \
+                    /            \
+                   ↓              ↓
+          HUMAN LANGUAGES     CODE LANGUAGES
+              │                   │
+        ┌─────┼─────┐       ┌────┼────┐
+        ↓     ↓     ↓       ↓    ↓    ↓
+       KM    EN    ZH      JS   TS   PY
+        │     │     │       │    │    │
+        └─────┴─────┴───────┴────┴────┘
+                          │
+                          ↓
+                  KNOWLEDGE INDEX
+                          │
+                          ↓
+                     RETRIEVAL
+                          │
+                          ↓
+                     INTERPRET
+                          │
+                          ↓
+                  POLICY / SECURITY
+                          │
+                          ↓
+                        AUDIT
+                          │
+                          ↓
+                       RESPONSE
+
+The Core remains small.
+
+Languages remain modular.
+
+Knowledge remains separate.
+
+Execution remains protected.
+
+New languages can be added without rewriting the Core.
+
+---
+
+32. MOST IMPORTANT WORKING PRINCIPLE
+
+The assistant must behave like a careful engineering partner:
+
+DO NOT GUESS.
+DO NOT DUPLICATE.
+DO NOT RANDOMLY MOVE FILES.
+DO NOT RANDOMLY DELETE FILES.
+DO NOT MIX PROJECTS.
+DO NOT MODIFY UNRELATED AREAS.
+DO NOT EXECUTE UNTRUSTED CODE.
+DO NOT PUSH UNVERIFIED FILES.
+DO NOT MAKE THE CORE HUGE.
+DO NOT ASK UNNECESSARY QUESTIONS.
+
+Instead:
+
+SCAN
+→ UNDERSTAND
+→ VERIFY
+→ REUSE
+→ REPAIR
+→ CONNECT
+→ TEST
+→ REVIEW
+→ COMMIT
+→ PUSH
+
+When the current task is Language Architecture:
+
+Stay on Language Architecture until that part is verified.
+
+Do not jump to another part of the project simply because another possible improvement is discovered.
+
+The goal is not to create the largest number of files.
+
+The goal is to create a clean, modular, testable, scalable, secure Language System that "khoem.mjs" can control reliably.
 ខួរ AI ផ្ទាល់ខ្លួន ដែលសាងសង់ និងដំណើរការទាំងស្រុងលើទូរស័ព្ទ (Termux)។
 ប្រព័ន្ធនេះ **មិនហៅ API របស់អ្នកដទៃ** ឡើយ ចម្លើយទាំងអស់មកពីខួរ `khoem` ដែលសរសេរដោយខ្លួនឯង។
 
