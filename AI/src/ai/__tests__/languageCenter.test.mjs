@@ -46,6 +46,38 @@ describe("languageCenter.mjs", () => {
     expect(listSupportedLanguages()).toEqual(["en", "zh"]);
   });
 
+  it("returns null for a detected language without a registry entry", async () => {
+    vi.resetModules();
+    vi.doMock("../languageRegistry.mjs", () => ({
+      detectLanguage: () => "xx",
+      LANGUAGE_REGISTRY: {},
+    }));
+
+    const { routeLanguage } = await import("../languageCenter.mjs");
+    expect(await routeLanguage("unknown")).toBeNull();
+
+    vi.doUnmock("../languageRegistry.mjs");
+  });
+
+  it("returns null for a registry-only language", async () => {
+    vi.resetModules();
+    vi.doMock("../languageRegistry.mjs", () => ({
+      detectLanguage: () => "km",
+      LANGUAGE_REGISTRY: {
+        km: {
+          module: null,
+          replyExport: null,
+          status: "registry-only",
+        },
+      },
+    }));
+
+    const { routeLanguage } = await import("../languageCenter.mjs");
+    expect(await routeLanguage("សួស្តី")).toBeNull();
+
+    vi.doUnmock("../languageRegistry.mjs");
+  });
+
   it("does not mutate the supported-language list", async () => {
     vi.resetModules();
 
