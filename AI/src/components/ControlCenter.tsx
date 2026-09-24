@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useT } from "../i18n";
 
 interface TaskEvent {
   id: string;
@@ -58,6 +59,7 @@ const fmtTime = (iso?: string) => (iso ? new Date(iso).toLocaleTimeString("en-GB
 export default function ControlCenter({ onClose }: { onClose: () => void }) {
   const [data, setData] = useState<ControlData | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const t = useT();
 
   const load = useCallback(async () => {
     try {
@@ -77,7 +79,7 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
   }, [load]);
 
   async function decide(id: string, action: "approve" | "reject") {
-    const key = window.prompt("បញ្ចូល x-api-key ដើម្បីសម្រេចចិត្តលើ approval នេះ៖");
+    const key = window.prompt(t.apiKeyPrompt);
     if (!key) return;
     setBusyId(id);
     try {
@@ -88,12 +90,12 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
       });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) {
-        alert(`បរាជ័យ: ${d.error || r.status}`);
+        alert(`${t.decisionFailed}: ${d.error || r.status}`);
         return;
       }
       await load();
     } catch {
-      alert("មិនអាចភ្ជាប់ទៅ server បានទេ");
+      alert(t.connectFailed);
     } finally {
       setBusyId(null);
     }
@@ -106,14 +108,14 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
   const engines = data?.engines;
 
   return (
-    <div className="status-overlay" role="dialog" aria-label="CONTROL CENTER">
+    <div className="status-overlay" role="dialog" aria-label={t.navControlCenter}>
       <div className="status-panel">
         <div className="status-panel__head">
           <div>
             <div className="status-panel__ai-name">Control Center</div>
-            <div className="status-panel__page-title">ព្រឹត្តិការណ៍ និងការអនុញ្ញាត — Events &amp; Permissions</div>
+            <div className="status-panel__page-title">{t.controlCenterSubtitle}</div>
           </div>
-          <button className="status-panel__close" onClick={onClose} aria-label="បិទ">✕</button>
+          <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
         </div>
 
         {engines && (
@@ -138,12 +140,12 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
         )}
 
         <div className="status-panel__meta">
-          <span>Pending Approvals — រង់ចាំការសម្រេចចិត្ត ({pending.length})</span>
+          <span>{t.pendingApprovalsLabel} ({pending.length})</span>
         </div>
         <div className="status-grid">
           {pending.length === 0 && (
             <div className="status-card">
-              <p className="status-card__desc-km">មិនមាន approval កំពុងរង់ចាំទេ</p>
+              <p className="status-card__desc-km">{t.noPendingApprovals}</p>
             </div>
           )}
           {pending.map((a) => (
@@ -163,20 +165,20 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
                 <div>Expires: {fmtTime(a.expiresAt)}</div>
               </div>
               <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                <button disabled={busyId === a.id} onClick={() => decide(a.id, "approve")}>APPROVE</button>
-                <button disabled={busyId === a.id} onClick={() => decide(a.id, "reject")}>REJECT</button>
+                <button disabled={busyId === a.id} onClick={() => decide(a.id, "approve")}>{t.approveAction}</button>
+                <button disabled={busyId === a.id} onClick={() => decide(a.id, "reject")}>{t.rejectAction}</button>
               </div>
             </div>
           ))}
         </div>
 
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>Recent Task Events — ព្រឹត្តិការណ៍ថ្មីៗ ({events.length})</span>
+          <span>{t.recentEventsLabel} ({events.length})</span>
         </div>
         <div className="status-grid">
           {events.length === 0 && (
             <div className="status-card">
-              <p className="status-card__desc-km">មិនទាន់មានព្រឹត្តិការណ៍ណាមួយទេ</p>
+              <p className="status-card__desc-km">{t.noEvents}</p>
             </div>
           )}
           {[...events].reverse().map((e) => (
@@ -198,12 +200,12 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>Permission Audit — កំណត់ត្រាការអនុញ្ញាត ({audit.length})</span>
+          <span>{t.permissionAuditLabel} ({audit.length})</span>
         </div>
         <div className="status-grid">
           {audit.length === 0 && (
             <div className="status-card">
-              <p className="status-card__desc-km">មិនទាន់មានកំណត់ត្រាណាមួយទេ</p>
+              <p className="status-card__desc-km">{t.noAuditEntries}</p>
             </div>
           )}
           {[...audit].reverse().map((a) => (

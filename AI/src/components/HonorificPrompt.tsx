@@ -1,4 +1,5 @@
 import { HONORIFIC_OPTIONS, type Honorific } from "../honorific";
+import { useT } from "../i18n";
 
 export default function HonorificPrompt({
   current,
@@ -9,10 +10,12 @@ export default function HonorificPrompt({
   onSelect: (h: Honorific) => void;
   onClose?: () => void;
 }) {
+  const t = useT();
+
   return (
-    <div className="honorific-overlay" role="dialog" aria-label="ជ្រើសរើសការហៅ">
+    <div className="honorific-overlay" role="dialog" aria-label={t.honorificAriaLabel}>
       <div className="honorific-panel">
-        <p className="honorific-panel__title">តើចង់ឱ្យខ្ញុំហៅអ្នកតាមរបៀបណា?</p>
+        <p className="honorific-panel__title">{t.honorificTitle}</p>
         <div className="honorific-panel__grid">
           {HONORIFIC_OPTIONS.map((h) => (
             <button
