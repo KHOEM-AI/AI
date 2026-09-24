@@ -39,28 +39,3 @@ export function transitionExperiment(id, to, { results, metrics } = {}) {
 
 export const getExperiment = (id) => experiments.get(id) ?? null;
 export const listExperiments = () => [...experiments.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-
-export function listExperimentsByStatus(status) {
-  return listExperiments().filter((e) => e.status === status);
-}
-
-export function experimentStats() {
-  const all = listExperiments();
-  const finished = all.filter((e) => e.status === "COMPLETED" || e.status === "FAILED");
-  const completed = finished.filter((e) => e.status === "COMPLETED").length;
-  return {
-    total: all.length,
-    finished: finished.length,
-    completed,
-    failed: finished.length - completed,
-    successRatePct: finished.length ? Math.round((completed / finished.length) * 100) : null,
-  };
-}
-
-export function searchExperiments(query) {
-  const q = String(query || "").toLowerCase();
-  if (!q) return [];
-  return listExperiments().filter(
-    (e) => e.goal.toLowerCase().includes(q) || e.hypothesis.toLowerCase().includes(q)
-  );
-}

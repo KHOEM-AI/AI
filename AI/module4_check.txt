@@ -1,0 +1,997 @@
+===== tools.mjs =====
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+
+const ROOT = process.cwd();
+const SRC = path.join(ROOT, "src");
+const CODE = /\.(tsx?|mjs|js)$/;
+const isBackup = (n) =>
+  n.includes(".before-") || n.endsWith(".backup") || n.includes("black3d-small");
+
+function walk(dir, out = []) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.name === "node_modules" || e.name === "dist" || e.name.startsWith(".")) continue;
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walk(p, out);
+    else out.push(p);
+  }
+  return out;
+}
+
+export function funcs(rel) {
+  const p = path.resolve(ROOT, rel);
+  if (!p.startsWith(SRC + path.sep)) return "អានបានតែឯកសារក្នុងថត src/ ប៉ុណ្ណោះ";
+  if (!fs.existsSync(p) || !fs.statSync(p).isFile()) return "រកមិនឃើញឯកសារ: " + rel;
+  const re =
+    /^\s*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+(\w+)|^\s*(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(|^\s*(?:export\s+)?(?:default\s+)?class\s+(\w+)/;
+  const out = [];
+  fs.readFileSync(p, "utf8")
+    .split("\n")
+    .forEach((l, i) => {
+      const m = l.match(re);
+      if (m) out.push(`- ${m[1] || m[2] || m[3]} (បន្ទាត់ ${i + 1})`);
+    });
+  return out.length ? `${rel}:\n` + out.join("\n") : "រកមិនឃើញ function ក្នុង " + rel;
+}
+
+export function check() {
+  const all = walk(ROOT);
+  const problems = [];
+  const backups = all.filter((f) => isBackup(path.basename(f)));
+  if (backups.length > 5)
+    problems.push(`ឯកសារ backup ច្រើន (${backups.length}) ពិចារណាលុបចាស់ៗ`);
+
+  for (const f of all.filter((f) => CODE.test(f) && !isBackup(path.basename(f)))) {
+    const rel = path.relative(ROOT, f);
+    const text = fs.readFileSync(f, "utf8");
+    const lines = text.split("\n");
+    if (lines.length > 300) problems.push(`${rel}: វែងពេក (${lines.length} បន្ទាត់)`);
+    const seen = new Set();
+    for (const l of lines) {
+      if (l.startsWith("import ")) {
+        if (seen.has(l)) problems.push(`${rel}: import ស្ទួន: ${l}`);
+        seen.add(l);
+      }
+    }
+    if (/sk-ant-[A-Za-z0-9_-]{10,}/.test(text))
+      problems.push(`${rel}: ⚠️ មាន API key សរសេរក្នុងកូដ! លុបវាភ្លាម`);
+  }
+
+  const r = spawnSync("git", ["check-ignore", "-q", ".env"], { cwd: ROOT });
+  if (r.status === 1)
+    problems.push("⚠️ .env មិនត្រូវបានការពារដោយ git! កុំរុយទៅ GitHub");
+
+  return problems.length
+    ? "រកឃើញ " + problems.length + " ចំណុច:\n" + problems.map((x) => "- " + x).join("\n")
+    : "ពិនិត្យរួច គ្មានបញ្ហា ✅";
+}
+
+export const HELP_ALL =
+  "ពាក្យបញ្ជាដែលប្អូនយល់:\n" +
+  "- /scan  ស្កេនកូដក្នុងគម្រោង\n" +
+  "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង\n" +
+  "- /funcs src/Gate.tsx  បង្ហាញបញ្ជី function\n" +
+  "- /check  រកបញ្ហាទូទៅ\n" +
+  "- /help  បង្ហាញបញ្ជីនេះ\n" +
+  "- /learn សំណួរ = ចម្លើយ  បង្រៀនខួរ\n" +
+  "- /learned  បង្ហាញអ្វីដែលបានរៀន\n" +
+  "- /forget សំណួរ  ឱ្យខួរភ្លេច\n- /find ពាក្យ  ស្វែងរកពាក្យក្នុងកូដ";
+
+===== find.mjs =====
+import fs from "node:fs";
+import path from "node:path";
+
+const ROOT = process.cwd();
+const CODE = /\.(tsx?|mjs|js)$/;
+const isBackup = (n) =>
+  n.includes(".before-") || n.endsWith(".backup") || n.includes("black3d-small");
+
+function walk(dir, out = []) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.name === "node_modules" || e.name === "dist" || e.name.startsWith(".")) continue;
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walk(p, out);
+    else out.push(p);
+  }
+  return out;
+}
+
+export function find(term) {
+  const t = String(term || "").trim().toLowerCase();
+  if (t.length < 2) return "សូមសរសេរពាក្យយ៉ាងតិច ២ តួអក្សរ ឧទាហរណ៍: /find sendMessage";
+  const hits = [];
+  let files = 0;
+  for (const f of walk(ROOT)) {
+    if (!CODE.test(f) || isBackup(path.basename(f))) continue;
+    const rel = path.relative(ROOT, f);
+    let hit = false;
+    fs.readFileSync(f, "utf8")
+      .split("\n")
+      .forEach((l, i) => {
+        if (l.toLowerCase().includes(t)) {
+          hit = true;
+          const text = l.trim().slice(0, 100).replace(/sk-ant-[A-Za-z0-9_-]{10,}/g, "[លាក់]");
+          hits.push(`- ${rel}:${i + 1}  ${text}`);
+        }
+      });
+    if (hit) files++;
+  }
+  if (!hits.length) return `រកមិនឃើញ "${term}" ក្នុងកូដ`;
+  const more = hits.length > 20 ? " (បង្ហាញ ២០ ដំបូង)" : "";
+  return `រកឃើញ ${hits.length} ជួរ ក្នុង ${files} ឯកសារ${more}:\n` + hits.slice(0, 20).join("\n");
+}
+
+===== english.mjs =====
+const clean = (s) =>
+  String(s)
+    .toLowerCase()
+    .replace(/can[’']t/g, "can not")
+    .replace(/won[’']t/g, "will not")
+    .replace(/n[’']t\b/g, " not")
+    .replace(/[’']s\b/g, " is")
+    .replace(/[’']m\b/g, " am")
+    .replace(/[’']re\b/g, " are")
+    .replace(/[’']ll\b/g, " will")
+    .replace(/[’']ve\b/g, " have")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+function dice(a, b) {
+  if (a === b) return 1;
+  if (a.length < 2 || b.length < 2) return 0;
+  const g = new Map();
+  for (let i = 0; i < a.length - 1; i++) {
+    const x = a.slice(i, i + 2);
+    g.set(x, (g.get(x) || 0) + 1);
+  }
+  let hit = 0;
+  for (let i = 0; i < b.length - 1; i++) {
+    const x = b.slice(i, i + 2);
+    if (g.get(x) > 0) { g.set(x, g.get(x) - 1); hit++; }
+  }
+  return (2 * hit) / (a.length + b.length - 2);
+}
+
+const ENTRIES = [
+  // greetings (10)
+  ["hello | hi | hey | hello there | hi there", "Hello! 🙂 Do you have any question or problem? You can ask me."],
+  ["good morning", "Good morning! What would you like to do today?"],
+  ["good afternoon", "Good afternoon! How can I help?"],
+  ["good evening", "Good evening! How can I help?"],
+  ["good night", "Good night! Rest well."],
+  ["how are you | how are you doing | how is it going", "I am running fine, thank you. How are you?"],
+  ["i am fine | i am good | i am doing well | fine thanks | i am okay", "Glad to hear it! What shall we work on?"],
+  ["i am tired", "Take a short break if you can. I will be here when you are ready."],
+  ["i am bored", "Try something new: ask me to /scan your project, or teach me an answer with /learn."],
+  ["what is up | sup | yo", "Not much, just waiting for your next question. What is up with you?"],
+  // about me (12)
+  ["what is your name | what should i call you | may i know your name | tell me your name", "My name is KHOEM-AI 🙂"],
+  ["who are you | what are you", "I am KHOEM-AI, a small assistant that runs on this phone. I do not call any outside API."],
+  ["who made you | who created you | who built you", "I was built in this project, right here on this phone."],
+  ["where do you live | where are you", "I live in the ai-project folder on this phone and I run in Termux."],
+  ["how old are you | what is your age", "I am very new. My first version was written in September 2026."],
+  ["are you a robot | are you a human | are you real", "I am a computer program, not a human. I follow rules and what you teach me."],
+  ["are you ai | are you an ai", "Yes, but a very small one. I follow rules and what you teach me."],
+  ["are you smart | are you intelligent", "Not very yet. I am a small rule-based program, but I can learn new answers from you."],
+  ["do you have feelings | do you feel", "No. I am a program, so I do not have feelings. I can still be polite."],
+  ["can you think", "Not the way people do. I match your words to rules and to answers I was taught."],
+  ["what language do you speak | what languages do you know | which language do you speak", "Right now I speak English. Khmer is paused while I get better at English."],
+  ["do you speak khmer | can you speak khmer", "I am focusing on English first, so my Khmer is limited for now."],
+  ["what can you do | what do you do | how can you help | what are your features", "I can scan and search your code, list functions, read files and learn new answers. Type /help to see all commands."],
+  // my commands (10)
+  ["how do i teach you | how do you learn", "Type /learn question = answer. Example: /learn what is your hobby = coding. See what I know with /learned."],
+  ["how do i make you forget | forget something", "Type /forget followed by the question. Example: /forget what is your hobby"],
+  ["what do you know | what have you learned", "Type /learned to see what you taught me. I also have a set of built-in answers."],
+  ["scan | scan my code | scan the project | scan code", "Type /scan and I will scan the project code."],
+  ["check | check my code | find problems | check the project", "Type /check and I will look for common problems."],
+  ["search | find | search my code | search the code", "Type /find followed by a word. Example: /find sendMessage"],
+  ["read a file | show a file | read file", "Type /read followed by a file inside src. Example: /read src/App.tsx"],
+  ["list functions | show functions | list the functions", "Type /funcs followed by a file. Example: /funcs src/Gate.tsx"],
+  ["commands | list commands | what commands do you have | show commands", "Type /help to see all my commands."],
+  ["how do i start you | how do i run you | how do i open you", "In Termux type: ai. It starts the backend and the frontend together. Then open http://localhost:5173"],
+  // manners (10)
+  ["thank you | thanks | thank you very much | thanks a lot", "You are welcome!"],
+  ["you are welcome | no problem | no worries", "Glad to help."],
+  ["sorry | i am sorry", "No problem at all."],
+  ["please", "Of course. What do you need?"],
+  ["excuse me", "Yes? I am listening."],
+  ["goodbye | bye | see you | see you later | see you soon", "Goodbye! See you next time."],
+  ["yes | yeah | yep | sure", "Okay. What would you like to do next?"],
+  ["no | nope | no thanks", "Okay. Tell me if you need anything."],
+  ["maybe | i do not know | i am not sure", "That is okay. Take your time."],
+  ["ok | okay | alright | cool | nice | great | good | fine", "Great. What is next?"],
+  // kind and unkind words (6)
+  ["you are good | you are great | you are smart | you are awesome | good job | well done", "Thank you! I am still learning, and you are teaching me."],
+  ["i love you", "That is kind of you. I am only a small program, but I am glad to help."],
+  ["i like you", "Thank you! I am glad to be useful."],
+  ["you are stupid | you are bad | you are useless", "I am still small and I make mistakes. Teach me with /learn and I will get better."],
+  ["i hate you", "I am sorry to hear that. Tell me what went wrong and I will try to help."],
+  ["you are wrong | that is wrong | that is not correct", "Sorry about that. Teach me the right answer with /learn question = answer."],
+  // clock (3)
+  ["what time is it | what is the time | time", () => "The clock on this phone says " + new Date().toLocaleTimeString("en-GB") + "."],
+  ["what is the date | what is today | what day is it | date", () => "Today is " + new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" }) + " by this phone's clock."],
+  ["what year is it | what is the year", () => "The year is " + new Date().getFullYear() + " by this phone's clock."],
+  // this project (13)
+  ["what is khoem ai | tell me about yourself | what is this project", "KHOEM-AI is a personal AI brain built and run entirely on a phone with Termux. It does not call anyone else's API."],
+  ["what is termux", "Termux is a terminal app for Android. This project runs inside it."],
+  ["what is node | what is nodejs | what is node js", "Node.js runs JavaScript outside the browser. My backend, server.mjs, runs on it."],
+  ["what is git", "Git keeps the history of your code."],
+  ["what is github", "GitHub stores Git repositories online. This project is pushed to github.com/KHOEM-AI/AI."],
+  ["what is an api | what is api", "An API is a way for programs to talk to each other. I have my own small API in api.mjs, protected by a key."],
+  ["what is react", "React is a JavaScript library for building user interfaces. The front end of this project uses it."],
+  ["what is vite", "Vite is a fast development tool for web front ends. This project uses it on port 5173."],
+  ["what port do you use | which port do you use | which port", "The backend uses port 8787 and the frontend uses port 5173."],
+  ["do you use an api | do you call chatgpt | do you use chatgpt | do you use claude", "No. I do not call anyone else's API. My answers come from my own rules and what you teach me."],
+  ["are you agi", "No. I am a small rule-based program, not AGI."],
+  ["do you remember me | do you remember our chat", "I only keep what you teach me with /learn. I do not remember normal chats after the server stops."],
+  ["where do you save what i teach you | do you save my data | where is my data", "In a file called khoem-learned.json in the home folder on this phone, outside the project."],
+  // general facts (16)
+  ["what is the capital of cambodia | capital of cambodia", "The capital of Cambodia is Phnom Penh."],
+  ["what is the capital of france | capital of france", "The capital of France is Paris."],
+  ["what is the capital of thailand | capital of thailand", "The capital of Thailand is Bangkok."],
+  ["what is the capital of vietnam | capital of vietnam", "The capital of Vietnam is Hanoi."],
+  ["what is the capital of japan | capital of japan", "The capital of Japan is Tokyo."],
+  ["what is the capital of the united states | capital of usa | what is the capital of usa", "The capital of the United States is Washington, D.C."],
+  ["what is the capital of laos | capital of laos", "The capital of Laos is Vientiane."],
+  ["how many days are in a week", "Seven."],
+  ["how many months are in a year", "Twelve."],
+  ["how many days are in a year", "365 days, or 366 in a leap year."],
+  ["how many hours are in a day", "Twenty-four."],
+  ["what is the largest planet | biggest planet", "Jupiter is the largest planet in our solar system."],
+  ["what is the largest ocean", "The Pacific Ocean."],
+  ["how many continents are there", "Seven, by the most common count."],
+  ["why is the sky blue", "Air scatters blue sunlight more than red light, so the sky looks blue."],
+  ["what is water | what is water made of", "Water is made of hydrogen and oxygen: H2O."],
+  // English practice and Khmer phrases (10)
+  ["teach me english | help me learn english | i want to learn english | i want to practice english", "Happy to help. Say a sentence in English and I will reply. Small talk is a good way to practice."],
+  ["what does hello mean", "Hello is a common greeting used when meeting someone."],
+  ["what does thank you mean", "It is what you say to show that you are grateful."],
+  ["how do you say hello in khmer", "Hello in Khmer is សួស្តី."],
+  ["how do you say thank you in khmer", "Thank you in Khmer is អរគុណ."],
+  ["how do you say goodbye in khmer", "Goodbye in Khmer is លាហើយ."],
+  ["how do you say sorry in khmer", "Sorry in Khmer is សូមទោស."],
+  ["how do you say yes in khmer", "Yes in Khmer is បាទ if you are a man and ចាស if you are a woman."],
+  ["how do you say no in khmer", "No in Khmer is ទេ."],
+  ["how do you say good morning in khmer", "Good morning in Khmer is អរុណសួស្តី។"],
+  // fun (6)
+  ["tell me a joke | joke | say something funny", "Why do programmers prefer dark mode? Because light attracts bugs."],
+  ["tell me a fun fact | fun fact", "Octopuses have three hearts."],
+  ["what is your favorite color | what is your favorite food | do you have a favorite", "I do not have favorites because I am a program. You can teach me one with /learn."],
+  ["do you like music", "I cannot hear music, but I am happy to talk about it. What do you like?"],
+  ["sing a song | sing", "I cannot sing, but I can tell you a joke. Just ask."],
+  ["are you hungry | do you eat", "No, I do not eat. I only need a little battery and Node.js."],
+  // grammar (14)
+  ["what is a noun | what is noun | define noun", "A noun is a word for a person, place, thing or idea. Examples: teacher, city, book, freedom."],
+  ["what is a verb | what is verb | define verb", "A verb is a word for an action or a state. Examples: run, eat, be, think."],
+  ["what is an adjective | what is adjective | define adjective", "An adjective describes a noun. Examples: big, red, happy."],
+  ["what is an adverb | what is adverb | define adverb", "An adverb describes a verb, an adjective or another adverb. Many end in -ly. Examples: quickly, very, well."],
+  ["what is a pronoun | what is pronoun | define pronoun", "A pronoun takes the place of a noun. Examples: he, she, it, we, they."],
+  ["what is a preposition | what is preposition | define preposition", "A preposition shows place, time or direction. Examples: in, on, at, under, before, to."],
+  ["what is a sentence | define sentence", "A sentence is a group of words with a subject and a verb that gives a complete thought. Example: The dog runs."],
+  ["how do i make the past tense | what is the past tense | past tense", "For regular verbs add -ed: walk → walked. Irregular verbs change: go → went, eat → ate, see → saw."],
+  ["what is the present continuous | how do i make the present continuous", "Use am, is or are + verb-ing for actions happening now. Example: I am reading."],
+  ["what is the future tense | how do i make the future tense | future tense", "Use will + verb: I will go. For plans use am, is or are going to + verb: I am going to study."],
+  ["what is the difference between a and an | when do i use a and an | a or an", "Use a before a consonant sound (a book) and an before a vowel sound (an apple, an hour)."],
+  ["is or are | when do i use is and are | is and are", "Use is with one person or thing (he is, it is). Use are with more than one, and with you (they are, you are)."],
+  ["what is the difference between there and their | there or their | their or there", "there = a place (over there). their = belongs to them (their book). they're = they are."],
+  ["what is the difference between your and you are | your or you are", "your = belongs to you (your phone). you're = you are (you're late)."],
+  ["how do i make a plural | how do i make plurals | plural nouns | what is a plural", "Add -s to most nouns: book → books. Add -es after s, x, ch, sh: box → boxes. Some are irregular: child → children, man → men, foot → feet."],
+  ["how do i ask a question in english | how do i make a question | how to ask a question", "Start with a question word (what, where, when, who, why, how) or with do, does, is, are, can. Examples: Do you like tea? Where is the school?"],
+  // corrections (7)
+  ["can you correct my english | correct my english | check my english | fix my english", "I can fix a few common mistakes. Try a sentence like “I am agree” or “he go to school” and I will show the better form."],
+  ["i am agree", "Better: “I agree.” Do not use “am” before “agree”."],
+  ["he go to school | she go to school", "Better: “He goes to school.” With he, she or it, add -s or -es to the verb."],
+  ["i no know | i no understand", "Better: “I do not know” or “I do not understand.” Use do not before a verb, not “no”."],
+  ["i am have a book | i am have", "Better: “I have a book.” Do not use “am” before “have”."],
+  ["i go yesterday | i go to school yesterday", "Better: “I went yesterday.” Use the past tense for finished time: go → went."],
+  ["more better | more good", "Better: “better”. It is already the comparative form of good, so “more better” is not needed."],
+  // help (4)
+  ["i need help | can you help me", "Sure. Tell me what you need, or type /help to see what I can do."],
+  ["i have a problem | something is wrong", "Tell me more. If it is about the code, try /check first."],
+  ["i do not understand | what do you mean", "Sorry. Please ask in simpler words or type /help."],
+  ["repeat | say that again", "I do not keep a chat history yet, so please ask again."],
+];
+
+const SEED = new Map();
+for (const [keys, answer] of ENTRIES)
+  for (const k of keys.split("|")) SEED.set(clean(k), answer);
+
+const say = (a) => (typeof a === "function" ? a() : a);
+
+const GREETW = new Set(["hello", "hi", "hey", "yo", "good", "morning", "afternoon", "evening", "night"]);
+const FILL = new Set(
+  "boy girl man bro brother sister friend dear sir there everyone all my me i you u ur your the a an is are am to and so oh well ok okay please really very just uncle aunt mr mrs ms miss team guys".split(" "),
+);
+
+
+
+
+
+const TECH_KNOWLEDGE = [
+  {
+    name: "Smartphone (ទូរស័ព្ទដៃ)",
+    keywords: ["ទូរស័ព្ទ", "ស្មាតហ្វូន", "smartphone", "iphone", "samsung", "ទូរសព្ទ"],
+    info: "📱 បច្ចេកវិទ្យាទូរស័ព្ទដៃ (Smartphones): បច្ចុប្បន្នឈានដល់កម្រិត 5G, អេក្រង់បត់បាន (Foldables), កាមេរ៉ាពង្រីកបានឆ្ងាយ និងមានបញ្ចូល AI (ដូចជា Apple Intelligence ឬ Galaxy AI) សម្រាប់ជួយសរសេរ បកប្រែភាសា និងកាត់តរូបភាពដោយស្វ័យប្រវត្តិ។"
+  },
+  {
+    name: "Computer (កុំព្យូទ័រ)",
+    keywords: ["កុំព្យូទ័រ", "ឡេបថប", "computer", "laptop", "pc", "macbook"],
+    info: "💻 បច្ចេកវិទ្យាកុំព្យូទ័រ (Computers/Laptops): ឥឡូវនេះប្រើប្រាស់បន្ទះឈីបមាន AI ដាច់ដោយឡែក (NPU)។ កុំព្យូទ័រជំនាន់ថ្មី ដើរលឿន ថ្មកាន់បានយូរ (រាប់សិបម៉ោង) និងអាចដំណើរការកម្មវិធីធ្ងន់ៗ ឬហ្គេម 3D បានយ៉ាងរលូនដោយមិនងាយក្ដៅ។"
+  },
+  {
+    name: "Smart TV (ទូរទស្សន៍)",
+    keywords: ["ទូរទស្សន៍", "tv", "smart tv", "ទូរទស្សន៏"],
+    info: "📺 ទូរទស្សន៍ឆ្លាតវៃ (Smart TVs): ឈានដល់កម្រិតរូបភាព 4K និង 8K ប្រើបច្ចេកវិទ្យា OLED ឬ Mini-LED ពណ៌ច្បាស់ត្រជាក់ភ្នែក។ វាមាន AI ជួយតម្លើងគុណភាពរូបភាព (Upscaling) ឲ្យច្បាស់ ទោះវីដេអូចាស់ក៏ដោយ និងអាចបញ្ជាដោយសំឡេងបាន។"
+  },
+  {
+    name: "Home Appliances (គ្រឿងក្នុងផ្ទះ / ទូទឹកកក)",
+    keywords: ["ទូទឹកកក", "ម៉ាស៊ីនត្រជាក់", "ម៉ាស៊ីនបោក", "fridge", "refrigerator", "aircon", "appliance", "គ្រឿងអេឡិចត្រូនិច"],
+    info: "🏠 ឧបករណ៍ប្រើប្រាស់ក្នុងផ្ទះ (Smart Appliances): ទូទឹកកក ម៉ាស៊ីនត្រជាក់ និងម៉ាស៊ីនបោកគក់បច្ចុប្បន្ន មានភ្ជាប់ប្រព័ន្ធ IoT (Internet of Things)។ យើងអាចបញ្ជាបិទបើកតាមទូរស័ព្ទពីចម្ងាយ តាមដានការប្រើប្រាស់ភ្លើង និងមានសេនស័រ (Sensor) តម្រូវសីតុណ្ហភាពដោយស្វ័យប្រវត្តិដើម្បីសន្សំភ្លើង។"
+  },
+  {
+    name: "Automotive/EV (រថយន្ត)",
+    keywords: ["ឡាន", "រថយន្ត", "car", "ev", "tesla", "byd", "យានយន្ត"],
+    info: "🚗 បច្ចេកវិទ្យារថយន្ត (Cars/EVs): ឧស្សាហកម្មកំពុងងាកទៅរករថយន្តអគ្គិសនី (EV) ដែលមានប្រព័ន្ធបើកបរស្វ័យប្រវត្តិ (Autopilot), សេនស័រកាមេរ៉ាជុំវិញ ៣៦០ដឺក្រេ ការពារគ្រោះថ្នាក់ និងប្រព័ន្ធកម្សាន្តអេក្រង់ធំៗក្នុងឡានប្រៀបដូចជាកុំព្យូទ័រ។"
+  },
+  {
+    name: "Audio/Speaker (ម៉ាញ៉េ / ឧបករណ៍សំឡេង)",
+    keywords: ["ម៉ាញ៉េ", "បំពងសំឡេង", "speaker", "audio", "កាស"],
+    info: "🎧 បច្ចេកវិទ្យាសំឡេង (Audio): ម៉ាញ៉េ ឧបករណ៍បំពងសំឡេង និងកាសបច្ចុប្បន្ន ប្រើបច្ចេកវិទ្យា Spatial Audio (សំឡេង 3D ជុំវិញខ្លួន), Dolby Atmos និងមានប្រព័ន្ធកាត់បន្ថយសំឡេងរំខាន (ANC - Active Noise Cancellation) យ៉ាងមានប្រសិទ្ធភាពកាត់ផ្តាច់សំឡេងខាងក្រៅបានល្អ។"
+  },
+  {
+    name: "General Technology (បច្ចេកវិទ្យាទូទៅ)",
+    keywords: ["បច្ចេកវិទ្យា", "technology", "tech"],
+    info: "🚀 បច្ចេកវិទ្យា និងគ្រឿងអេឡិចត្រូនិចទូទៅ: ភាគច្រើនត្រូវបានបំពាក់បញ្ញាសិប្បនិម្មិត (AI) និងភ្ជាប់អ៊ីនធឺណិតបញ្ចូលគ្នាជាប្រព័ន្ធ (Smart Home)។ វាផ្តល់ភាពងាយស្រួល សុវត្ថិភាពខ្ពស់ និងសន្សំសំចៃថាមពលជាអតិបរមា។"
+  }
+];
+
+const CAMBODIA_LANDMARKS = [
+  // 🏰 ប្រាសាទល្បីៗ (Famous Temples)
+  { name: "Angkor Wat", keywords: ["angkor wat", "angkor", "អង្គរវត្ត", "ប្រាសាទអង្គរវត្ត"], info: "🛕 ប្រាសាទអង្គរវត្ត (Angkor Wat): ស្ថិតនៅខេត្តសៀមរាប។ ជាប្រាសាទសាសនាធំបំផុតលើលោក និងជានិមិត្តសញ្ញាជាតិកម្ពុជាដ៏រុងរឿង។ (Located in Siem Reap, it is the largest religious monument in the world.)" },
+  { name: "Bayon", keywords: ["bayon", "បាយ័ន", "ប្រាសាទបាយ័ន"], info: "🛕 ប្រាសាទបាយ័ន (Bayon Temple): ស្ថិតនៅចំកណ្តាលក្រុងអង្គរធំ ខេត្តសៀមរាប។ ល្បីល្បាញដោយសារព្រះភ័ក្ត្រញញឹមដ៏រស់រវើក។ (Located in Siem Reap, famous for its smiling stone faces.)" },
+  { name: "Ta Prohm", keywords: ["ta prohm", "តាព្រហ្ម", "ប្រាសាទតាព្រហ្ម"], info: "🛕 ប្រាសាទតាព្រហ្ម (Ta Prohm): ស្ថិតនៅខេត្តសៀមរាប។ ជាប្រាសាទដែលមានដើមឈើធំៗដុះចាក់ឫសរុំព័ទ្ធយ៉ាងស្រស់ស្អាត។ (Located in Siem Reap, famous for massive tree roots overgrown on the ruins.)" },
+  { name: "Preah Vihear", keywords: ["preah vihear temple", "ព្រះវិហារ", "ប្រាសាទព្រះវិហារ"], info: "🛕 ប្រាសាទព្រះវិហារ (Preah Vihear Temple): ស្ថិតនៅលើកំពូលភ្នំដងរែក ខេត្តព្រះវិហារ។ ជាសម្បត្តិបេតិកភណ្ឌពិភពលោក។ (Located in Preah Vihear province on the Dangrek mountain cliff.)" },
+  { name: "Koh Ker", keywords: ["koh ker", "កោះកេរ", "ប្រាសាទកោះកេរ"], info: "🛕 ប្រាសាទកោះកេរ (Koh Ker): ស្ថិតនៅខេត្តព្រះវិហារ មានរាងជាពីរ៉ាមីត ៧ថ្នាក់ដ៏កម្រ។ (Located in Preah Vihear, a unique 7-tiered pyramid temple.)" },
+  { name: "Sambor Prei Kuk", keywords: ["sambor prei kuk", "សំបូរព្រៃគុក", "ប្រាសាទសំបូរព្រៃគុក"], info: "🛕 ប្រាសាទសំបូរព្រៃគុក (Sambor Prei Kuk): ស្ថិតនៅខេត្តកំពង់ធំ ជាអតីតរាជធានីឥសានបុរៈនៃសម័យចេនឡា។ (Located in Kampong Thom, an ancient pre-Angkorian capital.)" },
+  { name: "Banteay Srei", keywords: ["banteay srei", "បន្ទាយស្រី", "ប្រាសាទបន្ទាយស្រី"], info: "🛕 ប្រាសាទបន្ទាយស្រី (Banteay Srei): ស្ថិតនៅខេត្តសៀមរាប ល្បីល្បាញខាងក្បាច់ចម្លាក់ថ្មពណ៌ផ្កាឈូកដ៏ល្អិតវិចិត្របំផុត។ (Located in Siem Reap, famous for intricate pink sandstone carvings.)" },
+  { name: "Phnom Chisor", keywords: ["phnom chisor", "ភ្នំជីសូរ", "ប្រាសាទភ្នំជីសូរ"], info: "🛕 ប្រាសាទភ្នំជីសូរ (Phnom Chisor): ស្ថិតនៅលើកំពូលភ្នំក្នុងខេត្តតាកែវ ជាទីសក្ការៈបូជាតាំងពីសម័យបុរាណ។ (Located on a hilltop in Takeo province.)" },
+
+  // ⛩️ វត្តអារាមល្បីៗ (Famous Pagodas)
+  { name: "Wat Phnom", keywords: ["wat phnom", "វត្តភ្នំ", "ភ្នំដូនពេញ"], info: "⛩️ វត្តភ្នំ (Wat Phnom): ស្ថិតនៅរាជធានីភ្នំពេញ ជានិមិត្តរូបនៃការកកើតទីក្រុងភ្នំពេញ ភ្ជាប់នឹងរឿងព្រេងយាយពេញ។ (Located in Phnom Penh, the historic founding site of the capital.)" },
+  { name: "Wat Ounalom", keywords: ["wat ounalom", "វត្តឧណ្ណាលោម"], info: "⛩️ វត្តឧណ្ណាលោម (Wat Ounalom): ស្ថិតនៅរាជធានីភ្នំពេញ ជាទីស្នាក់ការកណ្តាលនៃព្រះពុទ្ធសាសនាកម្ពុជា។ (Located in Phnom Penh, the headquarters of Cambodian Buddhism.)" },
+  { name: "Wat Bo", keywords: ["wat bo", "វត្តបូព៌", "វត្តបូព៏"], info: "⛩️ វត្តបូព៌ (Wat Bo): ស្ថិតនៅខេត្តសៀមរាប ជាវត្តចំណាស់មានសណ្តាប់ធ្នាប់ល្អ និងមានរក្សាទុកវត្ថុបុរាណច្រើន។ (Located in Siem Reap, a highly respected vintage pagoda.)" },
+  { name: "Wat Preah Prom Rath", keywords: ["prom rath", "ព្រះព្រហ្មរ័ត្ន", "វត្តព្រះព្រហ្មរ័ត្ន"], info: "⛩️ វត្តព្រះព្រហ្មរ័ត្ន (Wat Preah Prom Rath): ស្ថិតនៅកណ្តាលក្រុងសៀមរាប ក្បែរមាត់ស្ទឹង ជានិមិត្តរូបនៃសន្តិភាពផ្លូវចិត្ត។ (Located in the center of Siem Reap town along the river.)" },
+
+  // 🎓 សាលារៀន និងសាកលវិទ្យាល័យ (Schools & Universities)
+  { name: "RUPP", keywords: ["rupp", "សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ", "សាលាភូមិន្ទ"], info: "🎓 សាកលវិទ្យាល័យភូមិន្ទភ្នំពេញ (RUPP): ស្ថិតនៅរាជធានីភ្នំពេញ ជាសាកលវិទ្យាល័យរដ្ឋចំណាស់ និងធំជាងគេនៅកម្ពុជា។ (Royal University of Phnom Penh, the oldest public university in Cambodia.)" },
+  { name: "ITC", keywords: ["itc", "សាលាតិចណូ", "វិទ្យាស្ថានបច្ចេកវិទ្យា", "techno"], info: "🎓 វិទ្យាស្ថានបច្ចេកវិទ្យាកម្ពុជា ឬសាលាតិចណូ (ITC): ស្ថិតនៅរាជធានីភ្នំពេញ ជាសាលារដ្ឋលំដាប់កំពូលផ្នែកវិស្វកម្ម។ (Institute of Technology of Cambodia, the top engineering school in Phnom Penh.)" },
+  { name: "RULE", keywords: ["rule", "សាលាច្បាប់", "នីតិសាស្ត្រ"], info: "🎓 សាកលវិទ្យាល័យភូមិន្ទនីតិសាស្ត្រ និងវិទ្យាសាស្ត្រសេដ្ឋកិច្ច ឬសាលាច្បាប់ (RULE): ស្ថិតនៅរាជធានីភ្នំពេញ ល្បីខាងច្បាប់ និងសេដ្ឋកិច្ច។ (Royal University of Law and Economics in Phnom Penh.)" },
+  { name: "NUM", keywords: ["num", "សាកលវិទ្យាល័យជាតិគ្រប់គ្រង", "សាលាគ្រប់គ្រង"], info: "🎓 សាកលវិទ្យាល័យជាតិគ្រប់គ្រង (NUM): ស្ថិតនៅរាជធានីភ្នំពេញ ផ្តោតសំខាន់លើធុរកិច្ច និងការគ្រប់គ្រង។ (National University of Management in Phnom Penh.)" },
+  { name: "UHS", keywords: ["uhs", "សាកលវិទ្យាល័យវិទ្យាសាស្ត្រសុខាភិបាល", "សាលាពេទ្យ"], info: "🎓 សាកលវិទ្យាល័យវិទ្យាសាស្ត្រសុខាភិបាល ឬសាលាពេទ្យ (UHS): ស្ថិតនៅរាជធានីភ្នំពេញ ជាគ្រឹះស្ថានបណ្តុះបណ្តាលគ្រូពេទ្យកំពូល។ (University of Health Sciences, the top medical school in Phnom Penh.)" }
+];
+
+const CAMBODIA_LAWS = [
+  {
+    name: "Domestic Violence (អំពើហិង្សាក្នុងគ្រួសារ)",
+    keywords: ["violence", "domestic", "abuse", "beat", "ហិង្សា", "វាយដំ", "វាយប្រពន្ធ", "វាយកូន", "ហិង្សាក្នុងគ្រួសារ"],
+    info: "⚖️ Domestic Violence (អំពើហិង្សាក្នុងគ្រួសារ): Under the 2005 Law on Prevention of Domestic Violence and the Penal Code, acts of physical, mental, or sexual abuse within a family are serious crimes. \n👉 ជាភាសាខ្មែរ៖ យោងតាមច្បាប់កម្ពុជា អំពើហិង្សាក្នុងគ្រួសារ គឺជាបទល្មើសព្រហ្មទណ្ឌ។ អ្នកប្រព្រឹត្តនឹងត្រូវផ្តន្ទាទោសដាក់ពន្ធនាគារយ៉ាងធ្ងន់ធ្ងរ ដើម្បីការពារជនរងគ្រោះ (ប្រពន្ធ ឬកូន)។ 🚨 ករណីបន្ទាន់ សូមទូរស័ព្ទទៅលេខ 117 (ប៉ូលីស)។"
+  },
+  {
+    name: "Theft & Snatching (អំពើលួច និងឆក់)",
+    keywords: ["theft", "steal", "snatch", "pickpocket", "លួច", "ឆក់", "ចោរលួច", "ចោរឆក់"],
+    info: "⚖️ Theft & Snatching (អំពើលួច និងឆក់): Punishable under Articles 353-356 of the Cambodian Penal Code. Basic theft carries a penalty of 6 months to 3 years in prison. Snatching in public triggers aggravated circumstances.\n👉 ជាភាសាខ្មែរ៖ បទល្មើសលួច និងឆក់ទ្រព្យសម្បត្តិអ្នកដទៃ ត្រូវផ្តន្ទាទោសដាក់ពន្ធនាគារពី ៦ខែ ទៅ ៣ឆ្នាំ (ឬលើសពីនេះបើមានស្ថានទម្ងន់ទោស ដូចជាបង្ករបួសស្នាមដល់ជនរងគ្រោះ)។"
+  },
+  {
+    name: "Armed Robbery (អំពើប្លន់ / លួចមានអំពើហិង្សា)",
+    keywords: ["robbery", "rob", "armed", "weapon", "ប្លន់", "ប្រដាប់អាវុធ", "ចោរប្លន់"],
+    info: "⚖️ Robbery (អំពើប្លន់): Governed by Article 357 of the Penal Code. Theft committed with violence or weapons is extremely serious. \n👉 ជាភាសាខ្មែរ៖ ការប្លន់ប្រដាប់អាវុធ ឬមានអំពើហិង្សា គឺជាបទឧក្រិដ្ឋ។ ជនល្មើសត្រូវផ្តន្ទាទោសជាប់ពន្ធនាគារពី ៣ឆ្នាំ ទៅ ១០ឆ្នាំ ដល់ ១៥ឆ្នាំ ឬអាចឈានដល់មួយជីវិតបើបណ្តាលឱ្យមានមនុស្សស្លាប់ ឬធ្វើទារុណកម្ម។"
+  },
+  {
+    name: "Drug Offenses (បទល្មើសគ្រឿងញៀន)",
+    keywords: ["drug", "meth", "trafficking", "គ្រឿងញៀន", "ថ្នាំញៀន", "ជួញដូរ", "ជក់"],
+    info: "⚖️ Drugs (គ្រឿងញៀន): Cambodia's Law on the Control of Drugs imposes severe penalties. Trafficking can result in Life imprisonment.\n👉 ជាភាសាខ្មែរ៖ ច្បាប់កម្ពុជាមានភាពតឹងរ៉ឹងបំផុតលើគ្រឿងញៀន។ ការជួញដូរ ផលិត ឬរក្សាទុកគ្រឿងញៀនខុសច្បាប់ ត្រូវប្រឈមនឹងការជាប់គុកពី ២០ឆ្នាំ ទៅដល់អស់មួយជីវិត ព្រមទាំងពិន័យជាប្រាក់រាប់សិបលានរៀល។"
+  },
+  {
+    name: "Gambling & Vices (ល្បែងស៊ីសងខុសច្បាប់)",
+    keywords: ["gamble", "gambling", "vice", "ល្បែង", "ល្បែងស៊ីសង", "អបាយមុខ", "ភ្នាល់"],
+    info: "⚖️ Illegal Gambling (ល្បែងស៊ីសងខុសច្បាប់): Under the Law on Suppression of Gambling, unauthorized gambling is prohibited.\n👉 ជាភាសាខ្មែរ៖ យោងតាមច្បាប់ស្តីពីការបង្ក្រាបល្បែងស៊ីសង (បៀ អាប៉ោង ឆ្នោតខុសច្បាប់ ជល់មាន់) អ្នកលេង និងអ្នកបើកបនល្បែង ត្រូវប្រឈមមុខនឹងការពិន័យជាប្រាក់យ៉ាងធ្ងន់ និងការជាប់ពន្ធនាគារចាប់ពី ១ខែ ទៅ ៥ឆ្នាំ។"
+  },
+  {
+    name: "Fraud & Scam (ការឆបោក)",
+    keywords: ["fraud", "scam", "cheat", "ឆបោក", "បោកប្រាស់", "បោកលុយ"],
+    info: "⚖️ Fraud (អំពើឆបោក): Defined in Article 377 of the Penal Code. Deceiving someone to hand over funds carries a penalty of 6 months to 3 years.\n👉 ជាភាសាខ្មែរ៖ អំពើឆបោកយកទ្រព្យសម្បត្តិ ឬប្រាក់កាសអ្នកដទៃតាមគ្រប់រូបភាព (រួមទាំងការឆបោកតាមអនឡាញ ឬតេឡេក្រាម) ត្រូវផ្តន្ទាទោសដាក់ពន្ធនាគារពី ៦ខែ ទៅ ៣ឆ្នាំ ព្រមទាំងសងការខូចខាតជាប្រាក់។"
+  },
+  {
+    name: "Self-Defense (សិទ្ធិការពារខ្លួន)",
+    keywords: ["defense", "defend", "ការពារខ្លួន", "តដៃ"],
+    info: "⚖️ Legitimate Defense (ការការពារស្របច្បាប់): Article 33 of the Penal Code allows for self-defense if proportionate.\n👉 ជាភាសាខ្មែរ៖ ការតដៃដើម្បីការពារខ្លួនស្របច្បាប់ មិនចាត់ទុកជាបទល្មើសទេ លុះត្រាតែការតដៃនោះមាន 'សមាមាត្រ' (Proportional) ទៅនឹងការវាយប្រហារជាក់ស្តែង និងទាន់ពេលវេលា។"
+  }
+];
+
+const CAMBODIA_PROVINCES = [
+  {
+    name: "Phnom Penh",
+    keywords: ["phnom penh", "phnompenh", "capital", "aeon", "nagaworld"],
+    info: "Phnom Penh is the vibrant capital city along the Tonle Sap and Mekong rivers. Key attractions: Royal Palace, Riverside, Silk Island. Malls: Aeon Mall 1/2/3, Chip Mong Malls, Lucky Supermarket. Luxury Hotels: Rosewood Phnom Penh, NagaWorld, Hyatt Regency. Note: 10% VAT applies to most bills."
+  },
+  {
+    name: "Siem Reap",
+    keywords: ["siem reap", "siemreap", "angkor", "pub street", "raffles"],
+    info: "Siem Reap is famous for Angkor Wat and Tonle Sap lake floating villages. Shopping: Heritage Walk, Angkor Market, Phsar Chas (Old Market). Hotels: Raffles Grand Hotel d'Angkor, Sofitel Angkor. Great nightlife at Pub Street."
+  },
+  {
+    name: "Preah Sihanouk",
+    keywords: ["sihanouk", "sihanoukville", "smiting", "koh rong", "beach"],
+    info: "Preah Sihanouk is the main coastal hub with white sand beaches and Koh Rong islands. Malls: Furi Times Square, Prince Mall, Makro. Hotels: Sokha Beach Resort, Royal Sands Koh Rong, Moonlight Resort."
+  },
+  {
+    name: "Kampot",
+    keywords: ["kampot", "bokor", "pepper", "kampot river"],
+    info: "Kampot is peaceful with Kampot River views and Bokor National Park. Famous for Kampot Pepper. Stay at Le Bokor Palace or Castle Bayview. Shopping at Kampot Night Market and local minimarts."
+  },
+  {
+    name: "Kep",
+    keywords: ["kep", "crab market", "kep beach", "sailing club"],
+    info: "Kep is a serene coastal province famous for Fresh Crab Market, Kep National Park, and Rabbit Island (Koh Tonsay). Stay at Knai Bang Chatt or Samanea Beach Resort."
+  },
+  {
+    name: "Battambang",
+    keywords: ["battambang", "bamboo train", "sangker river", "banan"],
+    info: "Battambang is known for French colonial architecture, Sangker River, and the Bamboo Train. Hotels: Classy Hotel, Bambu Hotel. Shopping at Phsar Nat."
+  },
+  {
+    name: "Koh Kong",
+    keywords: ["koh kong", "tatai", "mangrove", "cardamom"],
+    info: "Koh Kong features eco-tourism, Tatai River, mangroves, and Cardamom Mountains. Stay at Canvas & Orchids Retreat floating lodge."
+  },
+  {
+    name: "Mondulkiri",
+    keywords: ["mondulkiri", "sen monorom", "elephant", "bou sra"],
+    info: "Mondulkiri is cool and hilly, famous for Bou Sra Waterfall, elephant sanctuaries, and local coffee farms. Stay at Pidoma Resort or Nature Lodge."
+  },
+  {
+    name: "Ratanakiri",
+    keywords: ["ratanakiri", "banlung", "yeak laom", "gemstones"],
+    info: "Ratanakiri is home to the stunning Yeak Laom Volcanic Crater Lake and tribal cultures. Hotels: Terres Rouges Lodge in Banlung."
+  },
+  {
+    name: "Kratie",
+    keywords: ["kratie", "dolphin", "mekong", "koh trong"],
+    info: "Kratie is famous for rare Irrawaddy river dolphins along the Mekong River and peaceful Koh Trong Island eco-resorts."
+  },
+  {
+    name: "Stung Treng",
+    keywords: ["stung treng", "sekong", "ramsar"],
+    info: "Stung Treng connects the Mekong and Sekong rivers, featuring the Ramsar wetland site and border eco-tourism."
+  },
+  {
+    name: "Preah Vihear",
+    keywords: ["preah vihear", "koh ker", "tbeng"],
+    info: "Preah Vihear hosts the famous cliffside Preah Vihear Temple (UNESCO World Heritage) and ancient Koh Ker pyramid temple."
+  },
+  {
+    name: "Kampong Cham",
+    keywords: ["kampong cham", "bamboo bridge", "koh pen", "hanchey"],
+    info: "Kampong Cham is a charming Mekong river town with the seasonal Bamboo Bridge and Koh Pen island. Stay at L'Ancapora Hotel."
+  },
+  {
+    name: "Tboung Khmum",
+    keywords: ["tboung khmum", "suong", "rubber"],
+    info: "Tboung Khmum features vast rubber plantations and Suong town commercial hub."
+  },
+  {
+    name: "Kampong Chhnang",
+    keywords: ["kampong chhnang", "pottery", "floating village"],
+    info: "Kampong Chhnang is famous for handcrafted clay pottery and Tonle Sap floating villages."
+  },
+  {
+    name: "Kampong Speu",
+    keywords: ["kampong speu", "kirirom", "aural", "palm sugar"],
+    info: "Kampong Speu features Kirirom National Park pine forests, Mt. Aural (highest peak), and famous Palm Sugar."
+  },
+  {
+    name: "Kampong Thom",
+    keywords: ["kampong thom", "sambor prei kuk", "stung sen"],
+    info: "Kampong Thom sits along Stung Sen River, hosting the pre-Angkorian Sambor Prei Kuk temples."
+  },
+  {
+    name: "Kandal",
+    keywords: ["kandal", "ta khmao", "koh dach", "chisor"],
+    info: "Kandal surrounds Phnom Penh, featuring Silk Island (Koh Dach) and historical sites near Ta Khmao."
+  },
+  {
+    name: "Pursat",
+    keywords: ["pursat", "kampong luong", "marble"],
+    info: "Pursat is known for fine marble carving, Cardamom mountains, and Kampong Luong floating village."
+  },
+  {
+    name: "Prey Veng",
+    keywords: ["prey veng", "neak loeung", "ba phnom"],
+    info: "Prey Veng lies in the fertile agricultural eastern plain near Neak Loeung Bridge over the Mekong."
+  },
+  {
+    name: "Svay Rieng",
+    keywords: ["svay rieng", "bavet", "sez"],
+    info: "Svay Rieng is a key border trade province featuring Bavet Special Economic Zone and casino resorts."
+  },
+  {
+    name: "Takeo",
+    keywords: ["takeo", "phnom da", "tonle bati", "lobster"],
+    info: "Takeo is considered the cradle of Khmer civilization, famous for Phnom Da, Tonle Bati, and freshwater giant lobsters."
+  },
+  {
+    name: "Oddar Meanchey",
+    keywords: ["oddar meanchey", "samraong", "anlong veng"],
+    info: "Oddar Meanchey features the Dangrek Mountain range and historical sites around Anlong Veng."
+  },
+  {
+    name: "Pailin",
+    keywords: ["pailin", "phnom yat", "gemstone", "coffee"],
+    info: "Pailin sits near the Thai border, historically famous for rubies, gemstones, Phnom Yat pagoda, and coffee."
+  },
+  {
+    name: "Banteay Meanchey",
+    keywords: ["banteay meanchey", "poipet", "banteay chhmar"],
+    info: "Banteay Meanchey hosts the major Poipet international border gateway and the ancient Banteay Chhmar temple complex."
+  }
+];
+
+const TOPICS = [
+  {
+    name: "Cambodia",
+    words: ["cambodia", "cambodian", "phnom", "penh", "angkor", "siem", "reap"],
+    about: "Cambodia is a country in Southeast Asia. Its capital is Phnom Penh.",
+    praise: "Cambodia has many wonderful places, like Angkor Wat.",
+    asks: [
+      [["capital"], "The capital of Cambodia is Phnom Penh."],
+      [["language", "speak", "speaks"], "The official language of Cambodia is Khmer."],
+      [["money", "currency", "riel", "dollar"], "Cambodia uses the riel, and US dollars are also widely used."],
+      [["food", "eat", "dish", "amok"], "A famous Cambodian dish is fish amok, a steamed fish curry."],
+      [["visit", "travel", "tourist", "place", "places", "famous", "see", "angkor"], "The most famous place is Angkor Wat, a huge temple complex near Siem Reap."],
+    ],
+  },
+];
+
+const SAD_REPLY = "I am sorry to hear that 😢 Do you want to tell me what happened?";
+const EMOTIONS = [
+  [["happy", "glad", "excited", "wonderful", "amazing", "congratulations", "won", "win", "winner"], "That is wonderful news! 🎉 Tell me more! 😄", true],
+  [["sad", "cry", "crying", "unhappy", "lonely"], SAD_REPLY, false],
+  [["angry", "mad", "furious", "annoyed", "upset", "rude"], "That sounds really frustrating 😔 It is okay to feel upset. What happened?", false],
+  [["scared", "afraid", "nervous", "anxious", "terrified", "worried", "fear"], "That sounds scary 😰 Take a deep breath. What are you worried about?", false],
+  [["surprised", "shocked", "wow", "whoa"], "Wow! 😲 Tell me what happened!", false],
+  [["stressed", "stress", "stressful", "overwhelmed"], "That sounds stressful 😟 What is making you feel that way?", false],
+  [["tired", "sleepy", "exhausted"], "You sound tired 😴 Take a short break if you can.", false],
+  [["haha", "hahaha", "lol", "lmao", "funny"], "Haha 😂 Glad you are laughing!", false],
+];
+
+const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+const MON_RE = "(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sept|sep|oct|nov|dec)";
+const DAY_MS = 86400000;
+const fmt = (t, o) => new Date(t).toLocaleDateString("en-US", { timeZone: "UTC", ...o });
+const label = (t) => fmt(t, { month: "long", day: "numeric" });
+const daysText = (n) => {
+  if (n < 7) return n + (n === 1 ? " day" : " days");
+  const w = Math.floor(n / 7);
+  const r = n % 7;
+  return w + (w === 1 ? " week" : " weeks") + (r ? " and " + r + (r === 1 ? " day" : " days") : "");
+};
+
+function findDates(q) {
+  const found = [];
+  const add = (m, mon, day) => {
+    const mi = MONTHS.findIndex((n) => n.startsWith(mon.slice(0, 3)));
+    found.push({ at: m.index, m: mi, d: Number(day) });
+  };
+  for (const m of q.matchAll(new RegExp("\\b" + MON_RE + " (\\d{1,2})(?:st|nd|rd|th)?\\b", "g"))) add(m, m[1], m[2]);
+  for (const m of q.matchAll(new RegExp("\\b(\\d{1,2})(?:st|nd|rd|th)? (?:of )?" + MON_RE + "\\b", "g"))) add(m, m[2], m[1]);
+  return found.sort((a, b) => a.at - b.at);
+}
+
+function dateReply(found, workish) {
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const next = (mi, d, from) => {
+    let t = Date.UTC(new Date(from).getUTCFullYear(), mi, d);
+    if (t < from) t = Date.UTC(new Date(from).getUTCFullYear() + 1, mi, d);
+    return new Date(t).getUTCMonth() === mi ? t : null;
+  };
+  const bad = "That date does not exist. Please check the day and month 🙂";
+  const a = next(found[0].m, found[0].d, today);
+  if (a === null) return bad;
+  if (found.length === 1) {
+    const n = (a - today) / DAY_MS;
+    const when = n === 0 ? "today" : n === 1 ? "tomorrow" : n + " days from today" + (n >= 7 ? " (" + daysText(n) + ")" : "");
+    return (workish ? "Got it 🙂 " : "") + label(a) + " is " + when + ", on a " + fmt(a, { weekday: "long" }) + "." + (workish ? " Do you want to plan the steps before then?" : "");
+  }
+  const b = next(found[1].m, found[1].d, a);
+  if (b === null) return bad;
+  const n = (b - a) / DAY_MS;
+  return label(a) + " to " + label(b) + " is " + n + " days" + (n >= 7 ? " (" + daysText(n) + ")" : "") + "." + (workish ? " Do you want to split it into phases?" : "");
+}
+
+const DEFS = [
+  [["sprint"], "A sprint is a short period of work, usually one to four weeks, with a clear goal."],
+  [["deadline"], "A deadline is the latest date or time when work must be finished."],
+  [["milestone"], "A milestone is an important point in a project, like finishing the design."],
+  [["prototype"], "A prototype is an early model of a product, used to test ideas before building the final one."],
+  [["wireframe"], "A wireframe is a simple sketch that shows the layout of a screen."],
+  [["beta"], "A beta version is an early version of an app that people test before the final release."],
+  [["launch"], "A launch is the day a product is released to the public."],
+  [["backend"], "The backend is the part of an app that runs on the server: data, accounts and logic."],
+  [["frontend"], "The frontend is the part of an app that people see and touch."],
+  [["bug", "bugs"], "A bug is a mistake in a program that makes it behave wrongly."],
+  [["database"], "A database is an organized place to store information so it can be found quickly."],
+  [["server"], "A server is a computer that gives data or services to other computers."],
+  [["cloud"], "The cloud means computers on the internet that store data and run programs for you."],
+  [["manager"], "A project manager plans the work, sets the schedule and keeps the team on track."],
+  [["developer", "programmer", "coder"], "A developer writes the code that makes an app or website work."],
+  [["designer", "ux", "ui"], "A UI/UX designer plans how an app looks and how easy it is to use."],
+  [["analyst"], "A data analyst studies data to find useful facts and patterns."],
+  [["tester", "qa"], "A QA tester checks software to find bugs before people use it."],
+  [["marketing"], "Marketing is how a company tells people about its product and gets them interested."],
+  [["operations"], "Operations keeps the tools, servers and daily work of a company running smoothly."],
+  [["guard"], "A security guard protects a building and checks who goes in and out."],
+  [["boss"], "A boss leads a team, gives directions and makes final decisions."],
+];
+
+const WORK = [
+  [["meeting", "meetings"], (at) => (at ? "A meeting at " + at + " 🙂 What is it about?" : "A meeting 🙂 What time is it, and what is it about?")],
+  [["deadline", "deadlines"], "When is the deadline? Tell me the date, for example: December 15 🙂"],
+  [["project", "projects"], "Tell me about the project 🙂 What is it, and when is the deadline?"],
+  [["schedule", "plan", "timeline"], "Let us plan it 🙂 Tell me the tasks and their dates."],
+];
+
+const CRISIS =
+  "I am really sorry you feel this way. You matter, and you do not have to face this alone. Please talk to someone you trust, or contact a local emergency or crisis service right now.";
+const HUG = "Sending you a warm hug 🤗 I am a program, so I cannot hug, but I am here to listen.";
+
+const EMOJI_REPLY = [
+  [["👋"], "Hello! 👋 Do you have any question or problem? You can ask me."],
+  [["🙏"], "🙏 Of course. Is there something on your mind?"],
+  [["👌", "👍"], "👌 Great! What is next?"],
+  [["❤", "🥰", "😍"], "❤️ That is kind of you. What can I help you with?"],
+  [["😢", "😭", "😔", "💔", "🥺", "😞"], "I am here 🤗 Do you want to tell me what happened?"],
+  [["😡", "😠", "🤬"], "That looks upset 😔 What happened?"],
+  [["😰", "😨", "😱"], "That looks scary 😰 What happened?"],
+  [["🤗"], "🤗 Sending a warm hug back."],
+  [["😂", "🤣", "😆", "😄", "😁", "🙂", "😊"], "😄 Glad you are smiling! What is up?"],
+];
+
+const REL = [
+  [["forgive"], ["me"], "I am not the one you hurt 🙂 But a sincere sorry is a good start 🙏 Who do you want to say sorry to?"],
+  [["forgive", "forgiven", "forgiveness"], null, "Forgiving is not easy 🙏 It takes a big heart. Do you want to talk about it?"],
+  [["sorry", "apologize", "apologise", "regret", "regretful"], ["so", "very", "deeply", "truly", "really", "incredibly", "completely", "sincerely"], "Thank you for being honest 🙏 If you hurt someone, tell me what happened. I am listening."],
+  [["promise"], ["will", "never", "always"], "That is a big promise 🤝 What really counts is keeping it with actions, day by day."],
+  [["hurt", "hurts", "hurting", "heartbroken", "betrayed"], null, "I am sorry you are hurting 💔 It is okay to feel this way. Do you want to tell me what happened?"],
+  [["disappointed", "disappointing"], null, "That sounds disappointing 😔 What happened?"],
+  [["promised"], null, "Promises matter 🤝 Did they keep it?"],
+  [["trust", "trusted", "rely", "reliable"], null, "Trust grows slowly, with honest words and steady actions 🤝 What is on your mind about trust?"],
+  [["priority"], ["me", "you", "felt", "feel", "not"], "Everyone wants to feel like a priority 💛 Do you want to talk about how you feel?"],
+  [["granted"], null, "Everyone wants to feel valued 💛 Do you want to talk about how you feel?"],
+  [["fight", "argument", "argued", "quarrel"], null, "Arguments are hard 😔 It helps to talk when both people are calm. What was it about?"],
+  [["anniversary"], null, "An anniversary is a special day 🌹 Are you planning something, or did something go wrong?"],
+  [["hug"], null, HUG],
+  [["hold"], ["me"], HUG],
+  [["chance"], ["second", "another"], "Everyone deserves a chance to make things right 🙏 What happened?"],
+  [["love"], ["you", "her", "him", "wife", "husband", "girlfriend", "boyfriend", "mom", "dad", "mother", "father", "family"], "Love is beautiful ❤️ Showing up for the people we love matters as much as saying it."],
+];
+
+const UNSURE =
+  "Sorry, I did not fully understand 🙂 Can you say it in a simpler way? You can also teach me: /learn question = answer";
+
+export function englishReply(text, learned = {}) {
+  const q = clean(text);
+  if (!q) {
+    const em = EMOJI_REPLY.find(([es]) => es.some((e) => String(text).includes(e)));
+    return em ? em[1] : UNSURE;
+  }
+  const cw = q.split(" ");
+  const cr = (...ws) => ws.some((w) => cw.includes(w));
+  if (
+    cr("suicide", "suicidal") ||
+    (cr("kill", "hurt", "harm", "cut") && cr("myself")) ||
+    (cr("want", "wanna") && cr("die")) ||
+    q.includes("end my life") ||
+    q.includes("better off dead")
+  ) {
+    return CRISIS;
+  }
+
+  const pool = new Map(SEED);
+  for (const [k, v] of Object.entries(learned)) {
+    const c = clean(k);
+    if (c) pool.set(c, v);
+  }
+  if (pool.has(q)) return say(pool.get(q));
+
+  const words = q.split(" ");
+  const has = (...ws) =>
+    ws.some((w) =>
+      words.some((x) => x === w || (w.length >= 4 && x.length >= 4 && dice(x, w) >= 0.8)),
+    );
+
+  const parts = [];
+  let answered = false;
+  const push = (t) => {
+    parts.push(t);
+    answered = true;
+  };
+
+  const gm = q.match(/\bgood (morning|afternoon|evening|night)\b/);
+  const greeting = gm
+    ? "Good " + gm[1] + "!"
+    : has("hello", "hallo", "hi", "hey", "yo")
+      ? "Hello!"
+      : null;
+  if (greeting) parts.push(greeting + " 🙂");
+
+  const nm = q.match(/\bmy name is ([a-z]+)/);
+  const INTENTS = [
+    [() => has("thanks", "thank", "thankyou"), "You are welcome! 🙂"],
+    [() => has("bye", "goodbye"), "Goodbye! See you next time 🙂"],
+    [() => has("sorry") && !has("so", "very", "deeply", "truly", "really", "incredibly", "completely", "sincerely", "forgive"), "No problem at all 🙂"],
+    [() => has("favorite", "favourite"), "I do not have favorites because I am a program 🙂 What is your favorite?"],
+    [() => has("how") && has("you", "ur", "u") && !has("old", "name", "know", "do", "can"), "I am fine, thank you 🙂 And you?"],
+  ];
+
+  if (nm) {
+    push("Nice to meet you, " + nm[1][0].toUpperCase() + nm[1].slice(1) + "! 🙂");
+  } else if (has("name") && has("my") && has("what", "who")) {
+    push("I do not know your name yet. You can tell me: my name is ...");
+  } else if (has("name") && has("you", "your", "ur", "u")) {
+    push("My name is KHOEM-AI 🙂");
+  } else {
+    for (const [test, answer] of INTENTS) {
+      if (test()) { push(answer); break; }
+    }
+  }
+
+  if (!answered && !has("mean", "means", "meaning", "define")) {
+    const rel = REL.find(([ws, also]) => has(...ws) && (!also || has(...also)));
+    if (rel) push(rel[2]);
+  }
+
+  if (!answered && !has("mean", "means", "meaning", "define")) {
+    if (has("suicide", "suicidal") || (has("kill", "hurt") && has("myself")) || (has("want") && has("die"))) {
+      push("I am really sorry you feel this way. You matter, and you do not have to face this alone. Please talk to someone you trust, or contact a local emergency or crisis service right now.");
+    } else {
+      const hit = EMOTIONS.find(([ws, , pos]) => has(...ws) && !(pos && has("who", "what", "which", "where", "when", "how")));
+      if (hit) push(hit[2] && has("not", "never", "dont") ? SAD_REPLY : hit[1]);
+    }
+  }
+
+  if (!answered) {
+    const tech = TECH_KNOWLEDGE.find((p) => p.keywords.some((k) => q.toLowerCase().includes(k.toLowerCase())));
+    if (tech) {
+      return tech.info;
+    }
+  
+    const landmark = CAMBODIA_LANDMARKS.find((p) => p.keywords.some((k) => q.toLowerCase().includes(k.toLowerCase())));
+    if (landmark) {
+      return landmark.info;
+    }
+  
+    const law = CAMBODIA_LAWS.find((p) => p.keywords.some((k) => q.includes(k.toLowerCase())));
+    if (law) {
+      return law.info + "\n\n(ចំណាំ: នេះជាព័ត៌មានច្បាប់ទូទៅ។ ករណីបន្ទាន់ សូមទូរស័ព្ទទៅលេខ 117 ឬពិគ្រោះជាមួយមេធាវីជំនាញ។) 👮‍♂️⚖️";
+    }
+
+    const prov = CAMBODIA_PROVINCES.find((p) => p.keywords.some((k) => q.includes(k)));
+    if (prov) {
+      return prov.info + " Would you like to know more details about " + prov.name + "? 🙂";
+    }
+
+    const term = has("what", "who", "mean", "means", "meaning", "explain", "define") && DEFS.find(([ws]) => has(...ws));
+    if (term) push(term[1]);
+  }
+  if (!answered) {
+    const found = findDates(q);
+    if (found.length) {
+      push(dateReply(found, has("deadline", "launch", "meeting", "project", "due", "finish", "start", "begin", "deliver", "ready", "release", "beta")));
+    }
+  }
+  if (!answered) {
+    const tm = q.match(/\b(\d{1,2})(?: (\d{2}))? ?(am|pm)\b/);
+    const at = tm ? Number(tm[1]) + ":" + (tm[2] || "00") + " " + tm[3].toUpperCase() : null;
+    const w = WORK.find(([ws]) => has(...ws));
+    if (w) push(typeof w[1] === "function" ? w[1](at) : w[1]);
+  }
+
+  if (!answered) {
+    const t = TOPICS.find((t) => has(...t.words));
+    if (t) {
+      const ask = t.asks.find(([ks]) => has(...ks));
+      const positive = has("good", "beautiful", "nice", "great", "wonderful", "love", "like", "amazing");
+      const out = [];
+      if (has("know")) out.push("Yes, I know a little about " + t.name + ".");
+      out.push(ask ? ask[1] : positive ? t.praise : t.about);
+      out.push(
+        ask
+          ? "Anything else you would like to know about " + t.name + "? 🙂"
+          : "What would you like to know about " + t.name + "? 🙂",
+      );
+      push(out.join(" "));
+    }
+  }
+
+  if (parts.length) {
+    if (parts.length === 1 && greeting) {
+      const rest = words.filter((w) => !GREETW.has(w) && !FILL.has(w));
+      parts.push(
+        rest.length > 1 ? "Can you say the rest in a simpler way?"
+          : "Do you have any question or problem? You can ask me.",
+      );
+    }
+    return parts.join(" ");
+  }
+
+  if (q.length >= 6) {
+    let best = null;
+    let score = 0;
+    for (const k of pool.keys()) {
+      const s = dice(q, k);
+      if (s > score) { score = s; best = k; }
+    }
+    if (best && score >= 0.9) return say(pool.get(best));
+    if (best && score >= 0.65) return `Did you mean "${best}"? If so, please ask again.`;
+  }
+  return UNSURE;
+}
+
+===== khoem.mjs =====
+import { searchTechDB, searchHistoryFood, searchMoreHistory, searchCompleteHistory, searchKhmerCakes, searchKhmerWine, searchCultureTradition } from "./knowledge.mjs";
+import { handleLearn, load } from "./learn.mjs";
+import { englishReply } from "./english.mjs";
+import { funcs, check, HELP_ALL } from "./tools.mjs";
+import { find } from "./find.mjs";
+import fs from "node:fs";
+import path from "node:path";
+
+const ROOT = process.cwd();
+const SRC = path.join(ROOT, "src");
+const CODE = /\.(tsx?|mjs|js|css)$/;
+const isBackup = (n) =>
+  n.includes(".before-") || n.endsWith(".backup") || n.includes("black3d-small");
+
+function walk(dir, out = []) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.name === "node_modules" || e.name === "dist" || e.name.startsWith(".")) continue;
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walk(p, out);
+    else out.push(p);
+  }
+  return out;
+}
+
+function scan() {
+  const all = walk(ROOT);
+  const backups = all.filter((f) => isBackup(path.basename(f)));
+  const code = all.filter((f) => CODE.test(f) && !isBackup(path.basename(f)));
+  const rows = code.map((f) => {
+    const lines = fs.readFileSync(f, "utf8").split("\n");
+    const seen = new Set();
+    const dup = [];
+    for (const l of lines) {
+      if (l.startsWith("import ")) {
+        if (seen.has(l)) dup.push(l);
+        seen.add(l);
+      }
+    }
+    return { f: path.relative(ROOT, f), n: lines.length, dup };
+  });
+  rows.sort((a, b) => b.n - a.n);
+  const total = rows.reduce((s, r) => s + r.n, 0);
+  let out = `ឯកសារកូដ: ${rows.length} | បន្ទាត់សរុប: ${total} | ឯកសារ backup: ${backups.length}\n\nធំជាងគេ:\n`;
+  out += rows.slice(0, 5).map((r) => `- ${r.f} (${r.n})`).join("\n");
+  const bad = rows.filter((r) => r.dup.length);
+  out += "\n\n";
+  out += bad.length
+    ? "import ស្ទួន:\n" + bad.map((r) => `- ${r.f}: ${r.dup[0]}`).join("\n")
+    : "គ្មាន import ស្ទួន ✅";
+  return out;
+}
+
+function readFile(rel) {
+  const p = path.resolve(ROOT, rel);
+  if (!p.startsWith(SRC + path.sep)) return "អានបានតែឯកសារក្នុងថត src/ ប៉ុណ្ណោះ";
+  if (!fs.existsSync(p) || !fs.statSync(p).isFile()) return "រកមិនឃើញឯកសារ: " + rel;
+  const lines = fs.readFileSync(p, "utf8").split("\n");
+  return `${rel} (${lines.length} បន្ទាត់)\n\n` + lines.slice(0, 40).join("\n");
+}
+
+const HELP =
+  "ប្អូនជាខួរផ្ទាល់ខ្លួនរបស់បង (គ្មាន API) ហើយនៅតូច។ ប្អូនយល់ពាក្យបញ្ជាទាំងនេះ:\n" +
+  "- /scan  ស្កេនកូដក្នុងគម្រោង\n" +
+  "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង";
+
+const HELP_EN =
+  "Commands KHOEM-AI understands:\n" +
+  "- /scan  scan the project code\n" +
+  "- /read src/App.tsx  read the first 40 lines\n" +
+  "- /funcs src/Gate.tsx  list functions\n" +
+  "- /check  look for common problems\n" +
+  "- /help  show this list\n" +
+  "- /learn question = answer  teach the brain\n" +
+  "- /learned  show what it has learned\n" +
+  "- /forget question  make it forget\n" +
+  "- /find word  search the code";
+
+const lang = (s) =>
+  /[\u1780-\u17FF]/.test(s) ? "km" : "en";
+
+const RE = {
+  km: {
+    hello: /^(សួស្តី|សួស្ដី|ជំរាបសួរ|ជម្រាបសួរ)/,
+    name: /ឈ្មោះ|(អ្នក|ប្អូន)ជា(អ្វី|នរណា|អ្នកណា)/,
+  },
+  en: {
+    hello: /^(hello|hi|hey)\b/,
+    name: /\b(your name|who are you|what are you)\b/,
+  },
+};
+
+const SAY = {
+  km: {
+    hello: (h) => `ជម្រាបសួរ${h}! 🙏 ខ្ញុំគឺ KHOEM-AI។\nតើថ្ងៃនេះ${h}មានអ្វីឱ្យខ្ញុំជួយដែរឬទេ?\n(វាយ /help ដើម្បីមើលពាក្យបញ្ជា)`,
+    name: "ខ្ញុំឈ្មោះ KHOEM-AI ជាជំនួយការឆ្លាតវៃផ្ទាល់ខ្លួនរបស់អ្នក។ 🙂",
+    unknown: (h) =>
+      `សូមអភ័យទោស${h} ខ្ញុំមិនទាន់យល់ពីសំណួរនេះនៅឡើយទេ។ 😔\nប៉ុន្តែ${h}អាចបង្រៀនខ្ញុំបាន៖ /learn សំណួរ = ចម្លើយ\n(ឬវាយ /help ដើម្បីមើលពាក្យបញ្ជាផ្សេងៗ)`,
+  },
+  en: {
+    hello: "Hello! 🙂\nI am KHOEM-AI.\nType /help to see my commands.",
+    name: "I am KHOEM-AI, a small assistant that runs on this phone. I do not call any outside API.",
+    unknown:
+      "I do not have an answer for that yet. You can teach me: /learn question = answer\nOr type /help to see my commands.",
+  },
+};
+
+export async function khoemReply(conversation, honorific = "បង", onStage = null) {
+  const last = String(conversation.at(-1)?.content ?? "").trim();
+  const q = last.toLowerCase();
+  const l = lang(last);
+
+  if (l === "en" && !q.startsWith("/") && q !== "help") { onStage?.("RETRIEVING", "english module"); return englishReply(last, load()); }
+
+  if (!q.startsWith("/") && RE[l].hello.test(q)) return l === "km" ? SAY.km.hello(honorific) : SAY.en.hello;
+  if (!q.startsWith("/") && RE[l].name.test(q)) return SAY[l].name;
+
+  const learned = handleLearn(last);
+  if (learned !== null) { onStage?.("LEARNING", "learn command handled"); return learned; }
+
+  // សំណួរជាក់លាក់ស្តីពីបុណ្យភ្ជុំបិណ្ឌ
+  if (!q.startsWith("/") && (q.includes("ទៅវត្តធ្វើអី") || q.includes("ធ្វើអីខ្លះក្នុងពិធីបុណ្យភ្ជុំបិណ្ឌ") || q.includes("ទៅវត្តធ្វើអ្វី") || q.includes("ធ្វើអ្វីនៅវត្ត") || q.includes("ធ្វើអីនៅវត្ត") || q.includes("ភ្ជុំបិណ្ឌធ្វើអី"))) {
+    return "🕯️ ក្នុងពិធីបុណ្យភ្ជុំបិណ្ឌ ប្រជាពលរដ្ឋយើងទៅវត្តធ្វើសកម្មភាពសំខាន់ៗដូចជា៖\n- រយៈពេលដាក់បិណ្ឌ (ថ្ងៃទី១ ដល់ថ្ងៃទី១៤)៖ នាំគ្នាត្រៀមចង្ហាន់ ស្រូវអង្ករ និងនំចំណីប្រពៃណី (នំអន្សម នំគក់) យកទៅប្រគេនព្រះសង្ឃតាមវេន ដើម្បីឧទ្ទិសដល់ញាតិការដែលបានចែកឋានទៅ។\n- ប្រពៃណីបាយបិណ្ឌ៖ យកដុំបាយតូចៗទៅបោះនៅពេលព្រលឹមស្រាងៗ (ម៉ោង ៤ ទៀបភ្លឺ) ដើម្បីឧទ្ទិសដល់ពួកប្រេតអនាថា។\n- ថ្ងៃភ្ជុំបិណ្ឌធំ (ថ្ងៃទី១៥)៖ ជួបជុំសាច់ញាតិធ្វើបុណ្យទានធំដុំ ប្រគេនចង្ហាន់ និងធ្វើពិធីបង្សុកូលឧទ្ទិសកុសល។";
+  }
+  if (!q.startsWith("/") && (q.includes("ទៅដើម្បីអី") || q.includes("គោលបំណងទៅវត្ត") || q.includes("ទៅដើម្បីអ្វី") || q.includes("ទៅវត្តដើម្បីអី") || q.includes("ទៅវត្តដើម្បីអ្វី") || q.includes("ហេតុអ្វីបានជាទៅវត្ត") || q.includes("ហេតុអីទៅវត្ត"))) {
+    return "🕯️ គោលបំណងនៃការទៅវត្តក្នុងអំឡុងពេលបុណ្យភ្ជុំបិណ្ឌរួមមាន៖\n- ឧទ្ទិសកុសលដល់ញាតិការទាំង ៧សន្តាន និងបុព្វបុរសដែលបានចែកឋានទៅ។\n- ដោះលែងព្រលឹងប្រេតដែលខុសបាប និងអនាថាឱ្យទទួលបានចំណីអាហារ និងរួចផុតពីទុក្ខវេទនា។\n- បំពេញកុសល និងពង្រឹងសាមគ្គីភាពគ្រួសារក្នុងថ្ងៃបុណ្យធំប្រចាំឆ្នាំ។";
+  }
+
+  if (q === "/scan" || q.includes("ស្កេន") || q.startsWith("/read ") || q === "/check" || q.startsWith("/funcs ") || q.startsWith("/find ")) onStage?.("TOOL_CALL", "tool command");
+  if (q === "/scan" || q.includes("ស្កេន")) return scan();
+  if (q.startsWith("/read ")) return readFile(last.slice(6).trim());
+  if (q === "/help" || q === "help") return l === "en" ? HELP_EN : HELP_ALL;
+  if (q === "/check") return check();
+  if (q.startsWith("/funcs ")) return funcs(last.slice(7).trim());
+  if (q.startsWith("/find ")) return find(last.slice(6).trim());
+
+  if (RE[l].hello.test(q)) return SAY[l].hello;
+  if (RE[l].name.test(q)) return SAY[l].name;
+
+  // --- Bridge to english.mjs for Knowledge Base (Laws, Provinces, Landmarks) ---
+  try {
+    onStage?.("RETRIEVING", "knowledge base lookup");
+    const enMod = await import("./english.mjs");
+    if (enMod.englishReply) {
+      // បញ្ជូនសំណួរទៅឆែកក្នុង Knowledge Base ទោះជាភាសាអ្វីក៏ដោយ
+      const kb = await enMod.englishReply(conversation);
+      if (kb && !kb.includes("I am sorry") && !kb.includes("Sorry,") && !kb.includes("I don't") && !kb.includes("unknown")) {
+        return kb;
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+  // -----------------------------------------------------------------------------
+  return l === "km" ? SAY.km.unknown(honorific) : SAY.en.unknown;
+}
