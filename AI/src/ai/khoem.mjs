@@ -1,7 +1,6 @@
 import { searchTechDB, searchHistoryFood, searchMoreHistory, searchCompleteHistory, searchKhmerCakes, searchKhmerWine, searchCultureTradition } from "./knowledge.mjs";
 import { handleLearn, load } from "./learn.mjs";
-import { englishReply } from "./english.mjs";
-import { chineseReply } from "./chinese.mjs";
+import { routeLanguage } from "./languageCenter.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
 import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mjs";
@@ -149,10 +148,11 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
   }
   // ===== END NEW =====
 
-  // NEW: route Chinese input to chineseReply before the English branch.
-  if (l === "zh" && !q.startsWith("/")) { onStage?.("RETRIEVING", "chinese module"); return chineseReply(last, load()); }
-
-  if (l === "en" && !q.startsWith("/") && q !== "help") { onStage?.("RETRIEVING", "english module"); return englishReply(last, load()); }
+  // Route supported natural languages through the Language Center.
+  if (!q.startsWith("/") && q !== "help") {
+    const languageReply = await routeLanguage(last, load(), onStage);
+    if (languageReply !== null) return languageReply;
+  }
 
   if (!q.startsWith("/") && RE[l].hello.test(q)) return l === "km" ? SAY.km.hello(honorific) : l === "en" ? SAY.en.hello : null;
   if (!q.startsWith("/") && RE[l].name.test(q)) return SAY[l]?.name;
