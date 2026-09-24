@@ -55,10 +55,7 @@ export const SAY = {
     unknown:
       "I do not have an answer for that yet. You can teach me: /learn question = answer\nOr type /help to see my commands.",
   },
-  // NEW: zh entries did not exist before (Chinese input was routed straight to
-  // chineseReply, bypassing this table). Added so the registry is complete;
-  // khoem.mjs still routes zh to chineseReply first, so these are not yet
-  // reachable in current behavior — safe, additive only.
+  // Chinese canned responses kept here for registry-level language data.
   zh: {
     hello: "你好！🙂 我是 KHOEM-AI。\n输入 /help 查看命令。",
     name: "我是 KHOEM-AI，一个在这部手机上运行的小助手。我不调用任何外部 API。",
