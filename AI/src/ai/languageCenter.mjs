@@ -1,38 +1,27 @@
-import { detectLanguage } from "./languageRegistry.mjs";
-
-const LANGUAGE_MODULES = Object.freeze({
-  en: "./english.mjs",
-  zh: "./chinese.mjs",
-});
+import { detectLanguage, LANGUAGE_REGISTRY } from "./languageRegistry.mjs";
 
 export async function routeLanguage(text, learned = {}, onStage = null) {
   const input = String(text ?? "").trim();
   if (!input) return null;
 
   const language = detectLanguage(input);
-  const modulePath = LANGUAGE_MODULES[language];
+  const entry = LANGUAGE_REGISTRY[language];
 
-  if (!modulePath) return null;
+  if (!entry?.module || !entry?.replyExport) return null;
 
-  const languageModule = await import(modulePath);
+  const languageModule = await import(entry.module);
+  const reply = languageModule[entry.replyExport];
 
-  if (language === "en" && typeof languageModule.englishReply === "function") {
-    onStage?.("RETRIEVING", "english module");
-    return languageModule.englishReply(input, learned);
-  }
+  if (typeof reply !== "function") return null;
 
-  if (language === "zh" && typeof languageModule.chineseReply === "function") {
-    onStage?.("RETRIEVING", "chinese module");
-    return languageModule.chineseReply(input, learned);
-  }
-
-  return null;
+  onStage?.("RETRIEVING", language === "en" ? "english module" : language === "zh" ? "chinese module" : `${language} module`);
+  return reply(input, learned);
 }
 
 export function isLanguageSupported(language) {
-  return Object.prototype.hasOwnProperty.call(LANGUAGE_MODULES, language);
+  return LANGUAGE_REGISTRY[language]?.status === "active";
 }
 
 export function listSupportedLanguages() {
-  return Object.freeze(Object.keys(LANGUAGE_MODULES));
+  return Object.freeze(Object.keys(LANGUAGE_REGISTRY).filter((language) => LANGUAGE_REGISTRY[language]?.status === "active"));
 }

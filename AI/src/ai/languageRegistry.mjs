@@ -9,6 +9,24 @@ export const detectLanguage = (s) => {
   return "en";
 };
 
+export const LANGUAGE_REGISTRY = Object.freeze({
+  km: Object.freeze({
+    module: null,
+    replyExport: null,
+    status: "registry-only",
+  }),
+  en: Object.freeze({
+    module: "./english.mjs",
+    replyExport: "englishReply",
+    status: "active",
+  }),
+  zh: Object.freeze({
+    module: "./chinese.mjs",
+    replyExport: "chineseReply",
+    status: "active",
+  }),
+});
+
 export const RE = {
   km: {
     hello: /^(សួស្តី|សួស្ដី|ជំរាបសួរ|ជម្រាបសួរ)/,
