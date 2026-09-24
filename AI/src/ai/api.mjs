@@ -21,6 +21,7 @@ import * as Ideas from "./ideas.mjs";
 import * as Planning from "./planning.mjs";
 import * as Experiments from "./experiments.mjs";
 import * as SelfEval from "./selfEval.mjs";
+import { analyzeConsistency } from "./selfConsistency.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
 // Caller-supplied identity. Still only as trustworthy as the shared API key —
@@ -101,6 +102,11 @@ export function registerApi(app) {
   }));
 
   app.post("/api/selfeval", guard, policy("selfeval.run"), wrap((req) => SelfEval.selfEvaluate(req.body || {})));
+  app.post("/api/self-consistency", guard, wrap((req) => {
+    const { answers } = req.body || {};
+    if (!Array.isArray(answers)) throw bad("answers must be an array");
+    return analyzeConsistency(answers);
+  }));
 
   app.get("/api/scan", guard, policy("tool.scan"), wrap(() => run("/scan")));
   app.get("/api/check", guard, policy("tool.check"), wrap(() => run("/check")));
