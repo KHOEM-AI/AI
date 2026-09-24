@@ -4,7 +4,7 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 const SRC = path.join(ROOT, "src");
-const CODE = /\.(tsx?|mjs|js|jsx|cpp|cc|cxx|c|h|hpp|hxx|cs|py|java|go|rb|php|swift|kt|kts|rs|scala|dart|lua|sh|sql|html?|css|scss|less|json|ya?ml|vue|svelte|r|pl|hs|mm?|ps1|groovy|exs?)$/;
+const CODE = /\.(tsx?|mjs|js|jsx|cpp|cc|cxx|c|h|hpp|hxx|cs|py|java|go|rb|php|swift|kt|kts|rs|scala|dart|lua|sh|sql)$/;
 const isBackup = (n) =>
   n.includes(".before-") || n.endsWith(".backup") || n.includes("black3d-small");
 
@@ -68,7 +68,7 @@ export function check() {
 
 export const HELP_ALL =
   "ពាក្យបញ្ជាដែលប្អូនយល់:\n" +
-  "- /scan  ស្កេនកូដក្នុងគម្រោង (ស្គាល់ជាង ៣៥ភាសា/ទម្រង់)\n" +
+  "- /scan  ស្កេនកូដក្នុងគម្រោង (ស្គាល់ជាង ២០ភាសា)\n" +
   "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង\n" +
   "- /funcs src/Gate.tsx  បង្ហាញបញ្ជី function\n" +
   "- /check  រកបញ្ហាទូទៅ\n" +

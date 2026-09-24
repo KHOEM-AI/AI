@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const CODE = /\.(tsx?|mjs|js|jsx|cpp|cc|cxx|c|h|hpp|hxx|cs|py|java|go|rb|php|swift|kt|kts|rs|scala|dart|lua|sh|sql|html?|css|scss|less|json|ya?ml|vue|svelte|r|pl|hs|mm?|ps1|groovy|exs?)$/;
+const CODE = /\.(tsx?|mjs|js|jsx|cpp|cc|cxx|c|h|hpp|hxx|cs|py|java|go|rb|php|swift|kt|kts|rs|scala|dart|lua|sh|sql)$/;
 const isBackup = (n) =>
   n.includes(".before-") || n.endsWith(".backup") || n.includes("black3d-small");
 
