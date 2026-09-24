@@ -3,6 +3,8 @@ import { handleLearn, load } from "./learn.mjs";
 import { englishReply } from "./english.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
+import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mjs";
+import { approveRequest, rejectRequest } from "./approvals.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -61,7 +63,11 @@ function readFile(rel) {
 const HELP =
   "ប្អូនជាខួរផ្ទាល់ខ្លួនរបស់បង (គ្មាន API) ហើយនៅតូច។ ប្អូនយល់ពាក្យបញ្ជាទាំងនេះ:\n" +
   "- /scan  ស្កេនកូដក្នុងគម្រោង\n" +
-  "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង";
+  "- /read src/App.tsx  អានឯកសារ ៤០ បន្ទាត់ដំបូង\n" +
+  "- /patch path\\n<content>  ស្នើសុំកែកូដ (ត្រូវការអនុម័ត)\n" +
+  "- /approve id  អនុម័ត + សរសេរឯកសារពិត\n" +
+  "- /reject id  បដិសេធ\n" +
+  "- /proposals  មើលបញ្ជី proposal";
 
 const HELP_EN =
   "Commands KHOEM-AI understands:\n" +
@@ -73,7 +79,11 @@ const HELP_EN =
   "- /learn question = answer  teach the brain\n" +
   "- /learned  show what it has learned\n" +
   "- /forget question  make it forget\n" +
-  "- /find word  search the code";
+  "- /find word  search the code\n" +
+  "- /patch path (then content on next lines)  propose a code change (needs approval)\n" +
+  "- /approve id  approve and write the file for real\n" +
+  "- /reject id  reject a proposal\n" +
+  "- /proposals  list pending proposals";
 
 const lang = (s) =>
   /[\u1780-\u17FF]/.test(s) ? "km" : "en";
@@ -109,6 +119,61 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
   const q = last.toLowerCase();
   const l = lang(last);
 
+  // ===== NEW: code patch commands (propose -> approve -> apply) =====
+  if (q.startsWith("/patch ")) {
+    onStage?.("TOOL_CALL", "patch propose");
+    const lines = last.split("\n");
+    const relPath = lines[0].slice(7).trim();
+    const newContent = lines.slice(1).join("\n");
+    if (!relPath) return "ទម្រង់: /patch path/to/file.mjs (បន្ទាប់មកមាតិកាថ្មីនៅបន្ទាត់បន្ទាប់)";
+    if (!newContent.trim()) return "សូមដាក់មាតិកាឯកសារថ្មីនៅបន្ទាត់បន្ទាប់ពី /patch path";
+    try {
+      const result = proposePatch({ relPath, newContent, reason: "requested via chat", actor: "khoem-ai" });
+      if (result.status === "REJECTED_BY_SANDBOX") {
+        const failed = (result.sandboxChecks || [])
+          .filter((c) => c && c.ok === false)
+          .map((c) => `- ${c.name || "check"}: ${c.detail || c.reason || "failed"}`)
+          .join("\n");
+        return `❌ Sandbox ច្រានចោល (proposal ${result.id}):\n${failed || "(no detail)"}`;
+      }
+      return `✅ បានស្នើសុំកែឯកសារ ${relPath}\nProposal ID: ${result.id}\nSandbox: ${result.sandboxOk ? "OK ✅" : "FAIL ❌"}\nត្រូវការការអនុម័ត — វាយ "/approve ${result.id}" ដើម្បីអនុវត្ត ឬ "/reject ${result.id}" ដើម្បីបដិសេធ`;
+    } catch (e) {
+      return "❌ បញ្ហា: " + (e.message || String(e));
+    }
+  }
+
+  if (q === "/proposals") {
+    const list = listProposals();
+    if (!list.length) return "គ្មាន proposal ណាមួយទេ";
+    return list.slice(0, 10).map((p) => `- ${p.id} | ${p.relPath} | ${p.status}`).join("\n");
+  }
+
+  if (q.startsWith("/approve ")) {
+    onStage?.("TOOL_CALL", "patch approve");
+    const proposalId = last.slice(9).trim();
+    const proposal = getProposal(proposalId);
+    if (!proposal) return "រកមិនឃើញ proposal: " + proposalId;
+    if (!proposal.approvalId) return "Proposal នេះគ្មាន approval ភ្ជាប់ទេ (ប្រហែល sandbox ច្រានចោលរួច)";
+    const decided = approveRequest(proposal.approvalId, "user", "approved via chat");
+    if (decided.error) return "❌ មិនអាចអនុម័តបាន: " + decided.error;
+    const applied = applyPatch(proposalId, proposal.approvalId, "user");
+    if (!applied.ok) return "❌ Apply បរាជ័យ: " + applied.error;
+    return `✅ បានអនុម័ត និងសរសេរចូល ${applied.relPath}\nRollback snapshot: ${applied.rollbackSnapshotId}\n${applied.note}`;
+  }
+
+  if (q.startsWith("/reject ")) {
+    onStage?.("TOOL_CALL", "patch reject");
+    const rest = last.slice(8).trim();
+    const [proposalId, ...reasonParts] = rest.split(" ");
+    const proposal = getProposal(proposalId);
+    if (!proposal) return "រកមិនឃើញ proposal: " + proposalId;
+    if (!proposal.approvalId) return "Proposal នេះគ្មាន approval ភ្ជាប់ទេ";
+    const decided = rejectRequest(proposal.approvalId, "user", reasonParts.join(" ") || "rejected via chat");
+    if (decided.error) return "❌ មិនអាចបដិសេធបាន: " + decided.error;
+    return "✅ បានបដិសេធ proposal: " + proposalId;
+  }
+  // ===== END NEW =====
+
   if (l === "en" && !q.startsWith("/") && q !== "help") { onStage?.("RETRIEVING", "english module"); return englishReply(last, load()); }
 
   if (!q.startsWith("/") && RE[l].hello.test(q)) return l === "km" ? SAY.km.hello(honorific) : SAY.en.hello;
@@ -117,7 +182,6 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
   const learned = handleLearn(last);
   if (learned !== null) { onStage?.("LEARNING", "learn command handled"); return learned; }
 
-  // សំណួរជាក់លាក់ស្តីពីបុណ្យភ្ជុំបិណ្ឌ
   if (!q.startsWith("/") && (q.includes("ទៅវត្តធ្វើអី") || q.includes("ធ្វើអីខ្លះក្នុងពិធីបុណ្យភ្ជុំបិណ្ឌ") || q.includes("ទៅវត្តធ្វើអ្វី") || q.includes("ធ្វើអ្វីនៅវត្ត") || q.includes("ធ្វើអីនៅវត្ត") || q.includes("ភ្ជុំបិណ្ឌធ្វើអី"))) {
     return "🕯️ ក្នុងពិធីបុណ្យភ្ជុំបិណ្ឌ ប្រជាពលរដ្ឋយើងទៅវត្តធ្វើសកម្មភាពសំខាន់ៗដូចជា៖\n- រយៈពេលដាក់បិណ្ឌ (ថ្ងៃទី១ ដល់ថ្ងៃទី១៤)៖ នាំគ្នាត្រៀមចង្ហាន់ ស្រូវអង្ករ និងនំចំណីប្រពៃណី (នំអន្សម នំគក់) យកទៅប្រគេនព្រះសង្ឃតាមវេន ដើម្បីឧទ្ទិសដល់ញាតិការដែលបានចែកឋានទៅ។\n- ប្រពៃណីបាយបិណ្ឌ៖ យកដុំបាយតូចៗទៅបោះនៅពេលព្រលឹមស្រាងៗ (ម៉ោង ៤ ទៀបភ្លឺ) ដើម្បីឧទ្ទិសដល់ពួកប្រេតអនាថា។\n- ថ្ងៃភ្ជុំបិណ្ឌធំ (ថ្ងៃទី១៥)៖ ជួបជុំសាច់ញាតិធ្វើបុណ្យទានធំដុំ ប្រគេនចង្ហាន់ និងធ្វើពិធីបង្សុកូលឧទ្ទិសកុសល។";
   }
@@ -136,12 +200,10 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
   if (RE[l].hello.test(q)) return SAY[l].hello;
   if (RE[l].name.test(q)) return SAY[l].name;
 
-  // --- Bridge to english.mjs for Knowledge Base (Laws, Provinces, Landmarks) ---
   try {
     onStage?.("RETRIEVING", "knowledge base lookup");
     const enMod = await import("./english.mjs");
     if (enMod.englishReply) {
-      // បញ្ជូនសំណួរទៅឆែកក្នុង Knowledge Base ទោះជាភាសាអ្វីក៏ដោយ
       const kb = await enMod.englishReply(conversation);
       if (kb && !kb.includes("I am sorry") && !kb.includes("Sorry,") && !kb.includes("I don't") && !kb.includes("unknown")) {
         return kb;
@@ -150,6 +212,5 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
   } catch (e) {
     // ignore
   }
-  // -----------------------------------------------------------------------------
   return l === "km" ? SAY.km.unknown(honorific) : SAY.en.unknown;
 }
