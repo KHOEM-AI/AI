@@ -6,6 +6,7 @@ import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
 import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mjs";
 import { approveRequest, rejectRequest } from "./approvals.mjs";
+import { detectLanguage, RE, SAY } from "./languageRegistry.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -86,43 +87,7 @@ const HELP_EN =
   "- /reject id  reject a proposal\n" +
   "- /proposals  list pending proposals";
 
-// NEW: detect Chinese via CJK Unicode range, checked before the km/en split
-// so Chinese input never falls through to englishReply's Latin-only logic.
-const lang = (s) => {
-  if (/[\u1780-\u17FF]/.test(s)) return "km";
-  if (/[\u4e00-\u9fff]/.test(s)) return "zh";
-  return "en";
-};
-
-const RE = {
-  km: {
-    hello: /^(សួស្តី|សួស្ដី|ជំរាបសួរ|ជម្រាបសួរ)/,
-    name: /ឈ្មោះ|(អ្នក|ប្អូន)ជា(អ្វី|នរណា|អ្នកណា)/,
-  },
-  en: {
-    hello: /^(hello|hi|hey)\b/,
-    name: /\b(your name|who are you|what are you)\b/,
-  },
-  zh: {
-    hello: /^(你好|您好|嗨|哈喽)/,
-    name: /(你叫什么名字|你的名字|你是谁)/,
-  },
-};
-
-const SAY = {
-  km: {
-    hello: (h) => `ជម្រាបសួរ${h}! 🙏 ខ្ញុំគឺ KHOEM-AI។\nតើថ្ងៃនេះ${h}មានអ្វីឱ្យខ្ញុំជួយដែរឬទេ?\n(វាយ /help ដើម្បីមើលពាក្យបញ្ជា)`,
-    name: "ខ្ញុំឈ្មោះ KHOEM-AI ជាជំនួយការឆ្លាតវៃផ្ទាល់ខ្លួនរបស់អ្នក។ 🙂",
-    unknown: (h) =>
-      `សូមអភ័យទោស${h} ខ្ញុំមិនទាន់យល់ពីសំណួរនេះនៅឡើយទេ។ 😔\nប៉ុន្តែ${h}អាចបង្រៀនខ្ញុំបាន៖ /learn សំណួរ = ចម្លើយ\n(ឬវាយ /help ដើម្បីមើលពាក្យបញ្ជាផ្សេងៗ)`,
-  },
-  en: {
-    hello: "Hello! 🙂\nI am KHOEM-AI.\nType /help to see my commands.",
-    name: "I am KHOEM-AI, a small assistant that runs on this phone. I do not call any outside API.",
-    unknown:
-      "I do not have an answer for that yet. You can teach me: /learn question = answer\nOr type /help to see my commands.",
-  },
-};
+const lang = detectLanguage;
 
 export async function khoemReply(conversation, honorific = "បង", onStage = null) {
   const last = String(conversation.at(-1)?.content ?? "").trim();
