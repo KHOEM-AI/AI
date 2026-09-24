@@ -150,7 +150,7 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
 
   // Route supported natural languages through the Language Center.
   if (!q.startsWith("/") && q !== "help") {
-    const languageReply = await routeLanguage(last, load(), onStage);
+    const languageReply = await routeLanguage(last, load(), onStage, honorific);
     if (languageReply !== null) return languageReply;
   }
 

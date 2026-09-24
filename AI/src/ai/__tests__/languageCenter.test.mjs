@@ -41,9 +41,9 @@ describe("languageCenter.mjs", () => {
 
     expect(isLanguageSupported("en")).toBe(true);
     expect(isLanguageSupported("zh")).toBe(true);
-    expect(isLanguageSupported("km")).toBe(false);
+    expect(isLanguageSupported("km")).toBe(true);
 
-    expect(listSupportedLanguages()).toEqual(["en", "zh"]);
+    expect(listSupportedLanguages()).toEqual(["km", "en", "zh"]);
   });
 
   it("returns null for a detected language without a registry entry", async () => {
@@ -86,6 +86,6 @@ describe("languageCenter.mjs", () => {
     const languages = listSupportedLanguages();
 
     expect(() => languages.push("km")).toThrow();
-    expect(listSupportedLanguages()).toEqual(["en", "zh"]);
+    expect(listSupportedLanguages()).toEqual(["km", "en", "zh"]);
   });
 });

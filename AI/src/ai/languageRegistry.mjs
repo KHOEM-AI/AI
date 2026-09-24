@@ -11,9 +11,9 @@ export const detectLanguage = (s) => {
 
 export const LANGUAGE_REGISTRY = Object.freeze({
   km: Object.freeze({
-    module: null,
-    replyExport: null,
-    status: "registry-only",
+    module: "./khmer.mjs",
+    replyExport: "khmerReply",
+    status: "active",
   }),
   en: Object.freeze({
     module: "./english.mjs",

@@ -32,8 +32,9 @@ describe("languageRegistry.mjs", () => {
   });
 
   it("LANGUAGE_REGISTRY contains expected language metadata", () => {
-    expect(LANGUAGE_REGISTRY.km.status).toBe("registry-only");
-    expect(LANGUAGE_REGISTRY.km.module).toBeNull();
+    expect(LANGUAGE_REGISTRY.km.status).toBe("active");
+    expect(LANGUAGE_REGISTRY.km.module).toBe("./khmer.mjs");
+    expect(LANGUAGE_REGISTRY.km.replyExport).toBe("khmerReply");
     expect(LANGUAGE_REGISTRY.en.status).toBe("active");
     expect(LANGUAGE_REGISTRY.en.module).toBe("./english.mjs");
     expect(LANGUAGE_REGISTRY.en.replyExport).toBe("englishReply");

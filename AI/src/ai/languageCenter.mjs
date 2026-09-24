@@ -1,6 +1,6 @@
 import { detectLanguage, LANGUAGE_REGISTRY } from "./languageRegistry.mjs";
 
-export async function routeLanguage(text, learned = {}, onStage = null) {
+export async function routeLanguage(text, learned = {}, onStage = null, honorific = "បង") {
   const input = String(text ?? "").trim();
   if (!input) return null;
 
@@ -15,7 +15,7 @@ export async function routeLanguage(text, learned = {}, onStage = null) {
   if (typeof reply !== "function") return null;
 
   onStage?.("RETRIEVING", language === "en" ? "english module" : language === "zh" ? "chinese module" : `${language} module`);
-  return reply(input, learned);
+  return reply(input, learned, honorific);
 }
 
 export function isLanguageSupported(language) {
