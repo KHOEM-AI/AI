@@ -64,4 +64,38 @@ describe("khmer.mjs", () => {
   it("returns null for empty input", () => {
     expect(khmerReply("   ")).toBeNull();
   });
+
+  it("replies about weekdays", () => {
+    expect(khmerReply("ថ្ងៃច័ន្ទ")).toBe(
+      "ថ្ងៃច័ន្ទជាថ្ងៃដំបូងនៃសប្តាហ៍ធ្វើការ។",
+    );
+  });
+
+  it("replies with Khmer numbers", () => {
+    expect(khmerReply("រាប់លេខ១ដល់១០")).toBe(
+      "១ ២ ៣ ៤ ៥ ៦ ៧ ៨ ៩ ១០",
+    );
+  });
+
+  it("replies to simple arithmetic in Khmer", () => {
+    expect(khmerReply("មួយបូកមួយប៉ុន្មាន")).toBe(
+      "មួយបូកមួយស្មើនឹងពីរ។",
+    );
+  });
+
+  it("handles weather limitation honestly", () => {
+    const result = khmerReply("ធាតុអាកាសថ្ងៃនេះ");
+    expect(result).toContain("ខ្ញុំមិនអាចមើលធាតុអាកាសខាងក្រៅបានទេ");
+  });
+
+  it("replies to food small talk", () => {
+    expect(khmerReply("ញ៉ាំបាយហើយឬនៅ")).toContain(
+      "ខ្ញុំគ្មានរាងកាយទេ",
+    );
+  });
+
+  it("replies to code-help questions", () => {
+    expect(khmerReply("អាចជួយកែកូដទេ")).toContain("/patch");
+  });
+
 });
