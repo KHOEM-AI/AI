@@ -1,3 +1,14 @@
-data/audit-log.test.jsonl
-data/audit-log.jsonl
-*.bak
+AI/add_batch*.cjs
+AI/add_final_*.cjs
+AI/audit_*.cjs
+AI/audit_*.txt
+AI/cleanup_*.cjs
+AI/dedupe_*.cjs
+AI/duplicate_*.txt
+AI/duplicate_*.cjs
+AI/fix_*.cjs
+AI/global_*.txt
+AI/merge_*.cjs
+AI/remove_dupes.cjs
+AI/repeated_responses_*.txt
+AI/report_*.cjs
