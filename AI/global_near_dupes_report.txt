@@ -1,5 +1,0 @@
-========================================
-🔍 GLOBAL NEAR-DUPLICATE AUDIT
-========================================
-📦 Total entries: 9987
-⏳ Bucketing by token count for speed...
