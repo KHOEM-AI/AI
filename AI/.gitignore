@@ -12,3 +12,5 @@ merge_*.cjs
 remove_dupes.cjs
 repeated_responses_*.txt
 report_*.cjs
+
+data/
