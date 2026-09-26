@@ -405,4 +405,34 @@ export function registerApi(app) {
     emit(approval.id, "EXECUTION_COMPLETED", { approvalId: approval.id, action: approval.action });
     return outcome;
   }));
+
+  // ---- Patch Dashboard compatibility routes (merged from server.mjs) ----
+  app.get("/api/patch/list", guard, (req, res) => {
+    res.json({ proposals: listProposals() });
+  });
+
+  app.post("/api/patch/:id/approve", guard, wrap((req) => {
+    const proposal = getProposal(req.params.id);
+    if (!proposal) throw bad("PROPOSAL_NOT_FOUND", 404);
+    const { approvalId, actor = "user", note = "" } = req.body || {};
+    const decision = approveRequest(approvalId || proposal.approvalId, "human:" + (actor || actorOf(req)), note);
+    return { approval: decision };
+  }));
+
+  app.post("/api/patch/:id/reject", guard, wrap((req) => {
+    const proposal = getProposal(req.params.id);
+    if (!proposal) throw bad("PROPOSAL_NOT_FOUND", 404);
+    const { approvalId, actor = "user", note = "" } = req.body || {};
+    const decision = rejectRequest(approvalId || proposal.approvalId, "human:" + (actor || actorOf(req)), note);
+    return { approval: decision };
+  }));
+
+  app.post("/api/patch/:id/apply", guard, wrap((req) => {
+    const proposal = getProposal(req.params.id);
+    if (!proposal) throw bad("PROPOSAL_NOT_FOUND", 404);
+    const { approvalId, actor = "user" } = req.body || {};
+    const result = applyPatch(req.params.id, approvalId || proposal.approvalId, actor);
+    if (!result.ok) throw bad(result.error, 409);
+    return result;
+  }));
 }

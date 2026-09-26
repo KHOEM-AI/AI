@@ -45,7 +45,7 @@ function createSandboxDir() {
   try {
     fs.symlinkSync(path.join(ROOT, "node_modules"), path.join(dir, "node_modules"), "dir");
   } catch (e) {
-    // Fallback: no symlink support — checks below will fail with a clear reason instead of a crash.
+    console.error("[sandbox] node_modules symlink failed:", e.message);
   }
   return dir;
 }

@@ -7,7 +7,8 @@ import { AICore } from "./src/ai/core.mjs";
 import { collectStatus, trackActivity } from "./src/ai/status.mjs";
 import { createTask, transition, getTask, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
 import { getAudit } from "./src/ai/permission.mjs";
-import { listApprovals } from "./src/ai/approvals.mjs";
+import { listApprovals, approveRequest, rejectRequest } from "./src/ai/approvals.mjs";
+import { proposePatch, getProposal, listProposals, applyPatch } from "./src/ai/patch.mjs";
 
 const app = express();
 app.use(cors());
@@ -57,6 +58,26 @@ app.get("/api/models", (req, res) => {
       },
     ],
   });
+});
+
+// Internal browser bridge for Patch Dashboard.
+// The secret stays server-side; it is never exposed to the frontend.
+app.use("/api/patch", (req, res, next) => {
+  const key = process.env.KHOEM_API_KEY;
+  if (key && !req.get("x-api-key")) {
+    req.headers["x-api-key"] = key;
+  }
+  next();
+});
+
+// Internal browser bridge for Control Center approval actions.
+// The secret stays server-side; it is never exposed to the frontend.
+app.use("/api/approvals", (req, res, next) => {
+  const key = process.env.KHOEM_API_KEY;
+  if (key && !req.get("x-api-key")) {
+    req.headers["x-api-key"] = key;
+  }
+  next();
 });
 
 registerApi(app);
@@ -131,6 +152,14 @@ app.get("/api/tasks", (req, res) => {
   if (id) return res.json({ task: getTask(id), events: getEvents(id) });
   res.json({ events: getEvents().slice(-50) });
 });
+
+function requireApiKey(req, res) {
+  const key = process.env.KHOEM_API_KEY;
+  if (!key) { res.status(503).json({ error: "API key not configured" }); return false; }
+  if (req.get("x-api-key") !== key) { res.status(401).json({ error: "Unauthorized" }); return false; }
+  return true;
+}
+
 
 app.listen(PORT, () => {
   console.log(`server.mjs listening on port ${PORT}`);

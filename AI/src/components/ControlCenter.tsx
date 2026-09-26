@@ -79,13 +79,14 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
   }, [load]);
 
   async function decide(id: string, action: "approve" | "reject") {
-    const key = window.prompt(t.apiKeyPrompt);
-    if (!key) return;
     setBusyId(id);
     try {
       const r = await fetch(`/api/approvals/${id}/${action}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": key },
+        headers: {
+          "Content-Type": "application/json",
+          "x-actor": "control-center",
+        },
         body: JSON.stringify({ decidedBy: "control-center" }),
       });
       const d = await r.json().catch(() => ({}));
@@ -152,8 +153,6 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
             <div className="status-card" key={a.id}>
               <div className="status-card__head">
                 <span className="status-card__name">{a.action}</span>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 <span className="status-badge" style={{ "--badge-color": RISK_COLOR[a.risk] } as React.CSSProperties}>
                   {a.risk}
                 </span>
@@ -212,8 +211,6 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
             <div className="status-card" key={a.id}>
               <div className="status-card__head">
                 <span className="status-card__name">{a.action}</span>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 <span className="status-badge" style={{ "--badge-color": RISK_COLOR[a.risk] } as React.CSSProperties}>
                   {a.risk} — {a.decision}
                 </span>

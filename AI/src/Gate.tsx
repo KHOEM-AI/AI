@@ -104,17 +104,7 @@ export default function Gate() {
   return (
     <div className="gate">
       <canvas ref={cv} className="gate__canvas" />
-      <svg className="gate__eye gate__logo" viewBox="0 0 220 200">
-        <defs>
-          <linearGradient id="tg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#38bdf8" />
-            <stop offset="0.5" stopColor="#a78bfa" />
-            <stop offset="1" stopColor="#fbbf24" />
-          </linearGradient>
-        </defs>
-        <polygon points="110,10 210,185 10,185" fill="rgba(0,0,0,0.6)" stroke="url(#tg)" strokeWidth="4" strokeLinejoin="round" />
-        <text x="110" y="150" textAnchor="middle" fontSize="70" fontWeight="800" fill="#38bdf8" stroke="#ffffff" strokeWidth="1">AI</text>
-      </svg>
+      <img src="/src/assets/khoem-ai-logo.png" alt="KHOEM-AI" className="gate__eye gate__logo" style={{ width: "180px", height: "auto" }} />
       <div className="gate__count">{Math.ceil(pct * 100)}</div>
       <div className="gate__title">KHOEM-AI</div>
       <button

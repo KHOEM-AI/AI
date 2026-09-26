@@ -105,7 +105,11 @@ export default function AIStatus({ onClose }: { onClose: () => void }) {
 
     const run = async () => {
       let res = await timedFetch("/api/health", API_HEALTH_TIMEOUT_MS);
-      for (let i = 0; i < HEALTH_MAX_RETRIES && res.kind !== "response"; i++) {
+      // Retry on network/timeout failures AND on a "response but not ok" result
+      // (e.g. dev-server cold start briefly returning a non-OK response) —
+      // otherwise a single transient bad response flashes ERROR/red before
+      // the next poll cycle corrects it a few seconds later.
+      for (let i = 0; i < HEALTH_MAX_RETRIES && !(res.kind === "response" && res.ok); i++) {
         res = await timedFetch("/api/health", API_HEALTH_TIMEOUT_MS);
       }
       const checked = new Date().toISOString();
@@ -259,8 +263,6 @@ export default function AIStatus({ onClose }: { onClose: () => void }) {
               <div className="status-card" key={c.id}>
                 <div className="status-card__head">
                   <span className="status-card__name">{pickText(lang, c.nameKm, c.nameEn)}</span>
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   <span className="status-badge" style={{ "--badge-color": label.color } as React.CSSProperties}>
                     ● {s.status}{lang === "km" ? ` — ${label.km}` : ""}
                   </span>

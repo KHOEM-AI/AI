@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
 import ControlCenter from "./components/ControlCenter";
+import PatchDashboard from "./components/PatchDashboard";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
@@ -19,6 +20,7 @@ function AppInner() {
   const [input, setInput] = useState("");
   const [showStatus, setShowStatus] = useState(false);
   const [showControl, setShowControl] = useState(false);
+  const [showPatchDashboard, setShowPatchDashboard] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +63,7 @@ function AppInner() {
           </button>
 
           <div className="app__brand">
-            <span className="app__brand-mark"><span className="app__logo" /></span>
+            <span className="app__brand-mark"><img className="app__logo" src="/src/assets/khoem-ai-logo.png" alt="KHOEM-AI" /></span>
             <span className="app__brand-name">{APP_NAME}</span>
           </div>
 
@@ -76,7 +78,7 @@ function AppInner() {
             <aside className="app__sidebar">
               <div className="app__sidebar-top">
                 <div className="app__brand">
-                  <span className="app__brand-mark"><span className="app__logo" /></span>
+                  <span className="app__brand-mark"><img className="app__logo" src="/src/assets/khoem-ai-logo.png" alt="KHOEM-AI" /></span>
                   <span className="app__brand-name">{APP_NAME}</span>
                 </div>
                 <button className="app__sidebar-close" onClick={() => setShowMenu(false)} aria-label={t.menuClose}>
@@ -90,6 +92,9 @@ function AppInner() {
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowControl(true); setShowMenu(false); }}>
                   {t.navControlCenter}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowPatchDashboard(true); setShowMenu(false); }}>
+                  {language === "km" ? "សំណើកែកូដ" : "Patch Dashboard"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
                   {t.navHonorific}
@@ -177,6 +182,7 @@ function AppInner() {
 
         {showStatus && <AIStatus onClose={() => setShowStatus(false)} />}
         {showControl && <ControlCenter onClose={() => setShowControl(false)} />}
+        {showPatchDashboard && <PatchDashboard onClose={() => setShowPatchDashboard(false)} />}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt

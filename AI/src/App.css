@@ -1021,3 +1021,52 @@ body::after {
   margin-bottom: 8px;
   padding-left: 4px;
 }
+
+
+/* ===== LOGO FIX FINAL: real image, no mask, matches Gate screen ===== */
+.app__brand-mark {
+  width: 64px !important;
+  height: 64px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+.app__logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  filter: drop-shadow(0 0 6px rgba(56,189,248,.5)) !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+}
+
+
+/* ===== VIEWPORT FIX: dvh for mobile browser UI bars ===== */
+/* 100vh includes space hidden behind mobile browser toolbars, which pushes
+   .app__composer off-screen with no way to scroll to it (since .app has
+   overflow:hidden). 100dvh tracks the *actual visible* viewport instead.
+   Fallback to 100vh first for older browsers, dvh overrides it where supported. */
+.app {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+
+/* ===== SIDEBAR SCROLL FIX: long language list must be reachable ===== */
+/* .app__sidebar is a fixed full-height panel with no overflow set. When the
+   inline language list (37+ items) expands past max-height:none, the extra
+   content is clipped outside the viewport with no way to scroll to it.
+   Making the sidebar itself scrollable fixes this without touching the
+   language list's own layout. */
+.app__sidebar {
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
