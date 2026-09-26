@@ -212,6 +212,162 @@ export async function collectStatus(aiCore) {
         module: "codeDataCenter.mjs",
       };
     }),
+
+    probe("approvals", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./approvals.mjs");
+      const list = m.listApprovals();
+      if (!Array.isArray(list)) throw new Error("bad approvals");
+      return { status: "READY", reasonKm: `សំណើអនុញ្ញាត ${list.length}`, reasonEn: `Approvals: ${list.length}`, module: "approvals.mjs" };
+    }),
+    probe("audit", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./audit.mjs");
+      const r = m.verifyAuditChain();
+      if (!(r === true || (r && r.ok !== false))) throw new Error("audit fail");
+      return { status: "READY", reasonKm: "Hash chain ត្រឹមត្រូវ", reasonEn: "Hash chain verified", module: "audit.mjs" };
+    }),
+    probe("budget", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./budget.mjs");
+      const list = m.listBudgets();
+      if (!Array.isArray(list)) throw new Error("bad budgets");
+      return { status: "READY", reasonKm: `ថវិកា ${list.length}`, reasonEn: `Budgets: ${list.length}`, module: "budget.mjs" };
+    }),
+    probe("circuitBreaker", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./circuitBreaker.mjs");
+      const list = m.listBreakers();
+      if (!Array.isArray(list)) throw new Error("bad breakers");
+      return { status: "READY", reasonKm: `Breaker ${list.length}`, reasonEn: `Breakers: ${list.length}`, module: "circuitBreaker.mjs" };
+    }),
+    probe("killswitch", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./killswitch.mjs");
+      const active = m.isKilled();
+      return { status: active ? "ACTIVE" : "READY", reasonKm: active ? "ផ្អាកកំពុងសកម្ម" : "រួចរាល់", reasonEn: active ? "Halted" : "Ready", module: "killswitch.mjs" };
+    }),
+    probe("retry", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./retry.mjs");
+      if (typeof m.retryIdempotent !== "function") throw new Error("bad retry");
+      return { status: "READY", reasonKm: "ព្យាយាមឡើងវិញអាចប្រើបាន", reasonEn: "Retry available", module: "retry.mjs" };
+    }),
+    probe("rollback", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./rollback.mjs");
+      const list = m.listSnapshots();
+      if (!Array.isArray(list)) throw new Error("bad snapshots");
+      return { status: "READY", reasonKm: `Snapshot ${list.length}`, reasonEn: `Snapshots: ${list.length}`, module: "rollback.mjs" };
+    }),
+    probe("sandbox", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./sandbox.mjs");
+      if (typeof m.runSandboxTest !== "function") throw new Error("bad sandbox");
+      return { status: "READY", reasonKm: "Sandbox អាចប្រើបាន", reasonEn: "Sandbox available", module: "sandbox.mjs" };
+    }),
+    probe("verification", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./verification.mjs");
+      const s = m.getVerificationStatuses();
+      if (!s) throw new Error("bad verification");
+      return { status: "READY", reasonKm: "ការផ្ទៀងផ្ទាត់អាចអានបាន", reasonEn: "Verification readable", module: "verification.mjs" };
+    }),
+
+    probe("permission", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./permission.mjs");
+      const pv = m.getPolicyVersion();
+      if (!pv) throw new Error("bad permission");
+      return { status: "READY", reasonKm: `Policy v${pv}`, reasonEn: `Policy v${pv}`, module: "permission.mjs" };
+    }),
+    probe("modelRouting", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./modelRouting.mjs");
+      const list = m.listProviders();
+      if (!Array.isArray(list)) throw new Error("bad providers");
+      return { status: "READY", reasonKm: `Provider ${list.length}`, reasonEn: `Providers: ${list.length}`, module: "modelRouting.mjs" };
+    }),
+    probe("goal", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./goal.mjs");
+      const list = m.listGoals();
+      if (!Array.isArray(list)) throw new Error("bad goals");
+      return { status: "READY", reasonKm: `គោលដៅ ${list.length}`, reasonEn: `Goals: ${list.length}`, module: "goal.mjs" };
+    }),
+    probe("ideas", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./ideas.mjs");
+      const list = m.listIdeas();
+      if (!Array.isArray(list)) throw new Error("bad ideas");
+      return { status: "READY", reasonKm: `គំនិត ${list.length}`, reasonEn: `Ideas: ${list.length}`, module: "ideas.mjs" };
+    }),
+    probe("planning", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./planning.mjs");
+      const list = m.listPlans();
+      if (!Array.isArray(list)) throw new Error("bad plans");
+      return { status: "READY", reasonKm: `ផែនការ ${list.length}`, reasonEn: `Plans: ${list.length}`, module: "planning.mjs" };
+    }),
+    probe("experiments", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./experiments.mjs");
+      const list = m.listExperiments();
+      if (!Array.isArray(list)) throw new Error("bad experiments");
+      return { status: "READY", reasonKm: `ពិសោធន៍ ${list.length}`, reasonEn: `Experiments: ${list.length}`, module: "experiments.mjs" };
+    }),
+    probe("enginesSummary", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./enginesSummary.mjs");
+      const s = m.summarizeEngines();
+      if (!s) throw new Error("bad summary");
+      return { status: "READY", reasonKm: "សេចក្តីសង្ខេបខួរអាចអានបាន", reasonEn: "Engine summary readable", module: "enginesSummary.mjs" };
+    }),
+    probe("selfConsistency", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./selfConsistency.mjs");
+      const r = m.analyzeConsistency(["ping", "ping"]);
+      if (!r) throw new Error("bad consistency");
+      return { status: "READY", reasonKm: "ត្រួតពិនិត្យភាពស៊ីសង្វាក់បាន", reasonEn: "Consistency check ran", module: "selfConsistency.mjs" };
+    }),
+
+    probe("selfEval", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./selfEval.mjs");
+      const s = m.getEvalStats();
+      if (!s) throw new Error("bad selfEval");
+      return { status: "READY", reasonKm: "ស្ថិតិវាយតម្លៃខ្លួនឯងអាចអានបាន", reasonEn: "Self-eval stats readable", module: "selfEval.mjs" };
+    }),
+    probe("metrics", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./metrics.mjs");
+      const s = m.getMetrics();
+      if (!s) throw new Error("bad metrics");
+      return { status: "READY", reasonKm: "ម៉ែត្រិកអាចប្រមូលបាន", reasonEn: "Metrics working", module: "metrics.mjs" };
+    }),
+    probe("patch", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./patch.mjs");
+      const list = m.listProposals();
+      if (!Array.isArray(list)) throw new Error("bad patch");
+      return { status: "READY", reasonKm: `ស្នើកែកូដ ${list.length}`, reasonEn: `Patches: ${list.length}`, module: "patch.mjs" };
+    }),
+    probe("tasks", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./tasks.mjs");
+      const list = m.getAllTasks();
+      if (!Array.isArray(list)) throw new Error("bad tasks");
+      return { status: "READY", reasonKm: `ការងារ ${list.length}`, reasonEn: `Tasks: ${list.length}`, module: "tasks.mjs" };
+    }),
+    probe("chinese", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./chinese.mjs");
+      if (typeof m.chineseReply !== "function") throw new Error("bad chinese");
+      const dev = DEVELOPING_MODULES.includes("chinese");
+      return { status: dev ? "DEVELOPING" : "READY", reasonKm: "ខួរភាសាចិនកំពុងអភិវឌ្ឍ", reasonEn: "Chinese brain developing", module: "chinese.mjs" };
+    }),
+    probe("thai", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./thai.mjs");
+      if (typeof m.thaiReply !== "function") throw new Error("bad thai");
+      const dev = DEVELOPING_MODULES.includes("thai");
+      return { status: dev ? "DEVELOPING" : "READY", reasonKm: "ខួរភាសាថៃកំពុងអភិវឌ្ឍ", reasonEn: "Thai brain developing", module: "thai.mjs" };
+    }),
+    probe("langCheckers", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./langCheckers.mjs");
+      const list = m.listSupportedLanguages();
+      if (!Array.isArray(list)) throw new Error("bad langCheckers");
+      return { status: "READY", reasonKm: `គាំទ្រភាសា ${list.length}`, reasonEn: `Languages: ${list.length}`, module: "langCheckers.mjs" };
+    }),
+    probe("languageCenter", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./languageCenter.mjs");
+      const list = m.listSupportedLanguages();
+      if (!Array.isArray(list)) throw new Error("bad languageCenter");
+      return { status: "READY", reasonKm: `កណ្តាលភាសា ${list.length}`, reasonEn: `Center languages: ${list.length}`, module: "languageCenter.mjs" };
+    }),
+    probe("languageRegistry", API_HEALTH_TIMEOUT_MS, async () => {
+      const m = await loadModule("./languageRegistry.mjs");
+      const keys = Object.keys(m.LANGUAGE_REGISTRY || {});
+      if (keys.length === 0) throw new Error("bad registry");
+      return { status: "READY", reasonKm: `ចុះបញ្ជីភាសា ${keys.length}`, reasonEn: `Registry: ${keys.length}`, module: "languageRegistry.mjs" };
+    }),
   ]);
 
   const enriched = enrichCards(cards);

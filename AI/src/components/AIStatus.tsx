@@ -34,7 +34,7 @@ interface Snapshot { api: Shown; system: Shown; cards: Record<string, Shown> }
 interface Probe { kind: "response" | "timeout" | "network"; ok: boolean; http?: number; ms: number; data?: any }
 
 const GOOD = new Set<string>(["ONLINE", "READY", "ACTIVE", "DEVELOPING", "HEALTHY"]);
-const SERVER_ID: Record<string, string> = { "english-brain": "english", "khmer-brain": "khmer" };
+const SERVER_ID: Record<string, string> = { "english-brain": "english", "khmer-brain": "khmer", "chinese-brain": "chinese", "thai-brain": "thai" };
 
 const asCode = (s: string): StatusCode => (s in STATUS_LABELS ? (s as StatusCode) : "UNKNOWN");
 const fmtTime = (iso?: string) => (iso ? new Date(iso).toLocaleTimeString("en-GB") : "—");
@@ -245,8 +245,15 @@ export default function AIStatus({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="status-panel__meta">
-          <span className={system.status === "HEALTHY" ? "status-health status-health--good" : "status-health status-health--warn"}>
-            {t.systemHealthLabel}: {system.status}{lang === "km" ? ` — ${sysLabel.km}` : ""}
+          <span
+            className={`status-health status-health--${system.status.toLowerCase()}`}
+            style={{ "--health-color": sysLabel.color } as React.CSSProperties}
+            aria-label={`${t.systemHealthLabel}: ${system.status}: ${lang === "km" ? sysLabel.km : sysLabel.en}`}
+          >
+            <span className="status-health__dot" aria-hidden="true">●</span>
+            <span>
+              {t.systemHealthLabel}: {system.status}{lang === "km" ? ` — ${sysLabel.km}` : ""}
+            </span>
           </span>
           {pickText(lang, system.reasonKm, system.reasonEn) && (
             <span>{pickText(lang, system.reasonKm, system.reasonEn)}</span>
@@ -263,8 +270,13 @@ export default function AIStatus({ onClose }: { onClose: () => void }) {
               <div className="status-card" key={c.id}>
                 <div className="status-card__head">
                   <span className="status-card__name">{pickText(lang, c.nameKm, c.nameEn)}</span>
-                  <span className="status-badge" style={{ "--badge-color": label.color } as React.CSSProperties}>
-                    ● {s.status}{lang === "km" ? ` — ${label.km}` : ""}
+                  <span
+                    className={`status-badge status-badge--${s.status.toLowerCase()}`}
+                    style={{ "--badge-color": label.color } as React.CSSProperties}
+                    aria-label={`${s.status}: ${lang === "km" ? label.km : label.en}`}
+                  >
+                    <span className="status-badge__dot" aria-hidden="true">●</span>
+                    <span>{s.status}{lang === "km" ? ` — ${label.km}` : ""}</span>
                   </span>
                 </div>
                 <p className="status-card__desc-km">{pickText(lang, c.descKm, c.descEn)}</p>

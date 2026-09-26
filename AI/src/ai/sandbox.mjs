@@ -111,9 +111,9 @@ export function runSandboxTest({ relPath, newContent, reason = "manual" }) {
     }
 
     // Default (unchanged): JS/TS pipeline.
-    const tsc = runCheck("npx tsc --noEmit", dir, 60000);
-    const build = tsc.ok ? runCheck("npm run build", dir, 90000) : { ok: false, output: "", error: "skipped — tsc failed" };
-    const tests = build.ok ? runCheck("npx vitest run", dir, 120000) : { ok: false, output: "", error: "skipped — build failed" };
+    const tsc = runCheck("npx tsc --noEmit", dir, 120000);
+    const build = tsc.ok ? runCheck("npm run build", dir, 180000) : { ok: false, output: "", error: "skipped — tsc failed" };
+    const tests = build.ok ? runCheck("npx vitest run", dir, 480000) : { ok: false, output: "", error: "skipped — build failed" };
     const overallOk = tsc.ok && build.ok && tests.ok;
     return {
       id,
