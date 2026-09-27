@@ -4,7 +4,7 @@ import {
   PAGE_TITLE_KM, PAGE_TITLE_EN, StatusCode,
 } from "../data/aiStatus";
 import {
-  API_HEALTH_TIMEOUT_MS, HEALTH_MAX_RETRIES,
+  API_HEALTH_TIMEOUT_MS, API_DEFAULT_TIMEOUT_MS, HEALTH_MAX_RETRIES,
   OFFLINE_AFTER_FAILED_CHECKS, STATUS_POLL_INTERVAL_MS,
 } from "../config/timeouts.mjs";
 import { useT, useLanguageCode, pickText } from "../i18n";
@@ -124,7 +124,7 @@ export default function AIStatus({ onClose }: { onClose: () => void }) {
           reasonEn: "Running and able to receive requests.",
           lastChecked: checked, http: res.http, ms: res.ms,
         };
-        const st = await timedFetch("/api/status", API_HEALTH_TIMEOUT_MS);
+        const st = await timedFetch("/api/status", API_DEFAULT_TIMEOUT_MS);
         if (st.ok && st.data && Array.isArray(st.data.cards)) server = st.data as ServerData;
       } else if (res.kind === "response") {
         fails = 0;
