@@ -60,6 +60,26 @@ function dice(a, b) {
   return (2 * inter) / (a.length - 1 + b.length - 1);
 }
 
+// Evidence-based confidence for a learned-answer lookup, using the same
+// dice-coefficient scoring handleLearn() already uses. Does not change
+// handleLearn()'s own behavior — this is an additional, read-only view.
+// confidence: "HIGH" (exact or score>=0.7), "MEDIUM" (0.45-0.7),
+// "UNCERTAIN" (below 0.45 or no learned entry at all).
+export function matchLearned(text) {
+  const q = norm(text);
+  const d = load();
+  if (d[q]) return { answer: d[q], score: 1, confidence: "HIGH", matchedKey: q };
+  let best = null;
+  let score = 0;
+  for (const k of Object.keys(d)) {
+    const sc = dice(q, k);
+    if (sc > score) { score = sc; best = k; }
+  }
+  if (best && score >= 0.7) return { answer: d[best], score, confidence: "HIGH", matchedKey: best };
+  if (best && score >= 0.45) return { answer: d[best], score, confidence: "MEDIUM", matchedKey: best };
+  return { answer: null, score, confidence: "UNCERTAIN", matchedKey: best };
+}
+
 export function handleLearn(text) {
   const t = text.trim();
 
