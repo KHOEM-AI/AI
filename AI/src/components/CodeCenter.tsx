@@ -36,6 +36,20 @@ export default function CodeCenter({ onClose }: { onClose: () => void }) {
   const [symbolHits, setSymbolHits] = useState<{ path: string; kind: string }[] | null>(null);
   const [depFile, setDepFile] = useState("");
   const [deps, setDeps] = useState<{ dependencies: string[]; dependents: string[] } | null>(null);
+  const [allSymbols, setAllSymbols] = useState<{ path: string; kind: string; name: string }[] | null>(null);
+  const [circular, setCircular] = useState<string[][] | null>(null);
+  const [sandboxRelPath, setSandboxRelPath] = useState("");
+  const [sandboxNewContent, setSandboxNewContent] = useState("");
+  const [sandboxReason, setSandboxReason] = useState("");
+  const [sandboxResult, setSandboxResult] = useState<unknown | null>(null);
+  const [legacyScan, setLegacyScan] = useState<unknown | null>(null);
+  const [legacyCheck, setLegacyCheck] = useState<unknown | null>(null);
+  const [legacyFindQ, setLegacyFindQ] = useState("");
+  const [legacyFind, setLegacyFind] = useState<unknown | null>(null);
+  const [legacyFuncsFile, setLegacyFuncsFile] = useState("");
+  const [legacyFuncs, setLegacyFuncs] = useState<unknown | null>(null);
+  const [legacyReadFile, setLegacyReadFile] = useState("");
+  const [legacyRead, setLegacyRead] = useState<unknown | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,6 +93,66 @@ export default function CodeCenter({ onClose }: { onClose: () => void }) {
       const b = await api(`/api/code/dependents?file=${encodeURIComponent(depFile.trim())}`);
       setDeps({ dependencies: a.dependencies ?? [], dependents: b.dependents ?? [] });
     } catch { setError("dependency lookup failed"); } finally { setBusy(null); }
+  }
+
+  async function loadAllSymbols() {
+    setBusy("all-symbols"); setError(null);
+    try {
+      const d = await api("/api/code/symbols");
+      setAllSymbols(d.files ?? []);
+    } catch { setError("symbol list failed"); } finally { setBusy(null); }
+  }
+
+  async function loadCircular() {
+    setBusy("circular"); setError(null);
+    try {
+      const d = await api("/api/code/circular");
+      setCircular(d.cycles ?? []);
+    } catch { setError("circular check failed"); } finally { setBusy(null); }
+  }
+
+  async function runSandboxTest() {
+    if (!sandboxRelPath.trim() || !sandboxNewContent) return;
+    setBusy("sandbox"); setError(null);
+    try {
+      setSandboxResult(await api("/api/sandbox/test", {
+        method: "POST",
+        body: JSON.stringify({ relPath: sandboxRelPath.trim(), newContent: sandboxNewContent, reason: sandboxReason.trim() || undefined }),
+      }));
+    } catch { setError("sandbox test failed"); } finally { setBusy(null); }
+  }
+
+  async function runLegacyScan() {
+    setBusy("legacy-scan"); setError(null);
+    try { setLegacyScan(await api("/api/scan")); }
+    catch { setError("legacy scan failed"); } finally { setBusy(null); }
+  }
+
+  async function runLegacyCheck() {
+    setBusy("legacy-check"); setError(null);
+    try { setLegacyCheck(await api("/api/check")); }
+    catch { setError("legacy check failed"); } finally { setBusy(null); }
+  }
+
+  async function runLegacyFind() {
+    if (!legacyFindQ.trim()) return;
+    setBusy("legacy-find"); setError(null);
+    try { setLegacyFind(await api(`/api/find?q=${encodeURIComponent(legacyFindQ.trim())}`)); }
+    catch { setError("legacy find failed"); } finally { setBusy(null); }
+  }
+
+  async function runLegacyFuncs() {
+    if (!legacyFuncsFile.trim()) return;
+    setBusy("legacy-funcs"); setError(null);
+    try { setLegacyFuncs(await api(`/api/funcs?file=${encodeURIComponent(legacyFuncsFile.trim())}`)); }
+    catch { setError("legacy funcs failed"); } finally { setBusy(null); }
+  }
+
+  async function runLegacyRead() {
+    if (!legacyReadFile.trim()) return;
+    setBusy("legacy-read"); setError(null);
+    try { setLegacyRead(await api(`/api/read?file=${encodeURIComponent(legacyReadFile.trim())}`)); }
+    catch { setError("legacy read failed"); } finally { setBusy(null); }
   }
 
   return (
@@ -194,6 +268,129 @@ export default function CodeCenter({ onClose }: { onClose: () => void }) {
           <div className="status-card__extra">
             <div><b>{pickText(lang, "ហៅប្រើ", "Depends on")}:</b> {deps.dependencies.join(", ") || "—"}</div>
             <div><b>{pickText(lang, "ត្រូវបានហៅដោយ", "Used by")}:</b> {deps.dependents.join(", ") || "—"}</div>
+          </div>
+        )}
+
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
+          <span>{pickText(lang, "រាល់ Symbol ក្នុងគម្រោង", "All symbols in project")}</span>
+        </div>
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
+          <button disabled={busy === "all-symbols"} onClick={loadAllSymbols}>
+            {pickText(lang, "ផ្ទុកទាំងអស់", "Load all")}
+          </button>
+        </div>
+        {allSymbols && (
+          <div className="status-card__extra">
+            {allSymbols.length === 0
+              ? pickText(lang, "គ្មាន", "None")
+              : allSymbols.map((s, i) => <div key={i}>{s.path} — {s.name} ({s.kind})</div>)}
+          </div>
+        )}
+
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
+          <span>{pickText(lang, "រក Circular Dependency", "Find circular dependencies")}</span>
+        </div>
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
+          <button disabled={busy === "circular"} onClick={loadCircular}>
+            {pickText(lang, "ត្រួតពិនិត្យ", "Check")}
+          </button>
+        </div>
+        {circular && (
+          <div className="status-card__extra">
+            {circular.length === 0
+              ? pickText(lang, "រកមិនឃើញ circular dependency", "No circular dependencies found")
+              : circular.map((cycle, i) => <div key={i}>{cycle.join(" → ")}</div>)}
+          </div>
+        )}
+
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
+          <span>{pickText(lang, "សាកល្បងកូដក្នុង Sandbox", "Test code in sandbox")}</span>
+        </div>
+        <div className="status-panel__meta" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <input
+            value={sandboxRelPath}
+            onChange={(e) => setSandboxRelPath(e.target.value)}
+            placeholder="src/ai/khoem.mjs"
+          />
+          <textarea
+            value={sandboxNewContent}
+            onChange={(e) => setSandboxNewContent(e.target.value)}
+            placeholder={pickText(lang, "ខ្លឹមសារកូដថ្មីទាំងស្រុង", "full new file content")}
+            rows={8}
+            style={{ fontFamily: "monospace", fontSize: "0.85em" }}
+          />
+          <input
+            value={sandboxReason}
+            onChange={(e) => setSandboxReason(e.target.value)}
+            placeholder={pickText(lang, "មូលហេតុ (មិនចាំបាច់)", "reason (optional)")}
+          />
+          <button disabled={busy === "sandbox" || !sandboxRelPath.trim() || !sandboxNewContent} onClick={runSandboxTest}>
+            {pickText(lang, "រត់សាកល្បង", "Run test")}
+          </button>
+        </div>
+        {sandboxResult !== null && (
+          <div className="status-card__extra">
+            <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.85em" }}>
+              {JSON.stringify(sandboxResult, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
+          <span>{pickText(lang, "ឧបករណ៍ចាស់ (Legacy Phase 1)", "Legacy tools (Phase 1)")}</span>
+        </div>
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button disabled={busy === "legacy-scan"} onClick={runLegacyScan}>
+            {pickText(lang, "Scan", "Scan")}
+          </button>
+          <button disabled={busy === "legacy-check"} onClick={runLegacyCheck}>
+            {pickText(lang, "Check", "Check")}
+          </button>
+        </div>
+        {legacyScan !== null && (
+          <div className="status-card__extra">
+            <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.85em" }}>{JSON.stringify(legacyScan, null, 2)}</pre>
+          </div>
+        )}
+        {legacyCheck !== null && (
+          <div className="status-card__extra">
+            <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.85em" }}>{JSON.stringify(legacyCheck, null, 2)}</pre>
+          </div>
+        )}
+
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={legacyFindQ} onChange={(e) => setLegacyFindQ(e.target.value)} placeholder={pickText(lang, "ពាក្យស្វែងរក", "search term")} />
+          <button disabled={busy === "legacy-find" || !legacyFindQ.trim()} onClick={runLegacyFind}>
+            {pickText(lang, "Find", "Find")}
+          </button>
+        </div>
+        {legacyFind !== null && (
+          <div className="status-card__extra">
+            <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.85em" }}>{JSON.stringify(legacyFind, null, 2)}</pre>
+          </div>
+        )}
+
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={legacyFuncsFile} onChange={(e) => setLegacyFuncsFile(e.target.value)} placeholder="src/ai/khoem.mjs" />
+          <button disabled={busy === "legacy-funcs" || !legacyFuncsFile.trim()} onClick={runLegacyFuncs}>
+            {pickText(lang, "Funcs", "Funcs")}
+          </button>
+        </div>
+        {legacyFuncs !== null && (
+          <div className="status-card__extra">
+            <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.85em" }}>{JSON.stringify(legacyFuncs, null, 2)}</pre>
+          </div>
+        )}
+
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={legacyReadFile} onChange={(e) => setLegacyReadFile(e.target.value)} placeholder="src/ai/khoem.mjs" />
+          <button disabled={busy === "legacy-read" || !legacyReadFile.trim()} onClick={runLegacyRead}>
+            {pickText(lang, "Read", "Read")}
+          </button>
+        </div>
+        {legacyRead !== null && (
+          <div className="status-card__extra">
+            <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.85em" }}>{JSON.stringify(legacyRead, null, 2)}</pre>
           </div>
         )}
       </div>
