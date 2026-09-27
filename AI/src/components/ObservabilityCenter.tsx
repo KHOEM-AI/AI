@@ -26,6 +26,12 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
   const [circuits, setCircuits] = useState<unknown | null>(null);
   const [routing, setRouting] = useState<unknown | null>(null);
   const [verification, setVerification] = useState<unknown | null>(null);
+  const [taskDetailId, setTaskDetailId] = useState("");
+  const [taskDetail, setTaskDetail] = useState<unknown | null>(null);
+  const [circuitName, setCircuitName] = useState("");
+  const [circuitDetail, setCircuitDetail] = useState<unknown | null>(null);
+  const [routeDecision, setRouteDecision] = useState<unknown | null>(null);
+  const [preferredProvider, setPreferredProvider] = useState("khoem");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,7 +65,27 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
     } catch { setError("verification load failed"); } finally { setBusy(null); }
   }
 
-  async function runVerification() {
+  async function loadTaskDetail() {
+    if (!taskDetailId.trim()) return;
+    setBusy("task-detail"); setError(null);
+    try { setTaskDetail(await api(`/api/tasks/${encodeURIComponent(taskDetailId.trim())}`)); }
+    catch { setError("task detail failed"); } finally { setBusy(null); }
+  }
+
+  async function loadCircuitDetail() {
+    if (!circuitName.trim()) return;
+    setBusy("circuit-detail"); setError(null);
+    try { setCircuitDetail(await api(`/api/circuit/${encodeURIComponent(circuitName.trim())}`)); }
+    catch { setError("circuit detail failed"); } finally { setBusy(null); }
+  }
+
+  async function decideRoute() {
+    setBusy("route-decide"); setError(null);
+    try { setRouteDecision(await api(`/api/model/route?preferred=${encodeURIComponent(preferredProvider.trim() || "khoem")}`)); }
+    catch { setError("route decision failed"); } finally { setBusy(null); }
+  }
+
+    async function runVerification() {
     setBusy("run-verify"); setError(null);
     try {
       const result = await api("/api/verify", { method: "POST", body: JSON.stringify({ reason: "manual UI trigger" }) });
@@ -99,6 +125,30 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             {pickText(lang, "ដំណើរការផ្ទៀងផ្ទាត់ថ្មី", "Run new verification")}
           </button>
         </div>
+
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={taskDetailId} onChange={(e) => setTaskDetailId(e.target.value)} placeholder="Task ID" />
+          <button disabled={busy === "task-detail" || !taskDetailId.trim()} onClick={loadTaskDetail}>
+            {pickText(lang, "មើលលម្អិត", "View detail")}
+          </button>
+        </div>
+        {taskDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={taskDetail} /></div>}
+
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={circuitName} onChange={(e) => setCircuitName(e.target.value)} placeholder="Circuit name" />
+          <button disabled={busy === "circuit-detail" || !circuitName.trim()} onClick={loadCircuitDetail}>
+            {pickText(lang, "មើលលម្អិត Circuit", "View circuit detail")}
+          </button>
+        </div>
+        {circuitDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={circuitDetail} /></div>}
+
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={preferredProvider} onChange={(e) => setPreferredProvider(e.target.value)} placeholder="preferred provider" />
+          <button disabled={busy === "route-decide"} onClick={decideRoute}>
+            {pickText(lang, "សម្រេចជ្រើសរើស Provider", "Decide provider")}
+          </button>
+        </div>
+        {routeDecision !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={routeDecision} /></div>}
 
         {tasks !== null && (
           <>
