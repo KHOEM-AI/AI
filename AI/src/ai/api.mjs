@@ -10,6 +10,8 @@ import { isKilled, activateKillSwitch, deactivateKillSwitch, getKillSwitchStatus
 import { createSnapshot, listSnapshots, getSnapshot, buildRollbackPlan } from "./rollback.mjs";
 import { runSandboxTest } from "./sandbox.mjs";
 import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mjs";
+import { listTools, findTools, describeToolRisk } from "./toolRegistry.mjs";
+import "./toolRegistry.bootstrap.mjs";
 import { createBudget, recordUsage, checkBudget, getBudget, listBudgets } from "./budget.mjs";
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
 import { getMetrics } from "./metrics.mjs";
@@ -267,6 +269,20 @@ export function registerApi(app) {
     return result;
   }));
   // ---- Phase 22: Testing + Verification Pipeline (evidence-based) ----
+  // ---- Tool/API Registry (discovery layer over permission.mjs) ----
+  app.get("/api/tools", guard, wrap(() => ({ tools: listTools() })));
+
+  app.get("/api/tools/find", guard, wrap((req) => {
+    if (!req.query.q) throw bad("ត្រូវការ ?q=ពាក្យ");
+    return { hits: findTools(req.query.q) };
+  }));
+
+  app.get("/api/tools/:id/risk", guard, wrap((req) => {
+    const info = describeToolRisk(req.params.id, actorOf(req));
+    if (!info) throw bad("រកមិនឃើញ tool", 404);
+    return info;
+  }));
+
   app.post("/api/verify", guard, policy("code.verify"), wrap((req) => {
     return runVerification(String(req.body?.reason || "manual"));
   }));

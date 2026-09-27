@@ -59,6 +59,9 @@ const fmtTime = (iso?: string) => (iso ? new Date(iso).toLocaleTimeString("en-GB
 export default function ControlCenter({ onClose }: { onClose: () => void }) {
   const [data, setData] = useState<ControlData | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [killStatus, setKillStatus] = useState<{ killed: boolean; reason?: string } | null>(null);
+  const [approved, setApproved] = useState<ApprovalItem[]>([]);
+  const [busyKill, setBusyKill] = useState(false);
   const t = useT();
 
   const load = useCallback(async () => {
@@ -66,6 +69,10 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
       const r = await fetch("/api/control", { cache: "no-store" });
       const d = await r.json();
       setData(d);
+      const ks = await fetch("/api/system/status", { cache: "no-store" }).then((res) => res.json()).catch(() => null);
+      if (ks) setKillStatus(ks);
+      const ap = await fetch("/api/approvals?status=APPROVED", { cache: "no-store" }).then((res) => res.json()).catch(() => null);
+      if (ap?.approvals) setApproved(ap.approvals);
     } catch {
       // silent: control center is observability-only, never blocks the app
     }
@@ -102,6 +109,44 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
     }
   }
 
+  async function killSwitch() {
+    setBusyKill(true);
+    try {
+      const r = await fetch("/api/system/kill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-actor": "control-center" },
+        body: JSON.stringify({ reason: "manual kill from Control Center" }),
+      });
+      if (!r.ok) { alert(t.decisionFailed); return; }
+      await load();
+    } catch { alert(t.connectFailed); } finally { setBusyKill(false); }
+  }
+
+  async function resumeSwitch() {
+    setBusyKill(true);
+    try {
+      const r = await fetch("/api/system/resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-actor": "control-center" },
+      });
+      if (!r.ok) { alert(t.decisionFailed); return; }
+      await load();
+    } catch { alert(t.connectFailed); } finally { setBusyKill(false); }
+  }
+
+  async function executeApproval(id: string) {
+    setBusyId(id);
+    try {
+      const r = await fetch(`/api/approvals/${id}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-actor": "control-center" },
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { alert(`${t.decisionFailed}: ${d.error || r.status}`); return; }
+      await load();
+    } catch { alert(t.connectFailed); } finally { setBusyId(null); }
+  }
+
   const events = data?.events ?? [];
   const audit = data?.audit ?? [];
   const approvals = data?.approvals ?? [];
@@ -117,6 +162,25 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
             <div className="status-panel__page-title">{t.controlCenterSubtitle}</div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
+        </div>
+
+        <div className="status-panel__meta">
+          <span>Kill Switch</span>
+        </div>
+        <div className="status-grid">
+          <div className="status-card">
+            <div className="status-card__head">
+              <span className="status-card__name">System status</span>
+              <span className="status-badge" style={{ "--badge-color": killStatus?.killed ? "#f87171" : "#4ade80" } as React.CSSProperties}>
+                {killStatus?.killed ? "KILLED" : "RUNNING"}
+              </span>
+            </div>
+            {killStatus?.reason && <p className="status-card__desc-en">Reason: {killStatus.reason}</p>}
+            <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <button disabled={busyKill || killStatus?.killed} onClick={killSwitch}>Kill</button>
+              <button disabled={busyKill || !killStatus?.killed} onClick={resumeSwitch}>Resume</button>
+            </div>
+          </div>
         </div>
 
         {engines && (
@@ -166,6 +230,31 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
               <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <button disabled={busyId === a.id} onClick={() => decide(a.id, "approve")}>{t.approveAction}</button>
                 <button disabled={busyId === a.id} onClick={() => decide(a.id, "reject")}>{t.rejectAction}</button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
+          <span>Approved (awaiting execution) ({approved.length})</span>
+        </div>
+        <div className="status-grid">
+          {approved.length === 0 && (
+            <div className="status-card">
+              <p className="status-card__desc-km">—</p>
+            </div>
+          )}
+          {approved.map((a) => (
+            <div className="status-card" key={a.id}>
+              <div className="status-card__head">
+                <span className="status-card__name">{a.action}</span>
+                <span className="status-badge" style={{ "--badge-color": RISK_COLOR[a.risk] } as React.CSSProperties}>
+                  {a.risk}
+                </span>
+              </div>
+              <p className="status-card__desc-en">permission: {a.permission ?? "—"} · actor: {a.actor}</p>
+              <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <button disabled={busyId === a.id} onClick={() => executeApproval(a.id)}>Execute</button>
               </div>
             </div>
           ))}

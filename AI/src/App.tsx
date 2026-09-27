@@ -3,6 +3,13 @@ import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
 import ControlCenter from "./components/ControlCenter";
 import PatchDashboard from "./components/PatchDashboard";
+import CodeCenter from "./components/CodeCenter";
+import AuditMetricsCenter from "./components/AuditMetricsCenter";
+import ObservabilityCenter from "./components/ObservabilityCenter";
+import ManagementCenter from "./components/ManagementCenter";
+import SafetyCenter from "./components/SafetyCenter";
+import ToolRegistryCenter from "./components/ToolRegistryCenter";
+import LearningCenter from "./components/LearningCenter";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
@@ -21,6 +28,13 @@ function AppInner() {
   const [showStatus, setShowStatus] = useState(false);
   const [showControl, setShowControl] = useState(false);
   const [showPatchDashboard, setShowPatchDashboard] = useState(false);
+  const [showCodeCenter, setShowCodeCenter] = useState(false);
+  const [showAuditMetrics, setShowAuditMetrics] = useState(false);
+  const [showObservability, setShowObservability] = useState(false);
+  const [showManagement, setShowManagement] = useState(false);
+  const [showSafety, setShowSafety] = useState(false);
+  const [showToolRegistry, setShowToolRegistry] = useState(false);
+  const [showLearningCenter, setShowLearningCenter] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -95,6 +109,27 @@ function AppInner() {
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowPatchDashboard(true); setShowMenu(false); }}>
                   {language === "km" ? "សំណើកែកូដ" : "Patch Dashboard"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowCodeCenter(true); setShowMenu(false); }}>
+                  {language === "km" ? "មជ្ឈមណ្ឌលកូដ" : "Code Center"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
+                  {language === "km" ? "មជ្ឈមណ្ឌលការរៀន" : "Learning Center"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowAuditMetrics(true); setShowMenu(false); }}>
+                  {language === "km" ? "សវនកម្ម និង Metrics" : "Audit & Metrics"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
+                  {language === "km" ? "ភារកិច្ច, Circuit, Routing" : "Tasks, Circuits, Routing"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
+                  {language === "km" ? "គោលដៅ, គំនិត, ផែនការ" : "Goals, Ideas, Plans"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
+                  {language === "km" ? "Rollback, ការវាយតម្លៃខ្លួនឯង" : "Rollback, Self-Eval"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
+                  {language === "km" ? "បញ្ជី Tool" : "Tool Registry"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
                   {t.navHonorific}
@@ -183,6 +218,13 @@ function AppInner() {
         {showStatus && <AIStatus onClose={() => setShowStatus(false)} />}
         {showControl && <ControlCenter onClose={() => setShowControl(false)} />}
         {showPatchDashboard && <PatchDashboard onClose={() => setShowPatchDashboard(false)} />}
+        {showCodeCenter && <CodeCenter onClose={() => setShowCodeCenter(false)} />}
+        {showAuditMetrics && <AuditMetricsCenter onClose={() => setShowAuditMetrics(false)} />}
+        {showObservability && <ObservabilityCenter onClose={() => setShowObservability(false)} />}
+        {showManagement && <ManagementCenter onClose={() => setShowManagement(false)} />}
+        {showSafety && <SafetyCenter onClose={() => setShowSafety(false)} />}
+        {showToolRegistry && <ToolRegistryCenter onClose={() => setShowToolRegistry(false)} />}
+        {showLearningCenter && <LearningCenter onClose={() => setShowLearningCenter(false)} />}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt
