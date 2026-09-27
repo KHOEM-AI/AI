@@ -54,7 +54,7 @@ describe("khmer.mjs", () => {
   });
 
   it("returns null for unrelated Khmer input", () => {
-    expect(khmerReply("ខ្ញុំចង់សួរអំពីភ្ជុំបិណ្ឌ")).toBeNull();
+    expect(khmerReply("ខ្ញុំចង់សួរអំពីភពសែនស៊ូនៅឆ្ងាយបំផុត")).toBeNull();
   });
 
   it("returns null for slash commands", () => {
