@@ -38,6 +38,21 @@ export default function ManagementCenter({ onClose }: { onClose: () => void }) {
   const [budgets, setBudgets] = useState<unknown | null>(null);
   const [budgetTaskId, setBudgetTaskId] = useState("");
 
+  const [goalDetailId, setGoalDetailId] = useState("");
+  const [goalDetail, setGoalDetail] = useState<unknown | null>(null);
+
+  const [ideaRank, setIdeaRank] = useState<unknown | null>(null);
+
+  const [planDetailId, setPlanDetailId] = useState("");
+  const [planDetail, setPlanDetail] = useState<unknown | null>(null);
+
+  const [experimentDetailId, setExperimentDetailId] = useState("");
+  const [experimentDetail, setExperimentDetail] = useState<unknown | null>(null);
+  const [experimentTransitionTo, setExperimentTransitionTo] = useState("");
+
+  const [budgetDetailTaskId, setBudgetDetailTaskId] = useState("");
+  const [budgetDetail, setBudgetDetail] = useState<unknown | null>(null);
+
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -116,6 +131,53 @@ export default function ManagementCenter({ onClose }: { onClose: () => void }) {
     } catch { setError("budget create failed"); } finally { setBusy(null); }
   }
 
+  async function loadGoalDetail() {
+    if (!goalDetailId.trim()) return;
+    setBusy("goal-detail"); setError(null);
+    try { setGoalDetail(await api(`/api/goals/${encodeURIComponent(goalDetailId.trim())}/progress`)); }
+    catch { setError("goal detail failed"); } finally { setBusy(null); }
+  }
+
+  async function loadIdeaRank() {
+    setBusy("idea-rank"); setError(null);
+    try { setIdeaRank(await api("/api/ideas/rank")); }
+    catch { setError("idea rank failed"); } finally { setBusy(null); }
+  }
+
+  async function loadPlanDetail() {
+    if (!planDetailId.trim()) return;
+    setBusy("plan-detail"); setError(null);
+    try { setPlanDetail(await api(`/api/plans/${encodeURIComponent(planDetailId.trim())}`)); }
+    catch { setError("plan detail failed"); } finally { setBusy(null); }
+  }
+
+  async function loadExperimentDetail() {
+    if (!experimentDetailId.trim()) return;
+    setBusy("experiment-detail"); setError(null);
+    try { setExperimentDetail(await api(`/api/experiments/${encodeURIComponent(experimentDetailId.trim())}`)); }
+    catch { setError("experiment detail failed"); } finally { setBusy(null); }
+  }
+
+  async function transitionExperiment() {
+    if (!experimentDetailId.trim() || !experimentTransitionTo.trim()) return;
+    setBusy("experiment-transition"); setError(null);
+    try {
+      await api(`/api/experiments/${encodeURIComponent(experimentDetailId.trim())}/transition`, {
+        method: "POST",
+        body: JSON.stringify({ to: experimentTransitionTo.trim() }),
+      });
+      setExperimentTransitionTo("");
+      await loadExperimentDetail();
+    } catch { setError("experiment transition failed"); } finally { setBusy(null); }
+  }
+
+  async function loadBudgetDetail() {
+    if (!budgetDetailTaskId.trim()) return;
+    setBusy("budget-detail"); setError(null);
+    try { setBudgetDetail(await api(`/api/budget/${encodeURIComponent(budgetDetailTaskId.trim())}`)); }
+    catch { setError("budget detail failed"); } finally { setBusy(null); }
+  }
+
   return (
     <div className="status-overlay" role="dialog" aria-label="Management Center">
       <div className="status-panel">
@@ -161,7 +223,22 @@ export default function ManagementCenter({ onClose }: { onClose: () => void }) {
             {pickText(lang, "ផ្ទុក", "Load")}
           </button>
         </div>
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={goalDetailId} onChange={(e) => setGoalDetailId(e.target.value)}
+            placeholder="Goal ID" />
+          <button disabled={busy === "goal-detail" || !goalDetailId.trim()} onClick={loadGoalDetail}>
+            {pickText(lang, "មើលវឌ្ឍនភាព", "View progress")}
+          </button>
+        </div>
+        {goalDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={goalDetail} /></div>}
+
         {ideas !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={ideas} /></div>}
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <button disabled={busy === "idea-rank"} onClick={loadIdeaRank}>
+            {pickText(lang, "ចាត់ចំណាត់ថ្នាក់តាមអាទិភាព", "Rank by priority")}
+          </button>
+        </div>
+        {ideaRank !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={ideaRank} /></div>}
 
         {/* Plans */}
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
@@ -178,6 +255,14 @@ export default function ManagementCenter({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         {plans !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={plans} /></div>}
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={planDetailId} onChange={(e) => setPlanDetailId(e.target.value)}
+            placeholder="Plan ID" />
+          <button disabled={busy === "plan-detail" || !planDetailId.trim()} onClick={loadPlanDetail}>
+            {pickText(lang, "មើលលម្អិត", "View detail")}
+          </button>
+        </div>
+        {planDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={planDetail} /></div>}
 
         {/* Experiments */}
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
@@ -194,6 +279,21 @@ export default function ManagementCenter({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         {experiments !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={experiments} /></div>}
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={experimentDetailId} onChange={(e) => setExperimentDetailId(e.target.value)}
+            placeholder="Experiment ID" />
+          <button disabled={busy === "experiment-detail" || !experimentDetailId.trim()} onClick={loadExperimentDetail}>
+            {pickText(lang, "មើលលម្អិត", "View detail")}
+          </button>
+        </div>
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
+          <input value={experimentTransitionTo} onChange={(e) => setExperimentTransitionTo(e.target.value)}
+            placeholder={pickText(lang, "ដំណាក់កាលថ្មី", "new status")} />
+          <button disabled={busy === "experiment-transition" || !experimentDetailId.trim() || !experimentTransitionTo.trim()} onClick={transitionExperiment}>
+            {pickText(lang, "ប្តូរដំណាក់កាល", "Transition")}
+          </button>
+        </div>
+        {experimentDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={experimentDetail} /></div>}
 
         {/* Budgets */}
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
@@ -210,6 +310,14 @@ export default function ManagementCenter({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         {budgets !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={budgets} /></div>}
+        <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <input value={budgetDetailTaskId} onChange={(e) => setBudgetDetailTaskId(e.target.value)}
+            placeholder="Task ID" />
+          <button disabled={busy === "budget-detail" || !budgetDetailTaskId.trim()} onClick={loadBudgetDetail}>
+            {pickText(lang, "មើលលម្អិត", "View detail")}
+          </button>
+        </div>
+        {budgetDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={budgetDetail} /></div>}
       </div>
     </div>
   );

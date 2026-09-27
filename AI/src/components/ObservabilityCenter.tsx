@@ -32,6 +32,8 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
   const [circuitDetail, setCircuitDetail] = useState<unknown | null>(null);
   const [routeDecision, setRouteDecision] = useState<unknown | null>(null);
   const [preferredProvider, setPreferredProvider] = useState("khoem");
+  const [answersText, setAnswersText] = useState("");
+  const [consistencyResult, setConsistencyResult] = useState<unknown | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -91,6 +93,14 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
       const result = await api("/api/verify", { method: "POST", body: JSON.stringify({ reason: "manual UI trigger" }) });
       setVerification((prev: any) => ({ ...(prev || {}), last: { verification: result } }));
     } catch { setError("run verification failed"); } finally { setBusy(null); }
+  }
+
+  async function runSelfConsistency() {
+    const answers = answersText.split("\n").map((s) => s.trim()).filter(Boolean);
+    if (answers.length === 0) return;
+    setBusy("self-consistency"); setError(null);
+    try { setConsistencyResult(await api("/api/self-consistency", { method: "POST", body: JSON.stringify({ answers }) })); }
+    catch { setError("self-consistency check failed"); } finally { setBusy(null); }
   }
 
   return (
@@ -192,6 +202,26 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
               <JsonBlock data={verification} />
             </div>
           </>
+        )}
+
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
+          <span>{pickText(lang, "ត្រួតពិនិត្យភាពស៊ីសង្វាក់ចម្លើយ", "Check answer consistency")}</span>
+        </div>
+        <div className="status-panel__meta" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <textarea
+            value={answersText}
+            onChange={(e) => setAnswersText(e.target.value)}
+            placeholder={pickText(lang, "មួយចម្លើយក្នុងមួយបន្ទាត់", "one answer per line")}
+            rows={5}
+          />
+          <button disabled={busy === "self-consistency" || !answersText.trim()} onClick={runSelfConsistency}>
+            {pickText(lang, "ត្រួតពិនិត្យ", "Check")}
+          </button>
+        </div>
+        {consistencyResult !== null && (
+          <div className="status-grid" style={{ marginTop: 8 }}>
+            <JsonBlock data={consistencyResult} />
+          </div>
         )}
       </div>
     </div>
