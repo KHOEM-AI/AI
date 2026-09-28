@@ -19,3 +19,9 @@ button_handlers.txt
 *.bak*
 *.before-upgrade*
 src/ai/__tests__/__fixtures__/
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
