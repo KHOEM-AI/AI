@@ -87,12 +87,13 @@ const BRIDGE_GET = [
   "/api/metrics", "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget", "/api/rollback", "/api/tools", "/api/system/status",
   "/api/code", "/api/learned",
+  "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
 ];
 const BRIDGE_POST = [
   "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget/create", "/api/rollback/snapshot", "/api/selfeval",
   "/api/verify", "/api/learn", "/api/forget", "/api/code/scan",
-  "/api/system/kill", "/api/system/resume",
+  "/api/sandbox/test",
 ];
 const matches = (list, p) => list.some((x) => p === x || p.startsWith(x + "/"));
 app.use("/api", (req, res, next) => {
