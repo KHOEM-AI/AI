@@ -328,9 +328,19 @@ export async function collectStatus(aiCore) {
     }),
     probe("metrics", API_HEALTH_TIMEOUT_MS, async () => {
       const m = await loadModule("./metrics.mjs");
+      const d = await loadModule("./drift.mjs");
       const s = m.getMetrics();
       if (!s) throw new Error("bad metrics");
-      return { status: "READY", reasonKm: "ម៉ែត្រិកអាចប្រមូលបាន", reasonEn: "Metrics working", module: "metrics.mjs" };
+      const r = d.getDriftReport();
+      if (!r || !["STABLE", "DRIFTING", "INSUFFICIENT_DATA"].includes(r.status)) throw new Error("bad drift report");
+      const names = r.findings.map((f) => f.metric).join(", ");
+      const tail = names ? " (" + names + ")" : "";
+      return {
+        status: r.status === "DRIFTING" ? "DEGRADED" : "READY",
+        reasonKm: "ម៉ែត្រិកអាចប្រមូលបាន · Drift: " + r.status + tail,
+        reasonEn: "Metrics working · Drift: " + r.status + tail,
+        module: "metrics.mjs + drift.mjs",
+      };
     }),
     probe("patch", API_HEALTH_TIMEOUT_MS, async () => {
       const m = await loadModule("./patch.mjs");
