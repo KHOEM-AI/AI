@@ -693,10 +693,9 @@ body::after {
   display: block !important;
   width: 100% !important;
   height: 100% !important;
-  background: #38bdf8 !important;
-  filter: none !important;
-  -webkit-mask: url(/logo.png) center / contain no-repeat !important;
-  mask: url(/logo.png) center / contain no-repeat !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  filter: drop-shadow(0 0 6px rgba(56,189,248,.6)) !important;
 }
 
 /* ===== GATE ===== */
@@ -1165,4 +1164,68 @@ body::after {
 .app__sidebar {
   overflow-y: auto !important;
   overscroll-behavior: contain;
+}
+
+/* ===== ជួសជុល: scroll ស្រួល រលូន ===== */
+.app__body,
+.app__sidebar {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===== ជួសជុល: logo + ប៊ូតុងកុំឲ្យបង្ហាញខ្មៅ ===== */
+.app__brand-mark {
+  width: 64px !important;
+  height: 64px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+.app__logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  filter: drop-shadow(0 0 6px rgba(56,189,248,.5)) !important;
+  mask: none !important;
+  -webkit-mask: none !important;
+}
+
+/* ===== ជួសជុល: ប៊ូតុងក្នុង Center panels គ្មាន style (Observability, CodeCenter ។ល។) ===== */
+.status-panel button:not(.status-panel__close) {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  color: #7dd3fc;
+  background: rgba(56,189,248,.06);
+  border: 1px solid #38bdf8;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(56,189,248,.2);
+  transition: background .15s ease;
+}
+.status-panel button:not(.status-panel__close):hover:not(:disabled) {
+  background: rgba(56,189,248,.16);
+}
+.status-panel button:not(.status-panel__close):disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.status-panel input,
+.status-panel textarea {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(56,189,248,.35);
+  border-radius: 10px;
+  font-size: 14px;
 }
