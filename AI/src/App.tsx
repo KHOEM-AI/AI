@@ -12,6 +12,7 @@ import ToolRegistryCenter from "./components/ToolRegistryCenter";
 import LearningCenter from "./components/LearningCenter";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
 import { loadLanguage, saveLanguage, getLanguageLabel, LANGUAGE_OPTIONS, type LanguageCode } from "./language";
 import { LanguageProvider, getTranslations } from "./i18n";
@@ -215,16 +216,16 @@ function AppInner() {
           </button>
         </footer>
 
-        {showStatus && <AIStatus onClose={() => setShowStatus(false)} />}
-        {showControl && <ControlCenter onClose={() => setShowControl(false)} />}
-        {showPatchDashboard && <PatchDashboard onClose={() => setShowPatchDashboard(false)} />}
-        {showCodeCenter && <CodeCenter onClose={() => setShowCodeCenter(false)} />}
-        {showAuditMetrics && <AuditMetricsCenter onClose={() => setShowAuditMetrics(false)} />}
-        {showObservability && <ObservabilityCenter onClose={() => setShowObservability(false)} />}
-        {showManagement && <ManagementCenter onClose={() => setShowManagement(false)} />}
-        {showSafety && <SafetyCenter onClose={() => setShowSafety(false)} />}
-        {showToolRegistry && <ToolRegistryCenter onClose={() => setShowToolRegistry(false)} />}
-        {showLearningCenter && <LearningCenter onClose={() => setShowLearningCenter(false)} />}
+        {showStatus && <ErrorBoundary onClose={() => setShowStatus(false)}><AIStatus onClose={() => setShowStatus(false)} /></ErrorBoundary>}
+        {showControl && <ErrorBoundary onClose={() => setShowControl(false)}><ControlCenter onClose={() => setShowControl(false)} /></ErrorBoundary>}
+        {showPatchDashboard && <ErrorBoundary onClose={() => setShowPatchDashboard(false)}><PatchDashboard onClose={() => setShowPatchDashboard(false)} /></ErrorBoundary>}
+        {showCodeCenter && <ErrorBoundary onClose={() => setShowCodeCenter(false)}><CodeCenter onClose={() => setShowCodeCenter(false)} /></ErrorBoundary>}
+        {showAuditMetrics && <ErrorBoundary onClose={() => setShowAuditMetrics(false)}><AuditMetricsCenter onClose={() => setShowAuditMetrics(false)} /></ErrorBoundary>}
+        {showObservability && <ErrorBoundary onClose={() => setShowObservability(false)}><ObservabilityCenter onClose={() => setShowObservability(false)} /></ErrorBoundary>}
+        {showManagement && <ErrorBoundary onClose={() => setShowManagement(false)}><ManagementCenter onClose={() => setShowManagement(false)} /></ErrorBoundary>}
+        {showSafety && <ErrorBoundary onClose={() => setShowSafety(false)}><SafetyCenter onClose={() => setShowSafety(false)} /></ErrorBoundary>}
+        {showToolRegistry && <ErrorBoundary onClose={() => setShowToolRegistry(false)}><ToolRegistryCenter onClose={() => setShowToolRegistry(false)} /></ErrorBoundary>}
+        {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt

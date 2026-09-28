@@ -184,7 +184,7 @@ export default function CodeCenter({ onClose }: { onClose: () => void }) {
 
         {index && (
           <div className="status-panel__meta" style={{ marginTop: 16 }}>
-            <span>{pickText(lang, "ចំនួនឯកសារ", "Files indexed")}: {index.files.length}</span>
+            <span>{pickText(lang, "ចំនួនឯកសារ", "Files indexed")}: {index.files?.length ?? 0}</span>
           </div>
         )}
 
