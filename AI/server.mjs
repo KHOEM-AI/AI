@@ -7,8 +7,7 @@ import { AICore } from "./src/ai/core.mjs";
 import { collectStatus, trackActivity } from "./src/ai/status.mjs";
 import { createTask, transition, getTask, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
 import { getAudit } from "./src/ai/permission.mjs";
-import { listApprovals, approveRequest, rejectRequest } from "./src/ai/approvals.mjs";
-import { proposePatch, getProposal, listProposals, applyPatch } from "./src/ai/patch.mjs";
+import { listApprovals } from "./src/ai/approvals.mjs";
 
 const app = express();
 app.use(cors());
@@ -80,6 +79,31 @@ app.use("/api/approvals", (req, res, next) => {
   next();
 });
 
+// Internal browser bridge for the new dashboard panels.
+// The secret stays server-side. Only read-only GETs on listed prefixes and a
+// few low-risk POSTs get the key. kill/resume/apply/execute are NOT listed.
+const BRIDGE_GET = [
+  "/api/tasks", "/api/circuit", "/api/model", "/api/verify", "/api/audit",
+  "/api/metrics", "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
+  "/api/budget", "/api/rollback", "/api/tools", "/api/system/status",
+  "/api/code", "/api/learned",
+];
+const BRIDGE_POST = [
+  "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
+  "/api/budget/create", "/api/rollback/snapshot", "/api/selfeval",
+  "/api/verify", "/api/learn", "/api/forget", "/api/code/scan",
+];
+const matches = (list, p) => list.some((x) => p === x || p.startsWith(x + "/"));
+app.use("/api", (req, res, next) => {
+  const key = process.env.KHOEM_API_KEY;
+  const p = req.originalUrl.split("?")[0];
+  const ok =
+    (req.method === "GET" && matches(BRIDGE_GET, p)) ||
+    (req.method === "POST" && matches(BRIDGE_POST, p));
+  if (key && ok && !req.get("x-api-key")) req.headers["x-api-key"] = key;
+  next();
+});
+
 registerApi(app);
 
 app.get("/api/status", async (req, res) => {
@@ -144,6 +168,9 @@ app.get("/api/control", (req, res) => {
   res.json({ events: getEvents().slice(-20), audit: getAudit(20), approvals: listApprovals(), engines: summarizeEngines() });
 });
 
+// ចំណាំ: api.mjs ក៏មាន /api/tasks ដែរ ហើយចុះឈ្មោះមុន server.mjs នេះ
+// ដូច្នេះ Express នឹងប្រើ route ក្នុង api.mjs ជានិច្ច។ Route ខាងក្រោមនេះ
+// ត្រូវបានទុកចោល (មិនលុប) ព្រោះមិនប៉ះពាល់ដល់ការដំណើរការអ្វីទាំងអស់។
 app.get("/api/tasks", (req, res) => {
   const key = process.env.KHOEM_API_KEY;
   if (!key) return res.status(503).json({ error: "API key not configured" });
@@ -152,14 +179,6 @@ app.get("/api/tasks", (req, res) => {
   if (id) return res.json({ task: getTask(id), events: getEvents(id) });
   res.json({ events: getEvents().slice(-50) });
 });
-
-function requireApiKey(req, res) {
-  const key = process.env.KHOEM_API_KEY;
-  if (!key) { res.status(503).json({ error: "API key not configured" }); return false; }
-  if (req.get("x-api-key") !== key) { res.status(401).json({ error: "Unauthorized" }); return false; }
-  return true;
-}
-
 
 app.listen(PORT, () => {
   console.log(`server.mjs listening on port ${PORT}`);
