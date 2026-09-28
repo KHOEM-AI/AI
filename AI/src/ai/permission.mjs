@@ -10,7 +10,7 @@ export const DECISION = Object.freeze({
 
 // Phase 14 (spec 4.9): used to detect that policy/permission has changed
 // after an approval request is made. Bump manually if the REGISTRY in policyRegistry.mjs changes.
-const POLICY_VERSION = 2;
+const POLICY_VERSION = 3;
 const PERMISSION_VERSION = 2;
 export const getPolicyVersion = () => POLICY_VERSION;
 export const getPermissionVersion = () => PERMISSION_VERSION;

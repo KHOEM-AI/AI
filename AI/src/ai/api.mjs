@@ -135,73 +135,73 @@ export function registerApi(app) {
     return run("/forget " + req.body.q);
   }));
   // ---- Phase 3: Code Data Center (read/analyze only, spec Part 3) ----
-  app.get("/api/code/index", guard, wrap(async () => {
+  app.get("/api/code/index", guard, policy("code.read"), wrap(async () => {
     const cdc = await import("./codeDataCenter.mjs");
     if (!cdc.isReady()) cdc.scanRepo();
     return cdc.getFileIndex();
   }));
 
-  app.post("/api/code/scan", guard, wrap(async () => {
+  app.post("/api/code/scan", guard, policy("code.scan"), wrap(async () => {
     const cdc = await import("./codeDataCenter.mjs");
     return cdc.scanRepo();
   }));
 
-  app.get("/api/code/symbols", guard, wrap(async () => {
+  app.get("/api/code/symbols", guard, policy("code.read"), wrap(async () => {
     const cdc = await import("./codeDataCenter.mjs");
     if (!cdc.isReady()) cdc.scanRepo();
     return { files: cdc.getSymbolIndex() };
   }));
 
-  app.get("/api/code/symbol", guard, wrap(async (req) => {
+  app.get("/api/code/symbol", guard, policy("code.read"), wrap(async (req) => {
     if (!req.query.name) throw bad("ត្រូវការ ?name=ឈ្មោះ symbol");
     const cdc = await import("./codeDataCenter.mjs");
     if (!cdc.isReady()) cdc.scanRepo();
     return { name: req.query.name, hits: cdc.findSymbol(req.query.name) };
   }));
 
-  app.get("/api/code/dependencies", guard, wrap(async (req) => {
+  app.get("/api/code/dependencies", guard, policy("code.read"), wrap(async (req) => {
     if (!req.query.file) throw bad("ត្រូវការ ?file=src/...");
     const cdc = await import("./codeDataCenter.mjs");
     if (!cdc.isReady()) cdc.scanRepo();
     return { file: req.query.file, dependencies: cdc.getDependencies(req.query.file) };
   }));
 
-  app.get("/api/code/dependents", guard, wrap(async (req) => {
+  app.get("/api/code/dependents", guard, policy("code.read"), wrap(async (req) => {
     if (!req.query.file) throw bad("ត្រូវការ ?file=src/...");
     const cdc = await import("./codeDataCenter.mjs");
     if (!cdc.isReady()) cdc.scanRepo();
     return { file: req.query.file, dependents: cdc.getDependents(req.query.file) };
   }));
 
-  app.get("/api/code/circular", guard, wrap(async () => {
+  app.get("/api/code/circular", guard, policy("code.read"), wrap(async () => {
     const cdc = await import("./codeDataCenter.mjs");
     if (!cdc.isReady()) cdc.scanRepo();
     return { cycles: cdc.getCircularDependencies() };
   }));
 
-  app.get("/api/code/health", guard, wrap(async () => {
+  app.get("/api/code/health", guard, policy("code.read"), wrap(async () => {
     const cdc = await import("./codeDataCenter.mjs");
     return cdc.getCodeHealth();
   }));
 
-  app.get("/api/code/findings", guard, wrap(async () => {
+  app.get("/api/code/findings", guard, policy("code.read"), wrap(async () => {
     const cdc = await import("./codeDataCenter.mjs");
     return cdc.getFindings();
   }));
 
   // ---- Phase 11: Task Engine observability (read-only) ----
-  app.get("/api/tasks", guard, (req, res) => {
+  app.get("/api/tasks", guard, policy("task.read"), (req, res) => {
     res.json({ tasks: getAllTasks() });
   });
 
-  app.get("/api/tasks/:id", guard, (req, res) => {
+  app.get("/api/tasks/:id", guard, policy("task.read"), (req, res) => {
     const task = getTask(req.params.id);
     if (!task) return res.status(404).json({ error: "រកមិនឃើញ task" });
     res.json({ task, events: getEvents(req.params.id) });
   });
 
     // ---- Phase 12: Kill Switch (emergency stop) ----
-  app.get("/api/system/status", guard, (req, res) => {
+  app.get("/api/system/status", guard, policy("system.statusRead"), (req, res) => {
     res.json(getKillSwitchStatus());
   });
 
@@ -251,11 +251,11 @@ export function registerApi(app) {
     return proposePatch({ relPath, newContent, reason, actor: actorOf(req) });
   }));
 
-  app.get("/api/patch/proposals", guard, (req, res) => {
+  app.get("/api/patch/proposals", guard, policy("patch.read"), (req, res) => {
     res.json({ proposals: listProposals() });
   });
 
-  app.get("/api/patch/proposals/:id", guard, (req, res) => {
+  app.get("/api/patch/proposals/:id", guard, policy("patch.read"), (req, res) => {
     const p = getProposal(req.params.id);
     if (!p) return res.status(404).json({ error: "រកមិនឃើញ proposal" });
     res.json({ proposal: p });
@@ -287,11 +287,11 @@ export function registerApi(app) {
     return runVerification(String(req.body?.reason || "manual"));
   }));
 
-  app.get("/api/verify/last", guard, (req, res) => {
+  app.get("/api/verify/last", guard, policy("verify.read"), (req, res) => {
     res.json({ verification: getLastVerification() });
   });
 
-  app.get("/api/verify/history", guard, (req, res) => {
+  app.get("/api/verify/history", guard, policy("verify.read"), (req, res) => {
     res.json({ history: listVerifications() });
   });
 // ---- Phase 21: Resource Budget (read-only checks + creation) ----
@@ -364,7 +364,7 @@ export function registerApi(app) {
     return { history: getRoutingHistory(50) };
   }));
 
-  app.get("/api/audit", guard, (req, res) => {
+  app.get("/api/audit", guard, policy("audit.read"), (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 50, 500);
     res.json({
       policyDecisions: getAudit(limit),
@@ -380,24 +380,24 @@ export function registerApi(app) {
     return { message: "សកម្មភាពសាកល្បង HIGH-risk (mock — គ្មានផលប៉ះពាល់ពិតប្រាកដ)" };
   }));
 
-  app.get("/api/approvals", guard, (req, res) => {
+  app.get("/api/approvals", guard, policy("approval.read"), (req, res) => {
     res.json({ approvals: listApprovals({ status: req.query.status }) });
   });
 
-  app.get("/api/approvals/:id", guard, (req, res) => {
+  app.get("/api/approvals/:id", guard, policy("approval.read"), (req, res) => {
     const a = getApproval(req.params.id);
     if (!a) return res.status(404).json({ error: "រកមិនឃើញ approval request" });
     res.json({ approval: a });
   });
 
-  app.post("/api/approvals/:id/approve", guard, (req, res) => {
+  app.post("/api/approvals/:id/approve", guard, policy("approval.decide"), (req, res) => {
     const decidedBy = "human:" + (req.body?.decidedBy || actorOf(req));
     const result = approveRequest(req.params.id, decidedBy, req.body?.reason);
     if (result.error) return res.status(409).json({ error: result.error });
     res.json({ approval: result.request });
   });
 
-  app.post("/api/approvals/:id/reject", guard, (req, res) => {
+  app.post("/api/approvals/:id/reject", guard, policy("approval.decide"), (req, res) => {
     const decidedBy = "human:" + (req.body?.decidedBy || actorOf(req));
     const result = rejectRequest(req.params.id, decidedBy, req.body?.reason);
     if (result.error) return res.status(409).json({ error: result.error });
@@ -405,16 +405,25 @@ export function registerApi(app) {
   });
 
   // ប្រតិបត្តិសំណើដែល APPROVED រួច — verify ម្តងទៀតភ្លាមៗមុនប្រតិបត្តិ (spec 4.8)
-  app.post("/api/approvals/:id/execute", guard, wrap(async (req) => {
+  app.post("/api/approvals/:id/execute", guard, policy("approval.execute"), wrap(async (req) => {
     const approval = getApproval(req.params.id);
     if (!approval) throw bad("រកមិនឃើញ approval request", 404);
     const check = verifyBeforeExecution(req.params.id, { action: approval.action, target: approval.target });
     if (!check.ok) throw bad("ការអនុញ្ញាតមិនត្រឹមត្រូវសម្រាប់ការប្រតិបត្តិ: " + check.error, 409);
 
+    // Only actions with a real (or intentionally mock, documented) executor may
+    // proceed. Everything else fails loudly instead of pretending to succeed.
+    if (approval.action === "code.applyPatch") {
+      throw bad("សម្រាប់ code.applyPatch សូមប្រើ /api/patch/apply (ត្រូវការ proposalId + approvalId) ជំនួសវិញ", 400);
+    }
+    if (approval.action !== "approval.test.high-risk") {
+      throw bad(`NO_EXECUTOR_FOR_ACTION: ${approval.action}`, 501);
+    }
+
     emit(approval.id, "EXECUTION_AUTHORIZED", { approvalId: approval.id, action: approval.action });
     emit(approval.id, "EXECUTION_STARTED", { approvalId: approval.id, action: approval.action });
     const outcome = {
-      message: "សកម្មភាពត្រូវបានប្រតិបត្តិ (mock, គ្មានផលប៉ះពាល់ពិតប្រាកដ)",
+      message: "សកម្មភាពសាកល្បង HIGH-risk (mock — គ្មានផលប៉ះពាល់ពិតប្រាកដ, spec 4.13)",
       approvalId: approval.id, action: approval.action,
     };
     markExecuted(approval.id);
@@ -423,7 +432,7 @@ export function registerApi(app) {
   }));
 
   // ---- Patch Dashboard compatibility routes (merged from server.mjs) ----
-  app.get("/api/patch/list", guard, (req, res) => {
+  app.get("/api/patch/list", guard, policy("patch.read"), (req, res) => {
     res.json({ proposals: listProposals() });
   });
 

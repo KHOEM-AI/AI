@@ -64,6 +64,16 @@ export const REGISTRY = {
   "experiment.create": { permission: "system.write", risk: RISK.LOW },
   "experiment.transition": { permission: "system.write", risk: RISK.LOW },
   "selfeval.run": { permission: "system.read", risk: RISK.LOW },
+  "code.read": { permission: "file.read", risk: RISK.LOW },
+  "code.scan": { permission: "tool.execute", risk: RISK.LOW },
+  "task.read": { permission: "system.read", risk: RISK.LOW },
+  "system.statusRead": { permission: "system.read", risk: RISK.LOW },
+  "patch.read": { permission: "system.read", risk: RISK.LOW },
+  "verify.read": { permission: "system.read", risk: RISK.LOW },
+  "audit.read": { permission: "system.read", risk: RISK.LOW },
+  "approval.read": { permission: "system.read", risk: RISK.LOW },
+  "approval.decide": { permission: "system.modify", risk: RISK.MEDIUM },
+  "approval.execute": { permission: "system.modify", risk: RISK.LOW },
 };
 
 // Structural check for the registry. Returns { ok, problems } and never throws.

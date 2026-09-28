@@ -34,6 +34,6 @@ describe("policyRegistry.mjs (policy as data)", () => {
     expect(policyCheck("code.applyPatch", "tester").decision).toBe(DECISION.REQUIRE_APPROVAL);
     expect(policyCheck("tool.scan", "tester").decision).toBe(DECISION.ALLOW);
     expect(policyCheck("not.registered.anything", "tester").decision).toBe(DECISION.DENY);
-    expect(getPolicyVersion()).toBe(2);
+    expect(getPolicyVersion()).toBe(3);
   });
 });
