@@ -42,6 +42,9 @@ function guard(req, res, next) {
   next();
 }
 
+const notKilled = (req, res, next) =>
+  isKilled() ? res.status(503).json({ error: "ប្រព័ន្ធត្រូវបានផ្អាក (kill switch active)" }) : next();
+
 function policy(action) {
   return (req, res, next) => {
     const actor = actorOf(req);
@@ -261,7 +264,7 @@ export function registerApi(app) {
     res.json({ proposal: p });
   });
 
-  app.post("/api/patch/apply", guard, wrap((req) => {
+  app.post("/api/patch/apply", guard, notKilled, wrap((req) => {
     const { proposalId, approvalId } = req.body || {};
     if (!proposalId || !approvalId) throw bad("proposalId and approvalId are required");
     const result = applyPatch(proposalId, approvalId, actorOf(req));
@@ -270,14 +273,14 @@ export function registerApi(app) {
   }));
   // ---- Phase 22: Testing + Verification Pipeline (evidence-based) ----
   // ---- Tool/API Registry (discovery layer over permission.mjs) ----
-  app.get("/api/tools", guard, wrap(() => ({ tools: listTools() })));
+  app.get("/api/tools", guard, policy("tool.find"), wrap(() => ({ tools: listTools() })));
 
-  app.get("/api/tools/find", guard, wrap((req) => {
+  app.get("/api/tools/find", guard, policy("tool.find"), wrap((req) => {
     if (!req.query.q) throw bad("ត្រូវការ ?q=ពាក្យ");
     return { hits: findTools(req.query.q) };
   }));
 
-  app.get("/api/tools/:id/risk", guard, wrap((req) => {
+  app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
     const info = describeToolRisk(req.params.id, actorOf(req));
     if (!info) throw bad("រកមិនឃើញ tool", 404);
     return info;
@@ -436,7 +439,7 @@ export function registerApi(app) {
     res.json({ proposals: listProposals() });
   });
 
-  app.post("/api/patch/:id/approve", guard, wrap((req) => {
+  app.post("/api/patch/:id/approve", guard, policy("approval.decide"), wrap((req) => {
     const proposal = getProposal(req.params.id);
     if (!proposal) throw bad("PROPOSAL_NOT_FOUND", 404);
     const { approvalId, actor = "user", note = "" } = req.body || {};
@@ -444,7 +447,7 @@ export function registerApi(app) {
     return { approval: decision };
   }));
 
-  app.post("/api/patch/:id/reject", guard, wrap((req) => {
+  app.post("/api/patch/:id/reject", guard, policy("approval.decide"), wrap((req) => {
     const proposal = getProposal(req.params.id);
     if (!proposal) throw bad("PROPOSAL_NOT_FOUND", 404);
     const { approvalId, actor = "user", note = "" } = req.body || {};
@@ -452,7 +455,7 @@ export function registerApi(app) {
     return { approval: decision };
   }));
 
-  app.post("/api/patch/:id/apply", guard, wrap((req) => {
+  app.post("/api/patch/:id/apply", guard, notKilled, wrap((req) => {
     const proposal = getProposal(req.params.id);
     if (!proposal) throw bad("PROPOSAL_NOT_FOUND", 404);
     const { approvalId, actor = "user" } = req.body || {};
