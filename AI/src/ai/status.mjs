@@ -267,9 +267,13 @@ export async function collectStatus(aiCore) {
 
     probe("permission", API_HEALTH_TIMEOUT_MS, async () => {
       const m = await loadModule("./permission.mjs");
+      const reg = await loadModule("./policyRegistry.mjs");
       const pv = m.getPolicyVersion();
       if (!pv) throw new Error("bad permission");
-      return { status: "READY", reasonKm: `Policy v${pv}`, reasonEn: `Policy v${pv}`, module: "permission.mjs" };
+      const v = reg.validatePolicyRegistry();
+      if (!v.ok) throw new Error("policy registry invalid: " + v.problems.length + " problem(s)");
+      const n = Object.keys(reg.REGISTRY).length;
+      return { status: "READY", reasonKm: `Policy v${pv} (${n} សកម្មភាព ត្រឹមត្រូវ)`, reasonEn: `Policy v${pv} (${n} actions, valid)`, module: "permission.mjs + policyRegistry.mjs" };
     }),
     probe("modelRouting", API_HEALTH_TIMEOUT_MS, async () => {
       const m = await loadModule("./modelRouting.mjs");
