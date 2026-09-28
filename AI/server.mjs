@@ -182,6 +182,6 @@ app.get("/api/tasks", (req, res) => {
   res.json({ events: getEvents().slice(-50) });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, "127.0.0.1", () => {
   console.log(`server.mjs listening on port ${PORT}`);
 });

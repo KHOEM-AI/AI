@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useT } from "../i18n";
+import { getAdminKey, clearAdminKey } from "./adminKey";
 
 interface TaskEvent {
   id: string;
@@ -110,26 +111,30 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
   }
 
   async function killSwitch() {
+    const key = getAdminKey(t.apiKeyPrompt);
+    if (!key) return;
     setBusyKill(true);
     try {
       const r = await fetch("/api/system/kill", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-actor": "control-center" },
+        headers: { "Content-Type": "application/json", "x-actor": "control-center", "x-api-key": key },
         body: JSON.stringify({ reason: "manual kill from Control Center" }),
       });
-      if (!r.ok) { alert(t.decisionFailed); return; }
+      if (!r.ok) { if (r.status === 401) clearAdminKey(); alert(`${t.decisionFailed}: ${r.status}`); return; }
       await load();
     } catch { alert(t.connectFailed); } finally { setBusyKill(false); }
   }
 
   async function resumeSwitch() {
+    const key = getAdminKey(t.apiKeyPrompt);
+    if (!key) return;
     setBusyKill(true);
     try {
       const r = await fetch("/api/system/resume", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-actor": "control-center" },
+        headers: { "Content-Type": "application/json", "x-actor": "control-center", "x-api-key": key },
       });
-      if (!r.ok) { alert(t.decisionFailed); return; }
+      if (!r.ok) { if (r.status === 401) clearAdminKey(); alert(`${t.decisionFailed}: ${r.status}`); return; }
       await load();
     } catch { alert(t.connectFailed); } finally { setBusyKill(false); }
   }

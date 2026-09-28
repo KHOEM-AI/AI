@@ -99,7 +99,14 @@ export default function CodeCenter({ onClose }: { onClose: () => void }) {
     setBusy("all-symbols"); setError(null);
     try {
       const d = await api("/api/code/symbols");
-      setAllSymbols(d.files ?? []);
+      const rows = [];
+      for (const f of d.files ?? []) {
+        for (const name of f.functions ?? []) rows.push({ path: f.path, kind: "function", name });
+        for (const name of f.classes ?? []) rows.push({ path: f.path, kind: "class", name });
+        for (const name of f.interfaces ?? []) rows.push({ path: f.path, kind: "interface", name });
+        for (const name of f.types ?? []) rows.push({ path: f.path, kind: "type", name });
+      }
+      setAllSymbols(rows);
     } catch { setError("symbol list failed"); } finally { setBusy(null); }
   }
 
