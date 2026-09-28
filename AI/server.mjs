@@ -10,7 +10,7 @@ import { getAudit } from "./src/ai/permission.mjs";
 import { listApprovals } from "./src/ai/approvals.mjs";
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: (process.env.CORS_ORIGINS || "http://localhost:5175,http://127.0.0.1:5175").split(",") }));
 app.use(express.json());
 app.use(trackActivity);
 
