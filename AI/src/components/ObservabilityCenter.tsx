@@ -7,6 +7,10 @@ async function api(url: string, opts: RequestInit = {}) {
   return (json && typeof json === "object" && "result" in json) ? json.result : json;
 }
 
+function unwrap(o: unknown, k: string): unknown {
+  return o && typeof o === "object" && k in (o as object) ? (o as Record<string, unknown>)[k] : o;
+}
+
 function JsonBlock({ data }: { data: unknown }) {
   return (
     <div className="status-card">
@@ -54,7 +58,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
     try {
       const providers = await api("/api/model/providers");
       const history = await api("/api/model/routing-history");
-      setRouting({ providers, history });
+      setRouting({ providers: unwrap(providers, "providers"), history: unwrap(history, "history") });
     } catch { setError("routing load failed"); } finally { setBusy(null); }
   }
 
@@ -63,7 +67,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
     try {
       const last = await api("/api/verify/last");
       const history = await api("/api/verify/history");
-      setVerification({ last, history });
+      setVerification({ last: unwrap(last, "verification"), history: unwrap(history, "history") });
     } catch { setError("verification load failed"); } finally { setBusy(null); }
   }
 
@@ -91,7 +95,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
     setBusy("run-verify"); setError(null);
     try {
       const result = await api("/api/verify", { method: "POST", body: JSON.stringify({ reason: "manual UI trigger" }) });
-      setVerification((prev: any) => ({ ...(prev || {}), last: { verification: result } }));
+      setVerification((prev: any) => ({ ...(prev || {}), last: result }));
     } catch { setError("run verification failed"); } finally { setBusy(null); }
   }
 
@@ -142,7 +146,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             {pickText(lang, "មើលលម្អិត", "View detail")}
           </button>
         </div>
-        {taskDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={taskDetail} /></div>}
+        {taskDetail !== null && <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}><JsonBlock data={taskDetail} /></div>}
 
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <input value={circuitName} onChange={(e) => setCircuitName(e.target.value)} placeholder="Circuit name" />
@@ -150,7 +154,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             {pickText(lang, "មើលលម្អិត Circuit", "View circuit detail")}
           </button>
         </div>
-        {circuitDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={circuitDetail} /></div>}
+        {circuitDetail !== null && <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}><JsonBlock data={circuitDetail} /></div>}
 
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <input value={preferredProvider} onChange={(e) => setPreferredProvider(e.target.value)} placeholder="preferred provider" />
@@ -158,14 +162,14 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             {pickText(lang, "សម្រេចជ្រើសរើស Provider", "Decide provider")}
           </button>
         </div>
-        {routeDecision !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={routeDecision} /></div>}
+        {routeDecision !== null && <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}><JsonBlock data={routeDecision} /></div>}
 
         {tasks !== null && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
               <span>{pickText(lang, "ភារកិច្ច", "Tasks")}</span>
             </div>
-            <div className="status-grid" style={{ marginTop: 8 }}>
+            <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={tasks} />
             </div>
           </>
@@ -176,7 +180,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
               <span>{pickText(lang, "Circuit Breakers", "Circuit breakers")}</span>
             </div>
-            <div className="status-grid" style={{ marginTop: 8 }}>
+            <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={circuits} />
             </div>
           </>
@@ -187,7 +191,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
               <span>{pickText(lang, "ការចាត់តាំង Model", "Model routing")}</span>
             </div>
-            <div className="status-grid" style={{ marginTop: 8 }}>
+            <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={routing} />
             </div>
           </>
@@ -198,7 +202,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
               <span>{pickText(lang, "ការផ្ទៀងផ្ទាត់", "Verification")}</span>
             </div>
-            <div className="status-grid" style={{ marginTop: 8 }}>
+            <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={verification} />
             </div>
           </>
@@ -219,7 +223,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
           </button>
         </div>
         {consistencyResult !== null && (
-          <div className="status-grid" style={{ marginTop: 8 }}>
+          <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
             <JsonBlock data={consistencyResult} />
           </div>
         )}
