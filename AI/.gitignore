@@ -14,3 +14,8 @@ repeated_responses_*.txt
 report_*.cjs
 
 data/
+*_check*.txt
+button_handlers.txt
+*.bak*
+*.before-upgrade*
+src/ai/__tests__/__fixtures__/
