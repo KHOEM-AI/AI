@@ -142,12 +142,14 @@ export async function collectStatus(aiCore) {
       if (typeof m.handleLearn !== "function") throw new Error("handleLearn not found");
       const data = m.load();
       if (data === null || typeof data !== "object") throw new Error("learned data is not readable");
+      const mc = typeof m.matchLearned === "function" ? m.matchLearned("__healthcheck__") : null;
+      if (!mc || !["HIGH", "MEDIUM", "UNCERTAIN"].includes(mc.confidence)) throw new Error("matchLearned confidence check failed");
       const busy = active.learn > 0;
       return {
         status: pickStatus(["READY", busy ? "ACTIVE" : "READY"]),
         reasonKm: `អានទិន្នន័យដែលបានរៀនបាន (${Object.keys(data).length} ធាតុ)`,
         reasonEn: `Learned data readable (${Object.keys(data).length} entries)`,
-        module: "learn.mjs",
+        module: "learn.mjs + matchLearned",
       };
     }),
 
