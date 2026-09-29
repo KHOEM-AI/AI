@@ -34,7 +34,26 @@ function JsonBlock({ data }: { data: unknown }) {
   );
 }
 
-function EventList({ events, lang }: { events: unknown[]; lang: ReturnType<typeof useLanguageCode> }) {
+function EventList({ events, lang, filterId }: { events: unknown[]; lang: ReturnType<typeof useLanguageCode>; filterId: string }) {
+  const [eventType, setEventType] = useState("ALL");
+
+  const eventTypes = Array.from(
+    new Set(
+      events.map((event) => {
+        if (!event || typeof event !== "object") return null;
+        return String((event as Record<string, unknown>).type ?? "");
+      }).filter((type): type is string => Boolean(type))
+    )
+  ).sort();
+
+  const filteredEvents = eventType === "ALL"
+    ? events
+    : events.filter((event) => (
+        event &&
+        typeof event === "object" &&
+        String((event as Record<string, unknown>).type ?? "") === eventType
+      ));
+
   if (events.length === 0) {
     return (
       <div className="status-card">
@@ -49,7 +68,32 @@ function EventList({ events, lang }: { events: unknown[]; lang: ReturnType<typeo
     <div className="status-card">
       <div className="status-card__extra">
         <div style={{ display: "grid", gap: 8 }}>
-          {events.map((event, index) => {
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <label htmlFor={filterId}>
+              {pickText(lang, "ប្រភេទព្រឹត្តិការណ៍", "Event type")}
+            </label>
+            <select
+              id={filterId}
+              value={eventType}
+              onChange={(e) => setEventType(e.target.value)}
+            >
+              <option value="ALL">
+                {pickText(lang, "ទាំងអស់", "All events")}
+              </option>
+              {eventTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+            <span style={{ fontSize: "0.85em", opacity: 0.75 }}>
+              {filteredEvents.length}/{events.length}
+            </span>
+          </div>
+
+          {filteredEvents.length === 0 ? (
+            <div style={{ padding: "10px 0", opacity: 0.75 }}>
+              {pickText(lang, "មិនមានព្រឹត្តិការណ៍ប្រភេទនេះ", "No events match this filter")}
+            </div>
+          ) : filteredEvents.map((event, index) => {
             const item = event && typeof event === "object"
               ? event as Record<string, unknown>
               : {};
@@ -246,6 +290,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
                   ? unwrap(taskDetail, "events") as unknown[]
                   : []}
                 lang={lang}
+                filterId="task-detail-event-type-filter"
               />
             </div>
           </>
@@ -284,7 +329,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
               <span>{pickText(lang, "ព្រឹត្តិការណ៍ថ្មីៗ", "Recent task events")}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
-              <EventList events={taskEvents} lang={lang} />
+              <EventList events={taskEvents} lang={lang} filterId="recent-event-type-filter" />
             </div>
           </>
         )}
