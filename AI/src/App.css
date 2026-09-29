@@ -1229,3 +1229,9 @@ body::after {
   border-radius: 10px;
   font-size: 14px;
 }
+
+/* AUDIT-OVERFLOW-FIX: long hashes must not widen grid columns */
+.status-grid { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .status-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.status-grid > * { min-width: 0; }
+.status-card pre { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; max-width: 100%; margin: 0; }
