@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useT } from "../i18n";
+import { useT, useKhoem } from "../i18n";
 import { getAdminKey, clearAdminKey } from "./adminKey";
 
 interface TaskEvent {
@@ -64,6 +64,7 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
   const [approved, setApproved] = useState<ApprovalItem[]>([]);
   const [busyKill, setBusyKill] = useState(false);
   const t = useT();
+  const k = useKhoem();
 
   const load = useCallback(async () => {
     try {
@@ -163,27 +164,27 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
       <div className="status-panel">
         <div className="status-panel__head">
           <div>
-            <div className="status-panel__ai-name">Control Center</div>
+            <div className="status-panel__ai-name">{t.navControlCenter}</div>
             <div className="status-panel__page-title">{t.controlCenterSubtitle}</div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
         </div>
 
         <div className="status-panel__meta">
-          <span>Kill Switch</span>
+          <span>{k("controlCenter.killSwitch")}</span>
         </div>
         <div className="status-grid">
           <div className="status-card">
             <div className="status-card__head">
-              <span className="status-card__name">System status</span>
+              <span className="status-card__name">{k("controlCenter.systemStatus")}</span>
               <span className="status-badge" style={{ "--badge-color": killStatus?.killed ? "#f87171" : "#4ade80" } as React.CSSProperties}>
-                {killStatus?.killed ? "KILLED" : "RUNNING"}
+                {killStatus?.killed ? k("controlCenter.killed") : k("controlCenter.running")}
               </span>
             </div>
-            {killStatus?.reason && <p className="status-card__desc-en">Reason: {killStatus.reason}</p>}
+            {killStatus?.reason && <p className="status-card__desc-en">{k("controlCenter.reason")}: {killStatus.reason}</p>}
             <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <button disabled={busyKill || killStatus?.killed} onClick={killSwitch}>Kill</button>
-              <button disabled={busyKill || !killStatus?.killed} onClick={resumeSwitch}>Resume</button>
+              <button disabled={busyKill || killStatus?.killed} onClick={killSwitch}>{k("controlCenter.kill")}</button>
+              <button disabled={busyKill || !killStatus?.killed} onClick={resumeSwitch}>{k("controlCenter.resume")}</button>
             </div>
           </div>
         </div>
@@ -226,11 +227,11 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
                   {a.risk}
                 </span>
               </div>
-              <p className="status-card__desc-en">permission: {a.permission ?? "—"} · actor: {a.actor}</p>
+              <p className="status-card__desc-en">{k("controlCenter.permission")}: {a.permission ?? "—"} · {k("controlCenter.actor")}: {a.actor}</p>
               <div className="status-card__extra">
-                <div>Reason: {a.reason}</div>
-                <div>Created: {fmtTime(a.createdAt)}</div>
-                <div>Expires: {fmtTime(a.expiresAt)}</div>
+                <div>{k("controlCenter.reason")}: {a.reason}</div>
+                <div>{k("controlCenter.created")}: {fmtTime(a.createdAt)}</div>
+                <div>{k("controlCenter.expires")}: {fmtTime(a.expiresAt)}</div>
               </div>
               <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <button disabled={busyId === a.id} onClick={() => decide(a.id, "approve")}>{t.approveAction}</button>
@@ -241,7 +242,7 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>Approved (awaiting execution) ({approved.length})</span>
+          <span>{k("controlCenter.approvedAwaiting")} ({approved.length})</span>
         </div>
         <div className="status-grid">
           {approved.length === 0 && (
@@ -257,9 +258,9 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
                   {a.risk}
                 </span>
               </div>
-              <p className="status-card__desc-en">permission: {a.permission ?? "—"} · actor: {a.actor}</p>
+              <p className="status-card__desc-en">{k("controlCenter.permission")}: {a.permission ?? "—"} · {k("controlCenter.actor")}: {a.actor}</p>
               <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                <button disabled={busyId === a.id} onClick={() => executeApproval(a.id)}>Execute</button>
+                <button disabled={busyId === a.id} onClick={() => executeApproval(a.id)}>{k("controlCenter.execute")}</button>
               </div>
             </div>
           ))}
@@ -310,12 +311,12 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
                 </span>
               </div>
               <p className="status-card__desc-en">
-                permission: {a.permission ?? "—"} · actor: {a.actor}
+                {k("controlCenter.permission")}: {a.permission ?? "—"} · {k("controlCenter.actor")}: {a.actor}
               </p>
               <div className="status-card__extra">
-                <div>Approval required: {a.approvalRequired ? "yes" : "no"}</div>
-                {a.reason && <div>Reason: {a.reason}</div>}
-                <div>Time: {fmtTime(a.timestamp)}</div>
+                <div>{k("controlCenter.approvalRequired")}: {a.approvalRequired ? "✓" : "✗"}</div>
+                {a.reason && <div>{k("controlCenter.reason")}: {a.reason}</div>}
+                <div>{k("controlCenter.time")}: {fmtTime(a.timestamp)}</div>
               </div>
             </div>
           ))}
