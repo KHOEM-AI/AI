@@ -38,6 +38,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
   const [eventType, setEventType] = useState("ALL");
   const [eventSearch, setEventSearch] = useState("");
   const [eventTimeRange, setEventTimeRange] = useState("ALL");
+  const [eventSort, setEventSort] = useState("NEWEST");
 
   const eventTypes = Array.from(
     new Set(
@@ -79,6 +80,15 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
     ].join(" ").toLowerCase();
 
     return matchesType && matchesTime && searchable.includes(search);
+  }).sort((a, b) => {
+    const aTimestamp = Date.parse(String((a as Record<string, unknown>).timestamp ?? ""));
+    const bTimestamp = Date.parse(String((b as Record<string, unknown>).timestamp ?? ""));
+
+    if (!Number.isFinite(aTimestamp) || !Number.isFinite(bTimestamp)) return 0;
+
+    return eventSort === "OLDEST"
+      ? aTimestamp - bTimestamp
+      : bTimestamp - aTimestamp;
   });
 
   if (events.length === 0) {
@@ -136,6 +146,24 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
               </option>
               <option value="24H">
                 {pickText(lang, "២៤ ម៉ោងចុងក្រោយ", "Last 24 hours")}
+              </option>
+            </select>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <label htmlFor={`${filterId}-sort`}>
+              {pickText(lang, "តម្រៀប", "Sort")}
+            </label>
+            <select
+              id={`${filterId}-sort`}
+              value={eventSort}
+              onChange={(e) => setEventSort(e.target.value)}
+            >
+              <option value="NEWEST">
+                {pickText(lang, "ថ្មីបំផុតមុន", "Newest first")}
+              </option>
+              <option value="OLDEST">
+                {pickText(lang, "ចាស់បំផុតមុន", "Oldest first")}
               </option>
             </select>
           </div>
