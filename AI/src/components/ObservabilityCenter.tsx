@@ -4,6 +4,17 @@ import { useT, useLanguageCode, pickText } from "../i18n";
 async function api(url: string, opts: RequestInit = {}) {
   const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
   const json = await r.json();
+
+  if (!r.ok) {
+    const message =
+      json && typeof json === "object" && "error" in json
+        ? String((json as Record<string, unknown>).error)
+        : json && typeof json === "object" && "message" in json
+          ? String((json as Record<string, unknown>).message)
+          : `HTTP ${r.status} ${r.statusText}`;
+    throw new Error(message);
+  }
+
   return (json && typeof json === "object" && "result" in json) ? json.result : json;
 }
 
