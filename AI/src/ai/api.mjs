@@ -194,7 +194,7 @@ export function registerApi(app) {
 
   // ---- Phase 11: Task Engine observability (read-only) ----
   app.get("/api/tasks", guard, policy("task.read"), (req, res) => {
-    res.json({ tasks: getAllTasks() });
+    res.json({ tasks: getAllTasks(), events: (getEvents() || []).slice(-50) });
   });
 
   app.get("/api/tasks/:id", guard, policy("task.read"), (req, res) => {

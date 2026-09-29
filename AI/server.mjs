@@ -5,7 +5,7 @@ import cors from "cors";
 import "dotenv/config";
 import { AICore } from "./src/ai/core.mjs";
 import { collectStatus, trackActivity } from "./src/ai/status.mjs";
-import { createTask, transition, getTask, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
+import { createTask, transition, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
 import { getAudit } from "./src/ai/permission.mjs";
 import { listApprovals } from "./src/ai/approvals.mjs";
 
@@ -168,18 +168,6 @@ app.get("/api/control", (req, res) => {
   // Contains no secrets: task events carry only counts/reasons, audit entries carry
   // only action/permission/risk/decision metadata, approvals carry no credentials.
   res.json({ events: getEvents().slice(-20), audit: getAudit(20), approvals: listApprovals(), engines: summarizeEngines() });
-});
-
-// ចំណាំ: api.mjs ក៏មាន /api/tasks ដែរ ហើយចុះឈ្មោះមុន server.mjs នេះ
-// ដូច្នេះ Express នឹងប្រើ route ក្នុង api.mjs ជានិច្ច។ Route ខាងក្រោមនេះ
-// ត្រូវបានទុកចោល (មិនលុប) ព្រោះមិនប៉ះពាល់ដល់ការដំណើរការអ្វីទាំងអស់។
-app.get("/api/tasks", (req, res) => {
-  const key = process.env.KHOEM_API_KEY;
-  if (!key) return res.status(503).json({ error: "API key not configured" });
-  if (req.get("x-api-key") !== key) return res.status(401).json({ error: "Unauthorized" });
-  const id = req.query.id ? String(req.query.id) : null;
-  if (id) return res.json({ task: getTask(id), events: getEvents(id) });
-  res.json({ events: getEvents().slice(-50) });
 });
 
 app.listen(PORT, "127.0.0.1", () => {
