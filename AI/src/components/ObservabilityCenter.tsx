@@ -238,9 +238,17 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
                   </span>
                   <details>
                     <summary>{pickText(lang, "ព័ត៌មានលម្អិត", "Metadata")}</summary>
-                    <pre style={{ whiteSpace: "pre-wrap", margin: "8px 0 0", fontSize: "0.8em" }}>
-                      {JSON.stringify(item.metadata ?? {}, null, 2)}
-                    </pre>
+                    {item.metadata == null ||
+                    (typeof item.metadata === "object" &&
+                      Object.keys(item.metadata as Record<string, unknown>).length === 0) ? (
+                      <div style={{ padding: "8px 0", opacity: 0.7 }}>
+                        {pickText(lang, "គ្មាន Metadata", "No metadata")}
+                      </div>
+                    ) : (
+                      <pre style={{ whiteSpace: "pre-wrap", margin: "8px 0 0", fontSize: "0.8em" }}>
+                        {JSON.stringify(item.metadata, null, 2)}
+                      </pre>
+                    )}
                   </details>
                 </div>
               </div>
