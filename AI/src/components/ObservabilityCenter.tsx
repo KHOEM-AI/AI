@@ -27,6 +27,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
   const t = useT();
   const lang = useLanguageCode();
   const [tasks, setTasks] = useState<unknown | null>(null);
+  const [taskEvents, setTaskEvents] = useState<unknown[]>([]);
   const [circuits, setCircuits] = useState<unknown | null>(null);
   const [routing, setRouting] = useState<unknown | null>(null);
   const [verification, setVerification] = useState<unknown | null>(null);
@@ -43,8 +44,12 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
 
   async function loadTasks() {
     setBusy("tasks"); setError(null);
-    try { setTasks(await api("/api/tasks")); }
-    catch { setError("tasks load failed"); } finally { setBusy(null); }
+    try {
+      const result = await api("/api/tasks");
+      setTasks(result);
+      const events = unwrap(result, "events");
+      setTaskEvents(Array.isArray(events) ? events : []);
+    } catch { setError("tasks load failed"); } finally { setBusy(null); }
   }
 
   async function loadCircuits() {
@@ -171,6 +176,37 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={tasks} />
+            </div>
+          </>
+        )}
+
+        {taskEvents.length > 0 && (
+          <>
+            <div className="status-panel__meta" style={{ marginTop: 16 }}>
+              <span>{pickText(lang, "ព្រឹត្តិការណ៍ថ្មីៗ", "Recent task events")}</span>
+            </div>
+            <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
+              <div className="status-card">
+                <div className="status-card__extra">
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {taskEvents.map((event, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          padding: "8px 10px",
+                          border: "1px solid rgba(128,128,128,0.25)",
+                          borderRadius: 6,
+                          overflow: "auto"
+                        }}
+                      >
+                        <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.8em" }}>
+                          {JSON.stringify(event, null, 2)}
+                        </pre>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </>
         )}
