@@ -41,13 +41,34 @@ describe("patch.mjs — sandbox rejection (slower: runs real tsc)", () => {
     expect(result.approvalId).toBe(null);
   }, 60000);
 
-  it("applyPatch returns APPROVAL_MISMATCH when approvalId does not match the proposal's", () => {
-    const result = applyPatch("some-proposal-id", "wrong-approval-id");
-    // proposal won't exist either, but this exercises the mismatch branch
-    // when a real proposal id combined with a wrong approval id is used —
-    // covered indirectly since PROPOSAL_NOT_FOUND takes precedence here.
-    expect(result.ok).toBe(false);
-  });
+  it("applyPatch returns APPROVAL_MISMATCH when approvalId does not match the proposal's", async () => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const relPath = "src/ai/__tests__/__fixtures__/patchable-mismatch.mjs";
+
+    fs.mkdirSync(path.dirname(relPath), { recursive: true });
+    fs.writeFileSync(relPath, "export const value = 1;\n");
+
+    try {
+      const proposal = proposePatch({
+        relPath,
+        newContent: "export const value = 2;\n",
+        reason: "approval mismatch regression test",
+        actor: "tester",
+      });
+
+      expect(proposal.status).toBe("PENDING_APPROVAL");
+      expect(proposal.approvalId).toBeTruthy();
+
+      const result = applyPatch(proposal.id, "wrong-approval-id");
+
+      expect(result.ok).toBe(false);
+      expect(result.error).toBe("APPROVAL_MISMATCH");
+      expect(fs.readFileSync(relPath, "utf8")).toBe("export const value = 1;\n");
+    } finally {
+      fs.rmSync(relPath, { force: true });
+    }
+  }, 120000);
 });
 
 describe("patch.mjs — full propose -> approve -> apply (slow: real sandbox run)", () => {
