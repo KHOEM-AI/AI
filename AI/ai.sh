@@ -3,7 +3,7 @@ cd ~/ai-project/AI || exit 1
 pkill -f "node server.mjs" 2>/dev/null
 pkill -f vite 2>/dev/null
 sleep 1
-node server.mjs > $HOME/ai-server.log 2>&1 &
+npm run server > $HOME/ai-server.log 2>&1 &
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null' EXIT
 for i in 1 2 3 4 5 6 7 8 9 10; do
