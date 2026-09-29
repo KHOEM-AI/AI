@@ -39,6 +39,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
   const [eventSearch, setEventSearch] = useState("");
   const [eventTimeRange, setEventTimeRange] = useState("ALL");
   const [eventSort, setEventSort] = useState("NEWEST");
+  const [eventLimit, setEventLimit] = useState("25");
 
   const eventTypes = Array.from(
     new Set(
@@ -91,6 +92,11 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
       : bTimestamp - aTimestamp;
   });
 
+  const visibleEvents =
+    eventLimit === "ALL"
+      ? filteredEvents
+      : filteredEvents.slice(0, Number(eventLimit));
+
   if (events.length === 0) {
     return (
       <div className="status-card">
@@ -122,7 +128,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
               ))}
             </select>
             <span style={{ fontSize: "0.85em", opacity: 0.75 }}>
-              {filteredEvents.length}/{events.length}
+              {visibleEvents.length}/{filteredEvents.length}/{events.length}
             </span>
           </div>
 
@@ -169,6 +175,24 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
           </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <label htmlFor={`${filterId}-limit`}>
+              {pickText(lang, "ចំនួនបង្ហាញ", "Show")}
+            </label>
+            <select
+              id={`${filterId}-limit`}
+              value={eventLimit}
+              onChange={(e) => setEventLimit(e.target.value)}
+            >
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="ALL">
+                {pickText(lang, "ទាំងអស់", "All")}
+              </option>
+            </select>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <label htmlFor={`${filterId}-search`}>
               {pickText(lang, "ស្វែងរក", "Search")}
             </label>
@@ -186,7 +210,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
             <div style={{ padding: "10px 0", opacity: 0.75 }}>
               {pickText(lang, "មិនមានព្រឹត្តិការណ៍ប្រភេទនេះ", "No events match this filter")}
             </div>
-          ) : filteredEvents.map((event, index) => {
+          ) : visibleEvents.map((event, index) => {
             const item = event && typeof event === "object"
               ? event as Record<string, unknown>
               : {};
