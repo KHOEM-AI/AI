@@ -23,6 +23,42 @@ function JsonBlock({ data }: { data: unknown }) {
   );
 }
 
+function EventList({ events, lang }: { events: unknown[]; lang: ReturnType<typeof useLanguageCode> }) {
+  if (events.length === 0) {
+    return (
+      <div className="status-card">
+        <div className="status-card__extra">
+          {pickText(lang, "មិនទាន់មានព្រឹត្តិការណ៍", "No events recorded")}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="status-card">
+      <div className="status-card__extra">
+        <div style={{ display: "grid", gap: 8 }}>
+          {events.map((event, index) => (
+            <div
+              key={index}
+              style={{
+                padding: "8px 10px",
+                border: "1px solid rgba(128,128,128,0.25)",
+                borderRadius: 6,
+                overflow: "auto"
+              }}
+            >
+              <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.8em" }}>
+                {JSON.stringify(event, null, 2)}
+              </pre>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ObservabilityCenter({ onClose }: { onClose: () => void }) {
   const t = useT();
   const lang = useLanguageCode();
@@ -161,7 +197,27 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
             {pickText(lang, "មើលលម្អិត", "View detail")}
           </button>
         </div>
-        {taskDetail !== null && <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}><JsonBlock data={taskDetail} /></div>}
+        {taskDetail !== null && (
+          <>
+            <div className="status-panel__meta" style={{ marginTop: 12 }}>
+              <span>{pickText(lang, "ព័ត៌មានភារកិច្ច", "Task")}</span>
+            </div>
+            <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
+              <JsonBlock data={unwrap(taskDetail, "task")} />
+            </div>
+            <div className="status-panel__meta" style={{ marginTop: 12 }}>
+              <span>{pickText(lang, "ប្រវត្តិព្រឹត្តិការណ៍", "Task event history")}</span>
+            </div>
+            <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
+              <EventList
+                events={Array.isArray(unwrap(taskDetail, "events"))
+                  ? unwrap(taskDetail, "events") as unknown[]
+                  : []}
+                lang={lang}
+              />
+            </div>
+          </>
+        )}
 
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <input value={circuitName} onChange={(e) => setCircuitName(e.target.value)} placeholder="Circuit name" />
@@ -190,33 +246,13 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
           </>
         )}
 
-        {taskEvents.length > 0 && (
+        {tasks !== null && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
               <span>{pickText(lang, "ព្រឹត្តិការណ៍ថ្មីៗ", "Recent task events")}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
-              <div className="status-card">
-                <div className="status-card__extra">
-                  <div style={{ display: "grid", gap: 8 }}>
-                    {taskEvents.map((event, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          padding: "8px 10px",
-                          border: "1px solid rgba(128,128,128,0.25)",
-                          borderRadius: 6,
-                          overflow: "auto"
-                        }}
-                      >
-                        <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.8em" }}>
-                          {JSON.stringify(event, null, 2)}
-                        </pre>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <EventList events={taskEvents} lang={lang} />
             </div>
           </>
         )}
