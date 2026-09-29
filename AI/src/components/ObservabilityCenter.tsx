@@ -49,21 +49,42 @@ function EventList({ events, lang }: { events: unknown[]; lang: ReturnType<typeo
     <div className="status-card">
       <div className="status-card__extra">
         <div style={{ display: "grid", gap: 8 }}>
-          {events.map((event, index) => (
-            <div
-              key={index}
-              style={{
-                padding: "8px 10px",
-                border: "1px solid rgba(128,128,128,0.25)",
-                borderRadius: 6,
-                overflow: "auto"
-              }}
-            >
-              <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: "0.8em" }}>
-                {JSON.stringify(event, null, 2)}
-              </pre>
-            </div>
-          ))}
+          {events.map((event, index) => {
+            const item = event && typeof event === "object"
+              ? event as Record<string, unknown>
+              : {};
+
+            return (
+              <div
+                key={String(item.id ?? index)}
+                style={{
+                  padding: "10px 12px",
+                  border: "1px solid rgba(128,128,128,0.25)",
+                  borderRadius: 6,
+                  overflow: "auto"
+                }}
+              >
+                <div style={{ display: "grid", gap: 4 }}>
+                  <strong>{String(item.type ?? "UNKNOWN")}</strong>
+                  <span>
+                    {pickText(lang, "ពេលវេលា", "Time")}: {String(item.timestamp ?? "—")}
+                  </span>
+                  <span>
+                    {pickText(lang, "Task ID", "Task ID")}: {String(item.taskId ?? "—")}
+                  </span>
+                  <span>
+                    {pickText(lang, "រយៈពេល", "Duration")}: {item.duration == null ? "—" : `${String(item.duration)} ms`}
+                  </span>
+                  <details>
+                    <summary>{pickText(lang, "ព័ត៌មានលម្អិត", "Metadata")}</summary>
+                    <pre style={{ whiteSpace: "pre-wrap", margin: "8px 0 0", fontSize: "0.8em" }}>
+                      {JSON.stringify(item.metadata ?? {}, null, 2)}
+                    </pre>
+                  </details>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
