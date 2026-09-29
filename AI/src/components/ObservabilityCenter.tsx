@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
 
 async function api(url: string, opts: RequestInit = {}) {
@@ -51,6 +51,16 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
       setTaskEvents(Array.isArray(events) ? events : []);
     } catch { setError("tasks load failed"); } finally { setBusy(null); }
   }
+
+  useEffect(() => {
+    if (tasks === null) return;
+
+    const timer = window.setInterval(() => {
+      void loadTasks();
+    }, 10000);
+
+    return () => window.clearInterval(timer);
+  }, [tasks === null]);
 
   async function loadCircuits() {
     setBusy("circuits"); setError(null);
