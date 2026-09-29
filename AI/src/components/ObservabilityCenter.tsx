@@ -36,6 +36,7 @@ function JsonBlock({ data }: { data: unknown }) {
 
 function EventList({ events, lang, filterId }: { events: unknown[]; lang: ReturnType<typeof useLanguageCode>; filterId: string }) {
   const [eventType, setEventType] = useState("ALL");
+  const [eventSearch, setEventSearch] = useState("");
 
   const eventTypes = Array.from(
     new Set(
@@ -46,13 +47,25 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
     )
   ).sort();
 
-  const filteredEvents = eventType === "ALL"
-    ? events
-    : events.filter((event) => (
-        event &&
-        typeof event === "object" &&
-        String((event as Record<string, unknown>).type ?? "") === eventType
-      ));
+  const filteredEvents = events.filter((event) => {
+    if (!event || typeof event !== "object") return false;
+
+    const item = event as Record<string, unknown>;
+    const matchesType =
+      eventType === "ALL" ||
+      String(item.type ?? "") === eventType;
+
+    const search = eventSearch.trim().toLowerCase();
+    if (!search) return matchesType;
+
+    const searchable = [
+      String(item.type ?? ""),
+      String(item.taskId ?? ""),
+      JSON.stringify(item.metadata ?? {})
+    ].join(" ").toLowerCase();
+
+    return matchesType && searchable.includes(search);
+  });
 
   if (events.length === 0) {
     return (
@@ -87,6 +100,20 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
             <span style={{ fontSize: "0.85em", opacity: 0.75 }}>
               {filteredEvents.length}/{events.length}
             </span>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <label htmlFor={`${filterId}-search`}>
+              {pickText(lang, "ស្វែងរក", "Search")}
+            </label>
+            <input
+              id={`${filterId}-search`}
+              type="search"
+              value={eventSearch}
+              onChange={(e) => setEventSearch(e.target.value)}
+              placeholder={pickText(lang, "ស្វែងរក Event, Task ID ឬ Metadata", "Search event, task ID, or metadata")}
+              style={{ minWidth: 220, flex: "1 1 220px" }}
+            />
           </div>
 
           {filteredEvents.length === 0 ? (
