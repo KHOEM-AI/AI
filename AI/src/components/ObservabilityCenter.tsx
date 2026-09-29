@@ -37,6 +37,7 @@ function JsonBlock({ data }: { data: unknown }) {
 function EventList({ events, lang, filterId }: { events: unknown[]; lang: ReturnType<typeof useLanguageCode>; filterId: string }) {
   const [eventType, setEventType] = useState("ALL");
   const [eventSearch, setEventSearch] = useState("");
+  const [eventTimeRange, setEventTimeRange] = useState("ALL");
 
   const eventTypes = Array.from(
     new Set(
@@ -47,6 +48,8 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
     )
   ).sort();
 
+  const now = Date.now();
+
   const filteredEvents = events.filter((event) => {
     if (!event || typeof event !== "object") return false;
 
@@ -55,8 +58,19 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
       eventType === "ALL" ||
       String(item.type ?? "") === eventType;
 
+    const eventTimestamp = Date.parse(String(item.timestamp ?? ""));
+    const timeWindowMs =
+      eventTimeRange === "5M" ? 5 * 60 * 1000 :
+      eventTimeRange === "1H" ? 60 * 60 * 1000 :
+      eventTimeRange === "24H" ? 24 * 60 * 60 * 1000 :
+      null;
+
+    const matchesTime =
+      timeWindowMs === null ||
+      (Number.isFinite(eventTimestamp) && eventTimestamp >= now - timeWindowMs && eventTimestamp <= now);
+
     const search = eventSearch.trim().toLowerCase();
-    if (!search) return matchesType;
+    if (!search) return matchesType && matchesTime;
 
     const searchable = [
       String(item.type ?? ""),
@@ -64,7 +78,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
       JSON.stringify(item.metadata ?? {})
     ].join(" ").toLowerCase();
 
-    return matchesType && searchable.includes(search);
+    return matchesType && matchesTime && searchable.includes(search);
   });
 
   if (events.length === 0) {
@@ -100,6 +114,30 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
             <span style={{ fontSize: "0.85em", opacity: 0.75 }}>
               {filteredEvents.length}/{events.length}
             </span>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <label htmlFor={`${filterId}-time`}>
+              {pickText(lang, "រយៈពេល", "Time range")}
+            </label>
+            <select
+              id={`${filterId}-time`}
+              value={eventTimeRange}
+              onChange={(e) => setEventTimeRange(e.target.value)}
+            >
+              <option value="ALL">
+                {pickText(lang, "គ្រប់ពេល", "All time")}
+              </option>
+              <option value="5M">
+                {pickText(lang, "៥ នាទីចុងក្រោយ", "Last 5 minutes")}
+              </option>
+              <option value="1H">
+                {pickText(lang, "១ ម៉ោងចុងក្រោយ", "Last 1 hour")}
+              </option>
+              <option value="24H">
+                {pickText(lang, "២៤ ម៉ោងចុងក្រោយ", "Last 24 hours")}
+              </option>
+            </select>
           </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
