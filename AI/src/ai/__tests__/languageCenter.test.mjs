@@ -1,5 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 
+vi.mock("../khoemApi.mjs", () => ({
+  getKhoemLanguages: async () => { throw new Error("offline"); },
+  getKhoemLocales: async () => { throw new Error("offline"); },
+  khoemTranslate: async () => { throw new Error("offline"); },
+}));
+
 describe("languageCenter.mjs", () => {
   it("routes English input to englishReply", async () => {
     vi.resetModules();
