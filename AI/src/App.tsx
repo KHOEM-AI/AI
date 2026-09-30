@@ -16,6 +16,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
 import { loadLanguage, saveLanguage, getLanguageLabel, LANGUAGE_OPTIONS, type LanguageCode } from "./language";
 import { LanguageProvider, getTranslations } from "./i18n";
+import { useKhoem } from "./hooks/useKhoem";
 import { APP_NAME } from "./lib/app";
 
 function AppInner() {
@@ -23,7 +24,37 @@ function AppInner() {
   const [showHonorific, setShowHonorific] = useState(false);
   const [language, setLanguage] = useState<LanguageCode>(() => loadLanguage());
   const [showLanguage, setShowLanguage] = useState(false);
+  const [khoemLanguageOptions, setKhoemLanguageOptions] = useState<typeof LANGUAGE_OPTIONS>(LANGUAGE_OPTIONS);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/l10n/api/languages")
+      .then((r) => r.json())
+      .then((body) => {
+        const rows = Array.isArray(body?.data) ? body.data : [];
+        const options = rows
+          .map((x: any) => ({
+            code: String(x.languageId ?? x.iso639_1 ?? x.bcp47 ?? ""),
+            label: String(x.nativeName ?? x.englishName ?? x.languageId ?? ""),
+            nameEn: String(x.englishName ?? x.languageId ?? ""),
+            flag: "🌐",
+          }))
+          .filter((x: { code: string; label: string; nameEn: string; flag: string }) => x.code);
+
+        if (!cancelled && options.length > 0) {
+          setKhoemLanguageOptions(options);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const t = getTranslations(language);
+  const k = useKhoem(language);
   const { messages, isSending, error, sendMessage, regenerate, setFeedback, clearConversation } = useChat(honorific);
   const [input, setInput] = useState("");
   const [showStatus, setShowStatus] = useState(false);
@@ -109,28 +140,28 @@ function AppInner() {
                   {t.navControlCenter}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowPatchDashboard(true); setShowMenu(false); }}>
-                  {language === "km" ? "សំណើកែកូដ" : "Patch Dashboard"}
+                  {k("ai.menu.patchDashboard")}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowCodeCenter(true); setShowMenu(false); }}>
-                  {language === "km" ? "មជ្ឈមណ្ឌលកូដ" : "Code Center"}
+                  {k("ai.menu.codeCenter")}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
-                  {language === "km" ? "មជ្ឈមណ្ឌលការរៀន" : "Learning Center"}
+                  {k("ai.menu.learningCenter")}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowAuditMetrics(true); setShowMenu(false); }}>
-                  {language === "km" ? "សវនកម្ម និង Metrics" : "Audit & Metrics"}
+                  {k("ai.menu.auditMetrics")}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
-                  {language === "km" ? "ភារកិច្ច, Circuit, Routing" : "Tasks, Circuits, Routing"}
+                  {k("ai.menu.observability")}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
-                  {language === "km" ? "គោលដៅ, គំនិត, ផែនការ" : "Goals, Ideas, Plans"}
+                  {k("ai.menu.management")}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
-                  {language === "km" ? "Rollback, ការវាយតម្លៃខ្លួនឯង" : "Rollback, Self-Eval"}
+                  {k("ai.menu.safety")}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
-                  {language === "km" ? "បញ្ជី Tool" : "Tool Registry"}
+                  {k("ai.menu.toolRegistry")}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
                   {t.navHonorific}
@@ -140,7 +171,7 @@ function AppInner() {
                 </button>
                 {showLanguage && (
                   <div className="language-panel__list language-panel__list--inline">
-                    {LANGUAGE_OPTIONS.map((o) => (
+                    {khoemLanguageOptions.map((o) => (
                       <button
                         key={o.code}
                         className={`language-option${language === o.code ? " language-option--active" : ""}`}
