@@ -42,7 +42,7 @@ export class AICore {
     const conversation = this.memory.get(sessionId);
 
     if (this.provider === "khoem") {
-      const reply = await khoemReply(conversation, undefined, onStage);
+      const reply = await khoemReply(conversation, honorific, onStage);
       this.memory.add(sessionId, { role: "assistant", content: reply });
       return {
         reply,
