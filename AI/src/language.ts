@@ -1,10 +1,4 @@
-export type LanguageCode =
-  | "km" | "en" | "th" | "lo" | "my" | "vi"
-  | "fr" | "es" | "ar" | "pt" | "zh" | "hi" | "ru"
-  | "ur" | "ta" | "tr" | "fa"
-  | "ja" | "ko" | "de" | "it" | "nl" | "pl" | "uk" | "sv"
-  | "el" | "he" | "ro" | "cs" | "hu" | "id" | "ms" | "tl"
-  | "bn" | "ne" | "si" | "mn";
+export type LanguageCode = string;
 
 export interface LanguageOption {
   code: LanguageCode;

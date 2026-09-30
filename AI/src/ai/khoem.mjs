@@ -1,6 +1,6 @@
 import { searchTechDB, searchHistoryFood, searchMoreHistory, searchCompleteHistory, searchKhmerCakes, searchKhmerWine, searchCultureTradition } from "./knowledge.mjs";
 import { handleLearn, load } from "./learn.mjs";
-import { routeLanguage } from "./languageCenter.mjs";
+import { routeLanguage, getCentralLanguageRegistry } from "./languageCenter.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
 import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mjs";
@@ -147,6 +147,12 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
     return "✅ បានបដិសេធ proposal: " + proposalId;
   }
   // ===== END NEW =====
+
+  if (q === "/langs") {
+    const { languages } = await getCentralLanguageRegistry();
+    if (!languages.length) return "KHOEM_AI (8790) មិនឆ្លើយ — បើក ai សិន";
+    return `KHOEM_AI: ${languages.length} ភាសា\n` + languages.map((x) => `${x.languageId} ${x.nativeName} (${x.status})`).join("\n");
+  }
 
   // Route supported natural languages through the Language Center.
   if (!q.startsWith("/") && q !== "help") {
