@@ -10544,7 +10544,7 @@ export function khmerReply(text, learned = {}, honorific = "បង") {
   // Substring containment fallback — Khmer often has no spaces between
   // clauses, so keyword containment catches more phrasing variants.
   const matches = [...SEED.entries()]
-    .filter(([k]) => norm.includes(k))
+    .filter(([k]) => k.length > 2 && norm.includes(k))
     .sort(([a], [b]) => b.length - a.length);
 
   if (matches.length > 0) {
