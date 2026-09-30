@@ -8,9 +8,16 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "server": "node server.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "verify:all": "npm run typecheck && npm run build && npm test && (cd ~/KHOEM_AI_repo/localization && npm run verify)",
+    "validate:locales": "cd ~/KHOEM_AI_repo/localization && npm run validate:locales",
+    "check:duplicates": "cd ~/KHOEM_AI_repo/localization && npm run check:duplicates",
+    "report:translations": "cd ~/KHOEM_AI_repo/localization && npm run report:translations",
+    "verify": "cd ~/KHOEM_AI_repo/localization && npm run verify"
   },
   "dependencies": {
+    "@khoem-ai/localization": "file:../../KHOEM_AI_repo/localization",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",

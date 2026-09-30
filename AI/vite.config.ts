@@ -6,6 +6,11 @@ export default defineConfig({
   server: {
     port: 5175,
     proxy: {
+      "/l10n": {
+        target: "http://127.0.0.1:8790",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/l10n/, ""),
+      },
       // frontend calls fetch("/api/chat"); Vite forwards it to server.mjs
       "/api": {
         target: "http://127.0.0.1:8787",
