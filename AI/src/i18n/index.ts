@@ -44,7 +44,7 @@ import mn from "./mn";
 export const DICTIONARIES: Partial<Record<LanguageCode, Translations>> = {
   km, en, th, vi, my, lo, hi, ar, ur, ta, tr, fa,
   fr, es, pt, zh, ru,
-  ja, ko, de, it, nl, pl, uk, sv, el, he, ro, cs, hu, id, ms, tl, bn, ne, si, mn,
+  ja, ko, de, it, nl, pl, uk, sv, el, he, ro, cs, hu, id, ms, tl, fil: tl, bn, ne, si, mn,
 };
 
 export function getTranslations(code: LanguageCode): Translations {
