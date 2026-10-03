@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 AI_DIR="$HOME/ai-project/AI"
-KHOEM_DIR="$HOME/KHOEM_AI_repo/localization"
+KHOEM_DIR="$HOME/KHOEM_AI/KHOEM_AI/localization"
 
 AI_LOG="$HOME/ai-server.log"
 KHOEM_LOG="$HOME/khoem-api.log"
