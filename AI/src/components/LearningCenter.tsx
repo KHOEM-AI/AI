@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useT, pickText, useLanguageCode } from "../i18n";
+import { useKhoem } from "../hooks/useKhoem";
 
 async function api(url: string, opts: RequestInit = {}) {
   const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
@@ -10,6 +11,8 @@ async function api(url: string, opts: RequestInit = {}) {
 export default function LearningCenter({ onClose }: { onClose: () => void }) {
   const t = useT();
   const lang = useLanguageCode();
+  const k = useKhoem(lang);
+  const kk = (key: string, fb: string) => k(key) || fb;
 
   const [q, setQ] = useState("");
   const [a, setA] = useState("");
@@ -27,7 +30,7 @@ export default function LearningCenter({ onClose }: { onClose: () => void }) {
       setMessage(typeof res === "string" ? res : JSON.stringify(res));
       setQ(""); setA("");
     } catch {
-      setError(pickText(lang, "រៀនមិនបានជោគជ័យ", "Learn failed"));
+      setError(kk("ai.menu.learningLearnFailed", pickText(lang, "រៀនមិនបានជោគជ័យ", "Learn failed")));
     } finally { setBusy(null); }
   }
 
@@ -39,7 +42,7 @@ export default function LearningCenter({ onClose }: { onClose: () => void }) {
       setMessage(typeof res === "string" ? res : JSON.stringify(res));
       setForgetQ("");
     } catch {
-      setError(pickText(lang, "ភ្លេចមិនបានជោគជ័យ", "Forget failed"));
+      setError(kk("ai.menu.learningForgetFailed", pickText(lang, "ភ្លេចមិនបានជោគជ័យ", "Forget failed")));
     } finally { setBusy(null); }
   }
 
@@ -49,18 +52,18 @@ export default function LearningCenter({ onClose }: { onClose: () => void }) {
       const res = await api("/api/learned");
       setLearnedText(typeof res === "string" ? res : JSON.stringify(res));
     } catch {
-      setError(pickText(lang, "ទាញយកបញ្ជីមិនបានជោគជ័យ", "Failed to load learned list"));
+      setError(kk("ai.menu.learningLoadFailed", pickText(lang, "ទាញយកបញ្ជីមិនបានជោគជ័យ", "Failed to load learned list")));
     } finally { setBusy(null); }
   }
 
   return (
-    <div className="status-overlay" role="dialog" aria-label="Learning Center">
+    <div className="status-overlay" role="dialog" aria-label={kk("ai.menu.learningCenter", "Learning Center")}>
       <div className="status-panel">
         <div className="status-panel__head">
           <div>
-            <div className="status-panel__ai-name">{pickText(lang, "មជ្ឈមណ្ឌលការរៀន", "Learning Center")}</div>
+            <div className="status-panel__ai-name">{kk("ai.menu.learningCenter", pickText(lang, "មជ្ឈមណ្ឌលការរៀន", "Learning Center"))}</div>
             <div className="status-panel__page-title">
-              {pickText(lang, "បង្រៀន ភ្លេច និងមើលចំណេះដឹងដែលបានរៀន", "Teach, forget, and browse learned knowledge")}
+              {kk("ai.menu.learningSubtitle", pickText(lang, "បង្រៀន ភ្លេច និងមើលចំណេះដឹងដែលបានរៀន", "Teach, forget, and browse learned knowledge"))}
             </div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
@@ -70,42 +73,42 @@ export default function LearningCenter({ onClose }: { onClose: () => void }) {
         {message && <div className="status-panel__meta">{message}</div>}
 
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>{pickText(lang, "រៀនចំណុចថ្មី", "Teach a new fact")}</span>
+          <span>{kk("ai.menu.learningTeachTitle", pickText(lang, "រៀនចំណុចថ្មី", "Teach a new fact"))}</span>
         </div>
         <div className="status-panel__meta" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder={pickText(lang, "សំណួរ (ឧ. សួស្ដី)", "Question (e.g. hello)")}
+            placeholder={kk("ai.menu.learningQuestionPh", pickText(lang, "សំណួរ (ឧ. សួស្ដី)", "Question (e.g. hello)"))}
           />
           <input
             value={a}
             onChange={(e) => setA(e.target.value)}
-            placeholder={pickText(lang, "ចម្លើយ", "Answer")}
+            placeholder={kk("ai.menu.learningAnswerPh", pickText(lang, "ចម្លើយ", "Answer"))}
           />
           <button disabled={busy === "learn" || !q.trim() || !a.trim()} onClick={handleLearn}>
-            {pickText(lang, "រៀន", "Learn")}
+            {kk("ai.menu.learningLearnBtn", pickText(lang, "រៀន", "Learn"))}
           </button>
         </div>
 
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>{pickText(lang, "ភ្លេចចំណុច", "Forget a fact")}</span>
+          <span>{kk("ai.menu.learningForgetTitle", pickText(lang, "ភ្លេចចំណុច", "Forget a fact"))}</span>
         </div>
         <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
           <input
             value={forgetQ}
             onChange={(e) => setForgetQ(e.target.value)}
-            placeholder={pickText(lang, "សំណួរដែលចង់ភ្លេច", "Question to forget")}
+            placeholder={kk("ai.menu.learningForgetPh", pickText(lang, "សំណួរដែលចង់ភ្លេច", "Question to forget"))}
           />
           <button disabled={busy === "forget" || !forgetQ.trim()} onClick={handleForget}>
-            {pickText(lang, "ភ្លេច", "Forget")}
+            {kk("ai.menu.learningForgetBtn", pickText(lang, "ភ្លេច", "Forget"))}
           </button>
         </div>
 
         <div className="status-panel__meta" style={{ marginTop: 16, display: "flex", justifyContent: "space-between" }}>
-          <span>{pickText(lang, "អ្វីដែលបានរៀនរួច", "Learned so far")}</span>
+          <span>{kk("ai.menu.learningLearnedTitle", pickText(lang, "អ្វីដែលបានរៀនរួច", "Learned so far"))}</span>
           <button disabled={busy === "learned"} onClick={loadLearned}>
-            {pickText(lang, "ផ្ទុកបញ្ជី", "Load list")}
+            {kk("ai.menu.learningLoadBtn", pickText(lang, "ផ្ទុកបញ្ជី", "Load list"))}
           </button>
         </div>
         {learnedText && (
