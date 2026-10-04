@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
+import { useKhoem } from "../hooks/useKhoem";
 
 async function api(url: string, opts: RequestInit = {}) {
   const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
@@ -35,6 +36,8 @@ function JsonBlock({ data }: { data: unknown }) {
 }
 
 function EventList({ events, lang, filterId }: { events: unknown[]; lang: ReturnType<typeof useLanguageCode>; filterId: string }) {
+  const k = useKhoem(lang);
+  const kk = (key: string, fb: string) => k(key) || fb;
   const [eventType, setEventType] = useState("ALL");
   const [eventSearch, setEventSearch] = useState("");
   const [eventTimeRange, setEventTimeRange] = useState("ALL");
@@ -101,7 +104,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
     return (
       <div className="status-card">
         <div className="status-card__extra">
-          {pickText(lang, "មិនទាន់មានព្រឹត្តិការណ៍", "No events recorded")}
+          {kk("ai.menu.observability01", pickText(lang, "មិនទាន់មានព្រឹត្តិការណ៍", "No events recorded"))}
         </div>
       </div>
     );
@@ -113,7 +116,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <label htmlFor={filterId}>
-              {pickText(lang, "ប្រភេទព្រឹត្តិការណ៍", "Event type")}
+              {kk("ai.menu.observability02", pickText(lang, "ប្រភេទព្រឹត្តិការណ៍", "Event type"))}
             </label>
             <select
               id={filterId}
@@ -121,7 +124,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
               onChange={(e) => setEventType(e.target.value)}
             >
               <option value="ALL">
-                {pickText(lang, "ទាំងអស់", "All events")}
+                {kk("ai.menu.observability03", pickText(lang, "ទាំងអស់", "All events"))}
               </option>
               {eventTypes.map((type) => (
                 <option key={type} value={type}>{type}</option>
@@ -134,7 +137,7 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
 
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <label htmlFor={`${filterId}-time`}>
-              {pickText(lang, "រយៈពេល", "Time range")}
+              {kk("ai.menu.observability04", pickText(lang, "រយៈពេល", "Time range"))}
             </label>
             <select
               id={`${filterId}-time`}
@@ -142,23 +145,23 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
               onChange={(e) => setEventTimeRange(e.target.value)}
             >
               <option value="ALL">
-                {pickText(lang, "គ្រប់ពេល", "All time")}
+                {kk("ai.menu.observability05", pickText(lang, "គ្រប់ពេល", "All time"))}
               </option>
               <option value="5M">
-                {pickText(lang, "៥ នាទីចុងក្រោយ", "Last 5 minutes")}
+                {kk("ai.menu.observability06", pickText(lang, "៥ នាទីចុងក្រោយ", "Last 5 minutes"))}
               </option>
               <option value="1H">
-                {pickText(lang, "១ ម៉ោងចុងក្រោយ", "Last 1 hour")}
+                {kk("ai.menu.observability07", pickText(lang, "១ ម៉ោងចុងក្រោយ", "Last 1 hour"))}
               </option>
               <option value="24H">
-                {pickText(lang, "២៤ ម៉ោងចុងក្រោយ", "Last 24 hours")}
+                {kk("ai.menu.observability08", pickText(lang, "២៤ ម៉ោងចុងក្រោយ", "Last 24 hours"))}
               </option>
             </select>
           </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <label htmlFor={`${filterId}-sort`}>
-              {pickText(lang, "តម្រៀប", "Sort")}
+              {kk("ai.menu.observability09", pickText(lang, "តម្រៀប", "Sort"))}
             </label>
             <select
               id={`${filterId}-sort`}
@@ -166,17 +169,17 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
               onChange={(e) => setEventSort(e.target.value)}
             >
               <option value="NEWEST">
-                {pickText(lang, "ថ្មីបំផុតមុន", "Newest first")}
+                {kk("ai.menu.observability10", pickText(lang, "ថ្មីបំផុតមុន", "Newest first"))}
               </option>
               <option value="OLDEST">
-                {pickText(lang, "ចាស់បំផុតមុន", "Oldest first")}
+                {kk("ai.menu.observability11", pickText(lang, "ចាស់បំផុតមុន", "Oldest first"))}
               </option>
             </select>
           </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <label htmlFor={`${filterId}-limit`}>
-              {pickText(lang, "ចំនួនបង្ហាញ", "Show")}
+              {kk("ai.menu.observability12", pickText(lang, "ចំនួនបង្ហាញ", "Show"))}
             </label>
             <select
               id={`${filterId}-limit`}
@@ -187,28 +190,28 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
               <option value="50">50</option>
               <option value="100">100</option>
               <option value="ALL">
-                {pickText(lang, "ទាំងអស់", "All")}
+                {kk("ai.menu.observability13", pickText(lang, "ទាំងអស់", "All"))}
               </option>
             </select>
           </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <label htmlFor={`${filterId}-search`}>
-              {pickText(lang, "ស្វែងរក", "Search")}
+              {kk("ai.menu.observability14", pickText(lang, "ស្វែងរក", "Search"))}
             </label>
             <input
               id={`${filterId}-search`}
               type="search"
               value={eventSearch}
               onChange={(e) => setEventSearch(e.target.value)}
-              placeholder={pickText(lang, "ស្វែងរក Event, Task ID ឬ Metadata", "Search event, task ID, or metadata")}
+              placeholder={kk("ai.menu.observability15", pickText(lang, "ស្វែងរក Event, Task ID ឬ Metadata", "Search event, task ID, or metadata"))}
               style={{ minWidth: 220, flex: "1 1 220px" }}
             />
           </div>
 
           {filteredEvents.length === 0 ? (
             <div style={{ padding: "10px 0", opacity: 0.75 }}>
-              {pickText(lang, "មិនមានព្រឹត្តិការណ៍ប្រភេទនេះ", "No events match this filter")}
+              {kk("ai.menu.observability16", pickText(lang, "មិនមានព្រឹត្តិការណ៍ប្រភេទនេះ", "No events match this filter"))}
             </div>
           ) : visibleEvents.map((event, index) => {
             const item = event && typeof event === "object"
@@ -228,21 +231,21 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
                 <div style={{ display: "grid", gap: 4 }}>
                   <strong>{String(item.type ?? "UNKNOWN")}</strong>
                   <span>
-                    {pickText(lang, "ពេលវេលា", "Time")}: {String(item.timestamp ?? "—")}
+                    {kk("ai.menu.observability17", pickText(lang, "ពេលវេលា", "Time"))}: {String(item.timestamp ?? "—")}
                   </span>
                   <span>
-                    {pickText(lang, "Task ID", "Task ID")}: {String(item.taskId ?? "—")}
+                    {kk("ai.menu.observability18", pickText(lang, "Task ID", "Task ID"))}: {String(item.taskId ?? "—")}
                   </span>
                   <span>
-                    {pickText(lang, "រយៈពេល", "Duration")}: {item.duration == null ? "—" : `${String(item.duration)} ms`}
+                    {kk("ai.menu.observability19", pickText(lang, "រយៈពេល", "Duration"))}: {item.duration == null ? "—" : `${String(item.duration)} ms`}
                   </span>
                   <details>
-                    <summary>{pickText(lang, "ព័ត៌មានលម្អិត", "Metadata")}</summary>
+                    <summary>{kk("ai.menu.observability20", pickText(lang, "ព័ត៌មានលម្អិត", "Metadata"))}</summary>
                     {item.metadata == null ||
                     (typeof item.metadata === "object" &&
                       Object.keys(item.metadata as Record<string, unknown>).length === 0) ? (
                       <div style={{ padding: "8px 0", opacity: 0.7 }}>
-                        {pickText(lang, "គ្មាន Metadata", "No metadata")}
+                        {kk("ai.menu.observability21", pickText(lang, "គ្មាន Metadata", "No metadata"))}
                       </div>
                     ) : (
                       <pre style={{ whiteSpace: "pre-wrap", margin: "8px 0 0", fontSize: "0.8em" }}>
@@ -263,6 +266,8 @@ function EventList({ events, lang, filterId }: { events: unknown[]; lang: Return
 export default function ObservabilityCenter({ onClose }: { onClose: () => void }) {
   const t = useT();
   const lang = useLanguageCode();
+  const k = useKhoem(lang);
+  const kk = (key: string, fb: string) => k(key) || fb;
   const [tasks, setTasks] = useState<unknown | null>(null);
   const [taskEvents, setTaskEvents] = useState<unknown[]>([]);
   const [circuits, setCircuits] = useState<unknown | null>(null);
@@ -366,7 +371,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
           <div>
             <div className="status-panel__ai-name">Observability</div>
             <div className="status-panel__page-title">
-              {pickText(lang, "ភារកិច្ច, Circuit Breaker, ការចាត់តាំង Model, និងការផ្ទៀងផ្ទាត់", "Tasks, circuit breakers, model routing, and verification")}
+              {kk("ai.menu.observability22", pickText(lang, "ភារកិច្ច, Circuit Breaker, ការចាត់តាំង Model, និងការផ្ទៀងផ្ទាត់", "Tasks, circuit breakers, model routing, and verification"))}
             </div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
@@ -376,38 +381,38 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
 
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button disabled={busy === "tasks"} onClick={loadTasks}>
-            {pickText(lang, "ផ្ទុកភារកិច្ច", "Load tasks")}
+            {kk("ai.menu.observability23", pickText(lang, "ផ្ទុកភារកិច្ច", "Load tasks"))}
           </button>
           <button disabled={busy === "circuits"} onClick={loadCircuits}>
-            {pickText(lang, "ផ្ទុក Circuit Breakers", "Load circuit breakers")}
+            {kk("ai.menu.observability24", pickText(lang, "ផ្ទុក Circuit Breakers", "Load circuit breakers"))}
           </button>
           <button disabled={busy === "routing"} onClick={loadRouting}>
-            {pickText(lang, "ផ្ទុកការចាត់តាំង Model", "Load model routing")}
+            {kk("ai.menu.observability25", pickText(lang, "ផ្ទុកការចាត់តាំង Model", "Load model routing"))}
           </button>
           <button disabled={busy === "verify"} onClick={loadVerification}>
-            {pickText(lang, "ផ្ទុកការផ្ទៀងផ្ទាត់", "Load verification")}
+            {kk("ai.menu.observability26", pickText(lang, "ផ្ទុកការផ្ទៀងផ្ទាត់", "Load verification"))}
           </button>
           <button disabled={busy === "run-verify"} onClick={runVerification}>
-            {pickText(lang, "ដំណើរការផ្ទៀងផ្ទាត់ថ្មី", "Run new verification")}
+            {kk("ai.menu.observability27", pickText(lang, "ដំណើរការផ្ទៀងផ្ទាត់ថ្មី", "Run new verification"))}
           </button>
         </div>
 
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <input value={taskDetailId} onChange={(e) => setTaskDetailId(e.target.value)} placeholder="Task ID" />
           <button disabled={busy === "task-detail" || !taskDetailId.trim()} onClick={loadTaskDetail}>
-            {pickText(lang, "មើលលម្អិត", "View detail")}
+            {kk("ai.menu.observability28", pickText(lang, "មើលលម្អិត", "View detail"))}
           </button>
         </div>
         {taskDetail !== null && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 12 }}>
-              <span>{pickText(lang, "ព័ត៌មានភារកិច្ច", "Task")}</span>
+              <span>{kk("ai.menu.observability29", pickText(lang, "ព័ត៌មានភារកិច្ច", "Task"))}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={unwrap(taskDetail, "task")} />
             </div>
             <div className="status-panel__meta" style={{ marginTop: 12 }}>
-              <span>{pickText(lang, "ប្រវត្តិព្រឹត្តិការណ៍", "Task event history")}</span>
+              <span>{kk("ai.menu.observability30", pickText(lang, "ប្រវត្តិព្រឹត្តិការណ៍", "Task event history"))}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <EventList
@@ -424,7 +429,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <input value={circuitName} onChange={(e) => setCircuitName(e.target.value)} placeholder="Circuit name" />
           <button disabled={busy === "circuit-detail" || !circuitName.trim()} onClick={loadCircuitDetail}>
-            {pickText(lang, "មើលលម្អិត Circuit", "View circuit detail")}
+            {kk("ai.menu.observability31", pickText(lang, "មើលលម្អិត Circuit", "View circuit detail"))}
           </button>
         </div>
         {circuitDetail !== null && <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}><JsonBlock data={circuitDetail} /></div>}
@@ -432,7 +437,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
           <input value={preferredProvider} onChange={(e) => setPreferredProvider(e.target.value)} placeholder="preferred provider" />
           <button disabled={busy === "route-decide"} onClick={decideRoute}>
-            {pickText(lang, "សម្រេចជ្រើសរើស Provider", "Decide provider")}
+            {kk("ai.menu.observability32", pickText(lang, "សម្រេចជ្រើសរើស Provider", "Decide provider"))}
           </button>
         </div>
         {routeDecision !== null && <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}><JsonBlock data={routeDecision} /></div>}
@@ -440,7 +445,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
         {tasks !== null && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
-              <span>{pickText(lang, "ភារកិច្ច", "Tasks")}</span>
+              <span>{kk("ai.menu.observability33", pickText(lang, "ភារកិច្ច", "Tasks"))}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={tasks} />
@@ -451,7 +456,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
         {tasks !== null && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
-              <span>{pickText(lang, "ព្រឹត្តិការណ៍ថ្មីៗ", "Recent task events")}</span>
+              <span>{kk("ai.menu.observability34", pickText(lang, "ព្រឹត្តិការណ៍ថ្មីៗ", "Recent task events"))}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <EventList events={taskEvents} lang={lang} filterId="recent-event-type-filter" />
@@ -462,7 +467,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
         {circuits !== null && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
-              <span>{pickText(lang, "Circuit Breakers", "Circuit breakers")}</span>
+              <span>{kk("ai.menu.observability35", pickText(lang, "Circuit Breakers", "Circuit breakers"))}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={circuits} />
@@ -473,7 +478,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
         {routing !== null && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
-              <span>{pickText(lang, "ការចាត់តាំង Model", "Model routing")}</span>
+              <span>{kk("ai.menu.observability36", pickText(lang, "ការចាត់តាំង Model", "Model routing"))}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={routing} />
@@ -484,7 +489,7 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
         {verification !== null && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
-              <span>{pickText(lang, "ការផ្ទៀងផ្ទាត់", "Verification")}</span>
+              <span>{kk("ai.menu.observability37", pickText(lang, "ការផ្ទៀងផ្ទាត់", "Verification"))}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
               <JsonBlock data={verification} />
@@ -493,17 +498,17 @@ export default function ObservabilityCenter({ onClose }: { onClose: () => void }
         )}
 
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>{pickText(lang, "ត្រួតពិនិត្យភាពស៊ីសង្វាក់ចម្លើយ", "Check answer consistency")}</span>
+          <span>{kk("ai.menu.observability38", pickText(lang, "ត្រួតពិនិត្យភាពស៊ីសង្វាក់ចម្លើយ", "Check answer consistency"))}</span>
         </div>
         <div className="status-panel__meta" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <textarea
             value={answersText}
             onChange={(e) => setAnswersText(e.target.value)}
-            placeholder={pickText(lang, "មួយចម្លើយក្នុងមួយបន្ទាត់", "one answer per line")}
+            placeholder={kk("ai.menu.observability39", pickText(lang, "មួយចម្លើយក្នុងមួយបន្ទាត់", "one answer per line"))}
             rows={5}
           />
           <button disabled={busy === "self-consistency" || !answersText.trim()} onClick={runSelfConsistency}>
-            {pickText(lang, "ត្រួតពិនិត្យ", "Check")}
+            {kk("ai.menu.observability40", pickText(lang, "ត្រួតពិនិត្យ", "Check"))}
           </button>
         </div>
         {consistencyResult !== null && (

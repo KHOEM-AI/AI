@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
+import { useKhoem } from "../hooks/useKhoem";
 
 interface Proposal {
   id: string;
@@ -25,6 +26,8 @@ async function apiFetch(url: string, opts: RequestInit = {}) {
 export default function PatchDashboard({ onClose }: { onClose: () => void }) {
   const t = useT();
   const lang = useLanguageCode();
+  const k = useKhoem(lang);
+  const kk = (key: string, fb: string) => k(key) || fb;
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +87,7 @@ export default function PatchDashboard({ onClose }: { onClose: () => void }) {
           <div>
             <div className="status-panel__ai-name">Patch Dashboard</div>
             <div className="status-panel__page-title">
-              {pickText(lang, "សំណើកែកូដកំពុងរង់ចាំ", "Pending code patch proposals")}
+              {kk("ai.menu.patch01", pickText(lang, "សំណើកែកូដកំពុងរង់ចាំ", "Pending code patch proposals"))}
             </div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
@@ -96,7 +99,7 @@ export default function PatchDashboard({ onClose }: { onClose: () => void }) {
           {pending.length === 0 && (
             <div className="status-card">
               <p className="status-card__desc-km">
-                {pickText(lang, "គ្មានសំណើកំពុងរង់ចាំ។", "No proposals pending.")}
+                {kk("ai.menu.patch02", pickText(lang, "គ្មានសំណើកំពុងរង់ចាំ។", "No proposals pending."))}
               </p>
             </div>
           )}
@@ -116,13 +119,13 @@ export default function PatchDashboard({ onClose }: { onClose: () => void }) {
               </div>
               <div className="status-card__commands">
                 <button disabled={busyId === p.id} onClick={() => act(p.id, "approve", p.approvalId)}>
-                  {pickText(lang, "អនុម័ត", "Approve")}
+                  {kk("ai.menu.patch03", pickText(lang, "អនុម័ត", "Approve"))}
                 </button>
                 <button disabled={busyId === p.id} onClick={() => act(p.id, "reject", p.approvalId)}>
-                  {pickText(lang, "បដិសេធ", "Reject")}
+                  {kk("ai.menu.patch04", pickText(lang, "បដិសេធ", "Reject"))}
                 </button>
                 <button disabled={busyId === p.id} onClick={() => act(p.id, "apply", p.approvalId)}>
-                  {pickText(lang, "អនុវត្ត", "Apply")}
+                  {kk("ai.menu.patch05", pickText(lang, "អនុវត្ត", "Apply"))}
                 </button>
               </div>
             </div>

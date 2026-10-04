@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
+import { useKhoem } from "../hooks/useKhoem";
 
 interface Tool {
   id: string; action: string; name: string; description: string; capabilities: string[];
@@ -14,6 +15,8 @@ async function api(url: string, opts: RequestInit = {}) {
 export default function ToolRegistryCenter({ onClose }: { onClose: () => void }) {
   const t = useT();
   const lang = useLanguageCode();
+  const k = useKhoem(lang);
+  const kk = (key: string, fb: string) => k(key) || fb;
   const [tools, setTools] = useState<Tool[] | null>(null);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<Tool[] | null>(null);
@@ -54,7 +57,7 @@ export default function ToolRegistryCenter({ onClose }: { onClose: () => void })
           <div>
             <div className="status-panel__ai-name">Tool Registry</div>
             <div className="status-panel__page-title">
-              {pickText(lang, "រកមើល tool/API ដែល AI អាចប្រើ", "Discover tools/APIs the AI can use")}
+              {kk("ai.menu.toolreg01", pickText(lang, "រកមើល tool/API ដែល AI អាចប្រើ", "Discover tools/APIs the AI can use"))}
             </div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
@@ -64,7 +67,7 @@ export default function ToolRegistryCenter({ onClose }: { onClose: () => void })
 
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button disabled={busy === "list"} onClick={loadTools}>
-            {pickText(lang, "ផ្ទុក Tools ទាំងអស់", "Load all tools")}
+            {kk("ai.menu.toolreg02", pickText(lang, "ផ្ទុក Tools ទាំងអស់", "Load all tools"))}
           </button>
         </div>
 
@@ -72,7 +75,7 @@ export default function ToolRegistryCenter({ onClose }: { onClose: () => void })
           <div className="status-grid" style={{ marginTop: 8 }}>
             {tools.length === 0 && (
               <div className="status-card">
-                <p className="status-card__desc-km">{pickText(lang, "គ្មាន tool", "No tools registered")}</p>
+                <p className="status-card__desc-km">{kk("ai.menu.toolreg03", pickText(lang, "គ្មាន tool", "No tools registered"))}</p>
               </div>
             )}
             {tools.map((tool) => (
@@ -85,7 +88,7 @@ export default function ToolRegistryCenter({ onClose }: { onClose: () => void })
                 </div>
                 <div className="status-card__extra">
                   <div>{tool.description}</div>
-                  <div>{pickText(lang, "សមត្ថភាព", "Capabilities")}: {tool.capabilities.join(", ") || "—"}</div>
+                  <div>{kk("ai.menu.toolreg04", pickText(lang, "សមត្ថភាព", "Capabilities"))}: {tool.capabilities.join(", ") || "—"}</div>
                 </div>
               </div>
             ))}
@@ -93,31 +96,31 @@ export default function ToolRegistryCenter({ onClose }: { onClose: () => void })
         )}
 
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>{pickText(lang, "ស្វែងរក Tool", "Find tool")}</span>
+          <span>{kk("ai.menu.toolreg05", pickText(lang, "ស្វែងរក Tool", "Find tool"))}</span>
         </div>
         <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
           <input value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder={pickText(lang, "ពាក្យគន្លឹះ", "keyword")} />
+            placeholder={kk("ai.menu.toolreg06", pickText(lang, "ពាក្យគន្លឹះ", "keyword"))} />
           <button disabled={busy === "find"} onClick={searchTools}>
-            {pickText(lang, "ស្វែងរក", "Search")}
+            {kk("ai.menu.toolreg07", pickText(lang, "ស្វែងរក", "Search"))}
           </button>
         </div>
         {hits && (
           <div className="status-card__extra">
             {hits.length === 0
-              ? pickText(lang, "រកមិនឃើញ", "Not found")
+              ? kk("ai.menu.toolreg08", pickText(lang, "រកមិនឃើញ", "Not found"))
               : hits.map((h) => <div key={h.id}>{h.name} ({h.id})</div>)}
           </div>
         )}
 
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>{pickText(lang, "ត្រួតពិនិត្យ Risk", "Check risk")}</span>
+          <span>{kk("ai.menu.toolreg09", pickText(lang, "ត្រួតពិនិត្យ Risk", "Check risk"))}</span>
         </div>
         <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
           <input value={riskId} onChange={(e) => setRiskId(e.target.value)}
-            placeholder={pickText(lang, "Tool ID", "Tool ID")} />
+            placeholder={kk("ai.menu.toolreg10", pickText(lang, "Tool ID", "Tool ID"))} />
           <button disabled={busy === "risk"} onClick={checkRisk}>
-            {pickText(lang, "ត្រួតពិនិត្យ", "Check")}
+            {kk("ai.menu.toolreg11", pickText(lang, "ត្រួតពិនិត្យ", "Check"))}
           </button>
         </div>
         {riskInfo !== null && (

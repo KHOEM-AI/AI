@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
+import { useKhoem } from "../hooks/useKhoem";
 
 async function api(url: string, opts: RequestInit = {}) {
   const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
@@ -22,6 +23,8 @@ function JsonBlock({ data }: { data: unknown }) {
 export default function SafetyCenter({ onClose }: { onClose: () => void }) {
   const t = useT();
   const lang = useLanguageCode();
+  const k = useKhoem(lang);
+  const kk = (key: string, fb: string) => k(key) || fb;
 
   const [snapshots, setSnapshots] = useState<unknown | null>(null);
   const [snapshotReason, setSnapshotReason] = useState("");
@@ -76,7 +79,7 @@ export default function SafetyCenter({ onClose }: { onClose: () => void }) {
           <div>
             <div className="status-panel__ai-name">Safety</div>
             <div className="status-panel__page-title">
-              {pickText(lang, "Rollback Snapshot និង ការវាយតម្លៃខ្លួនឯង", "Rollback snapshots and self-evaluation")}
+              {kk("ai.menu.safety01", pickText(lang, "Rollback Snapshot និង ការវាយតម្លៃខ្លួនឯង", "Rollback snapshots and self-evaluation"))}
             </div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
@@ -86,42 +89,42 @@ export default function SafetyCenter({ onClose }: { onClose: () => void }) {
 
         {/* Rollback snapshots */}
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>{pickText(lang, "Rollback Snapshot", "Rollback snapshots")}</span>
+          <span>{kk("ai.menu.safety02", pickText(lang, "Rollback Snapshot", "Rollback snapshots"))}</span>
         </div>
         <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
           <input value={snapshotReason} onChange={(e) => setSnapshotReason(e.target.value)}
-            placeholder={pickText(lang, "មូលហេតុ (ស្រេចចិត្ត)", "reason (optional)")} />
+            placeholder={kk("ai.menu.safety03", pickText(lang, "មូលហេតុ (ស្រេចចិត្ត)", "reason (optional)"))} />
           <button disabled={busy === "snapshots-create"} onClick={createSnapshot}>
-            {pickText(lang, "បង្កើត Snapshot", "Create snapshot")}
+            {kk("ai.menu.safety04", pickText(lang, "បង្កើត Snapshot", "Create snapshot"))}
           </button>
           <button disabled={busy === "snapshots-load"} onClick={loadSnapshots}>
-            {pickText(lang, "ផ្ទុក", "Load")}
+            {kk("ai.menu.safety05", pickText(lang, "ផ្ទុក", "Load"))}
           </button>
         </div>
         {snapshots !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={snapshots} /></div>}
 
         {/* Rollback plan lookup */}
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>{pickText(lang, "គម្រោង Rollback", "Rollback plan")}</span>
+          <span>{kk("ai.menu.safety06", pickText(lang, "គម្រោង Rollback", "Rollback plan"))}</span>
         </div>
         <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
           <input value={rollbackPlanId} onChange={(e) => setRollbackPlanId(e.target.value)}
-            placeholder={pickText(lang, "Snapshot ID", "Snapshot ID")} />
+            placeholder={kk("ai.menu.safety07", pickText(lang, "Snapshot ID", "Snapshot ID"))} />
           <button disabled={busy === "plan-load" || !rollbackPlanId.trim()} onClick={loadRollbackPlan}>
-            {pickText(lang, "មើលគម្រោង", "View plan")}
+            {kk("ai.menu.safety08", pickText(lang, "មើលគម្រោង", "View plan"))}
           </button>
         </div>
         {rollbackPlan !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={rollbackPlan} /></div>}
 
         {/* Self-evaluation */}
         <div className="status-panel__meta" style={{ marginTop: 16 }}>
-          <span>{pickText(lang, "ការវាយតម្លៃខ្លួនឯង", "Self-evaluation")}</span>
+          <span>{kk("ai.menu.safety09", pickText(lang, "ការវាយតម្លៃខ្លួនឯង", "Self-evaluation"))}</span>
         </div>
         <div className="status-panel__meta" style={{ display: "flex", gap: 8 }}>
           <input value={selfEvalInput} onChange={(e) => setSelfEvalInput(e.target.value)}
-            placeholder={pickText(lang, "ព័ត៌មានបញ្ចូល (ស្រេចចិត្ត)", "input (optional)")} />
+            placeholder={kk("ai.menu.safety10", pickText(lang, "ព័ត៌មានបញ្ចូល (ស្រេចចិត្ត)", "input (optional)"))} />
           <button disabled={busy === "selfeval-run"} onClick={runSelfEval}>
-            {pickText(lang, "ដំណើរការវាយតម្លៃ", "Run evaluation")}
+            {kk("ai.menu.safety11", pickText(lang, "ដំណើរការវាយតម្លៃ", "Run evaluation"))}
           </button>
         </div>
         {selfEvalResult !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={selfEvalResult} /></div>}

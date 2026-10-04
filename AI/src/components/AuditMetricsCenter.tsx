@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
+import { useKhoem } from "../hooks/useKhoem";
 
 interface PolicyDecision {
   id: string; timestamp: string; actor: string; action: string;
@@ -25,6 +26,8 @@ async function api(url: string, opts: RequestInit = {}) {
 export default function AuditMetricsCenter({ onClose }: { onClose: () => void }) {
   const t = useT();
   const lang = useLanguageCode();
+  const k = useKhoem(lang);
+  const kk = (key: string, fb: string) => k(key) || fb;
   const [audit, setAudit] = useState<AuditData | null>(null);
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -52,7 +55,7 @@ export default function AuditMetricsCenter({ onClose }: { onClose: () => void })
           <div>
             <div className="status-panel__ai-name">Audit &amp; Metrics</div>
             <div className="status-panel__page-title">
-              {pickText(lang, "ត្រួតពិនិត្យសកម្មភាព និងទិន្នន័យប្រព័ន្ធ", "Review policy decisions and system metrics")}
+              {kk("ai.menu.audit01", pickText(lang, "ត្រួតពិនិត្យសកម្មភាព និងទិន្នន័យប្រព័ន្ធ", "Review policy decisions and system metrics"))}
             </div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={t.close}>✕</button>
@@ -62,22 +65,22 @@ export default function AuditMetricsCenter({ onClose }: { onClose: () => void })
 
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button disabled={busy === "audit"} onClick={loadAudit}>
-            {pickText(lang, "ផ្ទុកកំណត់ត្រា Audit", "Load audit log")}
+            {kk("ai.menu.audit02", pickText(lang, "ផ្ទុកកំណត់ត្រា Audit", "Load audit log"))}
           </button>
           <button disabled={busy === "metrics"} onClick={loadMetrics}>
-            {pickText(lang, "ផ្ទុក Metrics", "Load metrics")}
+            {kk("ai.menu.audit03", pickText(lang, "ផ្ទុក Metrics", "Load metrics"))}
           </button>
         </div>
 
         {audit && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
-              <span>{pickText(lang, "សេចក្តីសម្រេចផ្នែក Policy", "Policy decisions")}: {audit.policyDecisions.length}</span>
+              <span>{kk("ai.menu.audit04", pickText(lang, "សេចក្តីសម្រេចផ្នែក Policy", "Policy decisions"))}: {audit.policyDecisions.length}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8 }}>
               {audit.policyDecisions.length === 0 && (
                 <div className="status-card">
-                  <p className="status-card__desc-km">{pickText(lang, "គ្មានទិន្នន័យ", "No data")}</p>
+                  <p className="status-card__desc-km">{kk("ai.menu.audit05", pickText(lang, "គ្មានទិន្នន័យ", "No data"))}</p>
                 </div>
               )}
               {audit.policyDecisions.map((d) => (
@@ -103,12 +106,12 @@ export default function AuditMetricsCenter({ onClose }: { onClose: () => void })
             </div>
 
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
-              <span>{pickText(lang, "ព្រឹត្តិការណ៍ Audit", "Audit events")}: {audit.events.length}</span>
+              <span>{kk("ai.menu.audit06", pickText(lang, "ព្រឹត្តិការណ៍ Audit", "Audit events"))}: {audit.events.length}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8 }}>
               {audit.events.length === 0 && (
                 <div className="status-card">
-                  <p className="status-card__desc-km">{pickText(lang, "គ្មានទិន្នន័យ", "No data")}</p>
+                  <p className="status-card__desc-km">{kk("ai.menu.audit05", pickText(lang, "គ្មានទិន្នន័យ", "No data"))}</p>
                 </div>
               )}
               {audit.events.map((e, i) => (
@@ -130,7 +133,7 @@ export default function AuditMetricsCenter({ onClose }: { onClose: () => void })
         {metrics && (
           <>
             <div className="status-panel__meta" style={{ marginTop: 16 }}>
-              <span>{pickText(lang, "Metrics ប្រព័ន្ធ", "System metrics")}</span>
+              <span>{kk("ai.menu.audit07", pickText(lang, "Metrics ប្រព័ន្ធ", "System metrics"))}</span>
             </div>
             <div className="status-grid" style={{ marginTop: 8 }}>
               <div className="status-card">
