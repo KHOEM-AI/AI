@@ -14,8 +14,9 @@ import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { loadHonorific, saveHonorific, type Honorific } from "./honorific";
-import { loadLanguage, saveLanguage, getLanguageLabel, LANGUAGE_OPTIONS, type LanguageCode } from "./language";
+import { loadLanguage, saveLanguage, type LanguageCode, type LanguageOption } from "./language";
 import { LanguageProvider, getTranslations } from "./i18n";
+import { useSpeechInput } from "./useSpeechInput";
 import { useKhoem } from "./hooks/useKhoem";
 import { APP_NAME } from "./lib/app";
 
@@ -24,7 +25,7 @@ function AppInner() {
   const [showHonorific, setShowHonorific] = useState(false);
   const [language, setLanguage] = useState<LanguageCode>(() => loadLanguage());
   const [showLanguage, setShowLanguage] = useState(false);
-  const [khoemLanguageOptions, setKhoemLanguageOptions] = useState<typeof LANGUAGE_OPTIONS>(LANGUAGE_OPTIONS);
+  const [khoemLanguageOptions, setKhoemLanguageOptions] = useState<LanguageOption[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,7 +39,7 @@ function AppInner() {
             code: String(x.languageId ?? x.iso639_1 ?? x.bcp47 ?? ""),
             label: String(x.nativeName ?? x.englishName ?? x.languageId ?? ""),
             nameEn: String(x.englishName ?? x.languageId ?? ""),
-            flag: "🌐",
+            flag: String(x.flag ?? "🌐"),
           }))
           .filter((x: { code: string; label: string; nameEn: string; flag: string }) => x.code);
 
@@ -57,6 +58,9 @@ function AppInner() {
   const k = useKhoem(language);
   const { messages, isSending, error, sendMessage, regenerate, setFeedback, clearConversation } = useChat(honorific);
   const [input, setInput] = useState("");
+  const mic = useSpeechInput(language, (text) =>
+    setInput((prev) => (prev ? prev + " " : "") + text),
+  );
   const [showStatus, setShowStatus] = useState(false);
   const [showControl, setShowControl] = useState(false);
   const [showPatchDashboard, setShowPatchDashboard] = useState(false);
@@ -167,7 +171,7 @@ function AppInner() {
                   {t.navHonorific}
                 </button>
                 <button className="app__sidebar-item" onClick={() => setShowLanguage((v) => !v)}>
-                  {t.navLanguage} · {getLanguageLabel(language)}
+                  {t.navLanguage} · {khoemLanguageOptions.find((o) => o.code === language)?.label ?? language}
                 </button>
                 {showLanguage && (
                   <div className="language-panel__list language-panel__list--inline">
@@ -203,8 +207,8 @@ function AppInner() {
         <main className="app__body" ref={scrollRef}>
           {messages.length === 0 && (
             <div className="empty-state">
-              <p className="empty-state__title">{t.emptyTitle}</p>
-              <p className="empty-state__hint">{t.emptyHint}</p>
+              <p className="empty-state__title">{k("ai.menu.chatEmptyTitle") || t.emptyTitle}</p>
+              <p className="empty-state__hint">{k("ai.menu.chatEmptyHint") || t.emptyHint}</p>
             </div>
           )}
 
@@ -221,7 +225,7 @@ function AppInner() {
 
           {isSending && (
             <div className="bubble bubble--assistant bubble--pending">
-              <div className="bubble__text">{t.thinking}</div>
+              <div className="bubble__text">{k("ai.menu.chatThinking") || t.thinking}</div>
             </div>
           )}
 
@@ -234,16 +238,27 @@ function AppInner() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={t.composerPlaceholder}
+            placeholder={k("ai.menu.chatPlaceholder") || t.composerPlaceholder}
             rows={1}
           />
+          {mic.supported && (
+            <button
+              type="button"
+              className={"composer__mic" + (mic.listening ? " composer__mic--on" : "")}
+              onClick={mic.toggle}
+              aria-label="Microphone"
+              aria-pressed={mic.listening}
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="17" x2="12" y2="22" /></svg>
+            </button>
+          )}
           <button
             className="composer__send"
             onClick={handleSend}
             disabled={isSending || !input.trim()}
-            aria-label={t.sendAria}
+            aria-label={k("ai.menu.chatSendAria") || t.sendAria}
           >
-            {t.send}
+            {k("ai.menu.chatSend") || t.send}
           </button>
         </footer>
 
