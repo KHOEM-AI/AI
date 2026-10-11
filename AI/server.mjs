@@ -13,7 +13,7 @@ import { listApprovals } from "./src/ai/approvals.mjs";
 
 const app = express();
 app.use(cors({ origin: (process.env.CORS_ORIGINS || "http://localhost:5175,http://127.0.0.1:5175").split(",") }));
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
 app.use(trackActivity);
 
 const PORT = process.env.PORT || 8787;
@@ -88,14 +88,14 @@ const BRIDGE_GET = [
   "/api/tasks", "/api/circuit", "/api/model", "/api/verify", "/api/audit",
   "/api/metrics", "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget", "/api/rollback", "/api/tools", "/api/system/status",
-  "/api/code", "/api/learned", "/api/library", "/api/characters", "/api/assets",
+  "/api/code", "/api/learned", "/api/library", "/api/characters", "/api/assets", "/api/storyboards",
   "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
 ];
 const BRIDGE_POST = [
   "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget/create", "/api/rollback/snapshot", "/api/selfeval",
   "/api/verify", "/api/learn", "/api/forget", "/api/code/scan",
-  "/api/sandbox/test", "/api/characters", "/api/assets",
+  "/api/sandbox/test", "/api/characters", "/api/assets", "/api/storyboards",
 ];
 const matches = (list, p) => list.some((x) => p === x || p.startsWith(x + "/"));
 app.use("/api", (req, res, next) => {

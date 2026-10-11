@@ -4,12 +4,14 @@
 // imageRef, actions, tags។
 // ចំណាំ: actions ជាសកម្មភាព "បង្ហាញក្នុងរឿង/វីដេអូ" ប៉ុណ្ណោះ (depictionOnly) ។
 // វាមិនមែនការបញ្ជាឧបករណ៍ពិតទេ។
-import { createItem, listItems } from "./library.mjs";
+import { createItem, listItems, batch } from "./library.mjs";
 import { SEED_ASSETS } from "./assetsSeed.mjs";
 
 const norm = (s) => String(s ?? "").normalize("NFC").trim();
 const low = (s) => norm(s).toLowerCase();
 const list = (a) => [...new Set((Array.isArray(a) ? a : []).map(norm).filter(Boolean))];
+
+const SRC = { user: 0, real: 1, ai: 2 };
 
 export const isAsset = (it) => it.tags.includes("asset");
 
@@ -70,19 +72,22 @@ export function pickForStory({ country, region, groups, limit = 20, alcohol } = 
   return listItems({ tag: "asset" })
     .filter((i) => (!gs.size || gs.has(i.group)) && (alcohol !== false || !i.data.alcohol))
     .filter((i) => rank(i.data) < 3 || (!country && !region))
-    .sort((a, b) => rank(a.data) - rank(b.data))
+    // លំដាប់ស្មើគ្នា: ធាតុរបស់អ្នកប្រើ (user) មុន ផ្ទៀងផ្ទាត់ពិត (real) បន្ទាប់ ហើយ AI សរសេរ (ai) ក្រោយគេ
+    .sort((a, b) => rank(a.data) - rank(b.data) || (SRC[a.source] ?? 3) - (SRC[b.source] ?? 3))
     .slice(0, Math.max(1, Math.min(Number(limit) || 20, 100)));
 }
 
 // បញ្ចូល seed ដោយមិនស្ទួន និងមិនជាន់លើធាតុដែលមានស្រាប់
 export function seedAssets(seed = SEED_ASSETS) {
   let added = 0, skipped = 0, failed = 0;
-  for (const s of seed) {
-    // seed សរសេរដោយ AI មិនទាន់ផ្ទៀងផ្ទាត់ជាមួយប្រភពពិត → source "ai"
-    const r = createAsset({ source: "ai", ...s });
-    if (!r.ok) failed++;
-    else if (r.duplicate) skipped++;
-    else added++;
-  }
+  batch(() => {
+    for (const s of seed) {
+      // seed សរសេរដោយ AI មិនទាន់ផ្ទៀងផ្ទាត់ជាមួយប្រភពពិត → source "ai"
+      const r = createAsset({ source: "ai", ...s });
+      if (!r.ok) failed++;
+      else if (r.duplicate) skipped++;
+      else added++;
+    }
+  });
   return { added, skipped, failed, total: seed.length };
 }

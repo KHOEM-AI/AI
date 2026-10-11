@@ -17,7 +17,9 @@ export const GROUPS = Object.freeze([
 export const SOURCES = Object.freeze(["real", "ai", "user"]);
 const MAX_ITEMS = 5000;
 
-function load() {
+let tx = null; // ក្នុង batch(): ទុកទិន្នន័យក្នុងអង្គចងចាំ ហើយសរសេរឯកសារម្តងតែមួយនៅចុងបញ្ចប់
+
+function readDisk() {
   try {
     const j = JSON.parse(fs.readFileSync(libFile(), "utf8"));
     return j && j.items && typeof j.items === "object" && !Array.isArray(j.items) ? j.items : {};
@@ -26,11 +28,28 @@ function load() {
   }
 }
 
-function save(items) {
+function writeDisk(items) {
   const f = libFile();
   fs.mkdirSync(path.dirname(f), { recursive: true });
   fs.writeFileSync(f + ".tmp", JSON.stringify({ version: 1, items }, null, 2));
   fs.renameSync(f + ".tmp", f);
+}
+
+const load = () => (tx ? tx.items : readDisk());
+const save = (items) => { if (tx) tx.items = items; else writeDisk(items); };
+
+// ប្រតិបត្តិការច្រើនក្នុងម្តងសរសេរ (លឿនជាង ១០០ដង សម្រាប់ seed)។
+// បើ fn បោះកំហុស គ្មានអ្វីត្រូវសរសេរចូលឯកសារទេ។
+export function batch(fn) {
+  if (tx) return fn(); // nested: ចូលរួមក្នុង batch ខាងក្រៅ
+  tx = { items: readDisk() };
+  try {
+    const r = fn();
+    writeDisk(tx.items);
+    return r;
+  } finally {
+    tx = null;
+  }
 }
 
 const err = (reason) => ({ ok: false, reason });
@@ -53,7 +72,9 @@ export function createItem({ group, name, tags = [], source = "user", data = {} 
   return { ok: true, item: items[id] };
 }
 
-export const getItem = (id) => load()[id] ?? null;
+// ការពារ id ដូច "constructor" / "__proto__" (property ដែលទទួលពី Object.prototype)
+const own = (o, k) => (Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined);
+export const getItem = (id) => own(load(), id) ?? null;
 
 export function listItems({ group, tag, source } = {}) {
   return Object.values(load()).filter(
@@ -64,7 +85,7 @@ export function listItems({ group, tag, source } = {}) {
 // កែទិន្នន័យតាម mutator. mutator(item) ត្រឡប់ array នៃ history entries (ពីអ្វីដែលបានប្តូរ).
 export function updateItem(id, mutator) {
   const items = load();
-  const item = items[id];
+  const item = own(items, id);
   if (!item) return err("not_found");
   const changes = mutator(item) || [];
   if (changes.length) {
@@ -79,7 +100,7 @@ export function updateItem(id, mutator) {
 
 export function removeItem(id) {
   const items = load();
-  if (!items[id]) return err("not_found");
+  if (!own(items, id)) return err("not_found");
   delete items[id];
   save(items);
   return { ok: true };

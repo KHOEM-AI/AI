@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { createAsset, searchAssets, pickForStory, seedAssets } from "../assets.mjs";
 import { SEED_ASSETS } from "../assetsSeed.mjs";
-import { GROUPS } from "../library.mjs";
+import { GROUPS, batch, createItem, listItems } from "../library.mjs";
 
 let dir;
 beforeEach(() => {
@@ -91,6 +91,53 @@ describe("assets.mjs", () => {
     for (const need of ["Fisher", "Fish market", "Fishing boat", "Fishing net", "Shrimp", "Harbor"]) {
       expect(scene).toContain(need);
     }
+  });
+
+  it("library batch discards everything when it throws, and persists once on success", () => {
+    let threw = false;
+    try { batch(() => { createItem({ group: "food", name: "x" }); throw new Error("boom"); }); } catch { threw = true; }
+    expect(threw).toBe(true);
+    expect(listItems()).toHaveLength(0);
+    batch(() => { createItem({ group: "food", name: "a" }); createItem({ group: "food", name: "b" }); });
+    expect(listItems()).toHaveLength(2);
+  });
+
+  it("seed has roads, racing, industry, luxury retail and sports, and every bank is fictional", () => {
+    seedAssets();
+    const names = searchAssets({}).map((i) => i.data.nameEn);
+    for (const n of [
+      "Highway", "Multi-level interchange", "Underground metro", "Elevated skytrain", "High-speed train",
+      "Supertall skyscraper", "Race car", "Car racing circuit", "Football stadium", "Volleyball court",
+      "Steel mill", "Sand quarry", "River sand", "Luxury watch boutique", "Diamond and jewelry salon",
+      "Luxury perfume boutique", "Sneaker store", "360-degree camera",
+    ]) expect(names).toContain(n);
+    const banks = searchAssets({ tag: "bank" });
+    expect(banks.length).toBeGreaterThanOrEqual(5);
+    for (const b of banks) expect(b.tags).toContain("fictional");
+  });
+
+  it("countryside has separate dry-season and rainy-season looks", () => {
+    seedAssets();
+    expect(searchAssets({ tag: "dry-season" }).length).toBeGreaterThanOrEqual(2);
+    expect(searchAssets({ tag: "rainy-season", group: "places" }).length).toBeGreaterThanOrEqual(2);
+    const dry = searchAssets({ q: "Hills and grassland (dry season)" })[0];
+    expect(dry.data.appearance).toContain("ស្ងួត");
+  });
+
+  it("a Cambodian story prefers the Khmer bank over the other cities' banks", () => {
+    seedAssets();
+    const b = pickForStory({ country: "KH", region: "asia", groups: ["buildings"], limit: 100 });
+    expect(b[0].data.nameEn).toBe("Mekong Crown Private Bank");
+    expect(b.some((i) => i.data.nameEn === "Hudson Vale Private Bank")).toBe(false);
+  });
+
+  it("at equal rank, the user's own assets come before AI-written seed items", () => {
+    seedAssets();
+    createAsset({ group: "buildings", nameKm: "ជណ្ដើរបេតុង", nameEn: "Concrete stairs", region: "asia", country: "KH", appearance: "ជណ្ដើរបេតុង" });
+    const b = pickForStory({ country: "KH", region: "asia", groups: ["buildings"], limit: 100 });
+    expect(b[0].data.nameEn).toBe("Concrete stairs");
+    expect(b[0].source).toBe("user");
+    expect(b.some((i) => i.data.nameEn === "Mekong Crown Private Bank")).toBe(true);
   });
 
   it("moto taxi (KH) ranks before generic vehicles in a Cambodian story", () => {
