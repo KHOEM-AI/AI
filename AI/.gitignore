@@ -25,3 +25,4 @@ dist/
 .env.local
 *.log
 .DS_Store
+data/rem-memory.json
