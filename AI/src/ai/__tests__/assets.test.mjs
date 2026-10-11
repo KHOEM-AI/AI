@@ -71,4 +71,31 @@ describe("assets.mjs", () => {
     const kids = pickForStory({ groups: ["drinks"], alcohol: false });
     expect(kids.some((i) => i.data.alcohol)).toBe(false);
   });
+
+  it("seed covers all 16 library groups with no duplicate names per group", () => {
+    expect(new Set(SEED_ASSETS.map((s) => s.group)).size).toBe(16);
+    const seen = new Set();
+    for (const s of SEED_ASSETS) {
+      for (const n of [s.nameKm, s.nameEn]) {
+        const k = `${s.group}|${n.toLowerCase()}`;
+        expect(seen.has(k)).toBe(false);
+        seen.add(k);
+      }
+    }
+  });
+
+  it("can assemble a fish-market scene from one library", () => {
+    seedAssets();
+    const scene = pickForStory({ groups: ["people", "places", "animals", "vehicles", "farming"], limit: 100 })
+      .map((i) => i.data.nameEn);
+    for (const need of ["Fisher", "Fish market", "Fishing boat", "Fishing net", "Shrimp", "Harbor"]) {
+      expect(scene).toContain(need);
+    }
+  });
+
+  it("moto taxi (KH) ranks before generic vehicles in a Cambodian story", () => {
+    seedAssets();
+    const v = pickForStory({ country: "KH", region: "asia", groups: ["vehicles"], limit: 50 });
+    expect(v[0].data.nameEn).toBe("Moto taxi");
+  });
 });
