@@ -4,6 +4,9 @@ import { routeLanguage, getCentralLanguageRegistry } from "./languageCenter.mjs"
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
 import { remReply } from "./rem.mjs";
+import { buildShotList, splitBeats } from "./shotlist.mjs";
+import { listCharacters, buildPrompt } from "./characters.mjs";
+import { searchAssets } from "./assets.mjs";
 import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mjs";
 import { approveRequest, rejectRequest } from "./approvals.mjs";
 import { detectLanguage, RE, SAY } from "./languageRegistry.mjs";
@@ -197,6 +200,37 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
       "ចំណាំ៖ នេះជាគ្រោងការងាររឿង មិនមែនជារូបភាព ឬវីដេអូដែលបាន Render រួចទេ។",
       "បញ្ជា៖ /story <គំនិតរឿង>",
     ].join("\n");
+  }
+
+  // Shot list: /shots <story beats> -> numbered shots with characters and assets matched.
+  if (/^\/shots(?:\s|$)/i.test(last)) {
+    const text = last.replace(/^\/shots\s*/i, "").trim();
+    if (!text) {
+      return [
+        "សូមសរសេរឈុតរឿងបន្ទាប់ពី /shots",
+        "ឧទាហរណ៍៖ /shots សុខដើរទៅផ្សារ។ យប់ធ្លាក់មក។",
+      ].join("\n");
+    }
+    try {
+      const arr = (x) => (Array.isArray(x) ? x : Array.isArray(x?.items) ? x.items : []);
+      const characters = arr(listCharacters()).map((c) => {
+        let prompt = null;
+        try { prompt = c.id ? buildPrompt(c.id) : null; } catch {}
+        return { id: c.id ?? null, name: c.name ?? c.nameKm ?? c.nameEn ?? "", prompt };
+      });
+      const r = buildShotList({ beats: splitBeats(text), characters, assets: arr(searchAssets({})), maxShots: 30 });
+      if (!r.total) return "រកមិនឃើញឈុតក្នុងអត្ថបទនេះទេ";
+      const lines = ["🎞️ SHOT LIST — KHOEM AI", "ចំនួនឈុត៖ " + r.total + " | រយៈពេលប៉ាន់ស្មាន៖ " + r.durationSec + " វិនាទី", ""];
+      for (const sh of r.shots) {
+        lines.push("Shot " + sh.n + " (" + sh.durationSec + "s): " + sh.beat);
+        if (sh.characters.length) lines.push("  តួអង្គ៖ " + sh.characters.map((c) => c.name).join(", "));
+        if (sh.asset?.name) lines.push("  ធាតុ៖ " + sh.asset.name);
+      }
+      lines.push("", "ចំណាំ៖ នេះជាបញ្ជីឈុតត្រៀម មិនមែនវីដេអូដែលបាន Render រួចទេ។", "បញ្ជា៖ /shots <ឈុតរឿង>");
+      return lines.join("\n");
+    } catch {
+      return "មិនអាចបង្កើតបញ្ជីឈុតបានទេ សូមសាកល្បងម្ដងទៀត";
+    }
   }
 
   // Route supported natural languages through the Language Center.
