@@ -1,6 +1,7 @@
 import express from "express";
 import { registerApi } from "./src/ai/api.mjs";
 import { registerCharactersApi } from "./src/ai/charactersApi.mjs";
+import { registerShotlistApi } from "./src/ai/shotlistApi.mjs";
 import { summarizeEngines } from "./src/ai/enginesSummary.mjs";
 import cors from "cors";
 import "dotenv/config";
@@ -109,6 +110,7 @@ app.use("/api", (req, res, next) => {
 
 registerApi(app);
 registerCharactersApi(app);
+registerShotlistApi(app);
 
 app.get("/api/status", async (req, res) => {
   try {
