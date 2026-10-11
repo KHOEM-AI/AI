@@ -264,7 +264,7 @@ export function registerApi(app) {
     res.json({ proposal: p });
   });
 
-  app.post("/api/patch/apply", guard, notKilled, wrap((req) => {
+  app.post("/api/patch/apply", guard, policy("code.applyPatch"), notKilled, wrap((req) => {
     const { proposalId, approvalId } = req.body || {};
     if (!proposalId || !approvalId) throw bad("proposalId and approvalId are required");
     const result = applyPatch(proposalId, approvalId, actorOf(req));
@@ -455,7 +455,7 @@ export function registerApi(app) {
     return { approval: decision };
   }));
 
-  app.post("/api/patch/:id/apply", guard, notKilled, wrap((req) => {
+  app.post("/api/patch/:id/apply", guard, policy("code.applyPatch"), notKilled, wrap((req) => {
     const proposal = getProposal(req.params.id);
     if (!proposal) throw bad("PROPOSAL_NOT_FOUND", 404);
     const { approvalId, actor = "user" } = req.body || {};
