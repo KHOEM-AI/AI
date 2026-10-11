@@ -1,5 +1,6 @@
 import express from "express";
 import { registerApi } from "./src/ai/api.mjs";
+import { registerCharactersApi } from "./src/ai/charactersApi.mjs";
 import { summarizeEngines } from "./src/ai/enginesSummary.mjs";
 import cors from "cors";
 import "dotenv/config";
@@ -86,14 +87,14 @@ const BRIDGE_GET = [
   "/api/tasks", "/api/circuit", "/api/model", "/api/verify", "/api/audit",
   "/api/metrics", "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget", "/api/rollback", "/api/tools", "/api/system/status",
-  "/api/code", "/api/learned",
+  "/api/code", "/api/learned", "/api/library", "/api/characters", "/api/assets",
   "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
 ];
 const BRIDGE_POST = [
   "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget/create", "/api/rollback/snapshot", "/api/selfeval",
   "/api/verify", "/api/learn", "/api/forget", "/api/code/scan",
-  "/api/sandbox/test",
+  "/api/sandbox/test", "/api/characters", "/api/assets",
 ];
 const matches = (list, p) => list.some((x) => p === x || p.startsWith(x + "/"));
 app.use("/api", (req, res, next) => {
@@ -107,6 +108,7 @@ app.use("/api", (req, res, next) => {
 });
 
 registerApi(app);
+registerCharactersApi(app);
 
 app.get("/api/status", async (req, res) => {
   try {
