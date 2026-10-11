@@ -3,6 +3,7 @@ import { handleLearn, load } from "./learn.mjs";
 import { routeLanguage, getCentralLanguageRegistry } from "./languageCenter.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
+import { remReply } from "./rem.mjs";
 import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mjs";
 import { approveRequest, rejectRequest } from "./approvals.mjs";
 import { detectLanguage, RE, SAY } from "./languageRegistry.mjs";
@@ -152,6 +153,50 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
     const { languages } = await getCentralLanguageRegistry();
     if (!languages.length) return "KHOEM_AI (8790) មិនឆ្លើយ — បើក ai សិន";
     return `KHOEM_AI: ${languages.length} ភាសា\n` + languages.map((x) => `${x.languageId} ${x.nativeName} (${x.status})`).join("\n");
+  }
+
+  // Rem: persistent memory (/remember, /memories, /unremember) and her name.
+  const remAnswer = remReply(last);
+  if (remAnswer !== null) return remAnswer;
+
+  // Story workflow: outline, characters, scenes and image prompts.
+  if (/^\/story(?:\s|$)/i.test(last)) {
+    const idea = last.replace(/^\/story\s*/i, "").trim();
+    if (!idea) {
+      return [
+        "សូមសរសេរគំនិតរឿងបន្ទាប់ពី /story",
+        "ឧទាហរណ៍៖ /story ក្មេងខ្មែរធ្វើដំណើររកប្រាសាទអាថ៌កំបាំង",
+      ].join("\n");
+    }
+
+    return [
+      "🎬 STORY WORKSHOP — KHOEM AI",
+      "",
+      "ចំណងជើង៖ " + idea,
+      "",
+      "១. គំនិតសាច់រឿង",
+      "បង្កើតរឿងពីគំនិតខាងលើ ដោយមានគោលដៅច្បាស់លាស់ ឧបសគ្គ និងចំណុចបញ្ចប់។",
+      "",
+      "២. តួអង្គ",
+      "- តួឯក៖ កំណត់ឈ្មោះ អាយុ រូបរាង គោលបំណង និងចរិតលក្ខណៈ។",
+      "- តួគាំទ្រ៖ កំណត់តួនាទី និងទំនាក់ទំនងជាមួយតួឯក។",
+      "- គូប្រជែង៖ កំណត់ឧបសគ្គ និងមូលហេតុដែលបង្កជម្លោះ។",
+      "",
+      "៣. ឈុតឆាក",
+      "- Scene 1: បង្ហាញទីតាំង តួឯក និងបញ្ហាដំបូង។",
+      "- Scene 2: តួឯកប្រឈមឧបសគ្គ និងស្វែងរកដំណោះស្រាយ។",
+      "- Scene 3: ចំណុចកំពូល និងការសម្រេចចិត្តសំខាន់។",
+      "- Scene 4: ដោះស្រាយជម្លោះ និងបញ្ចប់រឿង។",
+      "",
+      "៤. Prompt សម្រាប់រូបភាព",
+      "បង្កើតរូបភាពសម្រាប់ Scene 1 ដោយរក្សារូបរាងតួអង្គឱ្យថេរ។ បញ្ជាក់ទីតាំង ពន្លឺ មុំកាមេរ៉ា អារម្មណ៍ និងស្ទីលរូបភាព។",
+      "",
+      "៥. រៀបចំសម្រាប់វីដេអូ",
+      "សម្រាប់ឈុតនីមួយៗ បន្ថែមរយៈពេល ចលនាតួអង្គ ចលនាកាមេរ៉ា សំឡេង និងការផ្លាស់ប្ដូរឈុត។",
+      "",
+      "ចំណាំ៖ នេះជាគ្រោងការងាររឿង មិនមែនជារូបភាព ឬវីដេអូដែលបាន Render រួចទេ។",
+      "បញ្ជា៖ /story <គំនិតរឿង>",
+    ].join("\n");
   }
 
   // Route supported natural languages through the Language Center.

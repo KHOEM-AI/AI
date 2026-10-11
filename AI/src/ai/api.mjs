@@ -32,7 +32,7 @@ const run = (text) => khoemReply([{ role: "user", content: text }]);
 const actorOf = (req) => String(req.get("x-actor") || "user");
 const bad = (m, status = 400) => Object.assign(new Error(m), { status });
 
-function guard(req, res, next) {
+export function guard(req, res, next) {
   const key = process.env.KHOEM_API_KEY;
   if (!key) return res.status(503).json({ error: "មិនទាន់កំណត់ KHOEM_API_KEY ក្នុង .env" });
   const a = Buffer.from(String(req.get("x-api-key") || ""));
@@ -45,7 +45,7 @@ function guard(req, res, next) {
 const notKilled = (req, res, next) =>
   isKilled() ? res.status(503).json({ error: "ប្រព័ន្ធត្រូវបានផ្អាក (kill switch active)" }) : next();
 
-function policy(action) {
+export function policy(action) {
   return (req, res, next) => {
     const actor = actorOf(req);
     if (isKilled() && action !== "system.kill" && action !== "system.resume") {

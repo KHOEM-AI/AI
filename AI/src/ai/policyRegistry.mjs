@@ -64,6 +64,12 @@ export const REGISTRY = {
   "experiment.create": { permission: "system.write", risk: RISK.LOW },
   "experiment.transition": { permission: "system.write", risk: RISK.LOW },
   "selfeval.run": { permission: "system.read", risk: RISK.LOW },
+  // Library / characters / assets: local JSON records only, nothing executes.
+  "library.read": { permission: "system.read", risk: RISK.LOW },
+  "characters.read": { permission: "system.read", risk: RISK.LOW },
+  "characters.write": { permission: "system.write", risk: RISK.LOW },
+  "assets.read": { permission: "system.read", risk: RISK.LOW },
+  "assets.write": { permission: "system.write", risk: RISK.LOW },
   "code.read": { permission: "file.read", risk: RISK.LOW },
   "code.scan": { permission: "tool.execute", risk: RISK.LOW },
   "task.read": { permission: "system.read", risk: RISK.LOW },
