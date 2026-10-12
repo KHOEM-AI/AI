@@ -10,6 +10,8 @@ import { searchAssets } from "./assets.mjs";
 import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mjs";
 import { approveRequest, rejectRequest } from "./approvals.mjs";
 import { detectLanguage, RE, SAY } from "./languageRegistry.mjs";
+import { searchAllKnowledge } from "./knowledge.mjs";
+import { searchKhoemKnowledge } from "./khoemApi.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -265,6 +267,11 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
 
   try {
     onStage?.("RETRIEVING", "knowledge base lookup");
+    let knowledgeAnswer = null;
+    try { knowledgeAnswer = await searchKhoemKnowledge(last); }
+    catch { knowledgeAnswer = null; } // API down or slow: use local copy
+    if (!knowledgeAnswer) knowledgeAnswer = searchAllKnowledge(last);
+    if (knowledgeAnswer) return knowledgeAnswer;
     const enMod = await import("./english.mjs");
     if (enMod.englishReply) {
       const kb = await enMod.englishReply(conversation);
