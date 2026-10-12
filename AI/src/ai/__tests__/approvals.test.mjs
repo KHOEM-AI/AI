@@ -45,3 +45,18 @@ describe("approvals.mjs - self-approval with human: prefix (regression)", () => 
     expect(approveRequest(mk("alice").id, "human:bob", "ok").ok).toBe(true);
   });
 });
+
+describe("approvals.mjs - self-approval identity bypass attempts (regression)", () => {
+  const mk = (actor) => createApprovalRequest({ action: "x", actor, permission: "p", risk: "HIGH" });
+  it("forbids a repeated human: prefix", () => {
+    expect(approveRequest(mk("alice").id, "human:human:alice", "ok").error).toBe("SELF_APPROVAL_FORBIDDEN");
+    expect(approveRequest(mk("alice").id, "human:HUMAN: alice", "ok").error).toBe("SELF_APPROVAL_FORBIDDEN");
+  });
+  it("forbids full-width letters and zero-width characters", () => {
+    expect(approveRequest(mk("alice").id, "ａｌｉｃｅ", "ok").error).toBe("SELF_APPROVAL_FORBIDDEN");
+    expect(approveRequest(mk("alice").id, "al\u200Bice", "ok").error).toBe("SELF_APPROVAL_FORBIDDEN");
+  });
+  it("still allows a different human after the prefix fix", () => {
+    expect(approveRequest(mk("alice").id, "human:human:bob", "ok").ok).toBe(true);
+  });
+});

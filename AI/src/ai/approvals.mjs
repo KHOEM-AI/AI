@@ -22,7 +22,14 @@ const MAX_REQUESTS = 200;
 const requests = new Map();
 
 // compare identities ignoring the "human:" prefix, case and spaces
-const normId = (s) => String(s ?? "").replace(/^human:/i, "").trim().toLowerCase();
+const normId = (s) =>
+  String(s ?? "")
+    .normalize("NFKC")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .trim()
+    .replace(/^(?:\s*human\s*:\s*)+/i, "")
+    .trim()
+    .toLowerCase();
 
 function auditApproval(type, req, extra = {}) {
   emit(req.taskId || req.id, type, {
