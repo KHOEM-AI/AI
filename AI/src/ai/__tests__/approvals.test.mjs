@@ -29,3 +29,19 @@ describe("approvals.mjs", () => {
     expect(res.error).toMatch(/INVALID_TRANSITION/);
   });
 });
+
+describe("approvals.mjs - self-approval with human: prefix (regression)", () => {
+  const mk = (actor) => createApprovalRequest({ action: "x", actor, permission: "p", risk: "HIGH" });
+  it("forbids human:<same actor>", () => {
+    expect(approveRequest(mk("alice").id, "human:alice", "ok").error).toBe("SELF_APPROVAL_FORBIDDEN");
+  });
+  it("forbids the same actor with different case or spaces", () => {
+    expect(approveRequest(mk("alice").id, "human: Alice ", "ok").error).toBe("SELF_APPROVAL_FORBIDDEN");
+  });
+  it("forbids self-rejection the same way", () => {
+    expect(rejectRequest(mk("alice").id, "human:alice", "no").error).toBe("SELF_APPROVAL_FORBIDDEN");
+  });
+  it("still allows a different human", () => {
+    expect(approveRequest(mk("alice").id, "human:bob", "ok").ok).toBe(true);
+  });
+});

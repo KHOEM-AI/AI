@@ -10,11 +10,13 @@ import { collectStatus, trackActivity } from "./src/ai/status.mjs";
 import { createTask, transition, getEvents, emit, setExecution, setCognitive } from "./src/ai/tasks.mjs";
 import { getAudit } from "./src/ai/permission.mjs";
 import { listApprovals } from "./src/ai/approvals.mjs";
+import { inputGuardMiddleware } from "./src/ai/inputGuard.mjs";
 
 const app = express();
 app.use(cors({ origin: (process.env.CORS_ORIGINS || "http://localhost:5175,http://127.0.0.1:5175").split(",") }));
 app.use(express.json({ limit: "2mb" }));
 app.use(trackActivity);
+app.use("/api", inputGuardMiddleware);
 
 const PORT = process.env.PORT || 8787;
 

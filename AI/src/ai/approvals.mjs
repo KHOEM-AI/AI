@@ -21,6 +21,9 @@ const DEFAULT_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_REQUESTS = 200;
 const requests = new Map();
 
+// compare identities ignoring the "human:" prefix, case and spaces
+const normId = (s) => String(s ?? "").replace(/^human:/i, "").trim().toLowerCase();
+
 function auditApproval(type, req, extra = {}) {
   emit(req.taskId || req.id, type, {
     approvalId: req.id, actor: req.actor, action: req.action,
@@ -92,7 +95,7 @@ function transitionApproval(id, to, { decidedBy, decisionReason }) {
   if (!decidedBy) {
     return { error: "DECIDER_REQUIRED" };
   }
-  if (decidedBy === req.requestedBy) {
+  if (normId(decidedBy) === normId(req.requestedBy)) {
     return { error: "SELF_APPROVAL_FORBIDDEN" };
   }
   // spec 4.9: policy/permission must match what it was at request time — otherwise it is stale
