@@ -6,7 +6,7 @@ import { GROUPS, listItems, getItem } from "./library.mjs";
 import {
   createCharacter, getCharacter, listCharacters, mergeCharacter, getTimeline, buildPrompt,
 } from "./characters.mjs";
-import { createAsset, searchAssets, pickForStory, seedAssets } from "./assets.mjs";
+import { createAsset, searchAssets, pickForStory, seedAssets, FULL_SEED } from "./assets.mjs";
 import {
   createStoryboard, getStoryboard, listStoryboards, addScene, updateScene,
   setSceneStatus, buildScenePrompt, continuityReport, OPTIONS,
@@ -54,7 +54,7 @@ export function registerCharactersApi(app) {
     alcohol: bool(req.query.alcohol),
   })));
   app.post("/api/assets", guard, wrap((req) => createAsset(req.body || {})));
-  app.post("/api/assets/seed", guard, wrap(() => seedAssets()));
+  app.post("/api/assets/seed", guard, wrap(() => seedAssets(FULL_SEED)));
 
   // Storyboard — ត្រូវដាក់ "/api/storyboards" ក្នុង BRIDGE_GET/POST ដែរ
   const nf = (v) => v ?? { ok: false, reason: "not_found" };

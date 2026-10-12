@@ -6,6 +6,11 @@
 // វាមិនមែនការបញ្ជាឧបករណ៍ពិតទេ។
 import { createItem, listItems, batch } from "./library.mjs";
 import { SEED_ASSETS } from "./assetsSeed.mjs";
+import { EXTRA_ASSETS as X1 } from "./assetsExtra.mjs";
+import { EXTRA_ASSETS as X2 } from "./assetsExtra2.mjs";
+import { EXTRA_ASSETS as X3 } from "./assetsExtra3.mjs";
+import { EXTRA_ASSETS as X4 } from "./assetsExtra4.mjs";
+import { EXTRA_ASSETS as X5 } from "./assetsExtra5.mjs";
 
 const norm = (s) => String(s ?? "").normalize("NFC").trim();
 const low = (s) => norm(s).toLowerCase();
@@ -78,6 +83,9 @@ export function pickForStory({ country, region, groups, limit = 20, alcohol } = 
 }
 
 // បញ្ចូល seed ដោយមិនស្ទួន និងមិនជាន់លើធាតុដែលមានស្រាប់
+// បញ្ជីពេញ (seed + extras 1-5) សម្រាប់ POST /api/assets/seed; seedAssets() លំនាំដើមនៅ SEED_ASSETS
+export const FULL_SEED = Object.freeze([...SEED_ASSETS, ...X1, ...X2, ...X3, ...X4, ...X5]);
+
 export function seedAssets(seed = SEED_ASSETS) {
   let added = 0, skipped = 0, failed = 0;
   batch(() => {
