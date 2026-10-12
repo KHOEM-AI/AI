@@ -25,7 +25,14 @@ describe("knowledge.mjs", () => {
     expect(searchAllKnowledge("")).toBeNull();
   });
 
+  it("finds Cambodian geography topics", () => {
+    expect(searchAllKnowledge("ទន្លេមេគង្គ")).toContain("មេគង្គ");
+    expect(searchAllKnowledge("Tonle Sap")).toContain("ទន្លេសាប");
+    expect(searchAllKnowledge("ភ្នំអូរ៉ាល់")).toContain("ភ្នំ");
+    expect(searchAllKnowledge("ភូមិសាស្ត្រកម្ពុជា")).toContain("ភូមិសាស្ត្រកម្ពុជា");
+  });
+
   it("reports stats", () => {
-    expect(knowledgeStats().databases).toBe(7);
+    expect(knowledgeStats().databases).toBe(8);
   });
 });

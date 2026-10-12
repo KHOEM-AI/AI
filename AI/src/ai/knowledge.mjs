@@ -109,11 +109,23 @@ export function searchCultureTradition(query) {
   return match ? match.info : null;
 }
 
+export const GEOGRAPHY_DB = [
+  { keywords: ["ភូមិសាស្ត្រកម្ពុជា", "geography of cambodia", "cambodia geography", "កម្ពុជាមានប៉ុន្មានខេត្ត", "ទំហំកម្ពុជា"], info: "🗺️ ភូមិសាស្ត្រកម្ពុជា៖ ស្ថិតក្នុងអាស៊ីអាគ្នេយ៍ មានព្រំដែនជាប់ប្រទេសថៃ ឡាវ និងវៀតណាម ហើយមានឆ្នេរសមុទ្រតាមឈូងសមុទ្រថៃ។ មានផ្ទៃដីប្រហែល ១៨១,០០០ គីឡូម៉ែត្រការ៉េ ចែកជា ២៤ ខេត្ត និង ១ រាជធានី (ភ្នំពេញ)។ អាកាសធាតុត្រូពិច មានរដូវភ្លៀងប្រហែលពីខែឧសភាដល់តុលា និងរដូវប្រាំងពីខែវិច្ឆិកាដល់មេសា។" },
+  { keywords: ["ទន្លេមេគង្គ", "mekong"], info: "🌊 ទន្លេមេគង្គ៖ ជាទន្លេធំមួយនៃអាស៊ីអាគ្នេយ៍ ហូរកាត់ប្រទេសកម្ពុជាតាមខេត្តស្ទឹងត្រែង ក្រចេះ កំពង់ចាម និងរាជធានីភ្នំពេញ មុនហូរចូលវៀតណាម។ វាផ្តល់ត្រី ទឹក និងដីល្បាប់ជីជាតិសម្រាប់កសិកម្ម និងជាផ្លូវដឹកជញ្ជូនសំខាន់។" },
+  { keywords: ["បឹងទន្លេសាប", "ទន្លេសាប", "tonle sap"], info: "🐟 បឹងទន្លេសាប៖ ជាបឹងទឹកសាបធំជាងគេនៅអាស៊ីអាគ្នេយ៍ ហើយទំហំរបស់វាប្រែប្រួលខ្លាំងតាមរដូវ។ ពេលរដូវវស្សា ទឹកទន្លេមេគង្គជំនន់ ធ្វើឱ្យទឹកក្នុងទន្លេសាបហូរបញ្ច្រាសចូលបឹង ដែលជួយឱ្យមានត្រីសម្បូរណ៍។" },
+  { keywords: ["ភ្នំអូរ៉ាល់", "ភ្នំឱរ៉ាល់", "phnom aural", "ជួរភ្នំក្រវាញ", "ជួរភ្នំដងរែក", "cardamom mountains"], info: "⛰️ ភ្នំនៅកម្ពុជា៖ ភ្នំអូរ៉ាល់ ជាកំពូលភ្នំខ្ពស់ជាងគេនៅកម្ពុជា មានកម្ពស់ប្រហែល ១,៨១៣ ម៉ែត្រ ស្ថិតក្នុងជួរភ្នំក្រវាញនៅភាគនិរតី។ ជួរភ្នំដងរែកលាតសន្ធឹងតាមព្រំដែនខាងជើងជាប់ប្រទេសថៃ។" }
+];
+export function searchGeography(query) {
+  const q = query.toLowerCase();
+  const match = GEOGRAPHY_DB.find(item => item.keywords.some(k => q.includes(k.toLowerCase())));
+  return match ? match.info : null;
+}
+
 // ===== NEW: unified search across ALL databases + fuzzy fallback =====
 
 const ALL_DBS = [
   TECH_DB, HISTORY_FOOD_DB, MORE_HISTORY_DB, COMPLETE_HISTORY_DB,
-  KHMER_CAKES_DB, KHMER_WINE_DB, CULTURE_TRADITION_DB,
+  KHMER_CAKES_DB, KHMER_WINE_DB, CULTURE_TRADITION_DB, GEOGRAPHY_DB,
 ];
 
 function grams(s) {
