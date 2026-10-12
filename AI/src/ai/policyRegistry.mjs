@@ -64,6 +64,7 @@ export const REGISTRY = {
   "experiment.create": { permission: "system.write", risk: RISK.LOW },
   "experiment.transition": { permission: "system.write", risk: RISK.LOW },
   "selfeval.run": { permission: "system.read", risk: RISK.LOW },
+  "selfconsistency.run": { permission: "system.read", risk: RISK.LOW },
   "storyboards.read": { permission: "system.read", risk: RISK.LOW },
   "storyboards.write": { permission: "system.write", risk: RISK.LOW },
   // Library / characters / assets: local JSON records only, nothing executes.

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const m = vi.hoisted(() => ({
   analyzeConsistency: vi.fn(),
+  policyCheck: vi.fn(),
 }));
 
 vi.mock("../selfConsistency.mjs", () => ({
@@ -13,7 +14,7 @@ vi.mock("../khoem.mjs", () => ({
 }));
 
 vi.mock("../permission.mjs", () => ({
-  policyCheck: vi.fn(),
+  policyCheck: m.policyCheck,
   getAudit: vi.fn(),
   DECISION: {
     ALLOW: "ALLOW",
@@ -196,6 +197,7 @@ const KEY = "secret-key-123";
 beforeEach(() => {
   vi.resetAllMocks();
   process.env.KHOEM_API_KEY = KEY;
+  m.policyCheck.mockReturnValue({ decision: "ALLOW", permission: "system.read", risk: "LOW" });
 });
 
 describe("POST /api/self-consistency", () => {

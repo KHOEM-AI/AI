@@ -107,7 +107,7 @@ export function registerApi(app) {
   }));
 
   app.post("/api/selfeval", guard, policy("selfeval.run"), wrap((req) => SelfEval.selfEvaluate(req.body || {})));
-  app.post("/api/self-consistency", guard, wrap((req) => {
+  app.post("/api/self-consistency", guard, policy("selfconsistency.run"), wrap((req) => {
     const { answers } = req.body || {};
     if (!Array.isArray(answers)) throw bad("answers must be an array");
     return analyzeConsistency(answers);
