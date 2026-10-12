@@ -96,6 +96,7 @@ const BRIDGE_POST = [
   "/api/budget/create", "/api/rollback/snapshot", "/api/selfeval",
   "/api/verify", "/api/learn", "/api/forget", "/api/code/scan",
   "/api/sandbox/test", "/api/characters", "/api/assets", "/api/storyboards",
+  "/api/self-consistency",
 ];
 const matches = (list, p) => list.some((x) => p === x || p.startsWith(x + "/"));
 app.use("/api", (req, res, next) => {
