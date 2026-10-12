@@ -1,6 +1,8 @@
 // Land vehicles: cars (cheap to hypercar), SUVs, electric, service, trucks, buses, machines, motorbikes, bicycles, carts. Data only.
+// Real Cambodian vehicles stay KH; everything else is global (not tied to a country).
+const KH_ONLY = new Set(["ម៉ូតូរ៉ឺម៉ក", "តុកតុកអគ្គិសនីកង់បី", "ស៊ីក្លូ", "រទេះគោ", "ម៉ូតូឌ្រីមធម្មតា"]);
 const A = (group, subgroup, nameKm, nameEn, appearance, tags = "", alcohol = false) => ({
-  group, subgroup, nameKm, nameEn, region: "asia", country: "KH", appearance,
+  group, subgroup, nameKm, nameEn, ...(KH_ONLY.has(nameKm) ? { region: "asia", country: "KH" } : { region: "global" }), appearance,
   actions: [], tags: ["extra3", ...tags.split(",").filter(Boolean)], alcohol,
 });
 

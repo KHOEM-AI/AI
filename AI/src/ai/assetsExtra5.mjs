@@ -1,6 +1,6 @@
 // Marine life (animals) and marine plants/algae, small to large. Natural colors kept accurate. Data only.
 const A = (group, subgroup, nameKm, nameEn, appearance, tags = "") => ({
-  group, subgroup, nameKm, nameEn, region: "asia", country: "KH", appearance,
+  group, subgroup, nameKm, nameEn, region: "global", appearance,
   actions: [], tags: ["extra5", "sea", ...tags.split(",").filter(Boolean)], alcohol: false,
 });
 const F = (n, e, a, t) => A("animals", "fish", n, e, a, t);

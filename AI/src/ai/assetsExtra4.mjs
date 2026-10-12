@@ -1,6 +1,6 @@
 // Water, rail, air, space and future vehicles (not already in assetsExtra2/3). Data only.
 const A = (group, subgroup, nameKm, nameEn, appearance, tags = "", alcohol = false) => ({
-  group, subgroup, nameKm, nameEn, region: "asia", country: "KH", appearance,
+  group, subgroup, nameKm, nameEn, region: "global", appearance,
   actions: [], tags: ["extra4", ...tags.split(",").filter(Boolean)], alcohol,
 });
 
