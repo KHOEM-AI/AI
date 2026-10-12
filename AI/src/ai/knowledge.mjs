@@ -3,6 +3,15 @@
 export const TECH_DB = [
   {
     keywords: [
+      "python programming", "python language", "python",
+      "javascript programming", "javascript", "js programming",
+      "programming language", "coding", "សរសេរកម្មវិធី",
+      "ភាសា python", "ភាសា javascript", "កម្មវិធីកុំព្យូទ័រ"
+    ],
+    info: "💻 Programming គឺជាការសរសេរពាក្យបញ្ជាឱ្យកុំព្យូទ័រធ្វើការ។ Python ងាយអាន និងប្រើសម្រាប់ automation, data analysis, AI និង backend។ JavaScript ប្រើច្រើនក្នុងគេហទំព័រ និង web apps។ មូលដ្ឋានសំខាន់ៗរួមមាន variables, conditions, loops, functions និងការដោះស្រាយ errors។ ត្រូវសាកល្បងកូដក្នុងបរិស្ថានដែលអ្នកទុកចិត្ត។"
+  },
+  {
+    keywords: [
       "artificial intelligence", "machine learning",
       "បញ្ញាសិប្បនិម្មិត", "អេអាយ"
     ],
