@@ -1,6 +1,13 @@
 // ===== EXISTING DATABASES (unchanged) =====
 
 export const TECH_DB = [
+  {
+    keywords: [
+      "artificial intelligence", "machine learning",
+      "បញ្ញាសិប្បនិម្មិត", "អេអាយ"
+    ],
+    info: "🤖 Artificial intelligence (AI) គឺជាបច្ចេកវិទ្យាដែលអនុញ្ញាតឱ្យកុំព្យូទ័រធ្វើកិច្ចការដូចជា យល់ភាសា សង្ខេបអត្ថបទ ស្គាល់រូបភាព បកប្រែ និងជួយដោះស្រាយបញ្ហា។ Machine learning គឺជាវិធីសាស្ត្រមួយដែលប្រព័ន្ធរៀនលំនាំពីទិន្នន័យ។ AI អាចធ្វើខុស ដូច្នេះត្រូវផ្ទៀងផ្ទាត់ព័ត៌មានសំខាន់ៗ។"
+  },
   { keywords: ["ទូរស័ព្ទ", "ស្មាតហ្វូន", "smartphone", "iphone", "samsung", "ទូរសព្ទ"], info: "📱 បច្ចេកវិទ្យាទូរស័ព្ទដៃ (Smartphones): បច្ចុប្បន្នឈានដល់កម្រិត 5G, អេក្រង់បត់បាន (Foldables), កាមេរ៉ាពង្រីកបានឆ្ងាយ និងមានបញ្ចូល AI (ដូចជា Apple Intelligence ឬ Galaxy AI) សម្រាប់ជួយសរសេរ បកប្រែភាសា និងកាត់តរូបភាពដោយស្វ័យប្រវត្តិ។" },
   { keywords: ["កុំព្យូទ័រ", "ឡេបថប", "computer", "laptop", "pc", "macbook"], info: "💻 បច្ចេកវិទ្យាកុំព្យូទ័រ (Computers/Laptops): ឥឡូវនេះប្រើប្រាស់បន្ទះឈីបមាន AI ដាច់ដោយឡែក (NPU)។ កុំព្យូទ័រជំនាន់ថ្មី ដើរលឿន ថ្មកាន់បានយូរ (រាប់សិបម៉ោង) និងអាចដំណើរការកម្មវិធីធ្ងន់ៗ ឬហ្គេម 3D បានយ៉ាងរលូនដោយមិនងាយក្ដៅ។" },
   { keywords: ["ទូរទស្សន៍", "tv", "smart tv", "ទូរទស្សន៏"], info: "📺 ទូរទស្សន៍ឆ្លាតវៃ (Smart TVs): ឈានដល់កម្រិតរូបភាព 4K និង 8K ប្រើបច្ចេកវិទ្យា OLED ឬ Mini-LED ពណ៌ច្បាស់ត្រជាក់ភ្នែក។ វាមាន AI ជួយតម្លើងគុណភាពរូបភាព (Upscaling) ឲ្យច្បាស់ ទោះវីដេអូចាស់ក៏ដោយ និងអាចបញ្ជាដោយសំឡេងបាន។" },
@@ -117,27 +124,104 @@ function dice(a, b) {
   return (2 * inter) / (a.length - 1 + b.length - 1);
 }
 
-// Exact substring match across every DB (fast path, same behavior as before).
-export function searchAllKnowledge(query) {
-  const q = String(query || "").toLowerCase();
-  if (!q) return null;
-  for (const db of ALL_DBS) {
-    const match = db.find(item => item.keywords.some(k => q.includes(k.toLowerCase())));
-    if (match) return match.info;
-  }
-  return fuzzySearchAllKnowledge(q);
+// Normalize queries conservatively and prefer specific, meaningful keywords.
+export function normalizeKnowledgeQuery(query) {
+  return String(query || "")
+    .normalize("NFC")
+    .toLowerCase()
+    .replace(/[?!.,;:"'()\[\]{}]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-// Fuzzy fallback: catches typos / near-misses that substring match misses.
-export function fuzzySearchAllKnowledge(query, threshold = 0.6) {
-  const q = String(query || "").toLowerCase();
+const QUERY_ALIASES = [
+  {
+    keys: ["artificial intelligence", "what is ai", " ai ", "បញ្ញាសិប្បនិម្មិត"],
+    info: "AI",
+  },
+  {
+    keys: ["angkor wat", "ប្រាសាទអង្គរវត្ត", "អង្គរវត្ត"],
+    info: "Angkor Wat",
+  },
+];
+
+function aliasQuery(q) {
+  const normalized = normalizeKnowledgeQuery(q);
+
+  // Route common AI questions to the full topic name.
+  const aiQuestion = /^(explain|describe|define|tell me about|what is|what are)\s+(ai|artificial intelligence)\b/.test(normalized)
+    || /^(ai|artificial intelligence)\s+(ជាអ្វី|មានន័យដូចម្តេច)/.test(normalized)
+    || /^(ពន្យល់|ប្រាប់អំពី)\s*(អំពី)?\s*(ai|បញ្ញាសិប្បនិម្មិត|អេអាយ)\b/.test(normalized);
+
+  if (aiQuestion) {
+    return normalized + " artificial intelligence machine learning បញ្ញាសិប្បនិម្មិត អេអាយ";
+  }
+
+  return normalized;
+}
+
+function isCurrentHealthcareQuestion(q) {
+  const currentCare = [
+    "hospital services", "hospital near", "medical services",
+    "healthcare today", "សេវាពេទ្យ", "សេវាសុខាភិបាល",
+    "មន្ទីរពេទ្យនៅ", "រកមន្ទីរពេទ្យ", "ពេទ្យបច្ចុប្បន្ន",
+  ];
+  return currentCare.some(key => q.includes(key));
+}
+
+// Prefer the longest matching keyword to avoid generic terms winning first.
+export function searchAllKnowledge(query) {
+  const q = normalizeKnowledgeQuery(query);
   if (!q) return null;
-  let best = null, score = 0;
+
+  if (isCurrentHealthcareQuestion(q)) return null;
+
+  const routed = aliasQuery(q);
+  const matches = [];
+
+  for (let dbIndex = 0; dbIndex < ALL_DBS.length; dbIndex++) {
+    for (const item of ALL_DBS[dbIndex]) {
+      for (const keyword of item.keywords) {
+        const key = normalizeKnowledgeQuery(keyword);
+        if (key.length < 2 || !routed.includes(key)) continue;
+
+        // Avoid generic English words matching unrelated long questions.
+        if (["tech", "food", "pc", "tv", "car", "ev", "water", "កសាង", "ទឹក", "ឧបករណ៍"].includes(key)) {
+          continue;
+        }
+        matches.push({ info: item.info, key, dbIndex });
+      }
+    }
+  }
+
+  matches.sort((a, b) => b.key.length - a.key.length || a.dbIndex - b.dbIndex);
+  if (matches.length) return matches[0].info;
+
+  // Fuzzy matching is deliberately limited to short, single-topic queries.
+  if (routed.length <= 24 && !/[?!.]/.test(String(query || ""))) {
+    return fuzzySearchAllKnowledge(routed, 0.72);
+  }
+  return null;
+}
+
+// Fuzzy fallback compares only short queries, never complete sentences.
+export function fuzzySearchAllKnowledge(query, threshold = 0.72) {
+  const q = normalizeKnowledgeQuery(query);
+  if (!q || q.length > 24 || q.includes(" ")) return null;
+
+  let best = null;
+  let score = 0;
+
   for (const db of ALL_DBS) {
     for (const item of db) {
-      for (const k of item.keywords) {
-        const s = dice(q, k.toLowerCase());
-        if (s > score) { score = s; best = item.info; }
+      for (const keyword of item.keywords) {
+        const k = normalizeKnowledgeQuery(keyword);
+        if (k.length < 3 || k.length > 24 || k.includes(" ")) continue;
+        const candidate = dice(q, k);
+        if (candidate > score) {
+          score = candidate;
+          best = item.info;
+        }
       }
     }
   }
