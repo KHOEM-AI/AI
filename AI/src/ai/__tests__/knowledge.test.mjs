@@ -36,3 +36,14 @@ describe("knowledge.mjs", () => {
     expect(knowledgeStats().databases).toBe(8);
   });
 });
+
+describe("knowledge.mjs regressions", () => {
+  it("answers Phnom Penh with the city entry, not Sihanouk or the beer", () => {
+    expect(searchAllKnowledge("ភ្នំពេញ")).toContain("ចតុមុខ");
+    expect(searchAllKnowledge("Phnom Penh")).toContain("ចតុមុខ");
+  });
+
+  it("matches bare 'programming'", () => {
+    expect(searchAllKnowledge("programming")).toContain("Programming");
+  });
+});
