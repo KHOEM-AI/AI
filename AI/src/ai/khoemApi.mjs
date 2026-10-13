@@ -20,11 +20,11 @@ async function request(path, options = {}) {
   return body?.data;
 }
 
-export async function searchKhoemKnowledge(query) {
+export async function searchKhoemKnowledge(query, { exact = false } = {}) {
   const q = String(query ?? "").trim();
   if (!q || q.length > 200) return null;
 
-  const data = await request(`/api/knowledge?q=${encodeURIComponent(q)}`);
+  const data = await request(`/api/knowledge?q=${encodeURIComponent(q)}${exact ? "&exact=1" : ""}`);
   if (data?.found === true && typeof data.answer === "string" && data.answer.trim()) {
     return data.answer;
   }

@@ -235,6 +235,21 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
     }
   }
 
+  // Strict knowledge match first, so specific topics (e.g. a named river or
+  // mountain) are not swallowed by generic keyword replies. API only; if it is
+  // down we fall through to the old order. Never overrides /learn answers.
+  if (!q.startsWith("/") && q !== "help") {
+    const norm = String(last).trim().toLowerCase();
+    let isLearned = false;
+    try { isLearned = Object.hasOwn(load() ?? {}, norm); } catch { isLearned = false; }
+    if (!isLearned) {
+      let exactAnswer = null;
+      try { exactAnswer = await searchKhoemKnowledge(last, { exact: true }); }
+      catch { exactAnswer = null; }
+      if (exactAnswer) { onStage?.("RETRIEVING", "knowledge base exact match"); return exactAnswer; }
+    }
+  }
+
   // Route supported natural languages through the Language Center.
   if (!q.startsWith("/") && q !== "help") {
     const languageReply = await routeLanguage(last, load(), onStage, honorific);
