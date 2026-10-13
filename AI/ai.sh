@@ -37,7 +37,7 @@ wait_for() {
   local url="$1"
   local name="$2"
 
-  for i in $(seq 1 30); do
+  for i in $(seq 1 60); do
     if curl -fsS -o /dev/null "$url" 2>/dev/null; then
       echo "$name: ready"
       return 0
@@ -57,7 +57,10 @@ if curl -fsS -o /dev/null http://127.0.0.1:8790/health 2>/dev/null; then
 else
   (
     cd "$KHOEM_DIR" || exit 1
-    npm run api > "$KHOEM_LOG" 2>&1
+    if [ -n "$(find src -name '*.ts' -newer dist/src/api/main.js 2>/dev/null | head -1)" ] || [ ! -f dist/src/api/main.js ]; then
+      npm run build > "$KHOEM_LOG" 2>&1 || exit 1
+    fi
+    node dist/src/api/main.js >> "$KHOEM_LOG" 2>&1
   ) &
   KHOEM_PID=$!
   OWN_KHOEM=1
