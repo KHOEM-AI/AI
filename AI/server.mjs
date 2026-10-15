@@ -91,14 +91,14 @@ const BRIDGE_GET = [
   "/api/tasks", "/api/circuit", "/api/model", "/api/verify", "/api/audit",
   "/api/metrics", "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget", "/api/rollback", "/api/tools", "/api/system/status",
-  "/api/code", "/api/learned", "/api/library", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon",
+  "/api/code", "/api/learned", "/api/library", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon", "/api/hub",
   "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
 ];
 const BRIDGE_POST = [
   "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget/create", "/api/rollback/snapshot", "/api/selfeval",
   "/api/verify", "/api/learn", "/api/forget", "/api/code/scan",
-  "/api/sandbox/test", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon",
+  "/api/sandbox/test", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon", "/api/hub",
   "/api/self-consistency",
 ];
 const matches = (list, p) => list.some((x) => p === x || p.startsWith(x + "/"));
@@ -126,7 +126,7 @@ app.get("/api/status", async (req, res) => {
 });
 
 app.post("/api/chat", async (req, res) => {
-  const { messages, honorific } = req.body;
+  const { messages, honorific, sessionId } = req.body;
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({
@@ -152,7 +152,7 @@ app.post("/api/chat", async (req, res) => {
       step(setExecution, kind, reason);
       if (kind === "RETRIEVING") step(setCognitive, "RETRIEVING", reason);
     };
-    const result = await aiCore.chat(messages, { honorific, onStage });
+    const result = await aiCore.chat(messages, { honorific, onStage, ...(typeof sessionId === "string" && sessionId.trim() ? { sessionId: sessionId.trim().slice(0, 64) } : {}) });
     step(setExecution, "RESPONDING", "reply ready");
     step(setCognitive, "ANSWERING", "reply ready");
     step(setExecution, "IDLE", "reply sent");
