@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ChatErrorBody, ChatResponseBody, Message } from "../types";
 import { loadMessages, saveMessages } from "../storage";
 
@@ -6,10 +6,33 @@ function makeId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
+const SESSION_KEY = "khoem-session-id";
+
+function newSessionId(): string {
+  try {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+  } catch {}
+  return "s-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
+
+function loadSessionId(): string {
+  try {
+    const existing = localStorage.getItem(SESSION_KEY);
+    if (existing) return existing;
+  } catch {}
+  const id = newSessionId();
+  try { localStorage.setItem(SESSION_KEY, id); } catch {}
+  return id;
+}
+
 export function useChat(honorific: string | null) {
   const [messages, setMessages] = useState<Message[]>(() => loadMessages());
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sessionIdRef = useRef<string>("");
+  if (!sessionIdRef.current) sessionIdRef.current = loadSessionId();
 
   useEffect(() => {
     saveMessages(messages);
@@ -32,6 +55,7 @@ export function useChat(honorific: string | null) {
         body: JSON.stringify({
           messages: nextMessages.map((m) => ({ role: m.role, content: m.text })),
           honorific: honorific ?? undefined,
+          sessionId: sessionIdRef.current,
         }),
       });
 
@@ -70,6 +94,7 @@ export function useChat(honorific: string | null) {
         body: JSON.stringify({
           messages: history.map((m) => ({ role: m.role, content: m.text })),
           honorific: honorific ?? undefined,
+          sessionId: sessionIdRef.current,
         }),
       });
       if (!res.ok) {
@@ -93,6 +118,9 @@ export function useChat(honorific: string | null) {
 
   
 function clearConversation() {
+    const id = newSessionId();
+    sessionIdRef.current = id;
+    try { localStorage.setItem(SESSION_KEY, id); } catch {}
     setMessages([]);
     setError(null);
   }
