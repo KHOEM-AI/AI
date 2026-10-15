@@ -1,6 +1,7 @@
 // src/ai/tasks.mjs — Task engine + trace events (standalone, additive)
 import { randomUUID } from "node:crypto";
 import { recordAuditEvent } from "./audit.mjs";
+import { loadItems, saveItems } from "./persist.mjs";
 
 export const TASK = Object.freeze({
   CREATED: "CREATED", QUEUED: "QUEUED", RUNNING: "RUNNING", WAITING: "WAITING",
@@ -17,7 +18,8 @@ const ALLOWED = {
 
 const MAX_TASKS = 200;
 const MAX_EVENTS = 500;
-const tasks = new Map();
+const tasks = new Map(loadItems("tasks").map((x) => [x.taskId, x]));
+const save = () => saveItems("tasks", [...tasks.values()]);
 const events = [];
 
 export function emit(taskId, type, metadata = {}, duration = null) {
@@ -33,6 +35,7 @@ export function createTask(metadata = {}) {
   const task = { taskId: randomUUID(), createdAt: now, updatedAt: now, state: TASK.CREATED, reason: "created", metadata, transitions: [] };
   tasks.set(task.taskId, task);
   if (tasks.size > MAX_TASKS) tasks.delete(tasks.keys().next().value);
+  save();
   emit(task.taskId, "TASK_CREATED");
   return task;
 }
@@ -44,7 +47,7 @@ export function transition(taskId, to, reason = "") {
   if (!ALLOWED[t.state].includes(to)) throw new Error(`Illegal task transition: ${t.state} -> ${to}`);
   const tr = { from: t.state, to, timestamp: new Date().toISOString(), reason, taskId };
   t.transitions.push(tr);
-  t.state = to; t.reason = reason; t.updatedAt = tr.timestamp;
+  t.state = to; t.reason = reason; t.updatedAt = tr.timestamp; save();
   emit(taskId, to === "RUNNING" ? "TASK_STARTED" : `TASK_${to}`, { reason });
   return tr;
 }
@@ -93,7 +96,7 @@ function stepState(taskId, field, table, enumObj, to, reason) {
     throw new Error(`Illegal ${field} transition: ${from} -> ${to}`);
   t[field] = to;
   t.updatedAt = new Date().toISOString();
-  emit(taskId, `${field.toUpperCase()}_${to}`, { from, reason });
+  save(); emit(taskId, `${field.toUpperCase()}_${to}`, { from, reason });
   return { from, to, taskId, reason, timestamp: t.updatedAt };
 }
 
