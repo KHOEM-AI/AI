@@ -26,12 +26,16 @@ function AppInner() {
   const [language, setLanguage] = useState<LanguageCode>(() => loadLanguage());
   const [showLanguage, setShowLanguage] = useState(false);
   const [khoemLanguageOptions, setKhoemLanguageOptions] = useState<LanguageOption[]>([]);
+  const [languageError, setLanguageError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     fetch("/l10n/api/languages")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
       .then((body) => {
         const rows = Array.isArray(body?.data) ? body.data : [];
         const options = rows
@@ -43,11 +47,18 @@ function AppInner() {
           }))
           .filter((x: { code: string; label: string; nameEn: string; flag: string }) => x.code);
 
-        if (!cancelled && options.length > 0) {
+        if (cancelled) return;
+        if (options.length > 0) {
           setKhoemLanguageOptions(options);
+          setLanguageError(false);
+        } else {
+          setLanguageError(true);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("[l10n] languages fetch failed:", err);
+        if (!cancelled) setLanguageError(true);
+      });
 
     return () => {
       cancelled = true;
@@ -175,6 +186,11 @@ function AppInner() {
                 </button>
                 {showLanguage && (
                   <div className="language-panel__list language-panel__list--inline">
+                    {languageError && khoemLanguageOptions.length === 0 && (
+                      <div className="language-option" role="alert">
+                        ទាញយកបញ្ជីភាសាមិនបាន
+                      </div>
+                    )}
                     {khoemLanguageOptions.map((o) => (
                       <button
                         key={o.code}
