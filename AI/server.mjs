@@ -182,3 +182,16 @@ app.get("/api/control", (req, res) => {
 app.listen(PORT, "127.0.0.1", () => {
   console.log(`server.mjs listening on port ${PORT}`);
 });
+
+// Periodic cleanup of idle chat sessions (in-memory). Active sessions are
+// kept: age is measured from the last message timestamp.
+const SESSION_MAX_AGE_HOURS = Number(process.env.KHOEM_SESSION_MAX_AGE_HOURS) || 24;
+const pruneTimer = setInterval(() => {
+  try {
+    const n = aiCore.memory.pruneOldSessions(SESSION_MAX_AGE_HOURS * 3600 * 1000);
+    if (n) console.log(`[memory] pruned ${n} idle session(s) older than ${SESSION_MAX_AGE_HOURS}h`);
+  } catch (e) {
+    console.error("[memory] prune failed:", e && e.message);
+  }
+}, 60 * 60 * 1000);
+pruneTimer.unref();
