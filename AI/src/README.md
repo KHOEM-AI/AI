@@ -840,7 +840,7 @@ PHASE 2  — System health aggregation                       ✅ VERIFIED
 PHASE 3  — Task Engine                                     ✅ VERIFIED
 PHASE 4  — Execution State                                 ✅ VERIFIED
 PHASE 5  — Cognitive State                                 ✅ VERIFIED
-PHASE 6 — Goal Engine                         ✅ VERIFIED (unit tests + runtime API create 2026-10-16; link/progress not yet runtime-tested)
+PHASE 6 — Goal Engine                         ✅ VERIFIED (unit tests + runtime API create 2026-10-16; link/progress runtime-tested incl. restart 2026-10-16)
 PHASE 7  — Event / Trace                                   ✅ VERIFIED
 PHASE 8  — Knowledge State                                 ⚠️ PARTIAL (knowledge.mjs = static keyword DB only, no state machine)
 PHASE 9  — Verification                                    ✅ VERIFIED (verification.mjs, real tsc→build→vitest)
