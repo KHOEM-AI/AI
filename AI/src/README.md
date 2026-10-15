@@ -840,7 +840,7 @@ PHASE 2  — System health aggregation                       ✅ VERIFIED
 PHASE 3  — Task Engine                                     ✅ VERIFIED
 PHASE 4  — Execution State                                 ✅ VERIFIED
 PHASE 5  — Cognitive State                                 ✅ VERIFIED
-PHASE 6 — Goal Engine                         ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
+PHASE 6 — Goal Engine                         ✅ VERIFIED (unit tests + runtime API create 2026-10-16; link/progress not yet runtime-tested)
 PHASE 7  — Event / Trace                                   ✅ VERIFIED
 PHASE 8  — Knowledge State                                 ⚠️ PARTIAL (knowledge.mjs = static keyword DB only, no state machine)
 PHASE 9  — Verification                                    ✅ VERIFIED (verification.mjs, real tsc→build→vitest)
@@ -849,11 +849,11 @@ PHASE 11 — Provenance                                        ⚠️ PARTIAL (c
 PHASE 12 — Permission Engine                                ✅ VERIFIED
 PHASE 13 — Policy Engine                                    ✅ VERIFIED
 PHASE 14 — Human Approval Gate                               ✅ VERIFIED (approvals.mjs, commit e7cf938)
-PHASE 15 — Idea Engine                         ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
-PHASE 16 — Planning Engine                     ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
+PHASE 15 — Idea Engine                         ✅ VERIFIED (unit tests + runtime API create/list 2026-10-16)
+PHASE 16 — Planning Engine                     ✅ VERIFIED (unit tests + runtime API create 2026-10-16)
 PHASE 17 — Sandbox                                            ✅ VERIFIED (sandbox.mjs)
-PHASE 18 — Experiment Engine                   ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
-PHASE 19 — Self-Evaluation                     ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
+PHASE 18 — Experiment Engine                   ✅ VERIFIED (unit tests + runtime API create/transition 2026-10-16)
+PHASE 19 — Self-Evaluation                     ✅ VERIFIED (unit tests + runtime API 2026-10-16, advisory only)
 PHASE 20 — Versioning + Rollback                              ✅ VERIFIED (rollback.mjs — plan-only, never auto-executes by design)
 PHASE 21 — Resource Budget                     ✅ IMPLEMENTED (budget.mjs + test; runtime not yet verified)
 PHASE 22 — Timeout + Retry                     ✅ IMPLEMENTED (withTimeout + retry.mjs + test)
