@@ -13,7 +13,7 @@ import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mj
 import { listTools, findTools, describeToolRisk } from "./toolRegistry.mjs";
 import "./toolRegistry.bootstrap.mjs";
 import { executeTool } from "./toolExecutor.mjs";
-import { createBudget, recordUsage, checkBudget, getBudget, listBudgets } from "./budget.mjs";
+import { createBudget, recordUsage, checkBudget, getBudget, listBudgets, clearBudget } from "./budget.mjs";
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
 import { getMetrics } from "./metrics.mjs";
 import { createGoal, getGoal, listGoals, linkTaskToGoal, getGoalProgress, setGoalStatus } from "./goal.mjs";
@@ -283,6 +283,7 @@ export function registerApi(app) {
 
   // Read-only LOW-risk tools only, through executeTool (policy + audit).
   // apply-patch / propose-patch are intentionally NOT exposed here.
+  const TOOL_EXEC_PER_MIN = Number(process.env.KHOEM_TOOL_RATE_PER_MIN) || 20;
   const EXEC_ALLOW = {
     "scan-repo": () => run("/scan"),
     "find-symbol": ({ q }) => {
@@ -293,6 +294,16 @@ export function registerApi(app) {
   app.post("/api/tools/:id/execute", guard, policy("tool.find"), wrap(async (req) => {
     const id = req.params.id;
     if (!Object.hasOwn(EXEC_ALLOW, id)) throw bad("tool មិនត្រូវបានអនុញ្ញាតតាម API: " + id, 403);
+    // Rate limit: max TOOL_EXEC_PER_MIN calls per actor per minute (budget.mjs, 1-min bucket).
+    const bucket = Math.floor(Date.now() / 60000);
+    const bid = "toolrate:user:" + bucket;
+    if (!getBudget(bid)) {
+      createBudget(bid, { maxToolCalls: TOOL_EXEC_PER_MIN, timeMs: 120000 });
+      clearBudget("toolrate:user:" + (bucket - 2));
+    }
+    const used = getBudget(bid).usage.toolCalls;
+    if (used >= TOOL_EXEC_PER_MIN) throw bad("tool rate limit: " + TOOL_EXEC_PER_MIN + "/min", 429);
+    recordUsage(bid, { toolCalls: 1 });
     const input = (req.body && req.body.input) || {};
     return executeTool({ toolId: id, actor: "user", input, execute: async () => EXEC_ALLOW[id](input) });
   }));
