@@ -840,7 +840,7 @@ PHASE 2  — System health aggregation                       ✅ VERIFIED
 PHASE 3  — Task Engine                                     ✅ VERIFIED
 PHASE 4  — Execution State                                 ✅ VERIFIED
 PHASE 5  — Cognitive State                                 ✅ VERIFIED
-PHASE 6  — Goal Engine                                     ❌ NOT IMPLEMENTED
+PHASE 6 — Goal Engine                         ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
 PHASE 7  — Event / Trace                                   ✅ VERIFIED
 PHASE 8  — Knowledge State                                 ⚠️ PARTIAL (knowledge.mjs = static keyword DB only, no state machine)
 PHASE 9  — Verification                                    ✅ VERIFIED (verification.mjs, real tsc→build→vitest)
@@ -849,19 +849,19 @@ PHASE 11 — Provenance                                        ⚠️ PARTIAL (c
 PHASE 12 — Permission Engine                                ✅ VERIFIED
 PHASE 13 — Policy Engine                                    ✅ VERIFIED
 PHASE 14 — Human Approval Gate                               ✅ VERIFIED (approvals.mjs, commit e7cf938)
-PHASE 15 — Idea Engine                                       ❌ NOT IMPLEMENTED
-PHASE 16 — Planning Engine                                   ❌ NOT IMPLEMENTED
+PHASE 15 — Idea Engine                         ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
+PHASE 16 — Planning Engine                     ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
 PHASE 17 — Sandbox                                            ✅ VERIFIED (sandbox.mjs)
-PHASE 18 — Experiment Engine                                  ❌ NOT IMPLEMENTED
-PHASE 19 — Self-Evaluation                                    ❌ NOT IMPLEMENTED
+PHASE 18 — Experiment Engine                   ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
+PHASE 19 — Self-Evaluation                     ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
 PHASE 20 — Versioning + Rollback                              ✅ VERIFIED (rollback.mjs — plan-only, never auto-executes by design)
-PHASE 21 — Resource Budget                                    ❌ NOT IMPLEMENTED (patch.mjs is a different feature, mislabeled Phase 21 in its commit)
-PHASE 22 — Timeout + Retry                                    ⚠️ PARTIAL (timeout via status.mjs withTimeout(); no retry logic found)
-PHASE 23 — Circuit Breaker                                    ❌ NOT IMPLEMENTED
+PHASE 21 — Resource Budget                     ✅ IMPLEMENTED (budget.mjs + test; runtime not yet verified)
+PHASE 22 — Timeout + Retry                     ✅ IMPLEMENTED (withTimeout + retry.mjs + test)
+PHASE 23 — Circuit Breaker                     ✅ IMPLEMENTED (code+API+unit tests; runtime not yet verified)
 PHASE 24 — Model Routing / Fallback                           ✅ VERIFIED (modelRouting.mjs — decideProvider() honest NO_FALLBACK, no fabricated providers, 6 tests)
 PHASE 25 — Control Center                                     ✅ VERIFIED (~30-language i18n, Pending Approvals UI)
 PHASE 26 — Audit + Security hardening                         ✅ VERIFIED (secret-scrubbing, stale-approval detection)
-PHASE 27 — Metrics / Observability                            ❌ NOT IMPLEMENTED
+PHASE 27 — Metrics / Observability             ⚠️ PARTIAL (metrics.mjs + test; no tracing/observability layer)
 PHASE 28 — Documentation                                      ⚠️ PARTIAL (corrected 2026-09-23)
 PHASE 29 — Automated Test Suite                               ✅ VERIFIED (13 files / 50 tests; api.mjs, codeDataCenter.mjs, core.mjs, english.mjs, knowledge.mjs, learn.mjs, tools.mjs untested)
 PHASE 30 — Full regression / acceptance                       ❌ NOT IMPLEMENTED
