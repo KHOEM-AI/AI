@@ -1,3 +1,4 @@
+import khoemLogo from "./assets/khoem-ai-logo.png";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
@@ -124,7 +125,7 @@ function AppInner() {
           </button>
 
           <div className="app__brand">
-            <span className="app__brand-mark"><img className="app__logo" src="/src/assets/khoem-ai-logo.png" alt="KHOEM-AI" /></span>
+            <span className="app__brand-mark"><img className="app__logo" src={khoemLogo} alt="KHOEM-AI" /></span>
             <span className="app__brand-name">{APP_NAME}</span>
           </div>
 
@@ -139,7 +140,7 @@ function AppInner() {
             <aside className="app__sidebar">
               <div className="app__sidebar-top">
                 <div className="app__brand">
-                  <span className="app__brand-mark"><img className="app__logo" src="/src/assets/khoem-ai-logo.png" alt="KHOEM-AI" /></span>
+                  <span className="app__brand-mark"><img className="app__logo" src={khoemLogo} alt="KHOEM-AI" /></span>
                   <span className="app__brand-name">{APP_NAME}</span>
                 </div>
                 <button className="app__sidebar-close" onClick={() => setShowMenu(false)} aria-label={t.menuClose}>
