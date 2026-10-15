@@ -1,6 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { useT, useKhoem } from "../i18n";
 import { getAdminKey, clearAdminKey } from "./adminKey";
+import {
+  VOICE_PRESETS,
+  EMOTIONS,
+  getVoicePreset,
+  setVoicePreset,
+  getEmotion,
+  setEmotion,
+  speakText,
+  stopSpeaking,
+  speechSupported,
+} from "../useSpeechOutput";
 
 interface TaskEvent {
   id: string;
@@ -63,6 +74,9 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
   const [killStatus, setKillStatus] = useState<{ killed: boolean; reason?: string } | null>(null);
   const [approved, setApproved] = useState<ApprovalItem[]>([]);
   const [busyKill, setBusyKill] = useState(false);
+  const [voicePreset, setVoicePresetState] = useState(getVoicePreset());
+  const [voiceEmotion, setVoiceEmotionState] = useState(getEmotion());
+  const [voiceTesting, setVoiceTesting] = useState(false);
   const t = useT();
   const k = useKhoem();
 
@@ -186,6 +200,80 @@ export default function ControlCenter({ onClose }: { onClose: () => void }) {
               <button disabled={busyKill || killStatus?.killed} onClick={killSwitch}>{k("controlCenter.kill")}</button>
               <button disabled={busyKill || !killStatus?.killed} onClick={resumeSwitch}>{k("controlCenter.resume")}</button>
             </div>
+          </div>
+        </div>
+
+
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
+          <span>Voice Settings</span>
+        </div>
+        <div className="status-grid">
+          <div className="status-card">
+            <div className="status-card__head">
+              <span className="status-card__name">Voice</span>
+            </div>
+            {speechSupported() ? (
+              <>
+                <label style={{ display: "grid", gap: 6, marginTop: 10 }}>
+                  <span>Character</span>
+                  <select
+                    value={voicePreset}
+                    onChange={(e) => {
+                      setVoicePresetState(e.target.value);
+                      setVoicePreset(e.target.value);
+                    }}
+                    style={{ width: "100%", padding: 9, borderRadius: 8 }}
+                  >
+                    {VOICE_PRESETS.map((v) => (
+                      <option key={v.id} value={v.id}>{v.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label style={{ display: "grid", gap: 6, marginTop: 10 }}>
+                  <span>Emotion</span>
+                  <select
+                    value={voiceEmotion}
+                    onChange={(e) => {
+                      setVoiceEmotionState(e.target.value);
+                      setEmotion(e.target.value);
+                    }}
+                    style={{ width: "100%", padding: 9, borderRadius: 8 }}
+                  >
+                    {EMOTIONS.map((v) => (
+                      <option key={v.id} value={v.id}>{v.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <div className="status-card__extra" style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (voiceTesting) {
+                        stopSpeaking();
+                        setVoiceTesting(false);
+                        return;
+                      }
+                      const ok = speakText(
+                        "សួស្តី ខ្ញុំកំពុងសាកល្បងសំឡេង។",
+                        voicePreset,
+                        () => setVoiceTesting(false),
+                        voiceEmotion,
+                      );
+                      setVoiceTesting(ok);
+                    }}
+                  >
+                    {voiceTesting ? "Stop test" : "Test voice"}
+                  </button>
+                </div>
+                <p className="status-card__desc-en">
+                  Voice changes are saved and apply when you press Speak on a message.
+                </p>
+              </>
+            ) : (
+              <p className="status-card__desc-en">
+                Speech synthesis is not supported in this browser.
+              </p>
+            )}
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { Message } from "../types";
 import { useLanguageCode } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
-import { speakText, stopSpeaking, speechSupported, VOICE_PRESETS, getVoicePreset, setVoicePreset } from "../useSpeechOutput";
+import { speakText, stopSpeaking, speechSupported, getVoicePreset, getEmotion } from "../useSpeechOutput";
 
 interface Props {
   message: Message;
@@ -46,45 +46,16 @@ async function copyText(text: string): Promise<boolean> {
 export default function MessageActions({ message, isLast, disabled, onFeedback, onRegenerate, onNewChat }: Props) {
   const lang = useLanguageCode();
   const k = useKhoem(lang);
-  const kk = (key: string, fb: string) => k(key) || fb;
+  const kk = (key: string, fb: string) => {
+    try { return k(key) || fb; } catch { return fb; }
+  };
   const [copied, setCopied] = useState(false);
   const [speaking, setSpeaking] = useState(false);
-  const [preset, setPreset] = useState(getVoicePreset());
-  const [voiceAge, setVoiceAge] = useState(
-    VOICE_PRESETS.find((v) => v.id === getVoicePreset())?.ageMin === 0 ? "0-10" :
-    VOICE_PRESETS.find((v) => v.id === getVoicePreset())?.ageMin === 11 ? "11-20" :
-    VOICE_PRESETS.find((v) => v.id === getVoicePreset())?.ageMin === 21 ? "21-30" :
-    VOICE_PRESETS.find((v) => v.id === getVoicePreset())?.ageMin === 31 ? "31-40" :
-    VOICE_PRESETS.find((v) => v.id === getVoicePreset())?.ageMin === 41 ? "41-50" :
-    VOICE_PRESETS.find((v) => v.id === getVoicePreset())?.ageMin === 51 ? "51-60" : "61-70"
-  );
-  const [voiceGender, setVoiceGender] = useState<"female" | "male">(
-    VOICE_PRESETS.find((v) => v.id === getVoicePreset())?.gender ?? "female"
-  );
-
-  const ageOptions = [
-    { value: "0-10", label: "≤ ១០ ឆ្នាំ" },
-    { value: "11-20", label: "១១–២០ ឆ្នាំ" },
-    { value: "21-30", label: "២១–៣០ ឆ្នាំ" },
-    { value: "31-40", label: "៣១–៤០ ឆ្នាំ" },
-    { value: "41-50", label: "៤១–៥០ ឆ្នាំ" },
-    { value: "51-60", label: "៥១–៦០ ឆ្នាំ" },
-    { value: "61-70", label: "៦១–៧០ ឆ្នាំ" },
-  ];
-
-  function chooseVoice(age: string, gender: "female" | "male") {
-    const [min] = age.split("-").map(Number);
-    const found = VOICE_PRESETS.find((v) => v.ageMin === min && v.gender === gender);
-    if (!found) return;
-    setVoiceAge(age);
-    setVoiceGender(gender);
-    setPreset(found.id);
-    setVoicePreset(found.id);
-  }
-
-  function previewVoice() {
-    speakText("សួស្តី ខ្ញុំកំពុងសាកល្បងសំឡេង។", preset, () => setSpeaking(false));
-    setSpeaking(true);
+  async function handleCopy() {
+    if (await copyText(message.text)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
   }
 
   function handleSpeak() {
@@ -93,15 +64,9 @@ export default function MessageActions({ message, isLast, disabled, onFeedback, 
       setSpeaking(false);
       return;
     }
-    if (speakText(message.text, preset, () => setSpeaking(false))) setSpeaking(true);
+    if (speakText(message.text, getVoicePreset(), () => setSpeaking(false), getEmotion())) setSpeaking(true);
   }
 
-  async function handleCopy() {
-    if (await copyText(message.text)) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    }
-  }
 
   return (
     <div className="bubble__actions">
@@ -148,40 +113,13 @@ export default function MessageActions({ message, isLast, disabled, onFeedback, 
       )}
       {speechSupported() && (
         <>
-          <button type="button" className={`bubble__action${speaking ? " bubble__action--active" : ""}`} onClick={handleSpeak} aria-label="អានជាសំឡេង" title="អានជាសំឡេង">
+          <button type="button" className={`bubble__action${speaking ? " bubble__action--active" : ""}`} onClick={handleSpeak} aria-label={kk("ai.menu.voiceSpeak", "អានជាសំឡេង")} title={kk("ai.menu.voiceSpeak", "អានជាសំឡេង")}>
             <Icon>
               <path d="M11 5 6 9H2v6h4l5 4V5z" />
               <path d="M15.5 8.5a5 5 0 0 1 0 7" />
               <path d="M19 5a10 10 0 0 1 0 14" />
             </Icon>
           </button>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" }}>
-            <select
-              value={voiceAge}
-              onChange={(e) => chooseVoice(e.target.value, voiceGender)}
-              aria-label="ជ្រើសក្រុមអាយុ"
-              style={{ background: "transparent", color: "inherit", border: "1px solid currentColor", borderRadius: 8, fontSize: 12, padding: "4px" }}
-            >
-              {ageOptions.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
-            </select>
-            <button
-              type="button"
-              onClick={() => chooseVoice(voiceAge, "female")}
-              aria-pressed={voiceGender === "female"}
-              style={{ border: "1px solid currentColor", borderRadius: 8, padding: "4px 7px", fontSize: 12, opacity: voiceGender === "female" ? 1 : 0.6 }}
-            >ស្រី</button>
-            <button
-              type="button"
-              onClick={() => chooseVoice(voiceAge, "male")}
-              aria-pressed={voiceGender === "male"}
-              style={{ border: "1px solid currentColor", borderRadius: 8, padding: "4px 7px", fontSize: 12, opacity: voiceGender === "male" ? 1 : 0.6 }}
-            >ប្រុស</button>
-            <button
-              type="button"
-              onClick={previewVoice}
-              style={{ border: "1px solid currentColor", borderRadius: 8, padding: "4px 7px", fontSize: 12 }}
-            >សាកសំឡេង</button>
-          </div>
         </>
       )}
     </div>
