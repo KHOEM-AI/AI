@@ -28,6 +28,7 @@ const all = () => [
   ...SEED_LEXICON.map((r) => ({ ...r, source: "ai" })),
 ];
 
+export const countTerms = () => all().length;
 export const listDomains = () => [...new Set([...DOMAINS, ...readUser().map((r) => r.domain)])];
 
 // ពាក្យអ្នកប្រើមកមុន (user > ai) ហើយត្រូវពេញមុនត្រូវមួយផ្នែក

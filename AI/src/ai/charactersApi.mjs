@@ -7,7 +7,7 @@ import {
   createCharacter, getCharacter, listCharacters, mergeCharacter, getTimeline, buildPrompt,
 } from "./characters.mjs";
 import { createAsset, searchAssets, pickForStory, seedAll } from "./assets.mjs";
-import { lookup, addTerm, answerKm, listDomains } from "./lexicon.mjs";
+import { lookup, addTerm, answerKm, listDomains, countTerms } from "./lexicon.mjs";
 import {
   createStoryboard, getStoryboard, listStoryboards, addScene, updateScene,
   setSceneStatus, buildScenePrompt, continuityReport, OPTIONS,
@@ -56,6 +56,18 @@ export function registerCharactersApi(app) {
   })));
   app.post("/api/assets", guard, wrap((req) => createAsset(req.body || {})));
   app.post("/api/assets/seed", guard, wrap(() => seedAll()));
+
+  // ទំព័រទិន្នន័យកណ្តាល: ចំនួនទិន្នន័យក្នុងឃ្លាំងនីមួយៗ (ត្រូវដាក់ "/api/hub" ក្នុង BRIDGE_GET)
+  app.get("/api/hub/status", guard, wrap(() => {
+    const items = listItems();
+    const byGroup = Object.fromEntries(GROUPS.map((g) => [g, items.filter((i) => i.group === g).length]));
+    return {
+      library: { total: items.length, assets: items.filter((i) => i.tags.includes("asset")).length, byGroup },
+      characters: listCharacters().length,
+      storyboards: listStoryboards().length,
+      lexicon: { terms: countTerms(), domains: listDomains() },
+    };
+  }));
 
   // វចនានុក្រមខ្មែរ — ត្រូវដាក់ "/api/lexicon" ក្នុង BRIDGE_GET/POST ដែរ
   app.get("/api/lexicon/domains", guard, wrap(() => listDomains()));
