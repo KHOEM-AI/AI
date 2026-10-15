@@ -870,7 +870,7 @@ NOTE (audit 2026-09-23): commit-message phase numbers do not match this table
 (e.g. Sandbox commit says "Phase 20" but is Phase 17 here). This table is the
 source of truth going forward, not commit messages.
 
-NOTE (2026-10-16): ideas/plans/experiments/goals now persist to data/*.json (persist.mjs). Restart-survival runtime-tested for ideas only; tasks now persist too (tasks.json, restart-tested via node process 2026-10-16); running tasks stay in their last state after restart, no auto-recovery yet.
+NOTE (2026-10-16): ideas/plans/experiments/goals now persist to data/*.json (persist.mjs). Restart-survival runtime-tested (real server restart) for ideas, plans, experiments, goals; tasks persist too (tasks.json, restart-tested via separate node process 2026-10-16); pruneOldSessions now scheduled hourly in server.mjs (KHOEM_SESSION_MAX_AGE_HOURS, default 24h); running tasks stay in their last state after restart, no auto-recovery yet.
 
 ## Phase Gate
 Do NOT start the next phase until the previous phase compiles, passes
