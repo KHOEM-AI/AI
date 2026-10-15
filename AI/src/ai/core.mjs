@@ -35,9 +35,13 @@ export class AICore {
       throw new Error("messages must contain at least one message");
     }
 
-    for (const message of messages) {
-      this.memory.add(sessionId, message);
+    const history = [...messages];
+    // regenerate: drop stale trailing assistant replies
+    while (history.length && history.at(-1).role === "assistant") history.pop();
+    if (history.length === 0) {
+      throw new Error("messages must contain a user message");
     }
+    this.memory.replace(sessionId, history);
 
     const conversation = this.memory.get(sessionId);
 

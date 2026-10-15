@@ -80,6 +80,23 @@ export class AIMemory {
     return messages.at(-1);
   }
 
+  replace(sessionId, messages) {
+    if (!sessionId) throw new Error("sessionId is required");
+    if (!Array.isArray(messages)) throw new Error("messages must be an array");
+    for (const message of messages) {
+      if (!message || !message.role || message.content == null) {
+        throw new Error("message must contain role and content");
+      }
+    }
+    this.createSession(sessionId);
+    const now = new Date().toISOString();
+    const next = messages.map(({ role, content }) => ({ role, content, timestamp: now }));
+    if (next.length > this.maxMessages) next.splice(0, next.length - this.maxMessages);
+    this.sessions.set(sessionId, next);
+    this._save();
+    return next;
+  }
+
   get(sessionId) {
     return this.sessions.get(sessionId) ?? [];
   }
