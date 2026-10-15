@@ -156,28 +156,28 @@ function AppInner() {
                   {t.navControlCenter}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowPatchDashboard(true); setShowMenu(false); }}>
-                  {k("ai.menu.patchDashboard")}
+                  {k("ai.menu.patchDashboard") || "Patch Dashboard"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowCodeCenter(true); setShowMenu(false); }}>
-                  {k("ai.menu.codeCenter")}
+                  {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
-                  {k("ai.menu.learningCenter")}
+                  {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowAuditMetrics(true); setShowMenu(false); }}>
-                  {k("ai.menu.auditMetrics")}
+                  {k("ai.menu.auditMetrics") || "Audit & Metrics"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
-                  {k("ai.menu.observability")}
+                  {k("ai.menu.observability") || "Observability"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
-                  {k("ai.menu.management")}
+                  {k("ai.menu.management") || "Management"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
-                  {k("ai.menu.safety")}
+                  {k("ai.menu.safety") || "Safety"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
-                  {k("ai.menu.toolRegistry")}
+                  {k("ai.menu.toolRegistry") || "Tool Registry"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
                   {t.navHonorific}
