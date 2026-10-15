@@ -12,6 +12,7 @@ import { runSandboxTest } from "./sandbox.mjs";
 import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mjs";
 import { listTools, findTools, describeToolRisk } from "./toolRegistry.mjs";
 import "./toolRegistry.bootstrap.mjs";
+import { executeTool } from "./toolExecutor.mjs";
 import { createBudget, recordUsage, checkBudget, getBudget, listBudgets } from "./budget.mjs";
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
 import { getMetrics } from "./metrics.mjs";
@@ -278,6 +279,22 @@ export function registerApi(app) {
   app.get("/api/tools/find", guard, policy("tool.find"), wrap((req) => {
     if (!req.query.q) throw bad("ត្រូវការ ?q=ពាក្យ");
     return { hits: findTools(req.query.q) };
+  }));
+
+  // Read-only LOW-risk tools only, through executeTool (policy + audit).
+  // apply-patch / propose-patch are intentionally NOT exposed here.
+  const EXEC_ALLOW = {
+    "scan-repo": () => run("/scan"),
+    "find-symbol": ({ q }) => {
+      if (!q) throw bad("ត្រូវការ input.q");
+      return run("/find " + q);
+    },
+  };
+  app.post("/api/tools/:id/execute", guard, policy("tool.find"), wrap(async (req) => {
+    const id = req.params.id;
+    if (!Object.hasOwn(EXEC_ALLOW, id)) throw bad("tool មិនត្រូវបានអនុញ្ញាតតាម API: " + id, 403);
+    const input = (req.body && req.body.input) || {};
+    return executeTool({ toolId: id, actor: "user", input, execute: async () => EXEC_ALLOW[id](input) });
   }));
 
   app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
