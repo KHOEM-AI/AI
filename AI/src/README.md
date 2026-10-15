@@ -870,6 +870,8 @@ NOTE (audit 2026-09-23): commit-message phase numbers do not match this table
 (e.g. Sandbox commit says "Phase 20" but is Phase 17 here). This table is the
 source of truth going forward, not commit messages.
 
+NOTE (2026-10-16): ideas/plans/experiments/goals now persist to data/*.json (persist.mjs). Restart-survival runtime-tested for ideas only; tasks.mjs is still RAM-only, so goal progress after restart counts lost tasks as 0.
+
 ## Phase Gate
 Do NOT start the next phase until the previous phase compiles, passes
 tests, passes runtime checks, and does not break existing functionality.

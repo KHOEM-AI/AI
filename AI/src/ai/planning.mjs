@@ -1,8 +1,10 @@
 // src/ai/planning.mjs — Planning Engine (spec Part 8). Plans are validated, never executed here.
 import { randomUUID } from "node:crypto";
+import { loadItems, saveItems } from "./persist.mjs";
 import { RISK_RANK } from "./ideas.mjs";
 
-const plans = new Map();
+const plans = new Map(loadItems("plans").map((p) => [p.planId, p]));
+const save = () => saveItems("plans", [...plans.values()]);
 const MAX_PLANS = 200;
 
 function bad(msg) {
@@ -39,6 +41,7 @@ export function createPlan({ goal, steps, verificationCriteria = [], rollbackPla
   plan.status = v.ok ? "VALID" : "INVALID";
   plans.set(plan.planId, plan);
   if (plans.size > MAX_PLANS) plans.delete(plans.keys().next().value);
+  save();
   return plan;
 }
 

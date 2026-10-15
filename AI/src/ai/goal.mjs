@@ -1,8 +1,15 @@
 // src/ai/goal.mjs
 import { randomUUID } from "node:crypto";
+import { loadItems, saveItems } from "./persist.mjs";
 import { getTask } from "./tasks.mjs";
 
-const goals = new Map();
+const goals = new Map(loadItems("goals").map((g) => [g.id, {
+  ...g,
+  taskIds: new Set(g.taskIds || []),
+  ideaIds: new Set(g.ideaIds || []),
+  planIds: new Set(g.planIds || []),
+}]));
+const save = () => saveItems("goals", [...goals.values()].map(serialize));
 const MAX_GOALS = 200;
 
 export const GOAL_STATUS = Object.freeze({
@@ -30,6 +37,7 @@ export function createGoal(title, metadata = {}) {
   goals.set(goal.id, goal);
   const ids = [...goals.keys()];
   if (ids.length > MAX_GOALS) goals.delete(ids[0]);
+  save();
   return serialize(goal);
 }
 
@@ -51,6 +59,7 @@ export function linkTaskToGoal(goalId, taskId) {
   if (!task) return { ok: false, reason: "TASK_NOT_FOUND" };
   goal.taskIds.add(taskId);
   goal.updatedAt = new Date().toISOString();
+  save();
   return { ok: true, goal: serialize(goal) };
 }
 
@@ -75,6 +84,7 @@ export function setGoalStatus(goalId, status) {
   }
   goal.status = status;
   goal.updatedAt = new Date().toISOString();
+  save();
   return { ok: true, goal: serialize(goal) };
 }
 
@@ -87,6 +97,7 @@ export function linkIdeaToGoal(goalId, ideaId) {
   if (!goal) return { ok: false, reason: "GOAL_NOT_FOUND" };
   goal.ideaIds.add(ideaId);
   goal.updatedAt = new Date().toISOString();
+  save();
   return { ok: true, goal: serialize(goal) };
 }
 
@@ -96,6 +107,7 @@ export function linkPlanToGoal(goalId, planId) {
   if (!goal) return { ok: false, reason: "GOAL_NOT_FOUND" };
   goal.planIds.add(planId);
   goal.updatedAt = new Date().toISOString();
+  save();
   return { ok: true, goal: serialize(goal) };
 }
 

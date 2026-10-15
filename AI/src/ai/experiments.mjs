@@ -1,6 +1,7 @@
 // src/ai/experiments.mjs — Experiment Engine (spec Part 8). Records experiments only;
 // it never writes to production files.
 import { randomUUID } from "node:crypto";
+import { loadItems, saveItems } from "./persist.mjs";
 
 export const EXPERIMENT = Object.freeze({
   CREATED: "CREATED", RUNNING: "RUNNING", COMPLETED: "COMPLETED", FAILED: "FAILED", CANCELLED: "CANCELLED",
@@ -10,7 +11,8 @@ const ALLOWED = {
   RUNNING: ["COMPLETED", "FAILED", "CANCELLED"],
   COMPLETED: [], FAILED: [], CANCELLED: [],
 };
-const experiments = new Map();
+const experiments = new Map(loadItems("experiments").map((e) => [e.experimentId, e]));
+const save = () => saveItems("experiments", [...experiments.values()]);
 const MAX_EXPERIMENTS = 200;
 
 export function createExperiment({ goal, hypothesis, inputs = {}, changes = [] } = {}) {
@@ -23,6 +25,7 @@ export function createExperiment({ goal, hypothesis, inputs = {}, changes = [] }
   };
   experiments.set(exp.experimentId, exp);
   if (experiments.size > MAX_EXPERIMENTS) experiments.delete(experiments.keys().next().value);
+  save();
   return exp;
 }
 
@@ -34,6 +37,7 @@ export function transitionExperiment(id, to, { results, metrics } = {}) {
   if (results !== undefined) exp.results = results;
   if (metrics !== undefined) exp.metrics = metrics;
   if (ALLOWED[to].length === 0) exp.completedAt = new Date().toISOString();
+  save();
   return { ok: true, experiment: exp };
 }
 

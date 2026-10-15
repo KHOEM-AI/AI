@@ -1,10 +1,12 @@
 // src/ai/ideas.mjs — Idea Engine (spec Part 8). Ideas are proposals only: never executed.
 import { randomUUID } from "node:crypto";
+import { loadItems, saveItems } from "./persist.mjs";
 
 export const RISK_RANK = Object.freeze({ LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 });
 const COMPLEXITY_RANK = Object.freeze({ LOW: 1, MEDIUM: 2, HIGH: 3 });
 const MAX_IDEAS = 200;
-const ideas = new Map();
+const ideas = new Map(loadItems("ideas").map((i) => [i.ideaId, i]));
+const save = () => saveItems("ideas", [...ideas.values()]);
 
 function bad(msg) {
   return Object.assign(new Error(msg), { status: 400 });
@@ -28,6 +30,7 @@ export function createIdea({
   };
   ideas.set(idea.ideaId, idea);
   if (ideas.size > MAX_IDEAS) ideas.delete(ideas.keys().next().value);
+  save();
   return idea;
 }
 
@@ -73,6 +76,7 @@ export function transitionIdea(ideaId, toStatus) {
   }
   idea.status = toStatus;
   idea.updatedAt = new Date().toISOString();
+  save();
   return { ok: true, idea };
 }
 
