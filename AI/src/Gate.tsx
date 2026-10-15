@@ -1,3 +1,4 @@
+import khoemLogo from "./assets/khoem-ai-logo.png";
 import { useEffect, useRef, useState } from "react";
 import App from "./App";
 import GatePoem from "./components/GatePoem";
@@ -75,7 +76,7 @@ export default function Gate() {
   const tick = () => {
     if (start.current === null) return;
     // eslint-disable-next-line react-hooks/purity
-    const p = Math.min(1, (performance.now() - start.current) / 9000);
+    const p = Math.min(1, (performance.now() - start.current) / 6000);
     setPct(p);
     draw(p);
     if (p >= 1) { start.current = null; setOk(true); return; }
@@ -104,7 +105,7 @@ export default function Gate() {
   return (
     <div className="gate">
       <canvas ref={cv} className="gate__canvas" />
-      <img src="/src/assets/khoem-ai-logo.png" alt="KHOEM-AI" className="gate__eye gate__logo" style={{ width: "180px", height: "auto" }} />
+      <img src={khoemLogo} alt="KHOEM-AI" className="gate__eye gate__logo" style={{ width: "180px", height: "auto" }} />
       <div className="gate__count">{Math.ceil(pct * 100)}</div>
       <div className="gate__title">KHOEM-AI</div>
       <button
@@ -115,9 +116,9 @@ export default function Gate() {
         onPointerCancel={up}
         onContextMenu={(e) => e.preventDefault()}
       >
-        HOLD FOR 9 SECONDS
+        HOLD FOR 6 SECONDS
       </button>
-      <div className="gate__hint">Counting from 0 to 100 to unlock the app</div>
+      <div className="gate__hint">Press and hold for 6 seconds to unlock the app</div>
     </div>
   );
 }
