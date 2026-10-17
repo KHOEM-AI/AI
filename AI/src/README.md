@@ -855,7 +855,7 @@ PHASE 17 — Sandbox                                            ✅ VERIFIED (sa
 PHASE 18 — Experiment Engine                   ✅ VERIFIED (unit tests + runtime API create/transition 2026-10-16)
 PHASE 19 — Self-Evaluation                     ✅ VERIFIED (unit tests + runtime API 2026-10-16, advisory only)
 PHASE 20 — Versioning + Rollback                              ✅ VERIFIED (rollback.mjs — plan-only, never auto-executes by design)
-PHASE 21 — Resource Budget                     ✅ LIBRARY VERIFIED (unit + direct runtime: STOP on exceed; API create/check live; NOT wired — nothing calls recordUsage)
+PHASE 21 — Resource Budget                     ✅ VERIFIED (wired: 1-min rate limit on POST /api/tools/:id/execute, 429 tested live 2026-10-16; chat path NOT budgeted; recordUsage tokens/cost not used)
 PHASE 22 — Timeout + Retry                     ✅ LIBRARY VERIFIED (retry.mjs direct runtime 2026-10-16; NOT wired into request path; timeout via withTimeout)
 PHASE 23 — Circuit Breaker                     ✅ LIBRARY VERIFIED (full CLOSED/OPEN/HALF_OPEN cycle direct runtime 2026-10-16; NOT wired — no breaker in request path)
 PHASE 24 — Model Routing / Fallback                           ✅ VERIFIED (modelRouting.mjs — decideProvider() honest NO_FALLBACK, no fabricated providers, 6 tests)
