@@ -53,3 +53,10 @@ export async function khoemTranslate(locale, key, params) {
 export async function khoemApiHealth() {
   return request("/health");
 }
+
+export async function searchKhoemKhmer(query) {
+  const q = String(query ?? "").trim();
+  if (!q || q.length > 200) return null;
+  const data = await request(`/api/khmer?q=${encodeURIComponent(q)}&exact=1`);
+  return data?.found === true && typeof data.answer === "string" && data.answer.trim() ? data.answer : null;
+}

@@ -11,7 +11,7 @@ import { proposePatch, getProposal, applyPatch, listProposals } from "./patch.mj
 import { approveRequest, rejectRequest } from "./approvals.mjs";
 import { detectLanguage, RE, SAY } from "./languageRegistry.mjs";
 import { searchAllKnowledge } from "./knowledge.mjs";
-import { searchKhoemKnowledge } from "./khoemApi.mjs";
+import { searchKhoemKnowledge, searchKhoemKhmer } from "./khoemApi.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -248,6 +248,13 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
       catch { exactAnswer = null; }
       if (exactAnswer) { onStage?.("RETRIEVING", "knowledge base exact match"); return exactAnswer; }
     }
+  }
+
+  // KHOEM_AI hosts the Khmer replies; khmer.mjs stays as fallback.
+  if (!q.startsWith("/") && q !== "help" && /[\u1780-\u17FF]/.test(last)) {
+    let kmAnswer = null;
+    try { kmAnswer = await searchKhoemKhmer(last); } catch { kmAnswer = null; }
+    if (kmAnswer) { onStage?.("RETRIEVING", "KHOEM_AI khmer"); return kmAnswer; }
   }
 
   // Route supported natural languages through the Language Center.
