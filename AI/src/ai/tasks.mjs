@@ -52,6 +52,22 @@ export function transition(taskId, to, reason = "") {
   return tr;
 }
 
+// Called once at server start: tasks left RUNNING/WAITING by a previous process
+// can never finish, so mark them FAILED (never silently dropped, audited).
+export function recoverInterruptedTasks(reason = "server restarted while task was active") {
+  let n = 0;
+  for (const t of tasks.values()) {
+    if (t.state !== "RUNNING" && t.state !== "WAITING") continue;
+    const tr = { from: t.state, to: "FAILED", timestamp: new Date().toISOString(), reason, taskId: t.taskId };
+    t.transitions.push(tr);
+    t.state = "FAILED"; t.reason = reason; t.updatedAt = tr.timestamp;
+    emit(t.taskId, "TASK_FAILED", { reason, recovered: true });
+    n++;
+  }
+  if (n) save();
+  return n;
+}
+
 export const getTask = (id) => tasks.get(id) ?? null;
 export const getAllTasks = () => [...tasks.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 export const getEvents = (taskId) => (taskId ? events.filter((e) => e.taskId === taskId) : [...events]);

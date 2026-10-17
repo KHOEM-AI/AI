@@ -183,6 +183,14 @@ app.listen(PORT, "127.0.0.1", () => {
   console.log(`server.mjs listening on port ${PORT}`);
 });
 
+// Mark tasks interrupted by the previous process as FAILED.
+import("./src/ai/tasks.mjs")
+  .then((m) => {
+    const n = m.recoverInterruptedTasks();
+    if (n) console.log(`[tasks] marked ${n} interrupted task(s) FAILED after restart`);
+  })
+  .catch((e) => console.error("[tasks] recovery failed:", e && e.message));
+
 // Periodic cleanup of idle chat sessions (in-memory). Active sessions are
 // kept: age is measured from the last message timestamp.
 const SESSION_MAX_AGE_HOURS = Number(process.env.KHOEM_SESSION_MAX_AGE_HOURS) || 24;
