@@ -90,3 +90,17 @@ describe("planning.mjs — searchPlans / listPlansByRisk / listPlansByStatus", (
     expect(listPlansByStatus("VALID").map((x) => x.planId)).not.toContain(bad.planId);
   });
 });
+
+describe("ideas.mjs — updatedAt", () => {
+  it("createIdea sets updatedAt equal to createdAt", () => {
+    const i = createIdea({ title: "upd-create-zq" });
+    expect(i.updatedAt).toBeTruthy();
+    expect(i.updatedAt).toBe(i.createdAt);
+  });
+  it("transitionIdea keeps updatedAt valid and not earlier than createdAt", () => {
+    const i = createIdea({ title: "upd-trans-zq" });
+    const r = transitionIdea(i.ideaId, "ACCEPTED");
+    expect(r.ok).toBe(true);
+    expect(r.idea.updatedAt >= r.idea.createdAt).toBe(true);
+  });
+});

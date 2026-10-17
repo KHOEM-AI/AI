@@ -23,10 +23,11 @@ export function createIdea({
   if (!Array.isArray(dependencies)) throw bad("dependencies must be an array");
   if (typeof estimatedCost !== "number" || estimatedCost < 0) throw bad("invalid estimatedCost");
   if (typeof benefitScore !== "number" || benefitScore < 0 || benefitScore > 10) throw bad("benefitScore must be 0-10");
+  const now = new Date().toISOString();
   const idea = {
     ideaId: randomUUID(), title: title.trim(), description, reason, expectedBenefit, benefitScore,
     dependencies, risk, complexity, estimatedCost, testPlan, rollbackPlan, origin,
-    status: "PROPOSED", executable: false, createdAt: new Date().toISOString(),
+    status: "PROPOSED", executable: false, createdAt: now, updatedAt: now,
   };
   ideas.set(idea.ideaId, idea);
   if (ideas.size > MAX_IDEAS) ideas.delete(ideas.keys().next().value);
