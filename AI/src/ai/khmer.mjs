@@ -12640,10 +12640,15 @@ export function khmerReply(text, learned = {}, honorific = "បង") {
     if (k === norm) return say(v);
   }
 
+  // Greeting at the start of a longer sentence ("សួស្តីបង សូមជួយខ្ញុំ")
+  for (const g of ["សួស្តី", "សួស្ដី", "ជំរាបសួរ", "ជម្រាបសួរ"]) {
+    if (norm.startsWith(g) && SEED.has(g)) return say(SEED.get(g));
+  }
+
   // Substring containment fallback — Khmer often has no spaces between
   // clauses, so keyword containment catches more phrasing variants.
   const matches = [...SEED.entries()]
-    .filter(([k]) => k.length > 2 && norm.includes(k))
+    .filter(([k]) => k.length > 2 && norm.includes(k) && k.length / norm.length >= 0.4)
     .sort(([a], [b]) => b.length - a.length);
 
   if (matches.length > 0) {
