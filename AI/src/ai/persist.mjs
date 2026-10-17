@@ -6,12 +6,36 @@ import { fileURLToPath } from "node:url";
 const DIR = process.env.KHOEM_DATA_DIR || fileURLToPath(new URL("../../data", import.meta.url));
 const ON = !process.env.VITEST && process.env.KHOEM_PERSIST !== "0";
 
+// A corrupt file is never silently overwritten: keep a copy first, then warn.
+function quarantine(file, name, why) {
+  try {
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const copy = file + ".corrupt-" + stamp;
+    fs.copyFileSync(file, copy);
+    console.error("[persist]", name, "unreadable (" + why + "); copy kept at", copy);
+  } catch (e) {
+    console.error("[persist]", name, "unreadable (" + why + "); could not keep a copy:", e.message);
+  }
+}
+
 export function loadItems(name) {
   if (!ON) return [];
+  const file = path.join(DIR, name + ".json");
+  let raw;
   try {
-    const j = JSON.parse(fs.readFileSync(path.join(DIR, name + ".json"), "utf8"));
-    return Array.isArray(j.items) ? j.items : [];
-  } catch { return []; }
+    raw = fs.readFileSync(file, "utf8");
+  } catch (e) {
+    if (!e || e.code !== "ENOENT") console.error("[persist]", name, "read failed:", e && e.message);
+    return [];
+  }
+  try {
+    const j = JSON.parse(raw);
+    if (j && Array.isArray(j.items)) return j.items;
+    throw new Error("items is not an array");
+  } catch (e) {
+    quarantine(file, name, e.message);
+    return [];
+  }
 }
 
 export function saveItems(name, items) {

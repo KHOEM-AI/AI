@@ -115,3 +115,50 @@ describe("persist.mjs — bad input and failures", () => {
     expect(spy).toHaveBeenCalled();
   });
 });
+
+describe("persist.mjs — corrupt file quarantine", () => {
+  const corruptCopies = () => fs.readdirSync(dir).filter((n) => n.includes(".corrupt-"));
+
+  it("corrupt JSON: keeps an identical copy and warns", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const p = await loadFresh();
+    fs.writeFileSync(path.join(dir, "bad.json"), "{not json");
+    expect(p.loadItems("bad")).toEqual([]);
+    const copies = corruptCopies();
+    expect(copies.length).toBe(1);
+    expect(copies[0].startsWith("bad.json.corrupt-")).toBe(true);
+    expect(fs.readFileSync(path.join(dir, copies[0]), "utf8")).toBe("{not json");
+    expect(spy).toHaveBeenCalled();
+  });
+  it("items not an array: quarantined too", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const p = await loadFresh();
+    fs.writeFileSync(path.join(dir, "odd.json"), JSON.stringify({ version: 1, items: "nope" }));
+    expect(p.loadItems("odd")).toEqual([]);
+    expect(corruptCopies().length).toBe(1);
+  });
+  it("missing file: no copy and no warning", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const p = await loadFresh();
+    expect(p.loadItems("nope")).toEqual([]);
+    expect(corruptCopies()).toEqual([]);
+    expect(spy).not.toHaveBeenCalled();
+  });
+  it("a later save does not destroy the kept copy", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const p = await loadFresh();
+    fs.writeFileSync(path.join(dir, "bad.json"), "{broken");
+    p.loadItems("bad");
+    p.saveItems("bad", [{ id: "new" }]);
+    expect(p.loadItems("bad")).toEqual([{ id: "new" }]);
+    const copies = corruptCopies();
+    expect(copies.length).toBe(1);
+    expect(fs.readFileSync(path.join(dir, copies[0]), "utf8")).toBe("{broken");
+  });
+  it("valid file is not quarantined", async () => {
+    const p = await loadFresh();
+    p.saveItems("ok", [1, 2]);
+    expect(p.loadItems("ok")).toEqual([1, 2]);
+    expect(corruptCopies()).toEqual([]);
+  });
+});
