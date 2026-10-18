@@ -14007,7 +14007,7 @@ const ENTRIES = [
 
 const SEED = new Map();
 for (const [keys, answer] of ENTRIES) {
-  for (const k of keys.split("|")) SEED.set(k.toLowerCase(), answer);
+  for (const k of keys.split("|")) { const kk = k.toLowerCase(); if (!SEED.has(kk)) SEED.set(kk, answer); }
 }
 
 const say = (a) => (typeof a === "function" ? a() : a);
