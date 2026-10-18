@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useT, pickText, useLanguageCode } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
+import LearnedManager from "./LearnedManager";
 
 async function api(url: string, opts: RequestInit = {}) {
   const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
@@ -116,6 +117,7 @@ export default function LearningCenter({ onClose }: { onClose: () => void }) {
             {learnedText}
           </div>
         )}
+        <LearnedManager />
       </div>
     </div>
   );
