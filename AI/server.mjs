@@ -1,9 +1,5 @@
 import express from "express";
-import { registerApi } from "./src/ai/api.mjs";
-import { registerCharactersApi } from "./src/ai/charactersApi.mjs";
-import { registerLearnedApi } from "./src/ai/learnedApi.mjs";
-import { registerShotlistApi } from "./src/ai/shotlistApi.mjs";
-import { registerCharacterRefsApi } from "./src/ai/characterRefsApi.mjs";
+import { registerAllApis } from "./src/ai/registerAll.mjs";
 import { summarizeEngines } from "./src/ai/enginesSummary.mjs";
 import cors from "cors";
 import "dotenv/config";
@@ -113,12 +109,7 @@ app.use("/api", (req, res, next) => {
   next();
 });
 
-registerApi(app);
-registerCharactersApi(app);
-registerLearnedApi(app);
-registerShotlistApi(app);
-registerCharacterRefsApi(app);
-
+registerAllApis(app);
 app.get("/api/status", async (req, res) => {
   try {
     res.json(await collectStatus(aiCore));
