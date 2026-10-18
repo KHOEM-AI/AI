@@ -1,3 +1,4 @@
+import { khmerWords } from "./khmer-words.mjs";
 // src/ai/khmer.mjs — Khmer conversation rules (expanded set v2).
 // Scope: greetings, identity, manners, emotions, time/date, numbers,
 // days/months, weather, family, food, small talk. Grown the same way
