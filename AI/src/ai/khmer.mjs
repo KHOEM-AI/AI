@@ -1,3 +1,4 @@
+import { EXTRA_ENTRIES_10 } from "./khmer.extra10.mjs";
 import { EXTRA_ENTRIES_9 } from "./khmer.extra9.mjs";
 import { khmerWords } from "./khmer-words.mjs";
 // src/ai/khmer.mjs — Khmer conversation rules (expanded set v2).
@@ -14003,6 +14004,7 @@ const ENTRIES = [
   ["ស្តុកអាហារ|ទុកអាហារ","ទុកអាហារស្ងួតដូចអង្ករ មី និងអាហារកំប៉ុង ក្នុងកន្លែងស្ងួត ត្រជាក់ និងបិទជិត ហើយពិនិត្យកាលបរិច្ឆេទផុតកំណត់។"],
   ...khmerWords,
   ...EXTRA_ENTRIES_9,
+  ...EXTRA_ENTRIES_10,
 ];
 
 const fold = (s) => String(s).normalize("NFC").toLowerCase().replace(/\u17D2\u178A/g, "\u17D2\u178F");
