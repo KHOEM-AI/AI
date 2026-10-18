@@ -4,6 +4,7 @@ import { registerLearnedApi } from "./learnedApi.mjs";
 import { registerShotlistApi } from "./shotlistApi.mjs";
 import { registerCharacterRefsApi } from "./characterRefsApi.mjs";
 import { registerKhoemBridgeApi } from "./khoemBridgeApi.mjs";
+import { registerRouteListApi } from "./routeList.mjs";
 
 export const API_MODULES = [
   { name: "api", register: registerApi },
@@ -27,5 +28,6 @@ export function registerAllApis(app, modules = API_MODULES) {
     }
   }
   app.get("/api/registry", (req, res) => res.json({ ok: true, loaded, failed }));
+  registerRouteListApi(app);
   return { loaded, failed };
 }

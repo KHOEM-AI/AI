@@ -1,4 +1,4 @@
-import khoemLogo from "./assets/khoem-ai-logo.png";
+import khoemLogo from "./assets/khoem-ai-logo.webp";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
@@ -11,6 +11,7 @@ import ManagementCenter from "./components/ManagementCenter";
 import SafetyCenter from "./components/SafetyCenter";
 import ToolRegistryCenter from "./components/ToolRegistryCenter";
 import LearningCenter from "./components/LearningCenter";
+import ApiCenter from "./components/ApiCenter";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -83,6 +84,7 @@ function AppInner() {
   const [showSafety, setShowSafety] = useState(false);
   const [showToolRegistry, setShowToolRegistry] = useState(false);
   const [showLearningCenter, setShowLearningCenter] = useState(false);
+  const [showApiCenter, setShowApiCenter] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -161,6 +163,7 @@ function AppInner() {
                 <button className="app__sidebar-item" onClick={() => { setShowCodeCenter(true); setShowMenu(false); }}>
                   {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
+                <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
@@ -289,6 +292,7 @@ function AppInner() {
         {showSafety && <ErrorBoundary onClose={() => setShowSafety(false)}><SafetyCenter onClose={() => setShowSafety(false)} /></ErrorBoundary>}
         {showToolRegistry && <ErrorBoundary onClose={() => setShowToolRegistry(false)}><ToolRegistryCenter onClose={() => setShowToolRegistry(false)} /></ErrorBoundary>}
         {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
+        {showApiCenter && <ErrorBoundary onClose={() => setShowApiCenter(false)}><ApiCenter onClose={() => setShowApiCenter(false)} /></ErrorBoundary>}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt
