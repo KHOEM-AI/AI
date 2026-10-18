@@ -14005,9 +14005,10 @@ const ENTRIES = [
   ...EXTRA_ENTRIES_9,
 ];
 
+const fold = (s) => String(s).normalize("NFC").toLowerCase().replace(/\u17D2\u178A/g, "\u17D2\u178F");
 const SEED = new Map();
 for (const [keys, answer] of ENTRIES) {
-  for (const k of keys.split("|")) { const kk = k.toLowerCase(); if (!SEED.has(kk)) SEED.set(kk, answer); }
+  for (const k of keys.split("|")) { const kk = fold(k); if (!SEED.has(kk)) SEED.set(kk, answer); }
 }
 
 const say = (a) => (typeof a === "function" ? a() : a);
@@ -14016,7 +14017,7 @@ export function khmerReply(text, learned = {}, honorific = "បង") {
   const q = String(text ?? "").trim();
   if (!q || q.startsWith("/")) return null;
 
-  const norm = q.toLowerCase();
+  const norm = fold(q);
 
   if (SEED.has(norm)) return say(SEED.get(norm));
   for (const [k, v] of Object.entries(learned)) {
