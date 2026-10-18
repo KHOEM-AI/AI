@@ -1,3 +1,4 @@
+import { EXTRA_ENTRIES_9 } from "./khmer.extra9.mjs";
 import { khmerWords } from "./khmer-words.mjs";
 // src/ai/khmer.mjs — Khmer conversation rules (expanded set v2).
 // Scope: greetings, identity, manners, emotions, time/date, numbers,
@@ -14001,6 +14002,7 @@ const ENTRIES = [
   ["ទឹកអស់|គ្មានទឹកប្រើ","បើគ្មានទឹកប្រើ សួរអ្នកជិតខាង ឬអាជ្ញាធរភូមិ។ ទុកទឹកស្អាតសម្រាប់ផឹក ហើយកុំផឹកទឹកមិនស្អាតដោយមិនដាំពុះ។"],
   ["ស្តុកអាហារ|ទុកអាហារ","ទុកអាហារស្ងួតដូចអង្ករ មី និងអាហារកំប៉ុង ក្នុងកន្លែងស្ងួត ត្រជាក់ និងបិទជិត ហើយពិនិត្យកាលបរិច្ឆេទផុតកំណត់។"],
   ...khmerWords,
+  ...EXTRA_ENTRIES_9,
 ];
 
 const SEED = new Map();
