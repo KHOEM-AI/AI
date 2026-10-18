@@ -1,6 +1,7 @@
 import express from "express";
 import { registerApi } from "./src/ai/api.mjs";
 import { registerCharactersApi } from "./src/ai/charactersApi.mjs";
+import { registerLearnedApi } from "./src/ai/learnedApi.mjs";
 import { registerShotlistApi } from "./src/ai/shotlistApi.mjs";
 import { registerCharacterRefsApi } from "./src/ai/characterRefsApi.mjs";
 import { summarizeEngines } from "./src/ai/enginesSummary.mjs";
@@ -114,6 +115,7 @@ app.use("/api", (req, res, next) => {
 
 registerApi(app);
 registerCharactersApi(app);
+registerLearnedApi(app);
 registerShotlistApi(app);
 registerCharacterRefsApi(app);
 

@@ -2,8 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-const FILE = path.join(os.homedir(), "khoem-learned.json");
-const BACKUP_DIR = path.join(os.homedir(), "khoem-learned-backups");
+export const FILE = path.join(os.homedir(), "khoem-learned.json");
+export const BACKUP_DIR = path.join(os.homedir(), "khoem-learned-backups");
 const MAX_BACKUPS = 10;
 
 export function load() {
@@ -29,14 +29,14 @@ function backupCurrent() {
   }
 }
 
-function save(d) {
+export function save(d) {
   backupCurrent();
   const tmp = FILE + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(d, null, 2), "utf8");
   fs.renameSync(tmp, FILE);
 }
 
-const norm = (s) =>
+export const norm = (s) =>
   s.trim().toLowerCase().replace(/\s+/g, " ").replace(/[?!។.\s]+$/g, "");
 
 const FORMAT = "ទម្រង់: /learn សំណួរ = ចម្លើយ";
@@ -50,7 +50,7 @@ const grams = (s) => {
   return g;
 };
 
-function dice(a, b) {
+export function dice(a, b) {
   if (a === b) return 1;
   if (a.length < 2 || b.length < 2) return 0;
   const A = grams(a);
