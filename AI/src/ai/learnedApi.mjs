@@ -1,5 +1,5 @@
 // src/ai/learnedApi.mjs
-// 30 route /api/learned/* សម្រាប់គ្រប់គ្រងចំណេះដឹងដែលបានរៀន (~/khoem-learned.json)
+// 40 route /api/learned/* សម្រាប់គ្រប់គ្រងចំណេះដឹងដែលបានរៀន (~/khoem-learned.json)
 // ផ្ទាល់ខ្លួន ១០០% (Express + learn.mjs) គ្មានសេវាខាងក្រៅ។
 // ការសរសេរទាំងអស់ឆ្លងកាត់ save() ដូច្នេះមាន backup ស្វ័យប្រវត្តិ។ ត្រូវការ x-api-key + policy ដូច route ផ្សេងៗ។
 import fs from "node:fs";
@@ -397,6 +397,137 @@ export function registerLearnedApi(app, deps = {}) {
     const n = size(data());
     save({});
     return { cleared: n };
+  });
+
+  // ---------- បន្ថែម (10) ----------
+  add("get", "recent", R, (req) => {
+    const limit = int(req.query.limit, 10, 1, 100);
+    const e = Object.entries(data()).map(([q, a]) => ({ q, a }));
+    return { total: e.length, items: e.slice(-limit).reverse() };
+  });
+
+  add("get", "by-length", R, (req) => {
+    const min = int(req.query.min, 0, 0, MAX_A);
+    const max = int(req.query.max, MAX_A, 0, MAX_A);
+    const field = req.query.field === "q" ? "q" : "a";
+    const hits = Object.entries(data())
+      .map(([q, a]) => ({ q, a, len: (field === "q" ? q : text(a)).length }))
+      .filter((x) => x.len >= min && x.len <= max);
+    return { field, min, max, total: hits.length, items: hits.slice(0, int(req.query.limit, 50, 1, 200)) };
+  });
+
+  add("get", "words", R, (req) => {
+    const m = new Map();
+    for (const k of Object.keys(data())) {
+      for (const w of k.split(/[\s,.;:!?។៖()"'«»]+/)) {
+        if (w.length >= 2) m.set(w, (m.get(w) || 0) + 1);
+      }
+    }
+    const items = [...m].sort((x, y) => y[1] - x[1]).slice(0, int(req.query.limit, 30, 1, 200)).map(([word, count]) => ({ word, count }));
+    return { distinct: m.size, items };
+  });
+
+  add("get", "suggest", R, (req) => {
+    const k = keyOf(req.query.q);
+    const limit = int(req.query.limit, 8, 1, 20);
+    const items = Object.keys(data())
+      .map((q) => ({ q, rank: q.startsWith(k) ? 0 : q.includes(k) ? 1 : 2, score: dice(k, q) }))
+      .filter((x) => x.rank < 2 || x.score >= 0.5)
+      .sort((x, y) => x.rank - y.rank || y.score - x.score)
+      .slice(0, limit)
+      .map(({ q, rank, score }) => ({ q, match: ["prefix", "contains", "similar"][rank], score: +score.toFixed(3) }));
+    return { query: k, items };
+  });
+
+  add("get", "backup-diff", R, (req) => {
+    const name = text(req.query.name);
+    if (!/^learned-[A-Za-z0-9-]+\.json$/.test(name)) throw bad("name មិនត្រឹមត្រូវ");
+    let old;
+    try {
+      old = JSON.parse(fs.readFileSync(path.join(BACKUP_DIR, name), "utf8"));
+    } catch {
+      throw bad("អាន backup មិនបាន", 404);
+    }
+    if (!isObj(old)) throw bad("backup មិនមែនទម្រង់ត្រឹមត្រូវ");
+    const cur = data();
+    const added = Object.keys(cur).filter((k) => !has(old, k));
+    const removed = Object.keys(old).filter((k) => !has(cur, k));
+    const changed = Object.keys(cur).filter((k) => has(old, k) && old[k] !== cur[k]);
+    return {
+      name,
+      added: added.length,
+      removed: removed.length,
+      changed: changed.length,
+      sample: { added: added.slice(0, 10), removed: removed.slice(0, 10), changed: changed.slice(0, 10) },
+    };
+  });
+
+  add("get", "lang-mix", R, () => {
+    const KH = /[\u1780-\u17FF]/;
+    const LA = /[A-Za-z]/;
+    let qKh = 0, qLaOnly = 0, aKh = 0, aNoKh = 0, mixedA = 0;
+    const e = Object.entries(data());
+    for (const [k, v] of e) {
+      const a = text(v);
+      if (KH.test(k)) qKh++; else if (LA.test(k)) qLaOnly++;
+      if (KH.test(a)) { aKh++; if (LA.test(a)) mixedA++; } else aNoKh++;
+    }
+    return {
+      total: e.length,
+      questionsKhmer: qKh,
+      questionsLatinOnly: qLaOnly,
+      answersKhmer: aKh,
+      answersWithoutKhmer: aNoKh,
+      answersKhmerAndLatin: mixedA,
+    };
+  });
+
+  add("get", "routes", R, () => [...routes]);
+
+  add("post", "alias", W, (req) => {
+    const b = req.body || {};
+    const d = data();
+    const from = keyOf(b.from);
+    const to = norm(text(b.to));
+    const err = checkKey(to);
+    if (err) throw bad("to: " + err);
+    if (!has(d, from)) throw bad("រកមិនឃើញ from", 404);
+    if (from === to) throw bad("from និង to ដូចគ្នា");
+    if (has(d, to) && b.overwrite !== true) throw bad("to មានរួចហើយ (ប្រើ overwrite:true)", 409);
+    d[to] = d[from];
+    save(d);
+    return { from, to, total: size(d) };
+  });
+
+  add("post", "replace", W, (req) => {
+    const b = req.body || {};
+    const find = text(b.find);
+    const rep = text(b.replace);
+    if (!find) throw bad("ត្រូវការ find");
+    if (find.length > 200 || rep.length > 200) throw bad("find/replace អតិបរមា 200 តួ");
+    const d = data();
+    const hit = Object.keys(d).filter((k) => text(d[k]).includes(find));
+    const next = {};
+    for (const k of hit) {
+      const v = text(d[k]).split(find).join(rep).trim();
+      const err = checkAnswer(v);
+      if (err) throw bad('លទ្ធផលសម្រាប់ "' + k.slice(0, 40) + '" មិនត្រឹមត្រូវ: ' + err);
+      next[k] = v;
+    }
+    if (b.confirm !== true) return { confirmed: false, matches: hit.length, sample: hit.slice(0, 10) };
+    Object.assign(d, next);
+    if (hit.length) save(d);
+    return { confirmed: true, changed: hit.length, total: size(d) };
+  });
+
+  add("post", "prune-backups", D, (req) => {
+    const b = req.body || {};
+    const keep = int(b.keep, 3, 1, 10);
+    const all = listBackups();
+    const drop = all.slice(keep);
+    if (b.confirm !== true) return { confirmed: false, keep, total: all.length, wouldDelete: drop.map((x) => x.name) };
+    for (const x of drop) fs.unlinkSync(path.join(BACKUP_DIR, x.name));
+    return { confirmed: true, keep, deleted: drop.length, remaining: all.length - drop.length };
   });
 
   return routes;

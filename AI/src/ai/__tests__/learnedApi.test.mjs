@@ -57,9 +57,9 @@ beforeEach(() => {
 });
 
 describe("learnedApi", () => {
-  it("មាន 30 route មិនស្ទួន", () => {
-    expect(routes.length).toBe(30);
-    expect(new Set(routes).size).toBe(30);
+  it("មាន 40 route មិនស្ទួន", () => {
+    expect(routes.length).toBe(40);
+    expect(new Set(routes).size).toBe(40);
   });
 
   it("អាន: count/stats/get/exists/match", async () => {
@@ -182,4 +182,58 @@ describe("learnedApi", () => {
     expect(h.parseOk).toBe(true);
     expect(h.count).toBe(5);
   });
+
+  it("40 route: recent/by-length/words/suggest/lang-mix/routes", async () => {
+    const rc = (await get("/api/learned/recent?limit=2")).body.result;
+    expect(rc.items.map((x) => x.q)).toEqual(["ផ្ទះ", "ទៅផ្សារ"]);
+    const bl = (await get("/api/learned/by-length?min=9&max=100")).body.result;
+    expect(bl.total).toBeGreaterThan(0);
+    expect(bl.items.every((x) => x.len >= 9)).toBe(true);
+    expect((await get("/api/learned/words")).body.result.distinct).toBeGreaterThan(0);
+    const sg = (await get("/api/learned/suggest?q=" + enc("សួស្"))).body.result;
+    expect(sg.items.length).toBeGreaterThanOrEqual(2);
+    expect(sg.items[0].match).toBe("prefix");
+    const lm = (await get("/api/learned/lang-mix")).body.result;
+    expect(lm.total).toBe(5);
+    expect(lm.answersKhmerAndLatin).toBe(1);
+    expect((await get("/api/learned/routes")).body.result.length).toBe(40);
+  });
+
+  it("alias និង replace (preview មុន confirm)", async () => {
+    expect((await post("/api/learned/alias", { from: "ផ្ទះ", to: "ហោម" })).status).toBe(200);
+    expect(file()["ហោម"]).toBe("ទីជម្រក");
+    expect(file()["ផ្ទះ"]).toBe("ទីជម្រក");
+    expect((await post("/api/learned/alias", { from: "ផ្ទះ", to: "ហោម" })).status).toBe(409);
+    expect((await post("/api/learned/alias", { from: "មិនមាន", to: "ក" })).status).toBe(404);
+    const pre = (await post("/api/learned/replace", { find: "ជម្រាបសួរ", replace: "សួស្តីបង" })).body.result;
+    expect(pre.confirmed).toBe(false);
+    expect(pre.matches).toBe(2);
+    expect(file()["សួស្តី"]).toBe("ជម្រាបសួរ");
+    const done = (await post("/api/learned/replace", { find: "ជម្រាបសួរ", replace: "សួស្តីបង", confirm: true })).body.result;
+    expect(done.changed).toBe(2);
+    expect(file()["សួស្តី"]).toBe("សួស្តីបង");
+    expect((await post("/api/learned/replace", { find: "ទិញបន្លែ", replace: "", confirm: true })).status).toBe(400);
+    expect(file()["ទៅផ្សារ"]).toBe("ទិញបន្លែ");
+  });
+
+  it("backup-diff និង prune-backups (ត្រូវការ confirm)", async () => {
+    const name = (await post("/api/learned/backup")).body.result.name;
+    await new Promise((r) => setTimeout(r, 5));
+    await post("/api/learned/bulk", { items: [{ q: "ថ្មី", a: "១" }, { q: "ផ្ទះ", a: "កែ" }] });
+    const df = (await get("/api/learned/backup-diff?name=" + enc(name))).body.result;
+    expect(df.added).toBe(1);
+    expect(df.changed).toBe(1);
+    expect(df.removed).toBe(0);
+    expect((await get("/api/learned/backup-diff?name=" + enc("../x.json"))).status).toBe(400);
+    const total = (await get("/api/learned/backups")).body.result.length;
+    expect(total).toBeGreaterThan(1);
+    const pre = (await post("/api/learned/prune-backups", { keep: 1 })).body.result;
+    expect(pre.confirmed).toBe(false);
+    expect(pre.wouldDelete.length).toBe(total - 1);
+    expect((await get("/api/learned/backups")).body.result.length).toBe(total);
+    const done = (await post("/api/learned/prune-backups", { keep: 1, confirm: true })).body.result;
+    expect(done.remaining).toBe(1);
+    expect((await get("/api/learned/backups")).body.result.length).toBe(1);
+  });
+
 });
