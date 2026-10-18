@@ -1,3 +1,4 @@
+import { EXTRA_ENTRIES_14 } from "./khmer.extra14.mjs";
 import { EXTRA_ENTRIES_13 } from "./khmer.extra13.mjs";
 import { EXTRA_ENTRIES_12 } from "./khmer.extra12.mjs";
 import { EXTRA_ENTRIES_11 } from "./khmer.extra11.mjs";
@@ -14011,6 +14012,7 @@ const ENTRIES = [
   ...EXTRA_ENTRIES_11,
   ...EXTRA_ENTRIES_12,
   ...EXTRA_ENTRIES_13,
+  ...EXTRA_ENTRIES_14,
 ];
 
 const fold = (s) => String(s).normalize("NFC").toLowerCase().replace(/\u17D2\u178A/g, "\u17D2\u178F");
