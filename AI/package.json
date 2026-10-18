@@ -8,13 +8,15 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "server": "node server.mjs",
-    "test": "vitest run",
+    "test": "vitest run --exclude \"**/node_modules/**\" --exclude \"**/dist/**\" --exclude \"**/patch.test.mjs\" --exclude \"**/sandbox.test.mjs\"",
     "typecheck": "tsc --noEmit",
     "verify:all": "npm run typecheck && npm run build && npm test && (cd ~/KHOEM_AI/KHOEM_AI/localization && npm run verify)",
     "validate:locales": "cd ~/KHOEM_AI/KHOEM_AI/localization && npm run validate:locales",
     "check:duplicates": "cd ~/KHOEM_AI/KHOEM_AI/localization && npm run check:duplicates",
     "report:translations": "cd ~/KHOEM_AI/KHOEM_AI/localization && npm run report:translations",
-    "verify": "cd ~/KHOEM_AI/KHOEM_AI/localization && npm run verify"
+    "verify": "cd ~/KHOEM_AI/KHOEM_AI/localization && npm run verify",
+    "test:slow": "vitest run src/ai/__tests__/patch.test.mjs src/ai/__tests__/sandbox.test.mjs",
+    "test:all": "npm test && npm run test:slow"
   },
   "dependencies": {
     "@khoem-ai/localization": "file:../../KHOEM_AI/KHOEM_AI/localization",
