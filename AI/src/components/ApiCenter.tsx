@@ -121,6 +121,62 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
     setBusy(false);
   }
 
+  async function probeIds() {
+    setBusy(true); setReport([]);
+    // [route មានបញ្ជី, template របស់ route :id, វាលយក id]
+    const T: [string, string][] = [
+      ["/api/ideas", "/api/ideas/:id"],
+      ["/api/plans", "/api/plans/:id"],
+      ["/api/experiments", "/api/experiments/:id"],
+      ["/api/tasks", "/api/tasks/:id"],
+      ["/api/tasks", "/api/budget/:id"],
+      ["/api/goals", "/api/goals/:id"],
+      ["/api/goals", "/api/goals/:id/progress"],
+      ["/api/approvals", "/api/approvals/:id"],
+      ["/api/characters", "/api/characters/:id"],
+      ["/api/characters", "/api/characters/:id/timeline"],
+      ["/api/characters", "/api/characters/:id/prompt"],
+      ["/api/characters", "/api/characters/:id/refs"],
+      ["/api/storyboards", "/api/storyboards/:id"],
+      ["/api/storyboards", "/api/storyboards/:id/continuity"],
+      ["/api/library", "/api/library/:id"],
+      ["/api/rollback/snapshots", "/api/rollback/snapshots/:id"],
+      ["/api/rollback/snapshots", "/api/rollback/plan/:id"],
+      ["/api/patch/proposals", "/api/patch/proposals/:id"],
+      ["/api/circuit", "/api/circuit/:id"],
+      ["/api/tools", "/api/tools/:id/risk"],
+    ];
+    const pickId = (j: any): string => {
+      const r = j?.result ?? j;
+      const arr: any[] = Array.isArray(r) ? r
+        : r?.items ?? r?.ideas ?? r?.plans ?? r?.experiments ?? r?.tasks ?? r?.goals ?? r?.approvals
+        ?? r?.characters ?? r?.storyboards ?? r?.snapshots ?? r?.proposals ?? r?.breakers ?? r?.tools ?? [];
+      const f: any = Array.isArray(arr) ? arr[0] : Object.keys(r ?? {})[0];
+      if (f == null) return "";
+      return typeof f === "string" ? f : String(f.id ?? f.name ?? f.taskId ?? "");
+    };
+    const out: string[] = [];
+    let ok = 0, skip = 0, bad = 0;
+    for (let i = 0; i < T.length; i++) {
+      const [list, tpl] = T[i];
+      try {
+        const id = pickId(await api(list));
+        if (!id) { skip++; out.push("⚠️ " + tpl + " (បញ្ជីទទេ)"); }
+        else {
+          const url = tpl.replace(":id", encodeURIComponent(id));
+          try { await api(url); ok++; out.push("✅ " + url); }
+          catch (e) {
+            const st = (e as any)?.status;
+            if (st === 404) { ok++; out.push("✅ " + url + " (404)"); }
+            else { bad++; out.push("❌ " + url + " (" + (st ?? "?") + ")"); }
+          }
+        }
+      } catch (e) { bad++; out.push("❌ " + list + " (" + ((e as any)?.status ?? "?") + ")"); }
+      setReport([(i + 1) + "/" + T.length + " · ✅ " + ok + " ⚠️ " + skip + " ❌ " + bad, ...out]);
+    }
+    setBusy(false);
+  }
+
   return (
     <div className="status-overlay" role="dialog" aria-label="API Center">
       <div className="status-panel">
@@ -140,7 +196,7 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
             {groups.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
           <button disabled={busy} onClick={checkAll}>{pickText(lang, "ពិនិត្យ GET ទាំងអស់", "Check all GET")}</button>
-          <button disabled={busy} onClick={probeWarn}>{pickText(lang, "សាក ⚠️ ដោយ query គំរូ", "Probe ⚠️ with sample query")}</button>
+          <button disabled={busy} onClick={probeIds}>{pickText(lang, "សាក route មាន :id", "Probe :id routes")}</button>\n          <button disabled={busy} onClick={probeWarn}>{pickText(lang, "សាក ⚠️ ដោយ query គំរូ", "Probe ⚠️ with sample query")}</button>
         </div>
 
         {report.length > 0 && (
