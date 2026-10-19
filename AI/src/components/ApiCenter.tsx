@@ -52,10 +52,21 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
     setBusy(true); setReport([]);
     const list = routes.filter((r) => r.method === "GET" && !r.path.includes(":"));
     const out: string[] = [];
-    for (const r of list) {
-      try { await api(r.path); out.push(`✅ ${r.path}`); }
-      catch (e: any) { out.push(`❌ ${r.path} (${e?.status ?? "?"})`); }
-      setReport([...out]);
+    let ok = 0, warn = 0, bad = 0;
+    for (let i = 0; i < list.length; i++) {
+      const r = list[i];
+      try {
+        await Promise.race([
+          api(r.path),
+          new Promise((_, rej) => setTimeout(() => rej({ status: "timeout", message: "timeout" }), 8000)),
+        ]);
+        ok++; out.push(`✅ ${r.path}`);
+      } catch (e: any) {
+        const st = e?.status;
+        if (st === 400 || st === 401 || st === 403) { warn++; out.push(`⚠️ ${r.path} (${st})`); }
+        else { bad++; out.push(`❌ ${r.path} (${st ?? "?"})`); }
+      }
+      setReport([`${i + 1}/${list.length} · ✅ ${ok} ⚠️ ${warn} ❌ ${bad}`, ...out]);
     }
     setBusy(false);
   }
@@ -82,7 +93,7 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
         </div>
 
         {report.length > 0 && (
-          <div className="status-card__extra" style={{ whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto" }}>
+          <div className="status-card__extra" style={{ whiteSpace: "pre-wrap", maxHeight: 360, overflow: "auto" }}>
             {report.join("\n")}
           </div>
         )}
