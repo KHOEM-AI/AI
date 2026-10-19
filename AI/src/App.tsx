@@ -177,7 +177,7 @@ function AppInner() {
                   <span aria-hidden="true">🔭</span> {k("ai.menu.observability") || "Observability"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🗂️</span> {k("ai.menu.management") || "Management"}
+                  <span aria-hidden="true">⚙️</span> {k("ai.menu.management") || "Management"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🛡</span> {k("ai.menu.safety") || "Safety"}
@@ -219,7 +219,7 @@ function AppInner() {
                 )}
                 {messages.length > 0 && (
                   <button className="app__sidebar-item" onClick={handleNewChat}>
-                    {t.navClearChat}
+                    <span aria-hidden="true">🧹</span> {t.navClearChat}
                   </button>
                 )}
               </nav>
