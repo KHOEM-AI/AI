@@ -90,6 +90,18 @@ function AppInner() {
   const [showDataCenter, setShowDataCenter] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showDone, setShowDone] = useState(false);
+  const wasSending = useRef(false);
+  useEffect(() => {
+    if (wasSending.current && !isSending && !error) {
+      setShowDone(true);
+      const t = setTimeout(() => setShowDone(false), 2000);
+      wasSending.current = isSending;
+      return () => clearTimeout(t);
+    }
+    if (isSending) setShowDone(false);
+    wasSending.current = isSending;
+  }, [isSending, error]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -249,6 +261,7 @@ function AppInner() {
 
           {isSending && <HeartbeatLogo state="thinking" width={120} />}
           {!isSending && error && <HeartbeatLogo state="error" width={120} />}
+          {!isSending && showDone && <HeartbeatLogo state="done" width={120} />}
           {isSending && (
             <div className="bubble bubble--assistant bubble--pending">
               <div className="bubble__text">{k("ai.menu.chatThinking") || t.thinking}</div>
