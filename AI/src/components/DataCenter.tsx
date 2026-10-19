@@ -43,7 +43,17 @@ const GROUPS: { name: string; ops: Op[] }[] = [
   { name: "Assets", ops: [
     { m: "GET", path: "/api/assets", desc: "ស្វែងរក", fields: ["q", "group", "country", "region", "tag"].map((k) => ({ k })).concat([{ k: "alcohol", ph: "true/false" } as any]) },
     { m: "GET", path: "/api/assets/pick", desc: "ជ្រើសសម្រាប់រឿង", fields: [{ k: "country" }, { k: "region" }, { k: "limit", kind: "number" }, { k: "groups", ph: "a,b" }, { k: "alcohol", ph: "true/false" }] },
-    { m: "POST", path: "/api/assets", desc: "បង្កើត asset", fields: BODY() },
+    { m: "POST", path: "/api/assets", desc: "បង្កើត asset (form)", fields: [
+      { k: "group", label: "group (ជ្រើស)", kind: "select", options: ["people","fashion","tech","vehicles","buildings","valuables","food","fruits","vegetables","farming","drinks","appliances","plants","kitchenware","places","animals"] },
+      { k: "nameKm", label: "nameKm (ឈ្មោះខ្មែរ)" }, { k: "nameEn", label: "nameEn" },
+      { k: "subgroup", label: "subgroup" },
+      { k: "region", label: "region", ph: "global (លំនាំដើម)" }, { k: "country", label: "country", ph: "KH" },
+      { k: "appearance", label: "appearance (រូបរាង)", kind: "area" },
+      { k: "imageRef", label: "imageRef: path ឬ https://..." },
+      { k: "actions", label: "actions (១ បន្ទាត់ ១ សកម្មភាព)", kind: "lines" },
+      { k: "tags", label: "tags (១ បន្ទាត់ ១ tag)", kind: "lines" },
+      { k: "alcohol", label: "alcohol", kind: "bool" }] },
+    { m: "POST", path: "/api/assets", desc: "បង្កើត asset (JSON)", fields: BODY() },
     { m: "POST", path: "/api/assets/seed", desc: "seed ទាំងអស់", danger: true },
   ] },
   { name: "Library", ops: [

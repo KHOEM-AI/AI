@@ -2,8 +2,8 @@ import { useState } from "react";
 import { pickText } from "../i18n";
 import { api } from "../api/client";
 
-export type Kind = "text" | "number" | "json" | "lines" | "bool" | "area";
-export type F = { k: string; label?: string; kind?: Kind; ph?: string };
+export type Kind = "text" | "number" | "json" | "lines" | "bool" | "area" | "select";
+export type F = { k: string; label?: string; kind?: Kind; ph?: string; options?: string[] };
 export type Op = {
   m: "GET" | "POST" | "DELETE";
   path: string;
@@ -91,7 +91,12 @@ export default function OpCard({ op, lang }: { op: Op; lang: any }) {
           );
         })}
         {(op.fields ?? []).map((f) =>
-          f.kind === "bool" ? (
+          f.kind === "select" ? (
+            <select key={f.k} value={v[f.k] ?? ""} onChange={(e) => set(f.k, e.target.value)} style={{ width: "100%" }}>
+              <option value="">{f.label ?? f.k}</option>
+              {(f.options ?? []).map((x) => <option key={x} value={x}>{x}</option>)}
+            </select>
+          ) : f.kind === "bool" ? (
             <label key={f.k}><input type="checkbox" checked={!!v[f.k]} onChange={(e) => set(f.k, e.target.checked)} /> {f.label ?? f.k}</label>
           ) : f.kind === "json" || f.kind === "lines" || f.kind === "area" ? (
             <textarea key={f.k} rows={5} placeholder={f.ph ?? f.label ?? f.k} value={v[f.k] ?? ""} onChange={(e) => set(f.k, e.target.value)} />
