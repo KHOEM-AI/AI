@@ -3,7 +3,7 @@ import { pickText } from "../i18n";
 import { api } from "../api/client";
 
 export type Kind = "text" | "number" | "json" | "lines" | "bool" | "area" | "select";
-export type F = { k: string; label?: string; kind?: Kind; ph?: string; options?: string[] };
+export type F = { k: string; label?: string; kind?: Kind; ph?: string; options?: string[]; optionsFrom?: { url: string; key?: string } };
 export type Op = {
   m: "GET" | "POST" | "DELETE";
   path: string;
@@ -23,9 +23,22 @@ export default function OpCard({ op, lang }: { op: Op; lang: any }) {
   const [out, setOut] = useState("");
   const [busy, setBusy] = useState(false);
   const [opts, setOpts] = useState<Record<string, string[]>>({});
+  const [dyn, setDyn] = useState<Record<string, string[]>>({});
   const set = (k: string, x: any) => setV((s) => ({ ...s, [k]: x }));
 
   async function loadPicks() {
+    for (const f of op.fields ?? []) {
+      const src = f.optionsFrom;
+      if (!src || dyn[f.k]) continue;
+      try {
+        const r: any = un(await api(src.url));
+        const raw: any = src.key ? r?.[src.key] : r;
+        const list: string[] = (Array.isArray(raw) ? raw : [])
+          .map((x: any) => (typeof x === "string" ? x : String(x?.id ?? x?.name ?? "")))
+          .filter(Boolean);
+        if (list.length) setDyn((s) => ({ ...s, [f.k]: list }));
+      } catch { /* ប្រើតម្លៃថេរ */ }
+    }
     for (const [k, url] of Object.entries(op.pick ?? {})) {
       if (opts[k]) continue;
       try {
@@ -94,7 +107,7 @@ export default function OpCard({ op, lang }: { op: Op; lang: any }) {
           f.kind === "select" ? (
             <select key={f.k} value={v[f.k] ?? ""} onChange={(e) => set(f.k, e.target.value)} style={{ width: "100%" }}>
               <option value="">{f.label ?? f.k}</option>
-              {(f.options ?? []).map((x) => <option key={x} value={x}>{x}</option>)}
+              {(dyn[f.k] ?? f.options ?? []).map((x) => <option key={x} value={x}>{x}</option>)}
             </select>
           ) : f.kind === "bool" ? (
             <label key={f.k}><input type="checkbox" checked={!!v[f.k]} onChange={(e) => set(f.k, e.target.checked)} /> {f.label ?? f.k}</label>
