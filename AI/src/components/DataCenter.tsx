@@ -103,9 +103,9 @@ const GROUPS: { name: string; ops: Op[] }[] = [
   { name: "វចនានុក្រម", ops: [
     { m: "GET", path: "/api/lexicon/domains", desc: "ដែន" },
     { m: "GET", path: "/api/lexicon/answer", desc: "ឆ្លើយជាខ្មែរ", fields: [{ k: "q" }] },
-    { m: "GET", path: "/api/lexicon", desc: "ស្វែងរកពាក្យ", fields: [{ k: "q" }, { k: "domain" }, { k: "limit", kind: "number" }] },
+    { m: "GET", path: "/api/lexicon", desc: "ស្វែងរកពាក្យ", fields: [{ k: "q" }, { k: "domain", label: "domain (ដែន)", kind: "select", options: ["hospital","science","country","food","body","family","greeting","time","number","nature","transport","school","law","money"] }, { k: "limit", kind: "number" }] },
     { m: "POST", path: "/api/lexicon", desc: "បន្ថែមពាក្យ", fields: [
-      { k: "domain" }, { k: "km", label: "km (ខ្មែរ)" }, { k: "en" }, { k: "defKm", label: "defKm (និយមន័យ)" }] },
+      { k: "domain", label: "domain (ដែន)", kind: "select", options: ["hospital","science","country","food","body","family","greeting","time","number","nature","transport","school","law","money"] }, { k: "km", label: "km (ខ្មែរ)" }, { k: "en" }, { k: "defKm", label: "defKm (និយមន័យ)" }] },
   ] },
   { name: "Hub", ops: [{ m: "GET", path: "/api/hub/status", desc: "ចំនួនទិន្នន័យក្នុងឃ្លាំង" }] },
   { name: "KHOEM", ops: [
