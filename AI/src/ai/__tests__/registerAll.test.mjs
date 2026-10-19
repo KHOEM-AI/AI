@@ -15,6 +15,8 @@ import { registerAllApis, API_MODULES } from "../registerAll.mjs";
 import { registerKhoemBridgeApi } from "../khoemBridgeApi.mjs";
 import * as khoem from "../khoemApi.mjs";
 
+process.env.KHOEM_API_KEY = "test-key-123";
+const H = { "x-api-key": "test-key-123" };
 let server;
 async function boot(modules) {
   const app = express();
@@ -42,14 +44,14 @@ describe("registerAll", () => {
   });
   it("khoem bridge: GET ជាប់ ហើយ translate ពិនិត្យ input", async () => {
     const { base } = await boot([{ name: "khoemBridge", register: registerKhoemBridgeApi }]);
-    expect((await (await fetch(`${base}/api/khoem/languages`)).json()).data).toEqual(["km"]);
-    expect((await (await fetch(`${base}/api/khoem/knowledge?q=a`)).json()).data).toBe("ចម្លើយ");
+    expect((await (await fetch(`${base}/api/khoem/languages`, { headers: H })).json()).data).toEqual(["km"]);
+    expect((await (await fetch(`${base}/api/khoem/knowledge?q=a`, { headers: H })).json()).data).toBe("ចម្លើយ");
     const bad = await fetch(`${base}/api/khoem/translate`, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+      method: "POST", headers: { "Content-Type": "application/json", ...H }, body: "{}",
     });
     expect(bad.status).toBe(400);
     const good = await fetch(`${base}/api/khoem/translate`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
+      method: "POST", headers: { "Content-Type": "application/json", ...H },
       body: JSON.stringify({ locale: "km", key: "hi" }),
     });
     expect((await good.json()).data).toBe("km:hi");
@@ -57,7 +59,7 @@ describe("registerAll", () => {
   it("khoem bridge: KHOEM API ខាងក្រៅដួល -> 502", async () => {
     khoem.khoemApiHealth.mockRejectedValueOnce(new Error("down"));
     const { base } = await boot([{ name: "khoemBridge", register: registerKhoemBridgeApi }]);
-    const r = await fetch(`${base}/api/khoem/health`);
+    const r = await fetch(`${base}/api/khoem/health`, { headers: H });
     expect(r.status).toBe(502);
     expect((await r.json()).error).toBe("down");
   });

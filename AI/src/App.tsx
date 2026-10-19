@@ -12,6 +12,7 @@ import SafetyCenter from "./components/SafetyCenter";
 import ToolRegistryCenter from "./components/ToolRegistryCenter";
 import LearningCenter from "./components/LearningCenter";
 import ApiCenter from "./components/ApiCenter";
+import DataCenter from "./components/DataCenter";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -85,6 +86,7 @@ function AppInner() {
   const [showToolRegistry, setShowToolRegistry] = useState(false);
   const [showLearningCenter, setShowLearningCenter] = useState(false);
   const [showApiCenter, setShowApiCenter] = useState(false);
+  const [showDataCenter, setShowDataCenter] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -164,6 +166,7 @@ function AppInner() {
                   {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
+                <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
@@ -293,6 +296,7 @@ function AppInner() {
         {showToolRegistry && <ErrorBoundary onClose={() => setShowToolRegistry(false)}><ToolRegistryCenter onClose={() => setShowToolRegistry(false)} /></ErrorBoundary>}
         {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
         {showApiCenter && <ErrorBoundary onClose={() => setShowApiCenter(false)}><ApiCenter onClose={() => setShowApiCenter(false)} /></ErrorBoundary>}
+        {showDataCenter && <ErrorBoundary onClose={() => setShowDataCenter(false)}><DataCenter onClose={() => setShowDataCenter(false)} /></ErrorBoundary>}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt

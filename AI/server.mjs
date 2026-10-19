@@ -89,7 +89,7 @@ const BRIDGE_GET = [
   "/api/metrics", "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget", "/api/rollback", "/api/tools", "/api/system/status",
   "/api/code", "/api/learned", "/api/library", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon", "/api/hub",
-  "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
+  "/api/khoem", "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
 ];
 const BRIDGE_POST = [
   "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
@@ -97,6 +97,7 @@ const BRIDGE_POST = [
   "/api/verify", "/api/learn", "/api/forget", "/api/code/scan",
   "/api/sandbox/test", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon", "/api/hub",
   "/api/self-consistency",
+  "/api/shotlist", "/api/khoem",
   "/api/learned/bulk", "/api/learned/update", "/api/learned/rename", "/api/learned/append", "/api/learned/import", "/api/learned/backup", "/api/learned/alias", "/api/learned/replace", "/api/learned/forget-bulk", "/api/learned/forget-prefix", "/api/learned/clean", "/api/learned/restore", "/api/learned/prune-backups",
 ];
 const matches = (list, p) => list.some((x) => p === x || p.startsWith(x + "/"));
@@ -105,7 +106,8 @@ app.use("/api", (req, res, next) => {
   const p = req.originalUrl.split("?")[0];
   const ok =
     (req.method === "GET" && matches(BRIDGE_GET, p)) ||
-    (req.method === "POST" && matches(BRIDGE_POST, p));
+    (req.method === "POST" && matches(BRIDGE_POST, p)) ||
+    /* BRIDGE_DELETE_REFS */ (req.method === "DELETE" && /^\/api\/characters\/[^/]+\/refs\/[^/]+$/.test(p));
   if (key && ok && !req.get("x-api-key")) req.headers["x-api-key"] = key;
   next();
 });
