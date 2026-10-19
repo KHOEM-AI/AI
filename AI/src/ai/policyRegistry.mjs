@@ -60,6 +60,7 @@ export const REGISTRY = {
   "ideas.create": { permission: "system.write", risk: RISK.LOW },
   "plan.read": { permission: "system.read", risk: RISK.LOW },
   "plan.create": { permission: "system.write", risk: RISK.LOW },
+  "agent.run": { permission: "system.write", risk: RISK.LOW },
   "experiment.read": { permission: "system.read", risk: RISK.LOW },
   "experiment.create": { permission: "system.write", risk: RISK.LOW },
   "experiment.transition": { permission: "system.write", risk: RISK.LOW },

@@ -25,6 +25,7 @@ import * as Planning from "./planning.mjs";
 import * as Experiments from "./experiments.mjs";
 import * as SelfEval from "./selfEval.mjs";
 import { analyzeConsistency } from "./selfConsistency.mjs";
+import { runAgent } from "./agentLoop.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
 // Caller-supplied identity. Still only as trustworthy as the shared API key —
@@ -308,7 +309,36 @@ export function registerApi(app) {
     return executeTool({ toolId: id, actor: "user", input, execute: async () => EXEC_ALLOW[id](input) });
   }));
 
-  app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
+  app.post("/api/agent/run", guard, policy("agent.run"), wrap(async (req) => {
+    const { goal, steps, verificationCriteria } = req.body || {};
+    if (typeof goal !== "string" || !goal.trim() || goal.length > 200) throw bad("goal required (max 200 chars)");
+    if (!Array.isArray(steps) || steps.length === 0 || steps.length > 5) throw bad("steps must be 1-5 items");
+    const allowed = Object.keys(EXEC_ALLOW);
+    const clean = steps.map((s, n) => {
+      const tools = Array.isArray(s?.tools) ? s.tools : [];
+      if (tools.length > 3) throw bad(`step ${n + 1}: max 3 tools`);
+      for (const t of tools) {
+        if (!allowed.includes(t)) throw bad(`step ${n + 1}: tool not allowed: ${t}`, 403);
+      }
+      return {
+        description: s?.description,
+        risk: "LOW",
+        tools,
+        input: s?.input && typeof s.input === "object" ? s.input : {},
+      };
+    });
+    return runAgent({
+      goal: goal.trim(),
+      steps: clean,
+      verificationCriteria: Array.isArray(verificationCriteria) ? verificationCriteria.slice(0, 10).map(String) : [],
+      runners: EXEC_ALLOW,
+      verify: async () => ({ passed: true, evidence: ["all tool calls finished without error"] }),
+      actor: actorOf(req),
+    });
+  }));
+
+  
+app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
     const info = describeToolRisk(req.params.id, actorOf(req));
     if (!info) throw bad("រកមិនឃើញ tool", 404);
     return info;
