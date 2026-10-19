@@ -141,7 +141,7 @@ export default function DataCenter({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        {group.ops.map((o) => <OpCard key={`${o.m} ${o.path}`} op={o} lang={lang} />)}
+        {group.ops.map((o) => <OpCard key={`${group.name}|${o.m} ${o.path}|${o.desc}`} op={o} lang={lang} />)}
 
         {missing && (
           <div className="status-panel__meta" style={{ marginTop: 12 }}>
