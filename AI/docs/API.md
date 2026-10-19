@@ -325,7 +325,7 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/hub/status` | — |
+| GET | `/api/hub/status` | — (guard តែប៉ុណ្ណោះ) |
 
 ### ideas
 
@@ -352,36 +352,36 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| POST | `/api/learned/alias` | — |
-| POST | `/api/learned/append` | — |
-| POST | `/api/learned/backup` | — |
+| POST | `/api/learned/alias` | `learning.write` |
+| POST | `/api/learned/append` | `learning.write` |
+| POST | `/api/learned/backup` | `learning.write` |
 | GET | `/api/learned/backup-diff` | `knowledge.readLearned` |
 | GET | `/api/learned/backups` | `knowledge.readLearned` |
-| POST | `/api/learned/bulk` | — |
+| POST | `/api/learned/bulk` | `learning.write` |
 | GET | `/api/learned/by-length` | `knowledge.readLearned` |
-| POST | `/api/learned/clean` | — |
-| POST | `/api/learned/clear` | — |
+| POST | `/api/learned/clean` | `learning.delete` |
+| POST | `/api/learned/clear` | `learning.delete` |
 | GET | `/api/learned/count` | `knowledge.readLearned` |
 | GET | `/api/learned/duplicates` | `knowledge.readLearned` |
 | GET | `/api/learned/exists` | `knowledge.readLearned` |
 | GET | `/api/learned/export` | `knowledge.readLearned` |
 | GET | `/api/learned/export.txt` | `knowledge.readLearned` |
-| POST | `/api/learned/forget-bulk` | — |
-| POST | `/api/learned/forget-prefix` | — |
+| POST | `/api/learned/forget-bulk` | `learning.delete` |
+| POST | `/api/learned/forget-prefix` | `learning.delete` |
 | GET | `/api/learned/get` | `knowledge.readLearned` |
 | GET | `/api/learned/health` | `knowledge.readLearned` |
-| POST | `/api/learned/import` | — |
+| POST | `/api/learned/import` | `learning.write` |
 | GET | `/api/learned/keys` | `knowledge.readLearned` |
 | GET | `/api/learned/lang-mix` | `knowledge.readLearned` |
 | GET | `/api/learned/longest` | `knowledge.readLearned` |
 | GET | `/api/learned/match` | `knowledge.readLearned` |
 | GET | `/api/learned/page` | `knowledge.readLearned` |
-| POST | `/api/learned/prune-backups` | — |
+| POST | `/api/learned/prune-backups` | `learning.delete` |
 | GET | `/api/learned/random` | `knowledge.readLearned` |
 | GET | `/api/learned/recent` | `knowledge.readLearned` |
-| POST | `/api/learned/rename` | — |
-| POST | `/api/learned/replace` | — |
-| POST | `/api/learned/restore` | — |
+| POST | `/api/learned/rename` | `learning.write` |
+| POST | `/api/learned/replace` | `learning.write` |
+| POST | `/api/learned/restore` | `learning.delete` |
 | GET | `/api/learned/routes` | `knowledge.readLearned` |
 | GET | `/api/learned/search` | `knowledge.readLearned` |
 | GET | `/api/learned/shortest` | `knowledge.readLearned` |
@@ -389,7 +389,7 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 | GET | `/api/learned/starts` | `knowledge.readLearned` |
 | GET | `/api/learned/stats` | `knowledge.readLearned` |
 | GET | `/api/learned/suggest` | `knowledge.readLearned` |
-| POST | `/api/learned/update` | — |
+| POST | `/api/learned/update` | `learning.write` |
 | GET | `/api/learned/validate` | `knowledge.readLearned` |
 | GET | `/api/learned/words` | `knowledge.readLearned` |
 
@@ -461,7 +461,7 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/registry` | — |
+| GET | `/api/registry` | — (សាធារណៈ គ្មាន guard) |
 
 ### rollback
 
@@ -476,7 +476,7 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/routes/all` | — |
+| GET | `/api/routes/all` | — (សាធារណៈ គ្មាន guard) |
 
 ### sandbox
 
