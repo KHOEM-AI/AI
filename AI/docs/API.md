@@ -205,7 +205,7 @@ audit, និង approval requests ។ គ្មាន secret នៅក្នុ
 
 ## បន្ថែម: route ដែលមិនទាន់មានខាងលើ (បង្កើតស្វ័យប្រវត្តិពី `/api/routes/all`)
 
-route ទាំងនេះមានក្នុង backend ពិត។ ជួរ Policy ទាញពី `policy("...")` ក្នុងកូដ (— = គ្មាន policy ឬកំណត់ក្នុងទម្រង់ផ្សេង)។
+route ទាំងនេះមានក្នុង backend ពិត។ ជួរ Policy ទាញពី `policy("...")` ក្នុងកូដ (— = មិនទាន់បញ្ជាក់; "guard តែប៉ុណ្ណោះ" = ត្រូវការ x-api-key តែគ្មាន policy ក្នុងកូដ)។
 
 ### api
 
@@ -223,10 +223,10 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/assets` | — |
-| POST | `/api/assets` | — |
-| GET | `/api/assets/pick` | — |
-| POST | `/api/assets/seed` | — |
+| GET | `/api/assets` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/assets` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/assets/pick` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/assets/seed` | — (guard តែប៉ុណ្ណោះ) |
 
 ### audit
 
@@ -246,15 +246,15 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/characters` | — |
-| POST | `/api/characters` | — |
-| GET | `/api/characters/:id` | — |
-| POST | `/api/characters/:id/merge` | — |
-| GET | `/api/characters/:id/prompt` | — |
+| GET | `/api/characters` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/characters` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/characters/:id` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/characters/:id/merge` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/characters/:id/prompt` | — (guard តែប៉ុណ្ណោះ) |
 | GET | `/api/characters/:id/refs` | `characters.read` |
 | POST | `/api/characters/:id/refs` | `characters.write` |
 | DELETE | `/api/characters/:id/refs/:n` | `characters.write` |
-| GET | `/api/characters/:id/timeline` | — |
+| GET | `/api/characters/:id/timeline` | — (guard តែប៉ុណ្ណោះ) |
 
 ### circuit
 
@@ -340,13 +340,13 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/khoem/coverage` | — |
-| GET | `/api/khoem/health` | — |
-| GET | `/api/khoem/khmer` | — |
-| GET | `/api/khoem/knowledge` | — |
-| GET | `/api/khoem/languages` | — |
-| GET | `/api/khoem/locales` | — |
-| POST | `/api/khoem/translate` | — |
+| GET | `/api/khoem/coverage` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/khoem/health` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/khoem/khmer` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/khoem/knowledge` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/khoem/languages` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/khoem/locales` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/khoem/translate` | — (guard តែប៉ុណ្ណោះ) |
 
 ### learned
 
@@ -355,60 +355,60 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 | POST | `/api/learned/alias` | — |
 | POST | `/api/learned/append` | — |
 | POST | `/api/learned/backup` | — |
-| GET | `/api/learned/backup-diff` | — |
-| GET | `/api/learned/backups` | — |
+| GET | `/api/learned/backup-diff` | `knowledge.readLearned` |
+| GET | `/api/learned/backups` | `knowledge.readLearned` |
 | POST | `/api/learned/bulk` | — |
-| GET | `/api/learned/by-length` | — |
+| GET | `/api/learned/by-length` | `knowledge.readLearned` |
 | POST | `/api/learned/clean` | — |
 | POST | `/api/learned/clear` | — |
-| GET | `/api/learned/count` | — |
-| GET | `/api/learned/duplicates` | — |
-| GET | `/api/learned/exists` | — |
-| GET | `/api/learned/export` | — |
-| GET | `/api/learned/export.txt` | — |
+| GET | `/api/learned/count` | `knowledge.readLearned` |
+| GET | `/api/learned/duplicates` | `knowledge.readLearned` |
+| GET | `/api/learned/exists` | `knowledge.readLearned` |
+| GET | `/api/learned/export` | `knowledge.readLearned` |
+| GET | `/api/learned/export.txt` | `knowledge.readLearned` |
 | POST | `/api/learned/forget-bulk` | — |
 | POST | `/api/learned/forget-prefix` | — |
-| GET | `/api/learned/get` | — |
-| GET | `/api/learned/health` | — |
+| GET | `/api/learned/get` | `knowledge.readLearned` |
+| GET | `/api/learned/health` | `knowledge.readLearned` |
 | POST | `/api/learned/import` | — |
-| GET | `/api/learned/keys` | — |
-| GET | `/api/learned/lang-mix` | — |
-| GET | `/api/learned/longest` | — |
-| GET | `/api/learned/match` | — |
-| GET | `/api/learned/page` | — |
+| GET | `/api/learned/keys` | `knowledge.readLearned` |
+| GET | `/api/learned/lang-mix` | `knowledge.readLearned` |
+| GET | `/api/learned/longest` | `knowledge.readLearned` |
+| GET | `/api/learned/match` | `knowledge.readLearned` |
+| GET | `/api/learned/page` | `knowledge.readLearned` |
 | POST | `/api/learned/prune-backups` | — |
-| GET | `/api/learned/random` | — |
-| GET | `/api/learned/recent` | — |
+| GET | `/api/learned/random` | `knowledge.readLearned` |
+| GET | `/api/learned/recent` | `knowledge.readLearned` |
 | POST | `/api/learned/rename` | — |
 | POST | `/api/learned/replace` | — |
 | POST | `/api/learned/restore` | — |
-| GET | `/api/learned/routes` | — |
-| GET | `/api/learned/search` | — |
-| GET | `/api/learned/shortest` | — |
-| GET | `/api/learned/similar` | — |
-| GET | `/api/learned/starts` | — |
-| GET | `/api/learned/stats` | — |
-| GET | `/api/learned/suggest` | — |
+| GET | `/api/learned/routes` | `knowledge.readLearned` |
+| GET | `/api/learned/search` | `knowledge.readLearned` |
+| GET | `/api/learned/shortest` | `knowledge.readLearned` |
+| GET | `/api/learned/similar` | `knowledge.readLearned` |
+| GET | `/api/learned/starts` | `knowledge.readLearned` |
+| GET | `/api/learned/stats` | `knowledge.readLearned` |
+| GET | `/api/learned/suggest` | `knowledge.readLearned` |
 | POST | `/api/learned/update` | — |
-| GET | `/api/learned/validate` | — |
-| GET | `/api/learned/words` | — |
+| GET | `/api/learned/validate` | `knowledge.readLearned` |
+| GET | `/api/learned/words` | `knowledge.readLearned` |
 
 ### lexicon
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/lexicon` | — |
-| POST | `/api/lexicon` | — |
-| GET | `/api/lexicon/answer` | — |
-| GET | `/api/lexicon/domains` | — |
+| GET | `/api/lexicon` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/lexicon` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/lexicon/answer` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/lexicon/domains` | — (guard តែប៉ុណ្ណោះ) |
 
 ### library
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/library` | — |
-| GET | `/api/library/:id` | — |
-| GET | `/api/library/groups` | — |
+| GET | `/api/library` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/library/:id` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/library/groups` | — (guard តែប៉ុណ្ណោះ) |
 
 ### metrics
 
@@ -506,15 +506,15 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/storyboards` | — |
-| POST | `/api/storyboards` | — |
-| GET | `/api/storyboards/:id` | — |
-| GET | `/api/storyboards/:id/continuity` | — |
-| POST | `/api/storyboards/:id/scenes` | — |
-| POST | `/api/storyboards/:id/scenes/:sc` | — |
-| GET | `/api/storyboards/:id/scenes/:sc/prompt` | — |
-| POST | `/api/storyboards/:id/scenes/:sc/status` | — |
-| GET | `/api/storyboards/options` | — |
+| GET | `/api/storyboards` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/storyboards` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/storyboards/:id` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/storyboards/:id/continuity` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/storyboards/:id/scenes` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/storyboards/:id/scenes/:sc` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/storyboards/:id/scenes/:sc/prompt` | — (guard តែប៉ុណ្ណោះ) |
+| POST | `/api/storyboards/:id/scenes/:sc/status` | — (guard តែប៉ុណ្ណោះ) |
+| GET | `/api/storyboards/options` | — (guard តែប៉ុណ្ណោះ) |
 
 ### system
 
