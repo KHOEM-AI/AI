@@ -77,6 +77,50 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
     setBusy(false);
   }
 
+  async function probeWarn() {
+    setBusy(true); setReport([]);
+    const q = encodeURIComponent("សួស្តី");
+    const f = encodeURIComponent("src/App.tsx");
+    let backup = "";
+    try {
+      const b: any = await api("/api/learned/backups");
+      const r = b?.result ?? b;
+      const arr = Array.isArray(r) ? r : r?.items ?? r?.backups ?? [];
+      const first = arr[0];
+      backup = typeof first === "string" ? first : first?.name ?? "";
+    } catch { /* មិនបាច់ */ }
+    const tests: [string, string][] = [
+      ["/api/find", "?q=" + q], ["/api/tools/find", "?q=" + q],
+      ["/api/funcs", "?file=" + f], ["/api/read", "?file=" + f],
+      ["/api/code/dependencies", "?file=" + f], ["/api/code/dependents", "?file=" + f],
+      ["/api/code/symbol", "?name=App"],
+      ["/api/learned/get", "?q=" + q], ["/api/learned/exists", "?q=" + q],
+      ["/api/learned/match", "?q=" + q], ["/api/learned/search", "?q=" + q],
+      ["/api/learned/similar", "?q=" + q], ["/api/learned/suggest", "?q=" + q],
+      ["/api/learned/starts", "?prefix=" + encodeURIComponent("សួស្")],
+      ["/api/learned/backup-diff", "?name=" + encodeURIComponent(backup)],
+    ];
+    const out: string[] = [];
+    let ok = 0, bad = 0;
+    for (let i = 0; i < tests.length; i++) {
+      const [p, qs] = tests[i];
+      if (p.endsWith("backup-diff") && !backup) { out.push("⚠️ " + p + " (គ្មាន backup)"); continue; }
+      try {
+        await Promise.race([
+          api(p + qs),
+          new Promise((_, rej) => setTimeout(() => rej({ status: "timeout" }), p.startsWith("/api/code/") ? 60000 : 8000)),
+        ]);
+        ok++; out.push("✅ " + p + qs);
+      } catch (e) {
+        const st = (e as any)?.status;
+        if (st === 404) { ok++; out.push("✅ " + p + " (404 គ្មានទិន្នន័យ)"); }
+        else { bad++; out.push("❌ " + p + " (" + (st ?? "?") + ")"); }
+      }
+      setReport([(i + 1) + "/" + tests.length + " · ✅ " + ok + " ❌ " + bad, ...out]);
+    }
+    setBusy(false);
+  }
+
   return (
     <div className="status-overlay" role="dialog" aria-label="API Center">
       <div className="status-panel">
@@ -96,6 +140,7 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
             {groups.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
           <button disabled={busy} onClick={checkAll}>{pickText(lang, "ពិនិត្យ GET ទាំងអស់", "Check all GET")}</button>
+          <button disabled={busy} onClick={probeWarn}>{pickText(lang, "សាក ⚠️ ដោយ query គំរូ", "Probe ⚠️ with sample query")}</button>
         </div>
 
         {report.length > 0 && (
