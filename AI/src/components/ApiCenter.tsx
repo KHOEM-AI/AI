@@ -196,7 +196,8 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
             {groups.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
           <button disabled={busy} onClick={checkAll}>{pickText(lang, "ពិនិត្យ GET ទាំងអស់", "Check all GET")}</button>
-          <button disabled={busy} onClick={probeIds}>{pickText(lang, "សាក route មាន :id", "Probe :id routes")}</button>\n          <button disabled={busy} onClick={probeWarn}>{pickText(lang, "សាក ⚠️ ដោយ query គំរូ", "Probe ⚠️ with sample query")}</button>
+          <button disabled={busy} onClick={probeIds}>{pickText(lang, "សាក route មាន :id", "Probe :id routes")}</button>
+          <button disabled={busy} onClick={probeWarn}>{pickText(lang, "សាក ⚠️ ដោយ query គំរូ", "Probe ⚠️ with sample query")}</button>
         </div>
 
         {report.length > 0 && (
