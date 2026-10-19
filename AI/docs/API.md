@@ -211,7 +211,7 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api` | — |
+| GET | `/api` | — (server.mjs: គ្មាន guard/policy ក្នុង route) |
 
 ### approvals
 
@@ -281,7 +281,7 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/control` | — |
+| GET | `/api/control` | — (server.mjs: គ្មាន guard/policy ក្នុង route) |
 
 ### experiments
 
@@ -319,7 +319,7 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/health` | — |
+| GET | `/api/health` | — (server.mjs: គ្មាន guard/policy ក្នុង route) |
 
 ### hub
 
@@ -428,7 +428,7 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 
 | Method | Endpoint | Policy |
 |---|---|---|
-| GET | `/api/models` | — |
+| GET | `/api/models` | — (server.mjs: គ្មាន guard/policy ក្នុង route) |
 
 ### patch
 
