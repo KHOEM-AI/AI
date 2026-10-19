@@ -1,4 +1,7 @@
 import { EXTRA_ENTRIES_15 } from "./khmer.extra15.mjs";
+import { EXTRA_ENTRIES_16 } from "./khmer.extra16.mjs";
+import { EXTRA_ENTRIES_17 } from "./khmer.extra17.mjs";
+import { EXTRA_ENTRIES_18 } from "./khmer.extra18.mjs";
 import { EXTRA_ENTRIES_14 } from "./khmer.extra14.mjs";
 import { EXTRA_ENTRIES_13 } from "./khmer.extra13.mjs";
 import { EXTRA_ENTRIES_12 } from "./khmer.extra12.mjs";
@@ -14102,6 +14105,9 @@ const ENTRIES = [
   ...EXTRA_ENTRIES_13,
   ...EXTRA_ENTRIES_14,
   ...EXTRA_ENTRIES_15,
+  ...EXTRA_ENTRIES_16,
+  ...EXTRA_ENTRIES_17,
+  ...EXTRA_ENTRIES_18,
   // ===== EXTRA 30 =====
   ["ខ្ញុំងងុយគេង|ខ្ញុំចង់គេង","បើងងុយ សូមគេងឱ្យគ្រប់ ៧ ដល់ ៩ ម៉ោង។ កុំបើកបរពេលងងុយ ហើយទុកទូរស័ព្ទឆ្ងាយមុនគេង។"],
   ["ខ្ញុំឈឺក្បាល|ឈឺក្បាលធ្វើម៉េច","សម្រាក ផឹកទឹក ហើយគេងឱ្យគ្រប់។ បើឈឺខ្លាំងភ្លាមៗ គ្រុនក្តៅ កញ្ចឹងកតឹង ឬមើលមិនច្បាស់ សូមទៅពេទ្យភ្លាម។"],
