@@ -85,8 +85,9 @@ export function englishReply(text, learned = {}, honorific = "") {
     if (k === norm) return say(v);
   }
 
+  const hasWord = (s, k) => new RegExp("(^|[^a-z0-9'])" + k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "($|[^a-z0-9'])").test(s);
   const matches = [...SEED.entries()]
-    .filter(([k]) => norm.includes(k))
+    .filter(([k]) => hasWord(norm, k))
     .sort(([a], [b]) => b.length - a.length);
 
   if (matches.length > 0) {

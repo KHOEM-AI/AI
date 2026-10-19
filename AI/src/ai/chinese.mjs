@@ -50,6 +50,7 @@ const UNSURE_ZH = "抱歉，我还不太明白 🙂 可以换个简单的说法�
 export function chineseReply(text, learned = {}) {
   const q = String(text || "").trim();
   if (!q) return UNSURE_ZH;
+  if (q.startsWith("/") && q !== "/help") return null;
 
   if (q === "/help" || q === "帮助") return HELP_ZH;
 
@@ -62,10 +63,10 @@ export function chineseReply(text, learned = {}) {
   // Substring containment fallback — Chinese has no spaces between words,
   // so simple keyword containment works better than English's word-split approach.
   for (const [k, v] of SEED) {
-    if (q.includes(k.split("|")[0]) || k.split("|").some((alt) => q.includes(alt))) {
+    if (k.split("|").some((alt) => alt.length > 1 && q.includes(alt))) {
       return say(v);
     }
   }
 
-  return UNSURE_ZH;
+  return null;
 }

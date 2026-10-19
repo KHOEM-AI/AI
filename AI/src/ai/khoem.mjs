@@ -304,5 +304,5 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
   } catch (e) {
     // ignore
   }
-  return l === "km" ? SAY.km.unknown(honorific) : SAY.en.unknown;
+  return l === "km" ? SAY.km.unknown(honorific) : (SAY[l]?.unknown ?? SAY.en.unknown);
 }
