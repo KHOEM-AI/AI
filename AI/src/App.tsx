@@ -154,42 +154,42 @@ function AppInner() {
 
               <nav className="app__sidebar-nav">
                 <button className="app__sidebar-item" onClick={() => { setShowStatus(true); setShowMenu(false); }}>
-                  {t.navStatus}
+                  <span aria-hidden="true">📊</span> {t.navStatus}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowControl(true); setShowMenu(false); }}>
-                  {t.navControlCenter}
+                  <span aria-hidden="true">🎛</span> {t.navControlCenter}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowPatchDashboard(true); setShowMenu(false); }}>
-                  {k("ai.menu.patchDashboard") || "Patch Dashboard"}
+                  <span aria-hidden="true">🧩</span> {k("ai.menu.patchDashboard") || "Patch Dashboard"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowCodeCenter(true); setShowMenu(false); }}>
-                  {k("ai.menu.codeCenter") || "Code Center"}
+                  <span aria-hidden="true">💻</span> {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
-                  {k("ai.menu.learningCenter") || "Learning Center"}
+                  <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowAuditMetrics(true); setShowMenu(false); }}>
-                  {k("ai.menu.auditMetrics") || "Audit & Metrics"}
+                  <span aria-hidden="true">📈</span> {k("ai.menu.auditMetrics") || "Audit & Metrics"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
-                  {k("ai.menu.observability") || "Observability"}
+                  <span aria-hidden="true">🔭</span> {k("ai.menu.observability") || "Observability"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
-                  {k("ai.menu.management") || "Management"}
+                  <span aria-hidden="true">🗂️</span> {k("ai.menu.management") || "Management"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
-                  {k("ai.menu.safety") || "Safety"}
+                  <span aria-hidden="true">🛡</span> {k("ai.menu.safety") || "Safety"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
-                  {k("ai.menu.toolRegistry") || "Tool Registry"}
+                  <span aria-hidden="true">🧰</span> {k("ai.menu.toolRegistry") || "Tool Registry"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
-                  {t.navHonorific}
+                  <span aria-hidden="true">🙏</span> {t.navHonorific}
                 </button>
                 <button className="app__sidebar-item" onClick={() => setShowLanguage((v) => !v)}>
-                  {t.navLanguage} · {khoemLanguageOptions.find((o) => o.code === language)?.label ?? language}
+                  <span aria-hidden="true">🌐</span> {t.navLanguage} · {khoemLanguageOptions.find((o) => o.code === language)?.label ?? language}
                 </button>
                 {showLanguage && (
                   <div className="language-panel__list language-panel__list--inline">
