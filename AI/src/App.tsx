@@ -1,5 +1,6 @@
 import khoemLogo from "./assets/khoem-ai-logo.webp";
 import { Fragment, useEffect, useRef, useState } from "react";
+import HeartbeatLogo from "./components/HeartbeatLogo";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
 import ControlCenter from "./components/ControlCenter";
@@ -246,6 +247,8 @@ function AppInner() {
           </Fragment>
           ))}
 
+          {isSending && <HeartbeatLogo state="thinking" width={120} />}
+          {!isSending && error && <HeartbeatLogo state="error" width={120} />}
           {isSending && (
             <div className="bubble bubble--assistant bubble--pending">
               <div className="bubble__text">{k("ai.menu.chatThinking") || t.thinking}</div>

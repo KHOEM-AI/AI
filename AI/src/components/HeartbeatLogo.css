@@ -1,0 +1,15 @@
+.hb { display: block; margin: 6px 0 6px 12px; overflow: visible; }
+.hb path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.hb__wave { stroke-width: 2.2; }
+.hb__glow { stroke-width: 6; opacity: .3; filter: blur(3px); }
+.hb__a path { stroke: #22c55e; }
+.hb__b path { stroke: #38bdf8; }
+.hb__b { transform: scaleY(-1); transform-origin: center; transform-box: fill-box; }
+.hb--idle .hb__a path, .hb--idle .hb__b path { opacity: .35; }
+.hb--thinking .hb__a path { stroke-dasharray: 150; animation: hb-run 1.8s linear infinite; }
+.hb--thinking .hb__b path { stroke-dasharray: 150; animation: hb-run 1.8s linear infinite; animation-delay: .35s; }
+.hb--done .hb__a path { stroke: #22c55e; }
+.hb--done .hb__b path { stroke: #22c55e; }
+.hb--error .hb__a path, .hb--error .hb__b path { stroke: #ef4444; stroke-dasharray: 6 5; }
+@keyframes hb-run { from { stroke-dashoffset: 150; } to { stroke-dashoffset: -150; } }
+@media (prefers-reduced-motion: reduce) { .hb * { animation: none !important; } }
