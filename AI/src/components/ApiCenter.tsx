@@ -51,23 +51,29 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
   async function checkAll() {
     setBusy(true); setReport([]);
     const list = routes.filter((r) => r.method === "GET" && !r.path.includes(":"));
-    const out: string[] = [];
-    let ok = 0, warn = 0, bad = 0;
-    for (let i = 0; i < list.length; i++) {
-      const r = list[i];
-      try {
-        await Promise.race([
-          api(r.path),
-          new Promise((_, rej) => setTimeout(() => rej({ status: "timeout", message: "timeout" }), 8000)),
-        ]);
-        ok++; out.push(`✅ ${r.path}`);
-      } catch (e: any) {
-        const st = e?.status;
-        if (st === 400 || st === 401 || st === 403) { warn++; out.push(`⚠️ ${r.path} (${st})`); }
-        else { bad++; out.push(`❌ ${r.path} (${st ?? "?"})`); }
+    const res: string[] = new Array(list.length).fill("");
+    let ok = 0, warn = 0, bad = 0, done = 0, next = 0;
+    const push = () => setReport([`${done}/${list.length} · ✅ ${ok} ⚠️ ${warn} ❌ ${bad}`, ...res.filter(Boolean)]);
+    const worker = async () => {
+      while (next < list.length) {
+        const i = next++;
+        const r = list[i];
+        const ms = r.path.startsWith("/api/code/") ? 60000 : 8000;
+        try {
+          await Promise.race([
+            api(r.path),
+            new Promise((_, rej) => setTimeout(() => rej({ status: "timeout" }), ms)),
+          ]);
+          ok++; res[i] = `✅ ${r.path}`;
+        } catch (e) {
+          const st = (e as any)?.status;
+          if (st === 400 || st === 401 || st === 403) { warn++; res[i] = `⚠️ ${r.path} (${st})`; }
+          else { bad++; res[i] = `❌ ${r.path} (${st ?? "?"})`; }
+        }
+        done++; push();
       }
-      setReport([`${i + 1}/${list.length} · ✅ ${ok} ⚠️ ${warn} ❌ ${bad}`, ...out]);
-    }
+    };
+    await Promise.all(Array.from({ length: 4 }, worker));
     setBusy(false);
   }
 
@@ -93,12 +99,12 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
         </div>
 
         {report.length > 0 && (
-          <div className="status-card__extra" style={{ whiteSpace: "pre-wrap", maxHeight: 360, overflow: "auto" }}>
+          <div className="status-card__extra" style={{ whiteSpace: "pre-wrap", maxHeight: "55vh", overflow: "auto" }}>
             {report.join("\n")}
           </div>
         )}
 
-        <div className="status-card__extra" style={{ maxHeight: 220, overflow: "auto" }}>
+        <div className="status-card__extra" style={{ maxHeight: "40vh", overflow: "auto" }}>
           {shown.map((r) => (
             <div key={r.method + r.path} style={{ cursor: "pointer", fontWeight: sel === r ? 700 : 400 }}
               onClick={() => { setSel(r); setVals({}); setQuery(""); setBody("{}"); setResult(""); }}>
@@ -120,7 +126,7 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
             <button disabled={busy} onClick={run}>{pickText(lang, "ហៅ", "Run")}</button>
           </div>
         )}
-        {result && <div className="status-card__extra" style={{ whiteSpace: "pre-wrap", maxHeight: 260, overflow: "auto" }}>{result}</div>}
+        {result && <div className="status-card__extra" style={{ whiteSpace: "pre-wrap", maxHeight: "50vh", overflow: "auto" }}>{result}</div>}
       </div>
     </div>
   );
