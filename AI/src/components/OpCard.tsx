@@ -63,7 +63,7 @@ export default function OpCard({ op, lang }: { op: Op; lang: any }) {
         } else if (f.kind === "lines") val = String(x).split("\n").map((s) => s.trim()).filter(Boolean);
         if (op.m === "GET") q[f.k] = String(val);
         else if (f.k === "*") Object.assign(b, val);
-        else b[f.k] = val;
+        else if (f.k.includes(".")) { const [g, h] = f.k.split("."); b[g] = { ...(b[g] ?? {}), [h]: val }; } else b[f.k] = val;
       }
       if (op.m === "GET") {
         const qs = new URLSearchParams(q).toString();
