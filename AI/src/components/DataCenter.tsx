@@ -31,8 +31,8 @@ const GROUPS: { name: string; ops: Op[] }[] = [
     { m: "GET", path: "/api/storyboards/options", desc: "ជម្រើស" },
     { m: "POST", path: "/api/storyboards", desc: "បង្កើត", fields: [
       { k: "title", label: "title" },
-      { k: "style", label: "style", ph: "animation | 3d | realistic | cinematic" },
-      { k: "aspect", label: "aspect", ph: "16:9 | 9:16 | 1:1" }] },
+      { k: "style", label: "style", kind: "select", options: ["animation","3d","realistic","cinematic"] },
+      { k: "aspect", label: "aspect", kind: "select", options: ["16:9","9:16","1:1"] }] },
     { m: "GET", path: "/api/storyboards/:id", desc: "ព័ត៌មាន", pick: SB },
     { m: "GET", path: "/api/storyboards/:id/continuity", desc: "continuity", pick: SB },
     { m: "POST", path: "/api/storyboards/:id/scenes", desc: "បន្ថែម scene (form)", pick: SB, fields: [
@@ -54,7 +54,7 @@ const GROUPS: { name: string; ops: Op[] }[] = [
       { k: "dialogue", label: "dialogue JSON", kind: "json", ph: '[{"speaker":"narrator","text":"","emotion":""}]' }] },
     { m: "POST", path: "/api/storyboards/:id/scenes", desc: "បន្ថែម scene (JSON)", pick: SB, fields: BODY() },
     { m: "POST", path: "/api/storyboards/:id/scenes/:sc", desc: "កែ scene", pick: SB, fields: BODY() },
-    { m: "POST", path: "/api/storyboards/:id/scenes/:sc/status", desc: "ប្ដូរ status", pick: SB, fields: [{ k: "status", label: "status", ph: "draft | approved | needs_regen" }] },
+    { m: "POST", path: "/api/storyboards/:id/scenes/:sc/status", desc: "ប្ដូរ status", pick: SB, fields: [{ k: "status", label: "status", kind: "select", options: ["draft","approved","needs_regen"] }] },
     { m: "GET", path: "/api/storyboards/:id/scenes/:sc/prompt", desc: "prompt របស់ scene", pick: SB },
   ] },
   { name: "Assets", ops: [
