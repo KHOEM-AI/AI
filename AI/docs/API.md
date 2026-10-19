@@ -205,346 +205,346 @@ audit, និង approval requests ។ គ្មាន secret នៅក្នុ
 
 ## បន្ថែម: route ដែលមិនទាន់មានខាងលើ (បង្កើតស្វ័យប្រវត្តិពី `/api/routes/all`)
 
-route ទាំងនេះមានក្នុង backend ពិត។ ជួរ policy/risk មិនទាន់ចុះ ព្រោះមិនទាន់បញ្ជាក់។ ពិនិត្យ `src/ai/*.mjs` សម្រាប់ policy។
+route ទាំងនេះមានក្នុង backend ពិត។ ជួរ Policy ទាញពី `policy("...")` ក្នុងកូដ (— = គ្មាន policy ឬកំណត់ក្នុងទម្រង់ផ្សេង)។
 
 ### api
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api` | — |
 
 ### approvals
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/approvals/test-action` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/approvals/test-action` | `approval.test.high-risk` |
 
 ### assets
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/assets` |
-| POST | `/api/assets` |
-| GET | `/api/assets/pick` |
-| POST | `/api/assets/seed` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/assets` | — |
+| POST | `/api/assets` | — |
+| GET | `/api/assets/pick` | — |
+| POST | `/api/assets/seed` | — |
 
 ### audit
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/audit` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/audit` | `audit.read` |
 
 ### budget
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/budget` |
-| GET | `/api/budget/:taskId` |
-| POST | `/api/budget/create` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/budget` | `budget.check` |
+| GET | `/api/budget/:taskId` | `budget.check` |
+| POST | `/api/budget/create` | `budget.check` |
 
 ### characters
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/characters` |
-| POST | `/api/characters` |
-| GET | `/api/characters/:id` |
-| POST | `/api/characters/:id/merge` |
-| GET | `/api/characters/:id/prompt` |
-| GET | `/api/characters/:id/refs` |
-| POST | `/api/characters/:id/refs` |
-| DELETE | `/api/characters/:id/refs/:n` |
-| GET | `/api/characters/:id/timeline` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/characters` | — |
+| POST | `/api/characters` | — |
+| GET | `/api/characters/:id` | — |
+| POST | `/api/characters/:id/merge` | — |
+| GET | `/api/characters/:id/prompt` | — |
+| GET | `/api/characters/:id/refs` | `characters.read` |
+| POST | `/api/characters/:id/refs` | `characters.write` |
+| DELETE | `/api/characters/:id/refs/:n` | `characters.write` |
+| GET | `/api/characters/:id/timeline` | — |
 
 ### circuit
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/circuit` |
-| GET | `/api/circuit/:name` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/circuit` | `circuit.check` |
+| GET | `/api/circuit/:name` | `circuit.check` |
 
 ### code
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/code/circular` |
-| GET | `/api/code/dependencies` |
-| GET | `/api/code/dependents` |
-| GET | `/api/code/findings` |
-| GET | `/api/code/health` |
-| GET | `/api/code/index` |
-| POST | `/api/code/scan` |
-| GET | `/api/code/symbol` |
-| GET | `/api/code/symbols` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/code/circular` | `code.read` |
+| GET | `/api/code/dependencies` | `code.read` |
+| GET | `/api/code/dependents` | `code.read` |
+| GET | `/api/code/findings` | `code.read` |
+| GET | `/api/code/health` | `code.read` |
+| GET | `/api/code/index` | `code.read` |
+| POST | `/api/code/scan` | `code.scan` |
+| GET | `/api/code/symbol` | `code.read` |
+| GET | `/api/code/symbols` | `code.read` |
 
 ### control
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/control` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/control` | — |
 
 ### experiments
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/experiments` |
-| POST | `/api/experiments` |
-| GET | `/api/experiments/:id` |
-| POST | `/api/experiments/:id/transition` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/experiments` | `experiment.read` |
+| POST | `/api/experiments` | `experiment.create` |
+| GET | `/api/experiments/:id` | `experiment.read` |
+| POST | `/api/experiments/:id/transition` | `experiment.transition` |
 
 ### find
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/find` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/find` | `tool.find` |
 
 ### funcs
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/funcs` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/funcs` | `tool.funcs` |
 
 ### goals
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/goals` |
-| POST | `/api/goals` |
-| GET | `/api/goals/:id` |
-| POST | `/api/goals/:id/link` |
-| GET | `/api/goals/:id/progress` |
-| POST | `/api/goals/:id/status` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/goals` | `goal.read` |
+| POST | `/api/goals` | `goal.create` |
+| GET | `/api/goals/:id` | `goal.read` |
+| POST | `/api/goals/:id/link` | `goal.link` |
+| GET | `/api/goals/:id/progress` | `goal.read` |
+| POST | `/api/goals/:id/status` | `goal.setStatus` |
 
 ### health
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/health` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/health` | — |
 
 ### hub
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/hub/status` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/hub/status` | — |
 
 ### ideas
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/ideas` |
-| POST | `/api/ideas` |
-| GET | `/api/ideas/:id` |
-| GET | `/api/ideas/rank` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/ideas` | `ideas.read` |
+| POST | `/api/ideas` | `ideas.create` |
+| GET | `/api/ideas/:id` | `ideas.read` |
+| GET | `/api/ideas/rank` | `ideas.read` |
 
 ### khoem
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/khoem/coverage` |
-| GET | `/api/khoem/health` |
-| GET | `/api/khoem/khmer` |
-| GET | `/api/khoem/knowledge` |
-| GET | `/api/khoem/languages` |
-| GET | `/api/khoem/locales` |
-| POST | `/api/khoem/translate` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/khoem/coverage` | — |
+| GET | `/api/khoem/health` | — |
+| GET | `/api/khoem/khmer` | — |
+| GET | `/api/khoem/knowledge` | — |
+| GET | `/api/khoem/languages` | — |
+| GET | `/api/khoem/locales` | — |
+| POST | `/api/khoem/translate` | — |
 
 ### learned
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/learned/alias` |
-| POST | `/api/learned/append` |
-| POST | `/api/learned/backup` |
-| GET | `/api/learned/backup-diff` |
-| GET | `/api/learned/backups` |
-| POST | `/api/learned/bulk` |
-| GET | `/api/learned/by-length` |
-| POST | `/api/learned/clean` |
-| POST | `/api/learned/clear` |
-| GET | `/api/learned/count` |
-| GET | `/api/learned/duplicates` |
-| GET | `/api/learned/exists` |
-| GET | `/api/learned/export` |
-| GET | `/api/learned/export.txt` |
-| POST | `/api/learned/forget-bulk` |
-| POST | `/api/learned/forget-prefix` |
-| GET | `/api/learned/get` |
-| GET | `/api/learned/health` |
-| POST | `/api/learned/import` |
-| GET | `/api/learned/keys` |
-| GET | `/api/learned/lang-mix` |
-| GET | `/api/learned/longest` |
-| GET | `/api/learned/match` |
-| GET | `/api/learned/page` |
-| POST | `/api/learned/prune-backups` |
-| GET | `/api/learned/random` |
-| GET | `/api/learned/recent` |
-| POST | `/api/learned/rename` |
-| POST | `/api/learned/replace` |
-| POST | `/api/learned/restore` |
-| GET | `/api/learned/routes` |
-| GET | `/api/learned/search` |
-| GET | `/api/learned/shortest` |
-| GET | `/api/learned/similar` |
-| GET | `/api/learned/starts` |
-| GET | `/api/learned/stats` |
-| GET | `/api/learned/suggest` |
-| POST | `/api/learned/update` |
-| GET | `/api/learned/validate` |
-| GET | `/api/learned/words` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/learned/alias` | — |
+| POST | `/api/learned/append` | — |
+| POST | `/api/learned/backup` | — |
+| GET | `/api/learned/backup-diff` | — |
+| GET | `/api/learned/backups` | — |
+| POST | `/api/learned/bulk` | — |
+| GET | `/api/learned/by-length` | — |
+| POST | `/api/learned/clean` | — |
+| POST | `/api/learned/clear` | — |
+| GET | `/api/learned/count` | — |
+| GET | `/api/learned/duplicates` | — |
+| GET | `/api/learned/exists` | — |
+| GET | `/api/learned/export` | — |
+| GET | `/api/learned/export.txt` | — |
+| POST | `/api/learned/forget-bulk` | — |
+| POST | `/api/learned/forget-prefix` | — |
+| GET | `/api/learned/get` | — |
+| GET | `/api/learned/health` | — |
+| POST | `/api/learned/import` | — |
+| GET | `/api/learned/keys` | — |
+| GET | `/api/learned/lang-mix` | — |
+| GET | `/api/learned/longest` | — |
+| GET | `/api/learned/match` | — |
+| GET | `/api/learned/page` | — |
+| POST | `/api/learned/prune-backups` | — |
+| GET | `/api/learned/random` | — |
+| GET | `/api/learned/recent` | — |
+| POST | `/api/learned/rename` | — |
+| POST | `/api/learned/replace` | — |
+| POST | `/api/learned/restore` | — |
+| GET | `/api/learned/routes` | — |
+| GET | `/api/learned/search` | — |
+| GET | `/api/learned/shortest` | — |
+| GET | `/api/learned/similar` | — |
+| GET | `/api/learned/starts` | — |
+| GET | `/api/learned/stats` | — |
+| GET | `/api/learned/suggest` | — |
+| POST | `/api/learned/update` | — |
+| GET | `/api/learned/validate` | — |
+| GET | `/api/learned/words` | — |
 
 ### lexicon
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/lexicon` |
-| POST | `/api/lexicon` |
-| GET | `/api/lexicon/answer` |
-| GET | `/api/lexicon/domains` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/lexicon` | — |
+| POST | `/api/lexicon` | — |
+| GET | `/api/lexicon/answer` | — |
+| GET | `/api/lexicon/domains` | — |
 
 ### library
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/library` |
-| GET | `/api/library/:id` |
-| GET | `/api/library/groups` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/library` | — |
+| GET | `/api/library/:id` | — |
+| GET | `/api/library/groups` | — |
 
 ### metrics
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/metrics` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/metrics` | `metrics.read` |
 
 ### model
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/model/providers` |
-| GET | `/api/model/route` |
-| GET | `/api/model/routing-history` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/model/providers` | `model.route` |
+| GET | `/api/model/route` | `model.route` |
+| GET | `/api/model/routing-history` | `model.route` |
 
 ### models
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/models` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/models` | — |
 
 ### patch
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/patch/:id/apply` |
-| POST | `/api/patch/:id/approve` |
-| POST | `/api/patch/:id/reject` |
-| POST | `/api/patch/apply` |
-| GET | `/api/patch/list` |
-| GET | `/api/patch/proposals` |
-| GET | `/api/patch/proposals/:id` |
-| POST | `/api/patch/propose` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/patch/:id/apply` | `code.applyPatch` |
+| POST | `/api/patch/:id/approve` | `approval.decide` |
+| POST | `/api/patch/:id/reject` | `approval.decide` |
+| POST | `/api/patch/apply` | `code.applyPatch` |
+| GET | `/api/patch/list` | `patch.read` |
+| GET | `/api/patch/proposals` | `patch.read` |
+| GET | `/api/patch/proposals/:id` | `patch.read` |
+| POST | `/api/patch/propose` | `code.proposePatch` |
 
 ### plans
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/plans` |
-| POST | `/api/plans` |
-| GET | `/api/plans/:id` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/plans` | `plan.read` |
+| POST | `/api/plans` | `plan.create` |
+| GET | `/api/plans/:id` | `plan.read` |
 
 ### read
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/read` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/read` | `tool.read` |
 
 ### registry
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/registry` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/registry` | — |
 
 ### rollback
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/rollback/plan/:id` |
-| POST | `/api/rollback/snapshot` |
-| GET | `/api/rollback/snapshots` |
-| GET | `/api/rollback/snapshots/:id` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/rollback/plan/:id` | `rollback.plan` |
+| POST | `/api/rollback/snapshot` | `rollback.snapshot` |
+| GET | `/api/rollback/snapshots` | `rollback.plan` |
+| GET | `/api/rollback/snapshots/:id` | `rollback.plan` |
 
 ### routes
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/routes/all` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/routes/all` | — |
 
 ### sandbox
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/sandbox/test` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/sandbox/test` | `code.sandboxTest` |
 
 ### self-consistency
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/self-consistency` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/self-consistency` | `selfconsistency.run` |
 
 ### selfeval
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/selfeval` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/selfeval` | `selfeval.run` |
 
 ### shotlist
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/shotlist` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/shotlist` | `characters.read` |
 
 ### storyboards
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/storyboards` |
-| POST | `/api/storyboards` |
-| GET | `/api/storyboards/:id` |
-| GET | `/api/storyboards/:id/continuity` |
-| POST | `/api/storyboards/:id/scenes` |
-| POST | `/api/storyboards/:id/scenes/:sc` |
-| GET | `/api/storyboards/:id/scenes/:sc/prompt` |
-| POST | `/api/storyboards/:id/scenes/:sc/status` |
-| GET | `/api/storyboards/options` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/storyboards` | — |
+| POST | `/api/storyboards` | — |
+| GET | `/api/storyboards/:id` | — |
+| GET | `/api/storyboards/:id/continuity` | — |
+| POST | `/api/storyboards/:id/scenes` | — |
+| POST | `/api/storyboards/:id/scenes/:sc` | — |
+| GET | `/api/storyboards/:id/scenes/:sc/prompt` | — |
+| POST | `/api/storyboards/:id/scenes/:sc/status` | — |
+| GET | `/api/storyboards/options` | — |
 
 ### system
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/system/kill` |
-| POST | `/api/system/resume` |
-| GET | `/api/system/status` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/system/kill` | `system.kill` |
+| POST | `/api/system/resume` | `system.resume` |
+| GET | `/api/system/status` | `system.statusRead` |
 
 ### tasks
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/tasks` |
-| GET | `/api/tasks/:id` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/tasks` | `task.read` |
+| GET | `/api/tasks/:id` | `task.read` |
 
 ### tools
 
-| Method | Endpoint |
-|---|---|
-| GET | `/api/tools` |
-| POST | `/api/tools/:id/execute` |
-| GET | `/api/tools/:id/risk` |
-| GET | `/api/tools/find` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/tools` | `tool.find` |
+| POST | `/api/tools/:id/execute` | `tool.find` |
+| GET | `/api/tools/:id/risk` | `tool.find` |
+| GET | `/api/tools/find` | `tool.find` |
 
 ### verify
 
-| Method | Endpoint |
-|---|---|
-| POST | `/api/verify` |
-| GET | `/api/verify/history` |
-| GET | `/api/verify/last` |
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/verify` | `code.verify` |
+| GET | `/api/verify/history` | `verify.read` |
+| GET | `/api/verify/last` | `verify.read` |
 
