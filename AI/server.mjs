@@ -97,6 +97,7 @@ const BRIDGE_POST = [
   "/api/verify", "/api/learn", "/api/forget", "/api/code/scan",
   "/api/sandbox/test", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon", "/api/hub",
   "/api/self-consistency",
+  "/api/learned/bulk", "/api/learned/update", "/api/learned/rename", "/api/learned/append", "/api/learned/import", "/api/learned/backup", "/api/learned/alias", "/api/learned/replace", "/api/learned/forget-bulk", "/api/learned/forget-prefix", "/api/learned/clean", "/api/learned/restore", "/api/learned/prune-backups",
 ];
 const matches = (list, p) => list.some((x) => p === x || p.startsWith(x + "/"));
 app.use("/api", (req, res, next) => {
