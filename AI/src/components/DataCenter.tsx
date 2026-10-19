@@ -10,26 +10,34 @@ const BODY = (ph = "{ }") => [{ k: "*", label: "body (JSON)", kind: "json" as co
 const GROUPS: { name: string; ops: Op[] }[] = [
   { name: "តួអង្គ", ops: [
     { m: "GET", path: "/api/characters", desc: "បញ្ជីតួអង្គ" },
-    { m: "POST", path: "/api/characters", desc: "បង្កើតតួអង្គ", fields: BODY() },
+    { m: "POST", path: "/api/characters", desc: "បង្កើតតួអង្គ", fields: [
+      { k: "name", label: "name (ឈ្មោះ)" }, { k: "role", label: "role" },
+      { k: "identity", label: "identity JSON", kind: "json", ph: '{"face":"","skinTone":"","gender":"","birthYear":""}' },
+      { k: "current", label: "current JSON", kind: "json", ph: '{"age":"","hair":"","outfit":""}' },
+      { k: "tags", label: "tags (១ បន្ទាត់ ១ tag)", kind: "lines" }] },
     { m: "GET", path: "/api/characters/:id", desc: "ព័ត៌មានតួអង្គ", pick: CH },
     { m: "POST", path: "/api/characters/:id/merge", desc: "merge ការកែ", pick: CH,
       fields: [{ k: "update", label: "update (JSON)", kind: "json" }, { k: "force", label: "force", kind: "bool" }] },
     { m: "GET", path: "/api/characters/:id/timeline", desc: "timeline", pick: CH },
     { m: "GET", path: "/api/characters/:id/prompt", desc: "prompt", pick: CH, fields: [{ k: "outfit", label: "outfit" }] },
     { m: "GET", path: "/api/characters/:id/refs", desc: "រូបយោង", pick: CH },
-    { m: "POST", path: "/api/characters/:id/refs", desc: "បន្ថែមរូបយោង", pick: CH, fields: BODY() },
+    { m: "POST", path: "/api/characters/:id/refs", desc: "បន្ថែមរូបយោង", pick: CH,
+      fields: [{ k: "label", label: "label (≤80)" }, { k: "path", label: "path: data/refs/x.jpg ឬ https://..." }] },
     { m: "DELETE", path: "/api/characters/:id/refs/:n", desc: "លុបរូបយោង", pick: CH, danger: true },
     { m: "POST", path: "/api/shotlist", desc: "shotlist", fields: BODY() },
   ] },
   { name: "Storyboard", ops: [
     { m: "GET", path: "/api/storyboards", desc: "បញ្ជី" },
     { m: "GET", path: "/api/storyboards/options", desc: "ជម្រើស" },
-    { m: "POST", path: "/api/storyboards", desc: "បង្កើត", fields: BODY() },
+    { m: "POST", path: "/api/storyboards", desc: "បង្កើត", fields: [
+      { k: "title", label: "title" },
+      { k: "style", label: "style", ph: "animation | 3d | realistic | cinematic" },
+      { k: "aspect", label: "aspect", ph: "16:9 | 9:16 | 1:1" }] },
     { m: "GET", path: "/api/storyboards/:id", desc: "ព័ត៌មាន", pick: SB },
     { m: "GET", path: "/api/storyboards/:id/continuity", desc: "continuity", pick: SB },
     { m: "POST", path: "/api/storyboards/:id/scenes", desc: "បន្ថែម scene", pick: SB, fields: BODY() },
     { m: "POST", path: "/api/storyboards/:id/scenes/:sc", desc: "កែ scene", pick: SB, fields: BODY() },
-    { m: "POST", path: "/api/storyboards/:id/scenes/:sc/status", desc: "ប្ដូរ status", pick: SB, fields: [{ k: "status", label: "status" }] },
+    { m: "POST", path: "/api/storyboards/:id/scenes/:sc/status", desc: "ប្ដូរ status", pick: SB, fields: [{ k: "status", label: "status", ph: "draft | approved | needs_regen" }] },
     { m: "GET", path: "/api/storyboards/:id/scenes/:sc/prompt", desc: "prompt របស់ scene", pick: SB },
   ] },
   { name: "Assets", ops: [
@@ -47,7 +55,8 @@ const GROUPS: { name: string; ops: Op[] }[] = [
     { m: "GET", path: "/api/lexicon/domains", desc: "ដែន" },
     { m: "GET", path: "/api/lexicon/answer", desc: "ឆ្លើយជាខ្មែរ", fields: [{ k: "q" }] },
     { m: "GET", path: "/api/lexicon", desc: "ស្វែងរកពាក្យ", fields: [{ k: "q" }, { k: "domain" }, { k: "limit", kind: "number" }] },
-    { m: "POST", path: "/api/lexicon", desc: "បន្ថែមពាក្យ", fields: BODY() },
+    { m: "POST", path: "/api/lexicon", desc: "បន្ថែមពាក្យ", fields: [
+      { k: "domain" }, { k: "km", label: "km (ខ្មែរ)" }, { k: "en" }, { k: "defKm", label: "defKm (និយមន័យ)" }] },
   ] },
   { name: "Hub", ops: [{ m: "GET", path: "/api/hub/status", desc: "ចំនួនទិន្នន័យក្នុងឃ្លាំង" }] },
   { name: "KHOEM", ops: [
