@@ -200,3 +200,351 @@ audit, និង approval requests ។ គ្មាន secret នៅក្នុ
 ---
 
 *ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ៖ Phase 14 — Human Approval Gate (VERIFIED)*
+
+---
+
+## បន្ថែម: route ដែលមិនទាន់មានខាងលើ (បង្កើតស្វ័យប្រវត្តិពី `/api/routes/all`)
+
+route ទាំងនេះមានក្នុង backend ពិត។ ជួរ policy/risk មិនទាន់ចុះ ព្រោះមិនទាន់បញ្ជាក់។ ពិនិត្យ `src/ai/*.mjs` សម្រាប់ policy។
+
+### api
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api` |
+
+### approvals
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/approvals/test-action` |
+
+### assets
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/assets` |
+| POST | `/api/assets` |
+| GET | `/api/assets/pick` |
+| POST | `/api/assets/seed` |
+
+### audit
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/audit` |
+
+### budget
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/budget` |
+| GET | `/api/budget/:taskId` |
+| POST | `/api/budget/create` |
+
+### characters
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/characters` |
+| POST | `/api/characters` |
+| GET | `/api/characters/:id` |
+| POST | `/api/characters/:id/merge` |
+| GET | `/api/characters/:id/prompt` |
+| GET | `/api/characters/:id/refs` |
+| POST | `/api/characters/:id/refs` |
+| DELETE | `/api/characters/:id/refs/:n` |
+| GET | `/api/characters/:id/timeline` |
+
+### circuit
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/circuit` |
+| GET | `/api/circuit/:name` |
+
+### code
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/code/circular` |
+| GET | `/api/code/dependencies` |
+| GET | `/api/code/dependents` |
+| GET | `/api/code/findings` |
+| GET | `/api/code/health` |
+| GET | `/api/code/index` |
+| POST | `/api/code/scan` |
+| GET | `/api/code/symbol` |
+| GET | `/api/code/symbols` |
+
+### control
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/control` |
+
+### experiments
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/experiments` |
+| POST | `/api/experiments` |
+| GET | `/api/experiments/:id` |
+| POST | `/api/experiments/:id/transition` |
+
+### find
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/find` |
+
+### funcs
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/funcs` |
+
+### goals
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/goals` |
+| POST | `/api/goals` |
+| GET | `/api/goals/:id` |
+| POST | `/api/goals/:id/link` |
+| GET | `/api/goals/:id/progress` |
+| POST | `/api/goals/:id/status` |
+
+### health
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/health` |
+
+### hub
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/hub/status` |
+
+### ideas
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/ideas` |
+| POST | `/api/ideas` |
+| GET | `/api/ideas/:id` |
+| GET | `/api/ideas/rank` |
+
+### khoem
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/khoem/coverage` |
+| GET | `/api/khoem/health` |
+| GET | `/api/khoem/khmer` |
+| GET | `/api/khoem/knowledge` |
+| GET | `/api/khoem/languages` |
+| GET | `/api/khoem/locales` |
+| POST | `/api/khoem/translate` |
+
+### learned
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/learned/alias` |
+| POST | `/api/learned/append` |
+| POST | `/api/learned/backup` |
+| GET | `/api/learned/backup-diff` |
+| GET | `/api/learned/backups` |
+| POST | `/api/learned/bulk` |
+| GET | `/api/learned/by-length` |
+| POST | `/api/learned/clean` |
+| POST | `/api/learned/clear` |
+| GET | `/api/learned/count` |
+| GET | `/api/learned/duplicates` |
+| GET | `/api/learned/exists` |
+| GET | `/api/learned/export` |
+| GET | `/api/learned/export.txt` |
+| POST | `/api/learned/forget-bulk` |
+| POST | `/api/learned/forget-prefix` |
+| GET | `/api/learned/get` |
+| GET | `/api/learned/health` |
+| POST | `/api/learned/import` |
+| GET | `/api/learned/keys` |
+| GET | `/api/learned/lang-mix` |
+| GET | `/api/learned/longest` |
+| GET | `/api/learned/match` |
+| GET | `/api/learned/page` |
+| POST | `/api/learned/prune-backups` |
+| GET | `/api/learned/random` |
+| GET | `/api/learned/recent` |
+| POST | `/api/learned/rename` |
+| POST | `/api/learned/replace` |
+| POST | `/api/learned/restore` |
+| GET | `/api/learned/routes` |
+| GET | `/api/learned/search` |
+| GET | `/api/learned/shortest` |
+| GET | `/api/learned/similar` |
+| GET | `/api/learned/starts` |
+| GET | `/api/learned/stats` |
+| GET | `/api/learned/suggest` |
+| POST | `/api/learned/update` |
+| GET | `/api/learned/validate` |
+| GET | `/api/learned/words` |
+
+### lexicon
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/lexicon` |
+| POST | `/api/lexicon` |
+| GET | `/api/lexicon/answer` |
+| GET | `/api/lexicon/domains` |
+
+### library
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/library` |
+| GET | `/api/library/:id` |
+| GET | `/api/library/groups` |
+
+### metrics
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/metrics` |
+
+### model
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/model/providers` |
+| GET | `/api/model/route` |
+| GET | `/api/model/routing-history` |
+
+### models
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/models` |
+
+### patch
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/patch/:id/apply` |
+| POST | `/api/patch/:id/approve` |
+| POST | `/api/patch/:id/reject` |
+| POST | `/api/patch/apply` |
+| GET | `/api/patch/list` |
+| GET | `/api/patch/proposals` |
+| GET | `/api/patch/proposals/:id` |
+| POST | `/api/patch/propose` |
+
+### plans
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/plans` |
+| POST | `/api/plans` |
+| GET | `/api/plans/:id` |
+
+### read
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/read` |
+
+### registry
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/registry` |
+
+### rollback
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/rollback/plan/:id` |
+| POST | `/api/rollback/snapshot` |
+| GET | `/api/rollback/snapshots` |
+| GET | `/api/rollback/snapshots/:id` |
+
+### routes
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/routes/all` |
+
+### sandbox
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/sandbox/test` |
+
+### self-consistency
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/self-consistency` |
+
+### selfeval
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/selfeval` |
+
+### shotlist
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/shotlist` |
+
+### storyboards
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/storyboards` |
+| POST | `/api/storyboards` |
+| GET | `/api/storyboards/:id` |
+| GET | `/api/storyboards/:id/continuity` |
+| POST | `/api/storyboards/:id/scenes` |
+| POST | `/api/storyboards/:id/scenes/:sc` |
+| GET | `/api/storyboards/:id/scenes/:sc/prompt` |
+| POST | `/api/storyboards/:id/scenes/:sc/status` |
+| GET | `/api/storyboards/options` |
+
+### system
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/system/kill` |
+| POST | `/api/system/resume` |
+| GET | `/api/system/status` |
+
+### tasks
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/tasks` |
+| GET | `/api/tasks/:id` |
+
+### tools
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/tools` |
+| POST | `/api/tools/:id/execute` |
+| GET | `/api/tools/:id/risk` |
+| GET | `/api/tools/find` |
+
+### verify
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/verify` |
+| GET | `/api/verify/history` |
+| GET | `/api/verify/last` |
+
