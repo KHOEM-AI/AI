@@ -1,4 +1,4 @@
-import khoemLogo from "./assets/khoem-ai-logo.png";
+import khoemLogo from "./assets/khoem-ai-logo.webp";
 import { useEffect, useRef, useState } from "react";
 import App from "./App";
 import GatePoem from "./components/GatePoem";
