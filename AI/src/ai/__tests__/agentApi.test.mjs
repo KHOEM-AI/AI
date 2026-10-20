@@ -150,6 +150,30 @@ describe("POST /api/agent/run — goalVerifier criteria", () => {
   });
 });
 
+describe("POST /api/agent/run — structured find", () => {
+  const findStep = (q) => [{ description: "find it", tools: ["find-symbol-data"], input: { q } }];
+
+  it("find-symbol-data + find.count>0 -> SUCCESS without khoemReply", async () => {
+    const r = await runAgentApi(okBody({ steps: findStep("createGoal"), verificationCriteria: ["find.count>0"] }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("SUCCESS");
+    expect(r.json.result.evidence).toContain("criterion find.count>0: met");
+    expect(m.khoemReply).not.toHaveBeenCalled();
+  }, 30000);
+
+  it("a too-short query is ok:false, so find.count>0 FAILS", async () => {
+    const r = await runAgentApi(okBody({ steps: findStep("a"), verificationCriteria: ["find.count>0"] }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("FAILED");
+  });
+
+  it("a missing query makes the run FAILED", async () => {
+    const r = await runAgentApi(okBody({ steps: findStep(undefined), verificationCriteria: ["find.count>0"] }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("FAILED");
+  });
+});
+
 describe("POST /api/agent/run — allowlist (403)", () => {
   it.each(["apply-patch", "propose-patch", "run-verification", "constructor", "__proto__", "toString", "nope"])(
     "tool %s is refused with 403 and nothing runs",

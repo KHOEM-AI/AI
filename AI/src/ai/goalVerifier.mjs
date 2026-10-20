@@ -17,6 +17,19 @@ function findScanResult(results) {
   );
 }
 
+const FIND_TOOL = "find-symbol-data";
+
+function findResult(results) {
+  return results.find(
+    (r) =>
+      r?.toolId === FIND_TOOL &&
+      r.status === "EXECUTED" &&
+      r.result &&
+      typeof r.result === "object" &&
+      r.result.ok === true,
+  );
+}
+
 function evaluateCriterion(criterion, results) {
   if (criterion === "scan.ok=true") {
     return Boolean(findScanResult(results));
@@ -41,6 +54,29 @@ function evaluateCriterion(criterion, results) {
       scan &&
       Number.isFinite(scan.result.fileCount) &&
       scan.result.fileCount >= Number(threshold[1]),
+    );
+  }
+
+  if (criterion === "find.ok=true") {
+    return Boolean(findResult(results));
+  }
+
+  if (criterion === "find.count>0") {
+    const found = findResult(results);
+    return Boolean(
+      found &&
+        Number.isFinite(found.result.count) &&
+        found.result.count > 0,
+    );
+  }
+
+  const findThreshold = criterion.match(/^find\.count>=(\d+)$/);
+  if (findThreshold) {
+    const found = findResult(results);
+    return Boolean(
+      found &&
+        Number.isFinite(found.result.count) &&
+        found.result.count >= Number(findThreshold[1]),
     );
   }
 

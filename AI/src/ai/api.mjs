@@ -293,6 +293,12 @@ export function registerApi(app) {
       const r = cdc.scanRepo();
       return { ok: true, fileCount: r.fileCount };
     },
+    "find-symbol-data": async ({ q } = {}) => {
+      if (!q) throw bad("ត្រូវការ input.q");
+      const { findStructured } = await import("./find.mjs");
+      const r = findStructured(q);
+      return { ok: r.ok, count: r.count, files: r.files };
+    },
     "find-symbol": ({ q }) => {
       if (!q) throw bad("ត្រូវការ input.q");
       return run("/find " + q);

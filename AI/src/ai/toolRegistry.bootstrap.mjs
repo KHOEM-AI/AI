@@ -43,3 +43,11 @@ registerTool({
   description: "scan the repo and return structured data { ok, fileCount }",
   capabilities: ["scan", "code", "repository", "structured"],
 });
+
+registerTool({
+  id: "find-symbol-data",
+  action: "tool.find",
+  name: "Find Symbol (structured)",
+  description: "search code and return structured data { ok, count, files }",
+  capabilities: ["find", "search", "code", "structured"],
+});

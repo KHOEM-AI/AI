@@ -68,6 +68,26 @@ describe("goalVerifier", () => {
     }).passed).toBe(false);
   });
 
+  it("verifies structured find results", () => {
+    const findResults = [{ toolId: "find-symbol-data", status: "EXECUTED", result: { ok: true, count: 3, files: 2 } }];
+    expect(verifyGoalCriteria({ criteria: ["find.ok=true", "find.count>0"], results: findResults }).passed).toBe(true);
+    expect(verifyGoalCriteria({ criteria: ["find.count>=3"], results: findResults }).passed).toBe(true);
+    expect(verifyGoalCriteria({ criteria: ["find.count>=4"], results: findResults }).passed).toBe(false);
+  });
+
+  it("find criteria fail when the query was rejected or has no matches", () => {
+    const rejected = [{ toolId: "find-symbol-data", status: "EXECUTED", result: { ok: false, count: 0, files: 0 } }];
+    const empty = [{ toolId: "find-symbol-data", status: "EXECUTED", result: { ok: true, count: 0, files: 0 } }];
+    expect(verifyGoalCriteria({ criteria: ["find.ok=true"], results: rejected }).passed).toBe(false);
+    expect(verifyGoalCriteria({ criteria: ["find.count>0"], results: empty }).passed).toBe(false);
+  });
+
+  it("find criteria ignore the string-result find-symbol tool", () => {
+    const old = [{ toolId: "find-symbol", status: "EXECUTED", result: "found 3 lines" }];
+    expect(verifyGoalCriteria({ criteria: ["find.ok=true"], results: old }).passed).toBe(false);
+    expect(verifyGoalCriteria({ criteria: ["find.count>0"], results: old }).passed).toBe(false);
+  });
+
   it("does not pass empty criteria", () => {
     expect(verifyGoalCriteria({
       criteria: [],

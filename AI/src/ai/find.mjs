@@ -16,9 +16,9 @@ function walk(dir, out = []) {
   return out;
 }
 
-export function find(term) {
+export function findStructured(term) {
   const t = String(term || "").trim().toLowerCase();
-  if (t.length < 2) return "សូមសរសេរពាក្យយ៉ាងតិច ២ តួអក្សរ ឧទាហរណ៍: /find sendMessage";
+  if (t.length < 2) return { ok: false, reason: "TERM_TOO_SHORT", count: 0, files: 0, hits: [] };
   const hits = [];
   let files = 0;
   for (const f of walk(ROOT)) {
@@ -36,7 +36,13 @@ export function find(term) {
       });
     if (hit) files++;
   }
-  if (!hits.length) return `រកមិនឃើញ "${term}" ក្នុងកូដ`;
-  const more = hits.length > 20 ? " (បង្ហាញ ២០ ដំបូង)" : "";
-  return `រកឃើញ ${hits.length} ជួរ ក្នុង ${files} ឯកសារ${more}:\n` + hits.slice(0, 20).join("\n");
+  return { ok: true, count: hits.length, files, hits };
+}
+
+export function find(term) {
+  const r = findStructured(term);
+  if (!r.ok) return "សូមសរសេរពាក្យយ៉ាងតិច ២ តួអក្សរ ឧទាហរណ៍: /find sendMessage";
+  if (!r.count) return `រកមិនឃើញ "${term}" ក្នុងកូដ`;
+  const more = r.count > 20 ? " (បង្ហាញ ២០ ដំបូង)" : "";
+  return `រកឃើញ ${r.count} ជួរ ក្នុង ${r.files} ឯកសារ${more}:\n` + r.hits.slice(0, 20).join("\n");
 }
