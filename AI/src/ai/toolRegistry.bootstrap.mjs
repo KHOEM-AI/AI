@@ -35,3 +35,11 @@ registerTool({
   description: "run the test/build/tsc verification pipeline",
   capabilities: ["verify", "test", "build"],
 });
+
+registerTool({
+  id: "scan-repo-data",
+  action: "tool.scan",
+  name: "Scan Repository (structured)",
+  description: "scan the repo and return structured data { ok, fileCount }",
+  capabilities: ["scan", "code", "repository", "structured"],
+});

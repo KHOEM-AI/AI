@@ -110,6 +110,16 @@ describe("POST /api/agent/run — input validation (400)", () => {
   });
 });
 
+describe("POST /api/agent/run — structured tool", () => {
+  it("scan-repo-data runs through the agent without calling khoemReply", async () => {
+    const r = await runAgentApi(okBody({ steps: [{ description: "scan data", tools: ["scan-repo-data"] }] }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("UNCERTAIN");
+    expect(r.json.result.evidence).toContain("step 1: tool scan-repo-data executed");
+    expect(m.khoemReply).not.toHaveBeenCalled();
+  });
+});
+
 describe("POST /api/agent/run — allowlist (403)", () => {
   it.each(["apply-patch", "propose-patch", "run-verification", "constructor", "__proto__", "toString", "nope"])(
     "tool %s is refused with 403 and nothing runs",

@@ -287,6 +287,11 @@ export function registerApi(app) {
   const TOOL_EXEC_PER_MIN = Number(process.env.KHOEM_TOOL_RATE_PER_MIN) || 20;
   const EXEC_ALLOW = {
     "scan-repo": () => run("/scan"),
+    "scan-repo-data": async () => {
+      const cdc = await import("./codeDataCenter.mjs");
+      const r = cdc.scanRepo();
+      return { ok: true, fileCount: r.fileCount };
+    },
     "find-symbol": ({ q }) => {
       if (!q) throw bad("ត្រូវការ input.q");
       return run("/find " + q);
