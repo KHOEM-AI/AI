@@ -202,6 +202,21 @@ describe("POST /api/agent/run — $from chaining", () => {
   });
 });
 
+describe("POST /api/agent/run — $from with a failed find", () => {
+  it("find ok:false is not chained into the next step", async () => {
+    const r = await runAgentApi(okBody({
+      steps: [
+        { description: "short find", tools: ["find-symbol-data"], input: { q: "a" } },
+        { description: "chain find", tools: ["find-symbol-data"], input: { q: { $from: "step1.find-symbol-data.count" } } },
+      ],
+      verificationCriteria: ["find.ok=true"],
+    }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("FAILED");
+    expect(r.json.result.reason).toMatch(/ok:false/);
+  }, 30000);
+});
+
 describe("POST /api/agent/run — allowlist (403)", () => {
   it.each(["apply-patch", "propose-patch", "run-verification", "constructor", "__proto__", "toString", "nope"])(
     "tool %s is refused with 403 and nothing runs",

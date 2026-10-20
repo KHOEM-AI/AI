@@ -85,6 +85,30 @@ describe("agentLoop $from chaining", () => {
     expect(runA).not.toHaveBeenCalled();
   });
 
+  it("passes a scan-shaped fileCount as a number", async () => {
+    const { runB, runners } = setup({ ok: true, fileCount: 42 });
+    const r = await run(runners, { q: { $from: "step1." + A + ".fileCount" } });
+    expect(r.status).toBe("SUCCESS");
+    expect(runB).toHaveBeenCalledWith({ q: 42 });
+  });
+
+  it("a source tool that throws is FAILED and the later tool never runs", async () => {
+    const { runB, runners } = setup();
+    runners[A] = vi.fn(async () => { throw new Error("boom"); });
+    const r = await run(runners, { q: { $from: "step1." + A + ".n" } });
+    expect(r.status).toBe("FAILED");
+    expect(r.reason).toMatch(/boom/);
+    expect(runB).not.toHaveBeenCalled();
+  });
+
+  it("refuses a source result with ok:false and the later tool never runs", async () => {
+    const { runB, runners } = setup({ ok: false, n: 3 });
+    const r = await run(runners, { q: { $from: "step1." + A + ".n" } });
+    expect(r.status).toBe("FAILED");
+    expect(r.reason).toMatch(/unresolved input reference/);
+    expect(runB).not.toHaveBeenCalled();
+  });
+
   it("inputs without $from reach the tool unchanged", async () => {
     const { runB, runners } = setup();
     const r = await run(runners, { q: "plain", n: 5 });

@@ -53,6 +53,16 @@ describe("inputRefs", () => {
     ).toThrow(/source tool did not succeed/);
   });
 
+  it("rejects a source result with ok:false", () => {
+    const r = [{ step: 1, toolId: "tool-a", status: "EXECUTED", result: { ok: false, n: 3 } }];
+    expect(() => resolveInput({ q: { $from: "step1.tool-a.n" } }, r)).toThrow(/ok:false/);
+  });
+
+  it("allows a source result that has no ok field", () => {
+    const r = [{ step: 1, toolId: "tool-a", status: "EXECUTED", result: { n: 3 } }];
+    expect(resolveInput({ q: { $from: "step1.tool-a.n" } }, r)).toEqual({ q: 3 });
+  });
+
   it("validateRefs requires an earlier step that uses that tool", () => {
     expect(() => validateRefs({ a: { $from: "step1.tool-a.n" } }, 2, planned)).not.toThrow();
     expect(() => validateRefs({ a: { $from: "step2.tool-b.n" } }, 2, planned)).toThrow(/earlier step/);

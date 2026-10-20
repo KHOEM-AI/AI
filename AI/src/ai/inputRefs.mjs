@@ -50,6 +50,15 @@ export function resolveInput(input, results) {
   return mapInput(input, (ref) => {
     const hit = results.find((r) => r.step === ref.step && r.toolId === ref.toolId);
     if (!hit) throw new Error(ref.raw + ": no result for that step/tool");
+    if (
+      hit.result !== null &&
+      typeof hit.result === "object" &&
+      !Array.isArray(hit.result) &&
+      Object.hasOwn(hit.result, "ok") &&
+      hit.result.ok === false
+    ) {
+      throw new Error(ref.raw + ": source tool returned ok:false");
+    }
     if (!["EXECUTED", "SUCCESS"].includes(hit.status)) {
       throw new Error(ref.raw + ": source tool did not succeed");
     }
