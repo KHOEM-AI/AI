@@ -14326,5 +14326,18 @@ export function khmerReply(text, learned = {}, honorific = "បង") {
     return say(matches[0][1]);
   }
 
+  // Second pass: strip question wrappers and retry
+  const WRAP = ["សូមពន្យល់អំពី", "សូមប្រាប់", "គួរធ្វើដូចម្តេច", "គួរធ្វើដូចម្ដេច", "ធ្វើយ៉ាងម៉េច", "ធ្វើដូចម្តេច", "ធ្វើដូចម្ដេច", "ធ្វើម៉េច", "តើ", "ខ្ញុំ", "បានទេ", "ឬទេ"];
+  let stripped = norm;
+  for (const w of WRAP) { const fw = fold(w); if (fw) stripped = stripped.split(fw).join(""); }
+  stripped = stripped.trim();
+  if (stripped && stripped !== norm) {
+    if (SEED.has(stripped)) return say(SEED.get(stripped));
+    const m2 = [...SEED.entries()]
+      .filter(([k]) => k.length > 2 && stripped.includes(k) && k.length / stripped.length >= 0.4)
+      .sort(([a], [b]) => b.length - a.length);
+    if (m2.length > 0) return say(m2[0][1]);
+  }
+
   return null;
 }
