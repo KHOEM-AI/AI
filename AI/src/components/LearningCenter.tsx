@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useT, pickText, useLanguageCode } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
 import LearnedManager from "./LearnedManager";
+import { api as rawApi } from "../api/client";
 
 async function api(url: string, opts: RequestInit = {}) {
-  const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
-  const json = await r.json();
+  const json = await rawApi(url, opts);
   return (json && typeof json === "object" && "result" in json) ? json.result : json;
 }
 
