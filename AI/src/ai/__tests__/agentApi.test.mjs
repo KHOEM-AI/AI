@@ -112,11 +112,32 @@ describe("POST /api/agent/run — input validation (400)", () => {
 
 describe("POST /api/agent/run — structured tool", () => {
   it("scan-repo-data runs through the agent without calling khoemReply", async () => {
-    const r = await runAgentApi(okBody({ steps: [{ description: "scan data", tools: ["scan-repo-data"] }] }));
+    const r = await runAgentApi(okBody({
+      steps: [{ description: "scan data", tools: ["scan-repo-data"] }],
+      verificationCriteria: ["scan.fileCount>0"],
+    }));
     expect(r.status).toBe(200);
     expect(r.json.result.status).toBe("SUCCESS");
     expect(r.json.result.evidence).toContain("step 1: tool scan-repo-data executed");
     expect(m.khoemReply).not.toHaveBeenCalled();
+  });
+});
+
+describe("POST /api/agent/run — allowlisted criteria", () => {
+  const dataStep = [{ description: "scan data", tools: ["scan-repo-data"] }];
+  it("an unknown criterion cannot be verified, so the run is FAILED", async () => {
+    const r = await runAgentApi(okBody({ steps: dataStep, verificationCriteria: ["deploy to production"] }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("FAILED");
+  });
+  it("one unknown criterion next to a known one still FAILS", async () => {
+    const r = await runAgentApi(okBody({ steps: dataStep, verificationCriteria: ["scan.fileCount>0", "deploy to production"] }));
+    expect(r.json.result.status).toBe("FAILED");
+  });
+  it("evidence names each criterion", async () => {
+    const r = await runAgentApi(okBody({ steps: dataStep, verificationCriteria: ["scan.fileCount>0"] }));
+    expect(r.json.result.status).toBe("SUCCESS");
+    expect(r.json.result.evidence).toContain("criterion scan.fileCount>0: met");
   });
 });
 

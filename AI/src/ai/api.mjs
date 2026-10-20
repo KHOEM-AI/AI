@@ -284,6 +284,12 @@ export function registerApi(app) {
 
   // Read-only LOW-risk tools only, through executeTool (policy + audit).
   // apply-patch / propose-patch are intentionally NOT exposed here.
+  // Allowlisted verification criteria: each is checked against real tool results.
+  const CRITERIA = {
+    "scan.fileCount>0": (results) => results.some((r) =>
+      r.toolId === "scan-repo-data" && r.status === "EXECUTED" &&
+      r.result && r.result.ok === true && r.result.fileCount > 0),
+  };
   const TOOL_EXEC_PER_MIN = Number(process.env.KHOEM_TOOL_RATE_PER_MIN) || 20;
   const EXEC_ALLOW = {
     "scan-repo": () => run("/scan"),
@@ -338,14 +344,12 @@ export function registerApi(app) {
       verificationCriteria: Array.isArray(verificationCriteria) ? verificationCriteria.slice(0, 10).map(String) : [],
       runners: EXEC_ALLOW,
       verify: async ({ results = [] } = {}) => {
-        const structured = results.length > 0 && results.every((r) =>
-          r.status === "EXECUTED" && r.result && typeof r.result === "object" &&
-          r.result.ok === true && r.result.fileCount > 0);
+        const crit = Array.isArray(verificationCriteria) ? verificationCriteria.slice(0, 10).map(String) : [];
+        const checks = crit.map((c) => ({ c, ok: Object.hasOwn(CRITERIA, c) && CRITERIA[c](results) === true }));
+        const passed = checks.length > 0 && checks.every((x) => x.ok);
         return {
-          passed: structured,
-          evidence: [structured
-            ? "structured tool results verified (ok, fileCount > 0)"
-            : "no structured ok/fileCount result to verify"],
+          passed,
+          evidence: checks.map((x) => `criterion ${x.c}: ${x.ok ? "met" : "not met or unknown"}`),
         };
       },
       actor: actorOf(req),
