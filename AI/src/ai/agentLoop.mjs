@@ -95,6 +95,9 @@ export async function runAgent({
         }
         results.push({ step: step.order, toolId, status: res?.status, result: res?.result });
         evidence.push(`step ${step.order}: tool ${toolId} executed`);
+        if (res?.result !== null && typeof res?.result === "object" && !Array.isArray(res.result) && res.result.ok === false) {
+          return fail(`tool ${toolId} returned ok:false`);
+        }
         setExecution(id, "PROCESSING", `step ${step.order} done`);
       }
     }

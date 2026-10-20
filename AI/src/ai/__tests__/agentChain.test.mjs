@@ -105,8 +105,23 @@ describe("agentLoop $from chaining", () => {
     const { runB, runners } = setup({ ok: false, n: 3 });
     const r = await run(runners, { q: { $from: "step1." + A + ".n" } });
     expect(r.status).toBe("FAILED");
-    expect(r.reason).toMatch(/unresolved input reference/);
+    expect(r.reason).toMatch(/ok:false/);
     expect(runB).not.toHaveBeenCalled();
+  });
+
+  it("stops at a step whose result is ok:false even when no later step uses $from", async () => {
+    const { runB, runners } = setup({ ok: false, n: 3 });
+    const r = await run(runners, { q: "plain" });
+    expect(r.status).toBe("FAILED");
+    expect(r.reason).toMatch(/ok:false/);
+    expect(runB).not.toHaveBeenCalled();
+  });
+
+  it("keeps going when a result has no ok field", async () => {
+    const { runB, runners } = setup({ n: 3 });
+    const r = await run(runners, { q: "plain" });
+    expect(r.status).toBe("SUCCESS");
+    expect(runB).toHaveBeenCalledTimes(1);
   });
 
   it("inputs without $from reach the tool unchanged", async () => {
