@@ -47,6 +47,8 @@ vi.mock("../metrics.mjs", () => ({ getMetrics: vi.fn() }));
 vi.mock("../goal.mjs", () => ({
   createGoal: vi.fn(), getGoal: vi.fn(), listGoals: vi.fn(), linkTaskToGoal: vi.fn(),
   getGoalProgress: vi.fn(), setGoalStatus: vi.fn(),
+  searchGoals: vi.fn(), listGoalsByStatus: vi.fn(),
+  GOAL_STATUS: { ACTIVE: "ACTIVE", DONE: "DONE" },
 }));
 vi.mock("../modelRouting.mjs", () => ({
   decideProvider: vi.fn(), listProviders: vi.fn(), getRoutingHistory: vi.fn(),
@@ -282,5 +284,51 @@ describe("patch apply, tasks and audit", () => {
     expect(m.getAudit).toHaveBeenLastCalledWith(500);
     await call("get", "/api/audit", { headers: auth });
     expect(m.getAudit).toHaveBeenLastCalledWith(50);
+  });
+});
+
+import { listGoals, searchGoals } from "../goal.mjs";
+
+describe("GET /api/goals (q + status)", () => {
+  const G = [
+    { id: "g1", title: "Alpha goal", status: "ACTIVE" },
+    { id: "g2", title: "Beta goal", status: "DONE" },
+  ];
+
+  it("without query returns all goals as before", async () => {
+    listGoals.mockReturnValue(G);
+    const r = await call("get", "/api/goals", { headers: auth });
+    expect(r.status).toBe(200);
+    expect(r.json.result.goals).toEqual(G);
+    expect(searchGoals).not.toHaveBeenCalled();
+  });
+
+  it("?q= searches by title", async () => {
+    searchGoals.mockReturnValue([G[0]]);
+    const r = await call("get", "/api/goals", { headers: auth, query: { q: "alpha" } });
+    expect(r.status).toBe(200);
+    expect(searchGoals).toHaveBeenCalledWith("alpha");
+    expect(r.json.result.goals).toEqual([G[0]]);
+  });
+
+  it("?status= filters by status", async () => {
+    listGoals.mockReturnValue(G);
+    const r = await call("get", "/api/goals", { headers: auth, query: { status: "DONE" } });
+    expect(r.status).toBe(200);
+    expect(r.json.result.goals).toEqual([G[1]]);
+  });
+
+  it("q and status work together", async () => {
+    searchGoals.mockReturnValue(G);
+    const r = await call("get", "/api/goals", { headers: auth, query: { q: "goal", status: "DONE" } });
+    expect(r.status).toBe(200);
+    expect(r.json.result.goals).toEqual([G[1]]);
+  });
+
+  it("invalid status gives 400 and does not read goals", async () => {
+    const r = await call("get", "/api/goals", { headers: auth, query: { status: "NOPE" } });
+    expect(r.status).toBe(400);
+    expect(listGoals).not.toHaveBeenCalled();
+    expect(searchGoals).not.toHaveBeenCalled();
   });
 });

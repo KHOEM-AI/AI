@@ -17,7 +17,7 @@ import { executeTool } from "./toolExecutor.mjs";
 import { createBudget, recordUsage, checkBudget, getBudget, listBudgets, clearBudget } from "./budget.mjs";
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
 import { getMetrics } from "./metrics.mjs";
-import { createGoal, getGoal, listGoals, linkTaskToGoal, getGoalProgress, setGoalStatus } from "./goal.mjs";
+import { createGoal, getGoal, listGoals, linkTaskToGoal, getGoalProgress, setGoalStatus, searchGoals, listGoalsByStatus, GOAL_STATUS } from "./goal.mjs";
 import { decideProvider, listProviders, getRoutingHistory } from "./modelRouting.mjs";
 import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
@@ -403,8 +403,20 @@ app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
     const { title, metadata } = req.body || {};
     return createGoal(title, metadata || {});
   }));
-  app.get("/api/goals", guard, policy("goal.read"), wrap(() => {
-    return { goals: listGoals() };
+  app.get("/api/goals", guard, policy("goal.read"), wrap((req) => {
+    const { q, status } = req.query || {};
+
+    if (status !== undefined && !Object.values(GOAL_STATUS).includes(status)) {
+      throw bad("status មិនត្រឹមត្រូវ");
+    }
+
+    let goals = q !== undefined ? searchGoals(q) : listGoals();
+
+    if (status !== undefined) {
+      goals = goals.filter((g) => g.status === status);
+    }
+
+    return { goals };
   }));
   app.get("/api/goals/:id", guard, policy("goal.read"), wrap((req) => {
     const g = getGoal(req.params.id);
