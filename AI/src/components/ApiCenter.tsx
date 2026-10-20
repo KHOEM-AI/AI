@@ -161,7 +161,7 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
       const [list, tpl] = T[i];
       try {
         const id = pickId(await api(list));
-        if (!id) { skip++; out.push("⚠️ " + tpl + " (បញ្ជីទទេ)"); }
+        if (!id) { skip++; out.push("ℹ️ " + tpl + " (បញ្ជីទទេ)"); }
         else {
           const url = tpl.replace(":id", encodeURIComponent(id));
           try { await api(url); ok++; out.push("✅ " + url); }
