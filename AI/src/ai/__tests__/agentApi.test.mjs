@@ -174,6 +174,34 @@ describe("POST /api/agent/run — structured find", () => {
   });
 });
 
+describe("POST /api/agent/run — $from chaining", () => {
+  it("passes scan fileCount into a later find query", async () => {
+    const r = await runAgentApi(okBody({
+      steps: [
+        { description: "scan data", tools: ["scan-repo-data"] },
+        { description: "find count", tools: ["find-symbol-data"], input: { q: { $from: "step1.scan-repo-data.fileCount" } } },
+      ],
+      verificationCriteria: ["scan.ok=true", "find.ok=true"],
+    }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("SUCCESS");
+  }, 30000);
+
+  it("a forward reference is FAILED and nothing runs", async () => {
+    const r = await runAgentApi(okBody({
+      steps: [
+        { description: "find first", tools: ["find-symbol-data"], input: { q: { $from: "step2.scan-repo-data.fileCount" } } },
+        { description: "scan later", tools: ["scan-repo-data"] },
+      ],
+      verificationCriteria: ["find.ok=true"],
+    }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("FAILED");
+    expect(r.json.result.reason).toMatch(/earlier step/);
+    expect(m.khoemReply).not.toHaveBeenCalled();
+  });
+});
+
 describe("POST /api/agent/run — allowlist (403)", () => {
   it.each(["apply-patch", "propose-patch", "run-verification", "constructor", "__proto__", "toString", "nope"])(
     "tool %s is refused with 403 and nothing runs",

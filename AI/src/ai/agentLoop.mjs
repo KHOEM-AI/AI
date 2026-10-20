@@ -5,6 +5,7 @@ import { createPlan } from "./planning.mjs";
 import { executeTool } from "./toolExecutor.mjs";
 import { selfEvaluate, EVAL } from "./selfEval.mjs";
 import { recordAuditEvent } from "./audit.mjs";
+import { validateRefs, resolveInput } from "./inputRefs.mjs";
 
 /**
  * runAgent({ goal, steps, verificationCriteria, rollbackPlan, runners, verify, actor })
@@ -62,14 +63,28 @@ export async function runAgent({
       return { status: "NEEDS_APPROVAL", reason: `plan risk ${plan.risk}`, ...base() };
     }
 
+    try {
+      for (const [i, step] of plan.steps.entries()) {
+        validateRefs(steps[i]?.input ?? {}, step.order, plan.steps);
+      }
+    } catch (e) {
+      return fail(`invalid input reference: ${e.message}`);
+    }
+
     setCognitive(id, "REASONING", "executing plan");
 
     for (const [i, step] of plan.steps.entries()) {
-      const input = steps[i]?.input ?? {};
+      const rawInput = steps[i]?.input ?? {};
       for (const toolId of step.tools) {
         const execute = runners[toolId];
         if (typeof execute !== "function") {
           return fail(`no runner for tool ${toolId}`);
+        }
+        let input;
+        try {
+          input = resolveInput(rawInput, results);
+        } catch (e) {
+          return fail(`unresolved input reference: ${e.message}`);
         }
         setExecution(id, "TOOL_CALL", `step ${step.order}: ${toolId}`);
         const res = await executeTool({ toolId, actor, input, execute: () => execute(input) });
@@ -78,7 +93,7 @@ export async function runAgent({
           recordAuditEvent("agent.loop.needs_approval", { taskId: id, planId, toolId, approvalId: res.approvalId });
           return { status: "NEEDS_APPROVAL", reason: `tool ${toolId} requires approval`, approvalId: res.approvalId, ...base() };
         }
-        results.push({ toolId, status: res?.status, result: res?.result });
+        results.push({ step: step.order, toolId, status: res?.status, result: res?.result });
         evidence.push(`step ${step.order}: tool ${toolId} executed`);
         setExecution(id, "PROCESSING", `step ${step.order} done`);
       }
