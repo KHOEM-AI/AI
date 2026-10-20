@@ -217,6 +217,61 @@ describe("POST /api/agent/run — $from with a failed find", () => {
   }, 30000);
 });
 
+describe("POST /api/agent/run — real 3-step flow (scan, find, verify)", () => {
+  it("scan fileCount feeds find and both criteria are checked on real results", async () => {
+    const r = await runAgentApi(okBody({
+      goal: "scan then find then verify",
+      steps: [
+        { description: "scan data", tools: ["scan-repo-data"] },
+        { description: "find by count", tools: ["find-symbol-data"], input: { q: { $from: "step1.scan-repo-data.fileCount" } } },
+      ],
+      verificationCriteria: ["scan.fileCount>0", "find.count>=0"],
+    }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("SUCCESS");
+    expect(r.json.result.evidence).toEqual(expect.arrayContaining([
+      "step 1: tool scan-repo-data executed",
+      "step 2: tool find-symbol-data executed",
+      "criterion scan.fileCount>0: met",
+      "criterion find.count>=0: met",
+    ]));
+    expect(m.khoemReply).not.toHaveBeenCalled();
+  }, 30000);
+
+  it("an unmet criterion is not SUCCESS even though both tools ran", async () => {
+    const r = await runAgentApi(okBody({
+      goal: "scan then find then verify",
+      steps: [
+        { description: "scan data", tools: ["scan-repo-data"] },
+        { description: "find by count", tools: ["find-symbol-data"], input: { q: { $from: "step1.scan-repo-data.fileCount" } } },
+      ],
+      verificationCriteria: ["scan.fileCount>=999999999", "find.count>=0"],
+    }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).not.toBe("SUCCESS");
+    expect(r.json.result.evidence).toEqual(expect.arrayContaining([
+      "step 1: tool scan-repo-data executed",
+      "step 2: tool find-symbol-data executed",
+      "criterion scan.fileCount>=999999999: not met or unknown",
+    ]));
+  }, 30000);
+
+  it("a $from naming the wrong tool fails before any tool runs", async () => {
+    const r = await runAgentApi(okBody({
+      goal: "scan then find then verify",
+      steps: [
+        { description: "scan data", tools: ["scan-repo-data"] },
+        { description: "find by count", tools: ["find-symbol-data"], input: { q: { $from: "step1.find-symbol-data.count" } } },
+      ],
+      verificationCriteria: ["scan.ok=true"],
+    }));
+    expect(r.status).toBe(200);
+    expect(r.json.result.status).toBe("FAILED");
+    expect(r.json.result.reason).toMatch(/does not use tool/);
+    expect(r.json.result.evidence).toEqual([]);
+  });
+});
+
 describe("POST /api/agent/run — allowlist (403)", () => {
   it.each(["apply-patch", "propose-patch", "run-verification", "constructor", "__proto__", "toString", "nope"])(
     "tool %s is refused with 403 and nothing runs",
