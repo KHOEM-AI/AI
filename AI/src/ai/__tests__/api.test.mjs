@@ -48,7 +48,7 @@ vi.mock("../goal.mjs", () => ({
   createGoal: vi.fn(), getGoal: vi.fn(), listGoals: vi.fn(), linkTaskToGoal: vi.fn(),
   getGoalProgress: vi.fn(), setGoalStatus: vi.fn(),
   searchGoals: vi.fn(), listGoalsByStatus: vi.fn(),
-  GOAL_STATUS: { ACTIVE: "ACTIVE", DONE: "DONE" },
+  GOAL_STATUS: { ACTIVE: "ACTIVE", COMPLETED: "COMPLETED" },
 }));
 vi.mock("../modelRouting.mjs", () => ({
   decideProvider: vi.fn(), listProviders: vi.fn(), getRoutingHistory: vi.fn(),
@@ -292,7 +292,7 @@ import { listGoals, searchGoals } from "../goal.mjs";
 describe("GET /api/goals (q + status)", () => {
   const G = [
     { id: "g1", title: "Alpha goal", status: "ACTIVE" },
-    { id: "g2", title: "Beta goal", status: "DONE" },
+    { id: "g2", title: "Beta goal", status: "COMPLETED" },
   ];
 
   it("without query returns all goals as before", async () => {
@@ -313,14 +313,14 @@ describe("GET /api/goals (q + status)", () => {
 
   it("?status= filters by status", async () => {
     listGoals.mockReturnValue(G);
-    const r = await call("get", "/api/goals", { headers: auth, query: { status: "DONE" } });
+    const r = await call("get", "/api/goals", { headers: auth, query: { status: "COMPLETED" } });
     expect(r.status).toBe(200);
     expect(r.json.result.goals).toEqual([G[1]]);
   });
 
   it("q and status work together", async () => {
     searchGoals.mockReturnValue(G);
-    const r = await call("get", "/api/goals", { headers: auth, query: { q: "goal", status: "DONE" } });
+    const r = await call("get", "/api/goals", { headers: auth, query: { q: "goal", status: "COMPLETED" } });
     expect(r.status).toBe(200);
     expect(r.json.result.goals).toEqual([G[1]]);
   });
