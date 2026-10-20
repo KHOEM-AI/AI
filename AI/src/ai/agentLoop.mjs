@@ -30,6 +30,7 @@ export async function runAgent({
 
   const evidence = [];
   let planId = null;
+  const results = [];
 
   const base = () => ({ taskId: id, goalId: goalRec.id, planId, evidence });
 
@@ -77,6 +78,7 @@ export async function runAgent({
           recordAuditEvent("agent.loop.needs_approval", { taskId: id, planId, toolId, approvalId: res.approvalId });
           return { status: "NEEDS_APPROVAL", reason: `tool ${toolId} requires approval`, approvalId: res.approvalId, ...base() };
         }
+        results.push({ toolId, status: res?.status, result: res?.result });
         evidence.push(`step ${step.order}: tool ${toolId} executed`);
         setExecution(id, "PROCESSING", `step ${step.order} done`);
       }
@@ -85,7 +87,7 @@ export async function runAgent({
     setCognitive(id, "VERIFYING", "checking result");
     let testsPassed;
     if (typeof verify === "function") {
-      const v = await verify();
+      const v = await verify({ results });
       testsPassed = typeof v === "object" && v !== null ? v.passed === true : v === true;
       const extra = typeof v === "object" && v !== null && Array.isArray(v.evidence) ? v.evidence : [];
       evidence.push(`verify: ${testsPassed ? "passed" : "failed"}`, ...extra);

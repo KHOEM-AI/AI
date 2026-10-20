@@ -337,7 +337,17 @@ export function registerApi(app) {
       steps: clean,
       verificationCriteria: Array.isArray(verificationCriteria) ? verificationCriteria.slice(0, 10).map(String) : [],
       runners: EXEC_ALLOW,
-      // No real verifier yet: runAgent will report UNCERTAIN.
+      verify: async ({ results = [] } = {}) => {
+        const structured = results.length > 0 && results.every((r) =>
+          r.status === "EXECUTED" && r.result && typeof r.result === "object" &&
+          r.result.ok === true && r.result.fileCount > 0);
+        return {
+          passed: structured,
+          evidence: [structured
+            ? "structured tool results verified (ok, fileCount > 0)"
+            : "no structured ok/fileCount result to verify"],
+        };
+      },
       actor: actorOf(req),
     });
   }));

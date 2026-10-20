@@ -62,10 +62,10 @@ const okBody = (over = {}) => ({
 });
 
 describe("POST /api/agent/run — valid run", () => {
-  it("runs an allowed tool but reports UNCERTAIN without verification", async () => {
+  it("a string-result tool cannot be verified, so the run is FAILED", async () => {
     const r = await runAgentApi(okBody());
     expect(r.status).toBe(200);
-    expect(r.json.result.status).toBe("UNCERTAIN");
+    expect(r.json.result.status).toBe("FAILED");
     expect(m.khoemReply).toHaveBeenCalledWith([{ role: "user", content: "/scan" }]);
   });
 
@@ -74,7 +74,7 @@ describe("POST /api/agent/run — valid run", () => {
       steps: [{ description: "find it", tools: ["find-symbol"], input: { q: "createGoal" } }],
     }));
     expect(r.status).toBe(200);
-    expect(r.json.result.status).toBe("UNCERTAIN");
+    expect(r.json.result.status).toBe("FAILED");
     expect(m.khoemReply).toHaveBeenCalledWith([{ role: "user", content: "/find createGoal" }]);
   });
 
@@ -114,7 +114,7 @@ describe("POST /api/agent/run — structured tool", () => {
   it("scan-repo-data runs through the agent without calling khoemReply", async () => {
     const r = await runAgentApi(okBody({ steps: [{ description: "scan data", tools: ["scan-repo-data"] }] }));
     expect(r.status).toBe(200);
-    expect(r.json.result.status).toBe("UNCERTAIN");
+    expect(r.json.result.status).toBe("SUCCESS");
     expect(r.json.result.evidence).toContain("step 1: tool scan-repo-data executed");
     expect(m.khoemReply).not.toHaveBeenCalled();
   });
@@ -139,7 +139,7 @@ describe("POST /api/agent/run — allowlist (403)", () => {
   it("a step cannot raise its own risk above LOW", async () => {
     const r = await runAgentApi(okBody({ steps: [{ ...okStep, risk: "HIGH" }] }));
     expect(r.status).toBe(200);
-    expect(r.json.result.status).toBe("UNCERTAIN");
+    expect(r.json.result.status).toBe("FAILED");
   });
 });
 

@@ -1,6 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { runAgent } from "../agentLoop.mjs";
 import { getTask } from "../tasks.mjs";
+import { registerTool, unregisterTool } from "../toolRegistry.mjs";
+
+const TID = "agentloop-results-tool";
+afterEach(() => unregisterTool(TID));
 
 const steps = [{ description: "check the thing", risk: "LOW" }];
 
@@ -25,6 +29,23 @@ describe("agentLoop", () => {
     });
     expect(r.status).toBe("FAILED");
     expect(getTask(r.taskId).state).toBe("FAILED");
+  });
+
+  it("passes tool results to verify", async () => {
+    registerTool({ id: TID, action: "tool.scan" });
+    const verify = vi.fn(async () => true);
+    const r = await runAgent({
+      goal: "test goal results",
+      steps: [{ description: "run tool", risk: "LOW", tools: [TID] }],
+      verificationCriteria: ["checked"],
+      runners: { [TID]: async () => ({ ok: true, fileCount: 3 }) },
+      verify,
+    });
+    expect(r.status).toBe("SUCCESS");
+    expect(verify).toHaveBeenCalledTimes(1);
+    const arg = verify.mock.calls[0][0];
+    expect(arg.results).toHaveLength(1);
+    expect(arg.results[0]).toMatchObject({ toolId: TID, status: "EXECUTED", result: { ok: true, fileCount: 3 } });
   });
 
   it("is not SUCCESS without any verification", async () => {
