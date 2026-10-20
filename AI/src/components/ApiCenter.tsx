@@ -153,7 +153,7 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
         ?? r?.characters ?? r?.storyboards ?? r?.snapshots ?? r?.proposals ?? r?.breakers ?? r?.tools ?? [];
       const f: any = Array.isArray(arr) ? arr[0] : Object.keys(r ?? {})[0];
       if (f == null) return "";
-      return typeof f === "string" ? f : String(f.id ?? f.name ?? f.taskId ?? "");
+      return typeof f === "string" ? f : String(f.id ?? f.name ?? f.taskId ?? f.ideaId ?? f.planId ?? f.experimentId ?? "");
     };
     const out: string[] = [];
     let ok = 0, skip = 0, bad = 0;

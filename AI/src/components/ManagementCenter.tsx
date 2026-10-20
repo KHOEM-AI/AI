@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
+import AgentRunPanel from "./AgentRunPanel";
 
 async function api(url: string, opts: RequestInit = {}) {
   const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
@@ -321,6 +322,12 @@ export default function ManagementCenter({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         {budgetDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={budgetDetail} /></div>}
+
+        {/* Agent */}
+        <div className="status-panel__meta" style={{ marginTop: 16 }}>
+          <span>Agent</span>
+        </div>
+        <AgentRunPanel />
       </div>
     </div>
   );
