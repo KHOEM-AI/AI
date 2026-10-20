@@ -141,6 +141,15 @@ describe("POST /api/agent/run — allowlisted criteria", () => {
   });
 });
 
+describe("POST /api/agent/run — goalVerifier criteria", () => {
+  const dataStep = [{ description: "scan data", tools: ["scan-repo-data"] }];
+  it("scan.ok=true is verified against the real scan result", async () => {
+    const r = await runAgentApi(okBody({ steps: dataStep, verificationCriteria: ["scan.ok=true"] }));
+    expect(r.json.result.status).toBe("SUCCESS");
+    expect(r.json.result.evidence).toContain("criterion scan.ok=true: met");
+  });
+});
+
 describe("POST /api/agent/run — allowlist (403)", () => {
   it.each(["apply-patch", "propose-patch", "run-verification", "constructor", "__proto__", "toString", "nope"])(
     "tool %s is refused with 403 and nothing runs",

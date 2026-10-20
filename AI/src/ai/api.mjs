@@ -12,6 +12,7 @@ import { runSandboxTest } from "./sandbox.mjs";
 import { proposePatch, getProposal, listProposals, applyPatch } from "./patch.mjs";
 import { listTools, findTools, describeToolRisk } from "./toolRegistry.mjs";
 import "./toolRegistry.bootstrap.mjs";
+import { verifyGoalCriteria } from "./goalVerifier.mjs";
 import { executeTool } from "./toolExecutor.mjs";
 import { createBudget, recordUsage, checkBudget, getBudget, listBudgets, clearBudget } from "./budget.mjs";
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
@@ -284,12 +285,6 @@ export function registerApi(app) {
 
   // Read-only LOW-risk tools only, through executeTool (policy + audit).
   // apply-patch / propose-patch are intentionally NOT exposed here.
-  // Allowlisted verification criteria: each is checked against real tool results.
-  const CRITERIA = {
-    "scan.fileCount>0": (results) => results.some((r) =>
-      r.toolId === "scan-repo-data" && r.status === "EXECUTED" &&
-      r.result && r.result.ok === true && r.result.fileCount > 0),
-  };
   const TOOL_EXEC_PER_MIN = Number(process.env.KHOEM_TOOL_RATE_PER_MIN) || 20;
   const EXEC_ALLOW = {
     "scan-repo": () => run("/scan"),
@@ -343,15 +338,8 @@ export function registerApi(app) {
       steps: clean,
       verificationCriteria: Array.isArray(verificationCriteria) ? verificationCriteria.slice(0, 10).map(String) : [],
       runners: EXEC_ALLOW,
-      verify: async ({ results = [] } = {}) => {
-        const crit = Array.isArray(verificationCriteria) ? verificationCriteria.slice(0, 10).map(String) : [];
-        const checks = crit.map((c) => ({ c, ok: Object.hasOwn(CRITERIA, c) && CRITERIA[c](results) === true }));
-        const passed = checks.length > 0 && checks.every((x) => x.ok);
-        return {
-          passed,
-          evidence: checks.map((x) => `criterion ${x.c}: ${x.ok ? "met" : "not met or unknown"}`),
-        };
-      },
+      verify: async ({ results = [] } = {}) =>
+        verifyGoalCriteria({ criteria: verificationCriteria, results }),
       actor: actorOf(req),
     });
   }));
