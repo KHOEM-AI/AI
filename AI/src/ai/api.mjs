@@ -332,7 +332,7 @@ export function registerApi(app) {
       steps: clean,
       verificationCriteria: Array.isArray(verificationCriteria) ? verificationCriteria.slice(0, 10).map(String) : [],
       runners: EXEC_ALLOW,
-      verify: async () => ({ passed: true, evidence: ["all tool calls finished without error"] }),
+      // No real verifier yet: runAgent will report UNCERTAIN.
       actor: actorOf(req),
     });
   }));
