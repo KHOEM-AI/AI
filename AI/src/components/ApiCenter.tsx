@@ -194,7 +194,7 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
       const f = arr[0];
       if (f == null) return { id: "", why: "empty" };
       if (typeof f === "string") return { id: f, why: "ok" };
-      const id = String(f.id ?? f.name ?? f.taskId ?? "");
+      const id = String(f.id ?? f.ideaId ?? f.planId ?? f.experimentId ?? f.name ?? f.taskId ?? "");
       return { id, why: id ? "ok" : Object.keys(f).slice(0, 6).join(",") };
     };
     const out: Probe[] = [];
