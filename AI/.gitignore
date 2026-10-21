@@ -31,3 +31,4 @@ src/ai/__tests__/__fixtures__/
 
 # stray PDF named .png (not used by code)
 src/assets/khoem-ai-heart.png
+*.tmp
