@@ -48,29 +48,64 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
     finally { setBusy(false); }
   }
 
+  // ---- ពិនិត្យដោយស្មោះត្រង់ ----
+  // ✅ ជាប់ពិត (2xx + ចម្លើយ JSON ត្រឹមត្រូវ) · 🟡 ត្រូវការទិន្នន័យសិន (404 ទន់ ឬបញ្ជីទទេ)
+  // ⚠️ ត្រូវការ query/id · 🔒 key ឬ policy បដិសេធ · ❌ ខូចពិត (5xx, timeout, 404, ចម្លើយមាន error) · 🐢 យឺតជាង 1.5s
+  const SLOW_MS = 1500;
+  type Kind = "ok" | "data" | "need" | "deny" | "bad";
+  type Probe = { kind: Kind; line: string; slow?: boolean };
+
+  async function probe(path: string, limitMs: number, opts: { softNotFound?: boolean; text?: boolean } = {}): Promise<Probe> {
+    const t0 = performance.now();
+    const took = () => Math.round(performance.now() - t0);
+    let timer: any;
+    const timeout = new Promise<never>((_, rej) => { timer = setTimeout(() => rej({ status: "timeout" }), limitMs); });
+    const call = api(path);
+    call.catch(() => {});
+    try {
+      const body: any = await Promise.race([call, timeout]);
+      const d = took();
+      const slow = d > SLOW_MS;
+      const tail = " · " + d + "ms" + (slow ? " 🐢" : "");
+      if (body && typeof body === "object" && !Array.isArray(body) && typeof body.error === "string")
+        return { kind: "bad", line: "❌ " + path + " (200 តែមាន error: " + body.error + ")" + tail, slow };
+      if (body === null && !opts.text)
+        return { kind: "data", line: "🟡 " + path + " (ចម្លើយមិនមែន JSON)" + tail, slow };
+      return { kind: "ok", line: "✅ " + path + tail, slow };
+    } catch (e) {
+      const st = (e as any)?.status;
+      const tail = " · " + took() + "ms";
+      if (st === 404) return opts.softNotFound
+        ? { kind: "data", line: "🟡 " + path + " (404 គ្មានទិន្នន័យសម្រាប់ id នេះ)" + tail }
+        : { kind: "bad", line: "❌ " + path + " (404 រកមិនឃើញ)" + tail };
+      if (st === 400) return { kind: "need", line: "⚠️ " + path + " (400 ត្រូវការ query)" + tail };
+      if (st === 401 || st === 403) return { kind: "deny", line: "🔒 " + path + " (" + st + ")" + tail };
+      return { kind: "bad", line: "❌ " + path + " (" + (st ?? "?") + ")" + tail };
+    } finally { clearTimeout(timer); }
+  }
+
+  function render(done: number, total: number, arr: Probe[], t0: number): string[] {
+    const got = arr.filter(Boolean);
+    const n = (k: Kind) => got.filter((p) => p.kind === k).length;
+    const slow = got.filter((p) => p.slow).length;
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    const head = done + "/" + total + " · ✅ " + n("ok") + " 🟡 " + n("data") + " ⚠️ " + n("need") + " 🔒 " + n("deny") + " ❌ " + n("bad") + " · " + secs + "s" + (slow ? " · 🐢 " + slow : "");
+    return [head, ...got.filter((p) => p.kind !== "ok").map((p) => p.line), ...got.filter((p) => p.kind === "ok").map((p) => p.line)];
+  }
+
   async function checkAll() {
     setBusy(true); setReport([]);
     const list = routes.filter((r) => r.method === "GET" && !r.path.includes(":"));
-    const res: string[] = new Array(list.length).fill("");
-    let ok = 0, warn = 0, bad = 0, done = 0, next = 0;
-    const push = () => setReport([`${done}/${list.length} · ✅ ${ok} ⚠️ ${warn} ❌ ${bad}`, ...res.filter(Boolean)]);
+    const res: Probe[] = new Array(list.length);
+    let done = 0, next = 0;
+    const t0 = performance.now();
     const worker = async () => {
       while (next < list.length) {
         const i = next++;
-        const r = list[i];
-        const ms = r.path.startsWith("/api/code/") ? 60000 : 8000;
-        try {
-          await Promise.race([
-            api(r.path),
-            new Promise((_, rej) => setTimeout(() => rej({ status: "timeout" }), ms)),
-          ]);
-          ok++; res[i] = `✅ ${r.path}`;
-        } catch (e) {
-          const st = (e as any)?.status;
-          if (st === 400 || st === 401 || st === 403) { warn++; res[i] = `⚠️ ${r.path} (${st})`; }
-          else { bad++; res[i] = `❌ ${r.path} (${st ?? "?"})`; }
-        }
-        done++; push();
+        const p = list[i].path;
+        res[i] = await probe(p, p.startsWith("/api/code/") ? 60000 : 8000, { text: p.endsWith(".txt") });
+        done++;
+        setReport(render(done, list.length, res, t0));
       }
     };
     await Promise.all(Array.from({ length: 4 }, worker));
@@ -100,30 +135,25 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
       ["/api/learned/starts", "?prefix=" + encodeURIComponent("សួស្")],
       ["/api/learned/backup-diff", "?name=" + encodeURIComponent(backup)],
     ];
-    const out: string[] = [];
-    let ok = 0, bad = 0;
+    const out: Probe[] = [];
+    const t0 = performance.now();
     for (let i = 0; i < tests.length; i++) {
       const [p, qs] = tests[i];
-      if (p.endsWith("backup-diff") && !backup) { out.push("⚠️ " + p + " (គ្មាន backup)"); continue; }
-      try {
-        await Promise.race([
-          api(p + qs),
-          new Promise((_, rej) => setTimeout(() => rej({ status: "timeout" }), p.startsWith("/api/code/") ? 60000 : 8000)),
-        ]);
-        ok++; out.push("✅ " + p + qs);
-      } catch (e) {
-        const st = (e as any)?.status;
-        if (st === 404) { ok++; out.push("✅ " + p + " (404 គ្មានទិន្នន័យ)"); }
-        else { bad++; out.push("❌ " + p + " (" + (st ?? "?") + ")"); }
+      if (p.endsWith("backup-diff") && !backup) {
+        out.push({ kind: "data", line: "🟡 " + p + " (គ្មាន backup — ហៅ POST /api/learned/backup សិន)" });
+      } else {
+        const r = await probe(p + qs, p.startsWith("/api/code/") ? 60000 : 8000, { softNotFound: true });
+        // មាន query គំរូហើយ ប៉ុន្តែនៅតែ 400 គឺជាកំហុសពិត មិនមែន «ត្រូវការ query» ទេ
+        out.push(r.kind === "need" ? { kind: "bad", line: r.line.replace("⚠️", "❌").replace("ត្រូវការ query", "ទោះមាន query គំរូ") } : r);
       }
-      setReport([(i + 1) + "/" + tests.length + " · ✅ " + ok + " ❌ " + bad, ...out]);
+      setReport(render(i + 1, tests.length, out, t0));
     }
     setBusy(false);
   }
 
   async function probeIds() {
     setBusy(true); setReport([]);
-    // [route មានបញ្ជី, template របស់ route :id, វាលយក id]
+    // [route មានបញ្ជី, template របស់ route :id]
     const T: [string, string][] = [
       ["/api/ideas", "/api/ideas/:id"],
       ["/api/plans", "/api/plans/:id"],
@@ -146,33 +176,44 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
       ["/api/circuit", "/api/circuit/:id"],
       ["/api/tools", "/api/tools/:id/risk"],
     ];
-    const pickId = (j: any): string => {
+    // 404 ទន់: id មកពីបញ្ជី task ប៉ុន្តែ budget អាចមិនទាន់បង្កើត (មិនមែនខូច)
+    const SOFT = new Set(["/api/budget/:id"]);
+    const LISTS = ["items", "ideas", "plans", "experiments", "tasks", "goals", "approvals", "characters", "storyboards", "snapshots", "proposals", "breakers", "tools"];
+    // បែងចែក: id រកឃើញ / បញ្ជីទទេពិត (0 ធាតុ) / ទម្រង់ចម្លើយមិនស្គាល់ (មិនមែនទទេក្លែង)
+    const pick = (j: any): { id: string; why: string } => {
       const r = j?.result ?? j;
-      const arr: any[] = Array.isArray(r) ? r
-        : r?.items ?? r?.ideas ?? r?.plans ?? r?.experiments ?? r?.tasks ?? r?.goals ?? r?.approvals
-        ?? r?.characters ?? r?.storyboards ?? r?.snapshots ?? r?.proposals ?? r?.breakers ?? r?.tools ?? [];
-      const f: any = Array.isArray(arr) ? arr[0] : Object.keys(r ?? {})[0];
-      if (f == null) return "";
-      return typeof f === "string" ? f : String(f.id ?? f.name ?? f.taskId ?? f.ideaId ?? f.planId ?? f.experimentId ?? "");
+      let arr: any = Array.isArray(r) ? r : null;
+      if (!arr && r && typeof r === "object") {
+        for (const k of LISTS) {
+          const v = r[k];
+          if (Array.isArray(v)) { arr = v; break; }
+          if (v && typeof v === "object" && Object.keys(v).length) { arr = Object.keys(v); break; }
+        }
+      }
+      if (!arr) return { id: "", why: r && typeof r === "object" ? Object.keys(r).slice(0, 6).join(",") || "{}" : typeof r };
+      const f = arr[0];
+      if (f == null) return { id: "", why: "empty" };
+      if (typeof f === "string") return { id: f, why: "ok" };
+      const id = String(f.id ?? f.name ?? f.taskId ?? "");
+      return { id, why: id ? "ok" : Object.keys(f).slice(0, 6).join(",") };
     };
-    const out: string[] = [];
-    let ok = 0, skip = 0, bad = 0;
+    const out: Probe[] = [];
+    const t0 = performance.now();
     for (let i = 0; i < T.length; i++) {
       const [list, tpl] = T[i];
       try {
-        const id = pickId(await api(list));
-        if (!id) { skip++; out.push("ℹ️ " + tpl + " (បញ្ជីទទេ)"); }
-        else {
-          const url = tpl.replace(":id", encodeURIComponent(id));
-          try { await api(url); ok++; out.push("✅ " + url); }
-          catch (e) {
-            const st = (e as any)?.status;
-            if (st === 404) { ok++; out.push("✅ " + url + " (404)"); }
-            else { bad++; out.push("❌ " + url + " (" + (st ?? "?") + ")"); }
-          }
+        const { id, why } = pick(await api(list));
+        if (!id) {
+          out.push(why === "empty"
+            ? { kind: "data", line: "🟡 " + tpl + " (បញ្ជីទទេ 0 ធាតុ — បង្កើតទិន្នន័យសិន)" }
+            : { kind: "need", line: "⚠️ " + tpl + " (រកមិនឃើញ id ក្នុងចម្លើយ keys: " + why + ")" });
+        } else {
+          out.push(await probe(tpl.replace(":id", encodeURIComponent(id)), 8000, { softNotFound: SOFT.has(tpl) }));
         }
-      } catch (e) { bad++; out.push("❌ " + list + " (" + ((e as any)?.status ?? "?") + ")"); }
-      setReport([(i + 1) + "/" + T.length + " · ✅ " + ok + " ⚠️ " + skip + " ❌ " + bad, ...out]);
+      } catch (e) {
+        out.push({ kind: "bad", line: "❌ " + list + " (" + ((e as any)?.status ?? "?") + ")" });
+      }
+      setReport(render(i + 1, T.length, out, t0));
     }
     setBusy(false);
   }

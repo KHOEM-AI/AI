@@ -236,4 +236,53 @@ describe("learnedApi", () => {
     expect((await get("/api/learned/backups")).body.result.length).toBe(1);
   });
 
+
+  it("ខ្សែពេញ: បង្រៀន → ចម្លើយ → ភ្លេច → ស្ដារពី backup", async () => {
+    const q = "ទីក្រុងធំជាងគេនៅកម្ពុជា";
+    const a = "ភ្នំពេញ";
+    expect((await post("/api/learned/bulk", { items: [{ q, a }] })).body.result.added).toBe(1);
+    const m = (await get("/api/learned/match?q=" + enc(q + "?"))).body.result;
+    expect(m.answer).toBe(a);
+    expect(m.confidence).toBe("HIGH");
+    const name = (await post("/api/learned/backup")).body.result.name;
+    expect((await post("/api/learned/forget-bulk", { qs: [q] })).body.result.removed).toBe(1);
+    expect((await get("/api/learned/match?q=" + enc(q))).body.result.confidence).not.toBe("HIGH");
+    expect((await post("/api/learned/restore", { name, confirm: true })).status).toBe(200);
+    expect((await get("/api/learned/match?q=" + enc(q))).body.result.answer).toBe(a);
+  });
+
+  it("guard និង policy ពិត: គ្មាន key មិនអាចប៉ះទិន្នន័យ", async () => {
+    const KEY = "test-key-learned-api";
+    const prev = process.env.KHOEM_API_KEY;
+    process.env.KHOEM_API_KEY = KEY;
+    const { default: express } = await import("express");
+    const { registerLearnedApi } = await import("../learnedApi.mjs");
+    const app = express();
+    app.use(express.json());
+    registerLearnedApi(app);
+    const srv = await new Promise((r) => { const s2 = app.listen(0, "127.0.0.1", () => r(s2)); });
+    const b = "http://127.0.0.1:" + srv.address().port;
+    const hit = async (m, p, key, body) => {
+      const r = await fetch(b + p, {
+        method: m,
+        headers: { "Content-Type": "application/json", ...(key ? { "x-api-key": key } : {}) },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      return r.status;
+    };
+    try {
+      expect(await hit("GET", "/api/learned/count")).toBe(401);
+      expect(await hit("GET", "/api/learned/count", "wrong-key")).toBe(401);
+      expect(await hit("GET", "/api/learned/count", KEY)).toBe(200);
+      expect(await hit("POST", "/api/learned/clear", null, { confirm: "CLEAR" })).toBe(401);
+      expect(Object.keys(file()).length).toBe(5);
+      const st = await hit("POST", "/api/learned/clear", KEY, { confirm: "CLEAR" });
+      expect([200, 202, 403]).toContain(st);
+      if (st !== 200) expect(Object.keys(file()).length).toBe(5);
+    } finally {
+      await new Promise((r) => srv.close(r));
+      if (prev === undefined) delete process.env.KHOEM_API_KEY; else process.env.KHOEM_API_KEY = prev;
+    }
+  });
+
 });
