@@ -98,4 +98,25 @@ describe("khmer.mjs", () => {
     expect(khmerReply("អាចជួយកែកូដទេ")).toContain("/patch");
   });
 
+
+  it("answers drought questions with drought-related guidance", () => {
+    const result = khmerReply("តើពេលអត់ភ្លៀងខ្ញុំគួរធ្វើដូចម្តេច?");
+    expect(result).not.toBeNull();
+    expect(result).toContain("ទឹក");
+    expect(result).not.toContain("ឆ័ត្រ");
+  });
+
+  it("answers questions about traditional Khmer sports", () => {
+    const result = khmerReply("ខ្ញុំចង់ស្គាល់កីឡាបុរាណរបស់ខ្មែរ");
+    expect(result).not.toBeNull();
+    expect(result).toMatch(/គុនខ្មែរ|ល្បុក្កតោ/);
+  });
+
+  it("answers questions about traditional Khmer musical ensembles", () => {
+    const result = khmerReply(
+      "តើវង់ភ្លេងដែលគេលេងក្នុងពិធីបុរាណមានឧបករណ៍អ្វីខ្លះ?"
+    );
+    expect(result).not.toBeNull();
+    expect(result).toContain("ពិណពាទ្យ");
+  });
 });
