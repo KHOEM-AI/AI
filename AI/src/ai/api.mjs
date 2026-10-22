@@ -17,7 +17,7 @@ import { executeTool } from "./toolExecutor.mjs";
 import { createBudget, recordUsage, checkBudget, getBudget, listBudgets, clearBudget } from "./budget.mjs";
 import { listBreakers, getBreakerState } from "./circuitBreaker.mjs";
 import { getMetrics } from "./metrics.mjs";
-import { createGoal, getGoal, listGoals, linkTaskToGoal, getGoalProgress, setGoalStatus, searchGoals, listGoalsByStatus, GOAL_STATUS } from "./goal.mjs";
+import { createGoal, getGoal, listGoals, linkTaskToGoal, getGoalProgress, setGoalStatus, searchGoals, listGoalsByStatus, linkIdeaToGoal, linkPlanToGoal, GOAL_STATUS } from "./goal.mjs";
 import { decideProvider, listProviders, getRoutingHistory } from "./modelRouting.mjs";
 import { runVerification, getLastVerification, listVerifications } from "./verification.mjs";
 import { readRecentAuditEvents } from "./audit.mjs";
@@ -431,6 +431,22 @@ app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
   app.post("/api/goals/:id/link", guard, policy("goal.link"), wrap((req) => {
     const { taskId } = req.body || {};
     return linkTaskToGoal(req.params.id, taskId);
+  }));
+  app.post("/api/goals/:id/ideas", guard, policy("goal.link"), wrap((req) => {
+    const { ideaId } = req.body || {};
+    if (typeof ideaId !== "string" || !ideaId) throw bad("ideaId required");
+    found(Ideas.getIdea(ideaId), "idea");
+    const r = linkIdeaToGoal(req.params.id, ideaId);
+    if (!r.ok) throw bad(r.reason, 404);
+    return r;
+  }));
+  app.post("/api/goals/:id/plans", guard, policy("goal.link"), wrap((req) => {
+    const { planId } = req.body || {};
+    if (typeof planId !== "string" || !planId) throw bad("planId required");
+    found(Planning.getPlan(planId), "plan");
+    const r = linkPlanToGoal(req.params.id, planId);
+    if (!r.ok) throw bad(r.reason, 404);
+    return r;
   }));
   app.post("/api/goals/:id/status", guard, policy("goal.setStatus"), wrap((req) => {
     const { status } = req.body || {};

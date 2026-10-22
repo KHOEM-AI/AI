@@ -13,6 +13,7 @@ const m = vi.hoisted(() => ({
   readRecentAuditEvents: vi.fn(),
   listIdeas: vi.fn(),
   getIdea: vi.fn(),
+  getPlan: vi.fn(),
   transitionExperiment: vi.fn(),
 }));
 
@@ -48,6 +49,7 @@ vi.mock("../goal.mjs", () => ({
   createGoal: vi.fn(), getGoal: vi.fn(), listGoals: vi.fn(), linkTaskToGoal: vi.fn(),
   getGoalProgress: vi.fn(), setGoalStatus: vi.fn(),
   searchGoals: vi.fn(), listGoalsByStatus: vi.fn(),
+  linkIdeaToGoal: vi.fn(), linkPlanToGoal: vi.fn(),
   GOAL_STATUS: { ACTIVE: "ACTIVE", COMPLETED: "COMPLETED" },
 }));
 vi.mock("../modelRouting.mjs", () => ({
@@ -60,7 +62,7 @@ vi.mock("../audit.mjs", () => ({ readRecentAuditEvents: m.readRecentAuditEvents 
 vi.mock("../ideas.mjs", () => ({
   listIdeas: m.listIdeas, getIdea: m.getIdea, rankIdeas: vi.fn(), createIdea: vi.fn(),
 }));
-vi.mock("../planning.mjs", () => ({ listPlans: vi.fn(), getPlan: vi.fn(), createPlan: vi.fn() }));
+vi.mock("../planning.mjs", () => ({ listPlans: vi.fn(), getPlan: m.getPlan, createPlan: vi.fn() }));
 vi.mock("../experiments.mjs", () => ({
   listExperiments: vi.fn(), getExperiment: vi.fn(), createExperiment: vi.fn(),
   transitionExperiment: m.transitionExperiment,
@@ -330,5 +332,62 @@ describe("GET /api/goals (q + status)", () => {
     expect(r.status).toBe(400);
     expect(listGoals).not.toHaveBeenCalled();
     expect(searchGoals).not.toHaveBeenCalled();
+  });
+});
+
+import { linkIdeaToGoal, linkPlanToGoal } from "../goal.mjs";
+
+describe("POST /api/goals/:id/ideas and /plans", () => {
+  const post = (path, body) =>
+    call("post", path, { headers: auth, body, params: { id: "g1" } });
+
+  it("ideas: 400 when ideaId is missing", async () => {
+    const r = await post("/api/goals/:id/ideas", {});
+    expect(r.status).toBe(400);
+    expect(linkIdeaToGoal).not.toHaveBeenCalled();
+  });
+
+  it("ideas: 404 when the idea does not exist", async () => {
+    m.getIdea.mockReturnValue(null);
+    const r = await post("/api/goals/:id/ideas", { ideaId: "i1" });
+    expect(r.status).toBe(404);
+    expect(linkIdeaToGoal).not.toHaveBeenCalled();
+  });
+
+  it("ideas: 404 when the goal does not exist", async () => {
+    m.getIdea.mockReturnValue({ id: "i1" });
+    linkIdeaToGoal.mockReturnValue({ ok: false, reason: "GOAL_NOT_FOUND" });
+    const r = await post("/api/goals/:id/ideas", { ideaId: "i1" });
+    expect(r.status).toBe(404);
+  });
+
+  it("ideas: links and returns the result", async () => {
+    m.getIdea.mockReturnValue({ id: "i1" });
+    linkIdeaToGoal.mockReturnValue({ ok: true, goal: { id: "g1" } });
+    const r = await post("/api/goals/:id/ideas", { ideaId: "i1" });
+    expect(r.status).toBe(200);
+    expect(linkIdeaToGoal).toHaveBeenCalledWith("g1", "i1");
+    expect(r.json.result.ok).toBe(true);
+  });
+
+  it("plans: 400 when planId is missing", async () => {
+    const r = await post("/api/goals/:id/plans", {});
+    expect(r.status).toBe(400);
+    expect(linkPlanToGoal).not.toHaveBeenCalled();
+  });
+
+  it("plans: 404 when the plan does not exist", async () => {
+    m.getPlan.mockReturnValue(null);
+    const r = await post("/api/goals/:id/plans", { planId: "p1" });
+    expect(r.status).toBe(404);
+    expect(linkPlanToGoal).not.toHaveBeenCalled();
+  });
+
+  it("plans: links and returns the result", async () => {
+    m.getPlan.mockReturnValue({ id: "p1" });
+    linkPlanToGoal.mockReturnValue({ ok: true, goal: { id: "g1" } });
+    const r = await post("/api/goals/:id/plans", { planId: "p1" });
+    expect(r.status).toBe(200);
+    expect(linkPlanToGoal).toHaveBeenCalledWith("g1", "p1");
   });
 });
