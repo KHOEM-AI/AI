@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
 import AgentRunPanel from "./AgentRunPanel";
+import GoalLinkPanel from "./GoalLinkPanel";
 
 async function api(url: string, opts: RequestInit = {}) {
   const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
@@ -235,6 +236,7 @@ export default function ManagementCenter({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         {goalDetail !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={goalDetail} /></div>}
+        <GoalLinkPanel goalId={goalDetailId.trim()} />
 
         {ideas !== null && <div className="status-grid" style={{ marginTop: 8 }}><JsonBlock data={ideas} /></div>}
         <div className="status-panel__meta" style={{ display: "flex", gap: 8, marginTop: 8 }}>
