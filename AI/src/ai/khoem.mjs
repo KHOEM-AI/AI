@@ -4,6 +4,7 @@ import { withSeed } from "./conversations.mjs";
 import { routeLanguage, getCentralLanguageRegistry } from "./languageCenter.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
+import { hybridSearch, ingestFile } from "./rag.mjs";
 import { remReply } from "./rem.mjs";
 import { buildShotList, splitBeats } from "./shotlist.mjs";
 import { listCharacters, buildPrompt } from "./characters.mjs";
@@ -257,6 +258,51 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
     try { kmAnswer = await searchKhoemKhmer(last); } catch { kmAnswer = null; }
     if (kmAnswer) { onStage?.("RETRIEVING", "KHOEM_AI khmer"); return kmAnswer; }
   }
+
+
+  // ===== KHOEM RAG INTEGRATION =====
+  if (q === "/rag" || q === "/rag?") {
+    return "📖 RAG — ស្វែងរកចំណេះដឹងក្នុងឯកសារ\n/rag <សំណួរ>\n/rag add <ផ្លូវឯកសារ.json>";
+  }
+
+  if (q.startsWith("/rag add ")) {
+    const file = last.slice(9).trim();
+    if (!file) return "ទម្រង់៖ /rag add data/rag/demo.json";
+    try {
+      const result = await ingestFile(file);
+      return `✅ RAG ingest: added ${result.added}, skipped ${result.skipped}`;
+    } catch (e) {
+      return "❌ RAG ingest បរាជ័យ៖ " + (e?.message || String(e));
+    }
+  }
+
+  if (q.startsWith("/rag ")) {
+    const query = last.slice(5).trim();
+    if (!query) return "សូមបញ្ចូលសំណួរបន្ទាប់ពី /rag";
+    try {
+      const hits = await hybridSearch(query, { topK: 3, minScore: 0.15 });
+      if (!hits.length) return "❓ រកមិនឃើញក្នុងឯកសារ RAG ទេ។";
+      return hits.map((h, i) =>
+        `[${i + 1}] ${h.text}\n📖 ប្រភព៖ ${h.id} (score ${h.score})`
+      ).join("\n---\n");
+    } catch (e) {
+      return "❌ RAG search បរាជ័យ៖ " + (e?.message || String(e));
+    }
+  }
+
+  // For ordinary questions, use RAG only when its relevance score is strong.
+  if (!q.startsWith("/") && q !== "help") {
+    try {
+      const hits = await hybridSearch(last, { topK: 3, minScore: 0.35 });
+      if (hits.length) {
+        onStage?.("RETRIEVING", `RAG: ${hits.length} hits`);
+        return `${hits[0].text}\n\n📖 ប្រភព៖ ${hits[0].id}`;
+      }
+    } catch {
+      // RAG unavailable: continue through the existing reply pipeline.
+    }
+  }
+  // ===== END KHOEM RAG INTEGRATION =====
 
   // Route supported natural languages through the Language Center.
   if (!q.startsWith("/") && q !== "help") {
