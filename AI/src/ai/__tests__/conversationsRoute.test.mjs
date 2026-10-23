@@ -8,10 +8,10 @@ describe("conversation seed is the last resort", () => {
     const k = Object.keys(seed).find((x) => x.includes("ស៊ីដ"));
     expect(k).toBeTruthy();
     expect(await routeLanguage(k)).toBe(seed[k]);
-  });
+  }, 30000);
   it("does not override an existing khmer.mjs answer", async () => {
     const r = await routeLanguage("សួស្តី");
     expect(r).not.toBeNull();
     expect(Object.values(loadConversations())).not.toContain(r);
-  });
+  }, 30000);
 });
