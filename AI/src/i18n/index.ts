@@ -5,46 +5,10 @@ import { KHOEM_LANG } from "./khoemLang.generated";
 
 import km from "./km";
 import en from "./en";
-import th from "./th";
-import vi from "./vi";
-import my from "./my";
-import lo from "./lo";
-import hi from "./hi";
-import ar from "./ar";
-import ur from "./ur";
-import ta from "./ta"; // Tamil
-import tr from "./tr"; // Turkish
-import fa from "./fa"; // Persian
-import fr from "./fr";
-import es from "./es";
-import pt from "./pt";
-import zh from "./zh";
-import ru from "./ru";
-import ja from "./ja";
-import ko from "./ko";
-import de from "./de";
-import it from "./it";
-import nl from "./nl";
-import pl from "./pl";
-import uk from "./uk";
-import sv from "./sv";
-import el from "./el";
-import he from "./he";
-import ro from "./ro";
-import cs from "./cs";
-import hu from "./hu";
-import id from "./id";
-import ms from "./ms";
-import tl from "./tl";
-import bn from "./bn";
-import ne from "./ne";
-import si from "./si";
-import mn from "./mn";
 
 export const DICTIONARIES: Partial<Record<LanguageCode, Translations>> = {
-  km, en, th, vi, my, lo, hi, ar, ur, ta, tr, fa,
-  fr, es, pt, zh, ru,
-  ja, ko, de, it, nl, pl, uk, sv, el, he, ro, cs, hu, id, ms, tl, fil: tl, bn, ne, si, mn,
+  km,
+  en,
 };
 
 export function getTranslations(code: LanguageCode): Translations {
