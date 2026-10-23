@@ -1,10 +1,25 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { ingestFile, loadDocs, hybridSearch, ragAnswer, cosine, buildContext } from "../rag.mjs";
 
 const STORE = path.join(process.cwd(), "data", "rag", "docs.jsonl");
-beforeAll(() => { fs.rmSync(path.dirname(STORE), { recursive: true, force: true }); fs.mkdirSync(path.dirname(STORE), { recursive: true }); });
+const BAK = path.join(process.cwd(), "data", "rag.testbak");
+beforeAll(() => {
+  const d = path.dirname(STORE);
+  fs.rmSync(BAK, { recursive: true, force: true });
+  if (fs.existsSync(d)) fs.cpSync(d, BAK, { recursive: true });
+  fs.rmSync(d, { recursive: true, force: true });
+  fs.mkdirSync(d, { recursive: true });
+});
+afterAll(() => {
+  const d = path.dirname(STORE);
+  fs.rmSync(d, { recursive: true, force: true });
+  if (fs.existsSync(BAK)) {
+    fs.cpSync(BAK, d, { recursive: true });
+    fs.rmSync(BAK, { recursive: true, force: true });
+  }
+});
 
 describe("rag ingest", () => {
   it("ផ្តល់ docs ពី jsonl", () => {
