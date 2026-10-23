@@ -39,3 +39,15 @@
 /AI/src/ai/planning.mjs             @KHOEM-AI
 /AI/src/ai/selfEval.mjs             @KHOEM-AI
 /AI/src/ai/tools.mjs                @KHOEM-AI
+
+# Safety and execution guards
+/AI/src/ai/agentLoop.mjs                      @KHOEM-AI
+/AI/src/ai/toolExecutor.mjs                   @KHOEM-AI
+/AI/src/ai/toolRegistry.mjs                   @KHOEM-AI
+/AI/src/ai/toolRegistry.bootstrap.mjs         @KHOEM-AI
+/AI/src/ai/inputGuard.mjs                     @KHOEM-AI
+/AI/src/ai/inputRefs.mjs                      @KHOEM-AI
+/AI/src/ai/goalVerifier.mjs                   @KHOEM-AI
+/AI/src/ai/policyRegistry.mjs                 @KHOEM-AI
+/AI/src/ai/persist.mjs                        @KHOEM-AI
+/AI/src/ai/registerAll.mjs                    @KHOEM-AI
