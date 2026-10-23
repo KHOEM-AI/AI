@@ -32,6 +32,9 @@ async function getKhoemRegistry() {
   };
 }
 
+import { loadConversations } from "./conversations.mjs";
+import { norm as normQ } from "./learn.mjs";
+
 export async function routeLanguage(text, learned = {}, onStage = null, honorific = "បង") {
   const input = String(text ?? "").trim();
   if (!input) return null;
@@ -59,7 +62,15 @@ export async function routeLanguage(text, learned = {}, onStage = null, honorifi
         : `${language} module`
   );
 
-  return reply(input, learned, honorific);
+  const result = await reply(input, learned, honorific);
+  if (result !== null && result !== undefined) return result;
+
+  // Last resort (Khmer only): read-only conversation seed. learned and khmer.mjs always win.
+  if (language === "km") {
+    const hit = loadConversations()[normQ(input)];
+    if (hit) { onStage?.("RETRIEVING", "conversation seed"); return hit; }
+  }
+  return null;
 }
 
 export async function getCentralLanguageRegistry() {

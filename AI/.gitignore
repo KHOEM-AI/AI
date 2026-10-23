@@ -33,3 +33,4 @@ src/ai/__tests__/__fixtures__/
 src/assets/khoem-ai-heart.png
 *.tmp
 eval/q200_raw/
+!src/ai/data/

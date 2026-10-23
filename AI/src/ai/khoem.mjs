@@ -1,5 +1,6 @@
 import { searchTechDB, searchHistoryFood, searchMoreHistory, searchCompleteHistory, searchKhmerCakes, searchKhmerWine, searchCultureTradition } from "./knowledge.mjs";
 import { handleLearn, load } from "./learn.mjs";
+import { withSeed } from "./conversations.mjs";
 import { routeLanguage, getCentralLanguageRegistry } from "./languageCenter.mjs";
 import { funcs, check, HELP_ALL } from "./tools.mjs";
 import { find } from "./find.mjs";
