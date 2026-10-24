@@ -6,7 +6,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { execSync } from "node:child_process";
+import { execSync, exec } from "node:child_process";
+import { promisify } from "node:util";
+
+const execAsync = promisify(exec);
 
 const ROOT = process.cwd();
 
@@ -302,27 +305,22 @@ export function getCircularDependencies() {
   return detectCircular();
 }
 
-// tsc ចំណាយ ~40s លើទូរសព្ទ ហើយ execSync បាំង server → cache លទ្ធផល
+// tsc ចំណាយ ~40s លើទូរសព្ទ → រត់ async (មិនបាំង server) ហើយ cache Promise 5 នាទី
 const TSC_TTL_MS = 5 * 60 * 1000;
 let tscCache = null;
 
 function runTsc() {
-  if (tscCache && Date.now() - tscCache.at < TSC_TTL_MS) return tscCache;
-  let tsOk = true;
-  let tsOutput = "";
-  try {
-    execSync("npx tsc --noEmit", { cwd: ROOT, stdio: ["ignore", "pipe", "pipe"], timeout: 60000 });
-  } catch (e) {
-    tsOk = false;
-    tsOutput = String((e.stdout || "") + (e.stderr || ""));
-  }
-  tscCache = { at: Date.now(), tsOk, tsOutput };
-  return tscCache;
+  if (tscCache && Date.now() - tscCache.at < TSC_TTL_MS) return tscCache.promise;
+  const promise = execAsync("npx tsc --noEmit", { cwd: ROOT, timeout: 60000, maxBuffer: 10 * 1024 * 1024 })
+    .then(() => ({ tsOk: true, tsOutput: "" }))
+    .catch((e) => ({ tsOk: false, tsOutput: String((e.stdout || "") + (e.stderr || "")) }));
+  tscCache = { at: Date.now(), promise };
+  return promise;
 }
 
-export function getCodeHealth() {
+export async function getCodeHealth() {
   if (!fileIndex.length) scanRepo();
-  const { tsOk, tsOutput } = runTsc();
+  const { tsOk, tsOutput } = await runTsc();
   const tsErrorCount = tsOutput ? (tsOutput.match(/error TS\d+/g) || []).length : 0;
 
   let todoCount = 0;
@@ -353,10 +351,10 @@ function makeFindingId(category, detail) {
 // READ-ONLY analysis. suggestedFix is textual guidance for a human/AI to act on —
 // this function never modifies files. Actual patch proposal + sandbox + approval
 // come at later phases (20-22) per spec Part 18.
-export function getFindings() {
+export async function getFindings() {
   if (!fileIndex.length) scanRepo();
   const findings = [];
-  const health = getCodeHealth();
+  const health = await getCodeHealth();
 
   if (!health.build.ok) {
     findings.push({
