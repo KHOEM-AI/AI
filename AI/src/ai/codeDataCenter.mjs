@@ -302,8 +302,12 @@ export function getCircularDependencies() {
   return detectCircular();
 }
 
-export function getCodeHealth() {
-  if (!fileIndex.length) scanRepo();
+// tsc ចំណាយ ~40s លើទូរសព្ទ ហើយ execSync បាំង server → cache លទ្ធផល
+const TSC_TTL_MS = 5 * 60 * 1000;
+let tscCache = null;
+
+function runTsc() {
+  if (tscCache && Date.now() - tscCache.at < TSC_TTL_MS) return tscCache;
   let tsOk = true;
   let tsOutput = "";
   try {
@@ -312,6 +316,13 @@ export function getCodeHealth() {
     tsOk = false;
     tsOutput = String((e.stdout || "") + (e.stderr || ""));
   }
+  tscCache = { at: Date.now(), tsOk, tsOutput };
+  return tscCache;
+}
+
+export function getCodeHealth() {
+  if (!fileIndex.length) scanRepo();
+  const { tsOk, tsOutput } = runTsc();
   const tsErrorCount = tsOutput ? (tsOutput.match(/error TS\d+/g) || []).length : 0;
 
   let todoCount = 0;
