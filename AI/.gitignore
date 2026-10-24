@@ -34,3 +34,6 @@ src/assets/khoem-ai-heart.png
 *.tmp
 eval/q200_raw/
 !src/ai/data/
+# KHOEM dataset (ធំ មិនដាក់ក្នុង git)
+data_clean/clean/*.jsonl
+data_clean/backup_original/
