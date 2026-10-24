@@ -95,20 +95,31 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
 
   async function checkAll() {
     setBusy(true); setReport([]);
-    const list = routes.filter((r) => r.method === "GET" && !r.path.includes(":"));
+    const all = routes.filter((r) => r.method === "GET" && !r.path.includes(":"));
+    // route ធ្ងន់ /api/code/* ដាក់ខាងចុង រត់ម្ដងមួយៗ កុំឱ្យបាំង route លឿន
+    const list = [...all.filter((r) => !r.path.startsWith("/api/code/")), ...all.filter((r) => r.path.startsWith("/api/code/"))];
+    const heavyFrom = all.filter((r) => !r.path.startsWith("/api/code/")).length;
     const res: Probe[] = new Array(list.length);
-    let done = 0, next = 0;
+    let done = 0;
     const t0 = performance.now();
-    const worker = async () => {
-      while (next < list.length) {
-        const i = next++;
-        const p = list[i].path;
-        res[i] = await probe(p, p.startsWith("/api/code/") ? 60000 : 8000, { text: p.endsWith(".txt") });
-        done++;
-        setReport(render(done, list.length, res, t0));
-      }
+    const light = list.slice(0, heavyFrom);
+    const heavy = list.slice(heavyFrom);
+    const runPool = async (items: R[], n: number) => {
+      let k = 0;
+      const w = async () => {
+        while (k < items.length) {
+          const r = items[k++];
+          const i = list.indexOf(r);
+          const p = r.path;
+          res[i] = await probe(p, p.startsWith("/api/code/") ? 60000 : 8000, { text: p.endsWith(".txt") });
+          done++;
+          setReport(render(done, list.length, res, t0));
+        }
+      };
+      await Promise.all(Array.from({ length: n }, w));
     };
-    await Promise.all(Array.from({ length: 4 }, worker));
+    await runPool(light, 4);
+    await runPool(heavy, 1);
     setBusy(false);
   }
 
