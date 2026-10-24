@@ -36,6 +36,17 @@ describe("khmer.mjs", () => {
     expect(result).toMatch(/^ថ្ងៃនេះគឺ .+។$/);
   });
 
+  it("prefers learned answers over seed answers", () => {
+    expect(khmerReply("អរគុណ", {
+      "អរគុណ": "ចម្លើយដែលបានរៀន"
+    })).toBe("ចម្លើយដែលបានរៀន");
+  });
+
+  it("normalizes learned keys with the same fold function", () => {
+    const q = "\u1794\u178e\u17d2\u178a\u17b9\u1784 zzz";
+    expect(khmerReply(q, { [q]: "X" })).toBe("X");
+  });
+
   it("uses learned exact answers", () => {
     const result = khmerReply(
       "តើ KHOEM-AI ជាអ្វី?",

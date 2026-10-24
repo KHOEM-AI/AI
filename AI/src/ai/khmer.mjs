@@ -14519,10 +14519,11 @@ export function khmerReply(text, learned = {}, honorific = "បង") {
 
   const norm = fold(q);
 
-  if (SEED.has(norm)) return say(SEED.get(norm));
+  // Prefer an exact learned answer; normalize both keys and input.
   for (const [k, v] of Object.entries(learned)) {
-    if (k === norm) return say(v);
+    if (fold(k) === norm) return say(v);
   }
+  if (SEED.has(norm)) return say(SEED.get(norm));
 
   // Greeting at the start of a longer sentence ("សួស្តីបង សូមជួយខ្ញុំ")
   for (const g of ["សួស្តី", "សួស្ដី", "ជំរាបសួរ", "ជម្រាបសួរ"]) {
