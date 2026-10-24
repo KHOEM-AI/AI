@@ -11,6 +11,7 @@ import { EXTRA_ENTRIES_9 } from "./khmer.extra9.mjs";
 import { khmerWords } from "./khmer-words.mjs";
 import { createKhmerGenerator, defaultTokenizer } from "./khmer.generator.mjs";
 import { EXTRA_ENTRIES_47 } from "./khmer.extra47.mjs";
+import { EXTRA_ENTRIES_10000 } from "./khmer.extra10000.mjs";
 // src/ai/khmer.mjs — Khmer conversation rules (expanded set v2).
 // Scope: greetings, identity, manners, emotions, time/date, numbers,
 // days/months, weather, family, food, small talk. Grown the same way
@@ -14504,6 +14505,8 @@ const ENTRIES = [
   ["ឃាត់ខ្លួននិងឃុំខ្លួនខុសគ្នាយ៉ាងណា|ឃុំខ្លួនជាអ្វី","ឃាត់ខ្លួនជាការរារាំងសេរីភាពជាបណ្តោះអាសន្នតាមនីតិវិធីច្បាប់ ហើយឃុំខ្លួនជាការឃាត់ទុកតាមដីកាអាជ្ញាសាលា។ អ្នកពាក់ព័ន្ធអាចសុំជំនួយផ្នែកច្បាប់។ ខ្ញុំមិនមែនមេធាវីទេ។"],
   ["ឃ្លាំងទិន្នន័យជាអ្វី|data warehouse ជាអ្វី","ឃ្លាំងទិន្នន័យជាប្រព័ន្ធប្រមូលផ្តុំទិន្នន័យពីប្រភពច្រើន ដើម្បីវិភាគ និងធ្វើរបាយការណ៍។"],
   ["ឃ្លាំងកូដជាអ្វី|repository ជាអ្វី","ឃ្លាំងកូដ (repository) គឺកន្លែងរក្សាកូដ និងប្រវត្តិនៃការកែប្រែ។ GitHub ជាសេវាផ្ទុកឃ្លាំងកូដលើអ៊ីនធឺណិត។"],
+  // ===== EXTRA_ENTRIES_10000 (appended last: earlier entries keep priority) =====
+  ...EXTRA_ENTRIES_10000,
 ];
 
 const fold = (s) => String(s).normalize("NFC").toLowerCase().replace(/\u17D2\u178A/g, "\u17D2\u178F");
