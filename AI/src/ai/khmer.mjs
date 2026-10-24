@@ -9,7 +9,7 @@ import { EXTRA_ENTRIES_11 } from "./khmer.extra11.mjs";
 import { EXTRA_ENTRIES_10 } from "./khmer.extra10.mjs";
 import { EXTRA_ENTRIES_9 } from "./khmer.extra9.mjs";
 import { khmerWords } from "./khmer-words.mjs";
-import { createKhmerGenerator } from "./khmer.generator.mjs";
+import { createKhmerGenerator, defaultTokenizer } from "./khmer.generator.mjs";
 import { EXTRA_ENTRIES_47 } from "./khmer.extra47.mjs";
 // src/ai/khmer.mjs — Khmer conversation rules (expanded set v2).
 // Scope: greetings, identity, manners, emotions, time/date, numbers,
@@ -14592,7 +14592,14 @@ function trainedGenerator(order) {
     const corpus = [];
     for (const [, answer] of ENTRIES) {
       if (typeof answer !== "string") continue;
-      for (const s of answer.split(/(?<=\u17d4)/)) if (s.trim()) corpus.push(s.trim());
+      for (const s of answer.split(/(?<=\u17d4)/)) {
+        const sentence = s.trim();
+        if (!sentence) continue;
+        const tokens = defaultTokenizer(sentence).filter(
+          (token) => !/^[។៕៖,!?;:()[\]"“”‘’]$/u.test(token)
+        );
+        if (tokens.length >= 4) corpus.push(sentence);
+      }
     }
     g.train(corpus);
     _generators.set(order, g);

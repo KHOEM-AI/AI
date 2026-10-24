@@ -15,4 +15,10 @@ describe("khmerSentence", () => {
   it("rejects an invalid order", () => {
     expect(() => khmerSentence({ order: 0 })).toThrow("order must be a positive integer");
   });
+
+  it("continues to generate non-empty output after corpus filtering", () => {
+    const s = khmerSentence({ random: () => 0.5 });
+    expect(typeof s).toBe("string");
+    expect(s.trim().length).toBeGreaterThan(0);
+  });
 });
