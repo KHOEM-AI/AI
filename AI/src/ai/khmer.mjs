@@ -9,6 +9,7 @@ import { EXTRA_ENTRIES_11 } from "./khmer.extra11.mjs";
 import { EXTRA_ENTRIES_10 } from "./khmer.extra10.mjs";
 import { EXTRA_ENTRIES_9 } from "./khmer.extra9.mjs";
 import { khmerWords } from "./khmer-words.mjs";
+import { createKhmerGenerator } from "./khmer.generator.mjs";
 import { EXTRA_ENTRIES_47 } from "./khmer.extra47.mjs";
 // src/ai/khmer.mjs — Khmer conversation rules (expanded set v2).
 // Scope: greetings, identity, manners, emotions, time/date, numbers,
@@ -14582,3 +14583,22 @@ export function khmerReply(text, learned = {}, honorific = "បង") {
   return best ? say(best[1]) : null;
 }
 
+
+// ===== Sentence generator (additive: does not change khmerReply) =====
+const _generators = new Map();
+function trainedGenerator(order) {
+  if (!_generators.has(order)) {
+    const g = createKhmerGenerator({ order });
+    const corpus = [];
+    for (const [, answer] of ENTRIES) {
+      if (typeof answer !== "string") continue;
+      for (const s of answer.split(/(?<=\u17d4)/)) if (s.trim()) corpus.push(s.trim());
+    }
+    g.train(corpus);
+    _generators.set(order, g);
+  }
+  return _generators.get(order);
+}
+export function khmerSentence({ seed = "", random = Math.random, order = 2, maxTokens } = {}) {
+  return trainedGenerator(order).generate({ seed, random, ...(maxTokens ? { maxTokens } : {}) });
+}
