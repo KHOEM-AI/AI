@@ -9,6 +9,7 @@ import { EXTRA_ENTRIES_11 } from "./khmer.extra11.mjs";
 import { EXTRA_ENTRIES_10 } from "./khmer.extra10.mjs";
 import { EXTRA_ENTRIES_9 } from "./khmer.extra9.mjs";
 import { khmerWords } from "./khmer-words.mjs";
+import { EXTRA_ENTRIES_47 } from "./khmer.extra47.mjs";
 // src/ai/khmer.mjs — Khmer conversation rules (expanded set v2).
 // Scope: greetings, identity, manners, emotions, time/date, numbers,
 // days/months, weather, family, food, small talk. Grown the same way
@@ -14095,6 +14096,7 @@ const ENTRIES = [
   ...EXTRA_ENTRIES_16,
   ...EXTRA_ENTRIES_17,
   ...EXTRA_ENTRIES_18,
+  ...EXTRA_ENTRIES_47,
   // ===== EXTRA 30 =====
   ["ខ្ញុំងងុយគេង|ខ្ញុំចង់គេង","បើងងុយ សូមគេងឱ្យគ្រប់ ៧ ដល់ ៩ ម៉ោង។ កុំបើកបរពេលងងុយ ហើយទុកទូរស័ព្ទឆ្ងាយមុនគេង។"],
   ["ខ្ញុំឈឺក្បាល|ឈឺក្បាលធ្វើម៉េច","សម្រាក ផឹកទឹក ហើយគេងឱ្យគ្រប់។ បើឈឺខ្លាំងភ្លាមៗ គ្រុនក្តៅ កញ្ចឹងកតឹង ឬមើលមិនច្បាស់ សូមទៅពេទ្យភ្លាម។"],
