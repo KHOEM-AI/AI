@@ -27,3 +27,10 @@
 
 **ច្បាប់ការងារ**
 - មិនប្រើ `nano` (ប្រើ `cat`, script, patch) · backup មុនកែ · commit/push ម្ដងនៅចុងបាច់ · មិនលុប `.bak-*` ដរាបណាមិនទាន់បញ្ជាក់
+
+### Final verification 2026-10-25
+- `npm test`: 80 files / 587 tests ជាប់ទាំងអស់ (129.8s)
+- `patch.test.mjs`: 12/12 ជាប់ (14m28s ព្រោះរត់ tsc ពិតក្នុង sandbox) · `sandbox.test.mjs` មិនទាន់រត់ថ្ងៃនេះ
+- tsc, build, `git diff --check` ស្អាត
+- ករណី vitest `Timeout calling "onTaskUpdate"` ពេលរត់រួមជាមួយ build គឺជាការរង់ចាំរបស់ worker (មិនមែន test ធ្លាក់) ហើយ `agentApi.test.mjs` ជាប់ 38/38 ពេលរត់ដាច់ដោយឡែក
+- commit `1fb3547`: `docs/API.md` (route `agent/run`, `goals/:id/ideas`, `goals/:id/plans`) និង WORKLOG នេះ
