@@ -110,34 +110,166 @@ npm run verify:all   # typecheck + build + test + localization verify
 
 ---
 
-## API សង្ខេប
+## API
 
-Base URL: `http://localhost:8787`
+Base URL: `http://localhost:8787` · ឯកសារលម្អិត: [`docs/API.md`](../docs/API.md) · បញ្ជី route ពិតពេលដំណើរការ: `GET /api/routes/all`
 
-**សាធារណៈ**
+### ការផ្ទៀងផ្ទាត់ (Authentication)
 
-| Endpoint | ការពន្យល់ |
-|---|---|
-| `GET /api/health` | ពិនិត្យ server |
-| `GET /api` | ព័ត៌មាន និងបញ្ជី endpoint |
-| `GET /api/models` | បញ្ជីម៉ូដែល |
-| `GET /api/status` | ស្ថានភាពម៉ូឌុលនីមួយៗ និងសុខភាពរួម |
-| `GET /api/control` | Feed សម្រាប់ Control Center |
-| `POST /api/chat` | ការសន្ទនាចម្បង |
-| `GET /api/routes/all` | បញ្ជី route ទាំងអស់ |
-
-**ឧបករណ៍ 🔒** (ត្រូវការ header `x-api-key`)
-
-`/api/scan` · `/api/check` · `/api/learned` · `/api/find?q=` · `/api/funcs?file=` និងផ្សេងទៀត
-
-ឧទាហរណ៍៖
+Endpoint ដែលមាន 🔒 ត្រូវការ header `x-api-key: <KHOEM_API_KEY ពី .env>`
 
 ```bash
 KEY=$(grep '^KHOEM_API_KEY=' .env | cut -d= -f2)
 curl -s -H "x-api-key: $KEY" localhost:8787/api/scan
 ```
 
-សម្រាប់ព័ត៌មានលម្អិត សូមមើល [`docs/API.md`](../docs/API.md)។
+| កូដ | អត្ថន័យ |
+|---|---|
+| `400` | សំណើមិនត្រឹមត្រូវ (ខ្វះ field ចាំបាច់) |
+| `401` | `x-api-key` ខុស ឬបាត់ |
+| `403` | សកម្មភាពត្រូវបានបដិសេធ (DENY) |
+| `404` | រកមិនឃើញ |
+| `409` | ស្ថានភាពមិនត្រឹមត្រូវ (ឧ. approve ពីរដង) |
+| `503` | `KHOEM_API_KEY` មិនទាន់កំណត់ក្នុង `.env` |
+
+### Permission / Policy
+
+| Risk | អ្វីកើតឡើង |
+|---|---|
+| LOW / MEDIUM | អនុវត្តភ្លាម |
+| HIGH / CRITICAL | ត្រូវការ Human Approval → `202 PENDING_APPROVAL` |
+| មិនបានចុះឈ្មោះ | បដិសេធស្វ័យប្រវត្តិ (fail-safe) |
+
+### សាធារណៈ (គ្មាន key)
+
+| Method | Endpoint | ការពន្យល់ |
+|---|---|---|
+| GET | `/api/health` | ពិនិត្យ server |
+| GET | `/api` | ព័ត៌មាន និងបញ្ជី endpoint |
+| GET | `/api/models` | បញ្ជីម៉ូដែល |
+| GET | `/api/status` | ស្ថានភាពម៉ូឌុល និងសុខភាពរួម |
+| GET | `/api/control` | Feed សម្រាប់ Control Center |
+| POST | `/api/chat` | ការសន្ទនាចម្បង (បង្កើត Task មួយ) |
+| GET | `/api/registry` | Registry |
+| GET | `/api/routes/all` | បញ្ជី route ទាំងអស់ |
+
+### ឧបករណ៍កូដ និងចំណេះដឹង 🔒
+
+| Method | Endpoint | ការពន្យល់ | Risk |
+|---|---|---|---|
+| GET | `/api/scan` | ស្កេនស្ថិតិកូដ | LOW |
+| GET | `/api/check` | រកបញ្ហាទូទៅក្នុងកូដ | LOW |
+| GET | `/api/find?q=` | ស្វែងរកពាក្យក្នុងកូដ | LOW |
+| GET | `/api/funcs?file=` | បញ្ជី function ក្នុងឯកសារ | LOW |
+| GET | `/api/read?file=` | អានឯកសារ (តែក្នុង `src/`) | LOW |
+| GET | `/api/learned` | បញ្ជីអ្វីដែលបានបង្រៀន | LOW |
+| POST | `/api/learn` | បង្រៀនខួរ (`q`, `a`) | MEDIUM |
+| POST | `/api/forget` | ឱ្យខួរភ្លេច (`q`) | MEDIUM |
+
+### Audit, Task, Metrics 🔒
+
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/audit` | `audit.read` |
+| GET | `/api/tasks`, `/api/tasks/:id` | `task.read` |
+| GET | `/api/metrics` | `metrics.read` |
+| GET | `/api/budget`, `/api/budget/:taskId` | `budget.check` |
+| POST | `/api/budget/create` | `budget.check` |
+| GET | `/api/circuit`, `/api/circuit/:name` | `circuit.check` |
+
+### Human Approval 🔒
+
+| Method | Endpoint | ការពន្យល់ |
+|---|---|---|
+| GET | `/api/approvals` | បញ្ជី (`?status=`) |
+| GET | `/api/approvals/:id` | ព័ត៌មានមួយ |
+| POST | `/api/approvals/:id/approve` | អនុម័ត (`decidedBy`, `reason`) |
+| POST | `/api/approvals/:id/reject` | បដិសេធ (`decidedBy`, `reason`) |
+| POST | `/api/approvals/:id/execute` | ប្រតិបត្តិ (verify ម្ដងទៀតមុនប្រតិបត្តិ) |
+| POST | `/api/approvals/test-action` | សាកល្បង action ហានិភ័យខ្ពស់ |
+
+### Code Intelligence, Patch, Sandbox, Verify, Rollback 🔒
+
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/code/scan` | `code.scan` |
+| GET | `/api/code/index`, `symbol`, `symbols`, `dependencies`, `dependents`, `circular`, `findings`, `health` | `code.read` |
+| POST | `/api/patch/propose` | `code.proposePatch` |
+| GET | `/api/patch/list`, `/api/patch/proposals`, `/api/patch/proposals/:id` | `patch.read` |
+| POST | `/api/patch/apply`, `/api/patch/:id/apply` | `code.applyPatch` |
+| POST | `/api/patch/:id/approve`, `/api/patch/:id/reject` | `approval.decide` |
+| POST | `/api/sandbox/test` | `code.sandboxTest` |
+| POST | `/api/verify` | `code.verify` |
+| GET | `/api/verify/history`, `/api/verify/last` | `verify.read` |
+| POST | `/api/rollback/snapshot` | `rollback.snapshot` |
+| GET | `/api/rollback/snapshots`, `/snapshots/:id`, `/plan/:id` | `rollback.plan` |
+
+### System (Kill Switch) 🔒
+
+| Method | Endpoint | Policy |
+|---|---|---|
+| POST | `/api/system/kill` | `system.kill` |
+| POST | `/api/system/resume` | `system.resume` |
+| GET | `/api/system/status` | `system.statusRead` |
+
+### Goals, Plans, Ideas, Experiments 🔒
+
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET/POST | `/api/goals` | `goal.read` / `goal.create` |
+| GET | `/api/goals/:id`, `/api/goals/:id/progress` | `goal.read` |
+| POST | `/api/goals/:id/link` | `goal.link` |
+| POST | `/api/goals/:id/status` | `goal.setStatus` |
+| POST | `/api/goals/:id/ideas`, `/api/goals/:id/plans` | (មើល `/api/routes/all`) |
+| GET/POST | `/api/plans`, GET `/api/plans/:id` | `plan.read` / `plan.create` |
+| GET/POST | `/api/ideas`, GET `/api/ideas/:id`, `/api/ideas/rank` | `ideas.read` / `ideas.create` |
+| GET/POST | `/api/experiments`, GET `/api/experiments/:id` | `experiment.read` / `experiment.create` |
+| POST | `/api/experiments/:id/transition` | `experiment.transition` |
+
+### Learned (ចំណេះដឹងដែលបានបង្រៀន) 🔒
+
+| ប្រភេទ | Endpoint (`/api/learned/...`) | Policy |
+|---|---|---|
+| អាន (GET) | `count`, `keys`, `get`, `exists`, `search`, `match`, `similar`, `suggest`, `starts`, `words`, `page`, `recent`, `random`, `longest`, `shortest`, `by-length`, `duplicates`, `lang-mix`, `validate`, `stats`, `health`, `export`, `export.txt`, `backups`, `backup-diff`, `routes` | `knowledge.readLearned` |
+| សរសេរ (POST) | `alias`, `append`, `backup`, `bulk`, `import`, `rename`, `replace`, `update` | `learning.write` |
+| លុប / ស្ដារ (POST) | `clean`, `clear`, `forget-bulk`, `forget-prefix`, `prune-backups`, `restore` | `learning.delete` |
+
+### Language, Lexicon, Library, Model 🔒
+
+| Method | Endpoint | ការពន្យល់ |
+|---|---|---|
+| GET | `/api/khoem/coverage`, `health`, `khmer`, `knowledge`, `languages`, `locales` | ព័ត៌មានភាសា និងចំណេះដឹង |
+| POST | `/api/khoem/translate` | បកប្រែ |
+| GET/POST | `/api/lexicon`, GET `/api/lexicon/answer`, `/api/lexicon/domains` | វចនានុក្រម |
+| GET | `/api/library`, `/api/library/:id`, `/api/library/groups` | Library |
+| GET | `/api/model/providers`, `/api/model/route`, `/api/model/routing-history` | `model.route` |
+| POST | `/api/self-consistency` | `selfconsistency.run` |
+| POST | `/api/selfeval` | `selfeval.run` |
+
+### Tools & Agent 🔒
+
+| Method | Endpoint | Policy |
+|---|---|---|
+| GET | `/api/tools`, `/api/tools/find`, `/api/tools/:id/risk` | `tool.find` |
+| POST | `/api/tools/:id/execute` | `tool.find` |
+| POST | `/api/agent/run` | Agent loop |
+| GET | `/api/hub/status` | Hub |
+
+### ឧបករណ៍ច្នៃប្រឌិត (Characters, Assets, Storyboards, Shotlist) 🔒
+
+| Method | Endpoint | ការពន្យល់ |
+|---|---|---|
+| GET/POST | `/api/characters`, GET `/api/characters/:id` | តួអង្គ |
+| POST | `/api/characters/:id/merge` | បញ្ចូលតួអង្គ |
+| GET | `/api/characters/:id/prompt`, `/timeline` | prompt និង timeline |
+| GET/POST/DELETE | `/api/characters/:id/refs`, DELETE `/refs/:n` | រូបយោង (`characters.read` / `characters.write`) |
+| GET/POST | `/api/assets`, GET `/api/assets/pick`, POST `/api/assets/seed` | Assets |
+| GET/POST | `/api/storyboards`, GET `/api/storyboards/:id`, `/options`, `/:id/continuity` | Storyboard |
+| POST | `/api/storyboards/:id/scenes`, `/scenes/:sc`, `/scenes/:sc/status` | កែ Scene |
+| GET | `/api/storyboards/:id/scenes/:sc/prompt` | prompt របស់ Scene |
+| POST | `/api/shotlist` | Shotlist (`characters.read`) |
+
+> ប្រសិនបើ endpoint ណាមានក្នុងតារាងនេះ ប៉ុន្តែមិនឆ្លើយតប សូមពិនិត្យ `GET /api/routes/all` ដែលជាប្រភពពិតបំផុត។
 
 ---
 
