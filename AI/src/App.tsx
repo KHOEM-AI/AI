@@ -14,7 +14,7 @@ import ToolRegistryCenter from "./components/ToolRegistryCenter";
 import LearningCenter from "./components/LearningCenter";
 import ApiCenter from "./components/ApiCenter";
 import DataCenter from "./components/DataCenter";
-import ThreeDStudio from "./components/ThreeDStudio";
+import ThreeDStudio from "./components/StudioHub";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import ErrorBoundary from "./components/ErrorBoundary";
