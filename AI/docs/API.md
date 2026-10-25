@@ -548,3 +548,10 @@ route ទាំងនេះមានក្នុង backend ពិត។ ជួ�
 | GET | `/api/verify/history` | `verify.read` |
 | GET | `/api/verify/last` | `verify.read` |
 
+### បន្ថែម: route ដែលមានក្នុងកូដ (បង្កើតស្វ័យប្រវត្តិពីកូដ 2026-10-25)
+
+| Method | Endpoint | Policy | ប្រភព |
+|---|---|---|---|
+| POST | `/api/agent/run` | `agent.run` | `src/ai/api.mjs:324` |
+| POST | `/api/goals/:id/ideas` | `goal.link` | `src/ai/api.mjs:435` |
+| POST | `/api/goals/:id/plans` | `goal.link` | `src/ai/api.mjs:443` |
