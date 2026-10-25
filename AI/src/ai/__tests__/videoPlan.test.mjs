@@ -35,3 +35,26 @@ describe("videoPlan", () => {
     expect(planFromStoryboard(null).ok).toBe(false);
   });
 });
+
+
+describe("videoPlan resolution profiles", () => {
+  it.each([
+    ["720p", 1280, 720],
+    ["1080p", 1920, 1080],
+    ["4k", 3840, 2160],
+    ["5k", 5120, 2880],
+    ["36k", 36000, 20250],
+  ])("supports %s landscape", (resolution, width, height) => {
+    const landscape = { ...sb, aspect: "16:9" };
+    const p = planFromStoryboard(landscape, { resolution });
+    expect(p.ok).toBe(true);
+    expect([p.width, p.height]).toEqual([width, height]);
+    expect(p.resolution).toBe(resolution);
+  });
+
+  it("rejects unsupported resolution", () => {
+    const p = planFromStoryboard(sb, { resolution: "1000k" });
+    expect(p.ok).toBe(false);
+    expect(p.reason).toBe("unsupported_resolution");
+  });
+});

@@ -1262,3 +1262,98 @@ body::after {
 @media (max-width: 768px) {
   .composer__mic { width: 50px; border-radius: 14px; }
 }
+
+
+/* =========================
+   THREE.JS 3D STUDIO
+   ========================= */
+.three-studio {
+  position: fixed;
+  z-index: 1000;
+  inset: 4vh 3vw;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(14px, 3vw, 26px);
+  overflow: auto;
+  color: #f7f7f9;
+  background: #090d16;
+  border: 1px solid #334155;
+  border-radius: 20px;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, .8);
+}
+.three-studio__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.three-studio__header h2 {
+  margin: 0;
+  font-size: clamp(20px, 4vw, 28px);
+}
+.three-studio__header p,
+.three-studio__note {
+  margin: 5px 0 0;
+  color: #aab7ca;
+  font-size: 13px;
+}
+.three-studio__close,
+.three-studio__button {
+  padding: 10px 14px;
+  color: #f7f7f9;
+  background: #172235;
+  border: 1px solid #3b4d68;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.three-studio__viewport {
+  position: relative;
+  flex: 1;
+  min-height: 240px;
+  overflow: hidden;
+  background: #101827;
+  border: 1px solid #26364e;
+  border-radius: 14px;
+}
+.three-studio__angle {
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  right: 12px;
+  padding: 6px 10px;
+  color: #b9f3ff;
+  background: rgba(4, 12, 24, .78);
+  border: 1px solid #24546a;
+  border-radius: 9px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.three-studio__controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.three-studio__speed {
+  display: flex;
+  flex: 1 1 180px;
+  flex-direction: column;
+  gap: 8px;
+  color: #dce7f5;
+  font-size: 13px;
+}
+.three-studio__speed input {
+  width: 100%;
+  accent-color: #38bdf8;
+}
+@media (max-width: 600px) {
+  .three-studio {
+    inset: 2vh 2vw;
+    gap: 10px;
+    padding: 12px;
+  }
+  .three-studio__viewport {
+    min-height: 42vh;
+  }
+}
