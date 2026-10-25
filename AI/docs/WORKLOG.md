@@ -30,7 +30,15 @@
 
 ### Final verification 2026-10-25
 - `npm test`: 80 files / 587 tests ជាប់ទាំងអស់ (129.8s)
-- `patch.test.mjs`: 12/12 ជាប់ (14m28s ព្រោះរត់ tsc ពិតក្នុង sandbox) · `sandbox.test.mjs` មិនទាន់រត់ថ្ងៃនេះ
+- `patch.test.mjs`: 12/12 ជាប់ (14m28s ព្រោះរត់ tsc ពិតក្នុង sandbox) · `sandbox.test.mjs`: 4/4 ជាប់ (172.6s)
 - tsc, build, `git diff --check` ស្អាត
 - ករណី vitest `Timeout calling "onTaskUpdate"` ពេលរត់រួមជាមួយ build គឺជាការរង់ចាំរបស់ worker (មិនមែន test ធ្លាក់) ហើយ `agentApi.test.mjs` ជាប់ 38/38 ពេលរត់ដាច់ដោយឡែក
 - commit `1fb3547`: `docs/API.md` (route `agent/run`, `goals/:id/ideas`, `goals/:id/plans`) និង WORKLOG នេះ
+
+### Localization verify 2026-10-25
+- `npm run validate:locales`: PASSED (61 ភាសា, 85 locales, 53 ភាសាមានទិន្នន័យបកប្រែ)
+- `npm run check:duplicates`: PASSED
+- `npm run verify` (localization): 49/49 tests ជាប់
+- `km`: បំពេញ 273/273 (100%) ប៉ុន្តែស្ថានភាពប្រកាសនៅ `draft` (ភាសាដទៃភាគច្រើនជា `review`) ម្ចាស់គម្រោងត្រូវសម្រេចថាត្រូវប្ដូរឬអត់
+- 8 ភាសាជា planned-only (មិនទាន់មានទិន្នន័យបកប្រែ)
+- ផ្នែកនីមួយៗរបស់ `verify:all` (typecheck, build, test, localization verify) បានរត់ដាច់ដោយឡែក ហើយជាប់ទាំងអស់
