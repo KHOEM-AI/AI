@@ -1,5 +1,6 @@
 // UI mirror of src/ai/inputGuard.mjs - keep the limits identical.
 const LIMITS = { text: 20000, newContent: 500000, items: 1000, depth: 8 };
+// eslint-disable-next-line no-control-regex
 const BAD_CHARS = new RegExp("[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F\\u2028\\u2029\\u202A-\\u202E\\u2066-\\u2069]");
 const ID_RE = new RegExp("^[\\p{L}\\p{M}\\p{N}._:@-]{1,64}$", "u");
 const ID_KEYS = new Set(["actor", "decidedBy"]);

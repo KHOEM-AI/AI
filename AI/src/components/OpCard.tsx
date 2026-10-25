@@ -67,7 +67,7 @@ export default function OpCard({ op, lang }: { op: Op; lang: any }) {
       const b: Record<string, any> = {};
       for (const f of op.fields ?? []) {
         const x = v[f.k];
-        if (f.kind === "bool") { if (x) (op.m === "GET" ? (q[f.k] = "true") : (b[f.k] = true)); continue; }
+        if (f.kind === "bool") { if (x) { if (op.m === "GET") q[f.k] = "true"; else b[f.k] = true; } continue; }
         if (x === undefined || x === "") continue;
         let val: any = x;
         if (f.kind === "number") val = Number(x);

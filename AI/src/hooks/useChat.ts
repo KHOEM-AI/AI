@@ -13,7 +13,7 @@ function newSessionId(): string {
     if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
       return crypto.randomUUID();
     }
-  } catch {}
+  } catch { /* ignore */ }
   return "s-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
 }
 
@@ -21,9 +21,9 @@ function loadSessionId(): string {
   try {
     const existing = localStorage.getItem(SESSION_KEY);
     if (existing) return existing;
-  } catch {}
+  } catch { /* ignore */ }
   const id = newSessionId();
-  try { localStorage.setItem(SESSION_KEY, id); } catch {}
+  try { localStorage.setItem(SESSION_KEY, id); } catch { /* ignore */ }
   return id;
 }
 
@@ -120,7 +120,7 @@ export function useChat(honorific: string | null) {
 function clearConversation() {
     const id = newSessionId();
     sessionIdRef.current = id;
-    try { localStorage.setItem(SESSION_KEY, id); } catch {}
+    try { localStorage.setItem(SESSION_KEY, id); } catch { /* ignore */ }
     setMessages([]);
     setError(null);
   }

@@ -97,7 +97,7 @@ UI i18n (`src/i18n/`) និងស្ថាបត្យកម្មភាសា 
 ```bash
 npm install          # ដំឡើង dependencies
 npm run server       # ចាប់ផ្ដើម backend (port 8787)
-npm run dev          # ចាប់ផ្ដើម frontend (Vite)
+npm run dev          # ចាប់ផ្ដើម frontend (Vite, port 5175)
 npm run build        # tsc + vite build
 npm run typecheck    # ពិនិត្យ TypeScript
 npm test             # tests លឿន
