@@ -70,3 +70,8 @@ src/ai/codeDataCenter.mjs:410:      explanation: "Unresolved TODO/FIXME markers 
 src/ai/policyRegistry.mjs:21:  // TODO: raise "system.resume" to RISK.HIGH once execute-after-approval
 src/components/CodeCenter.tsx:211:                <div>TODO: {health.todoCount} · FIXME: {health.fixmeCount}</div>
 ```
+
+## ប្រភពនៃផ្នែកនីមួយៗ
+- **ភាសា** → ទាញពី KHOEM_AI
+- **API** → ទាយពី KI
+- **សំឡេង វីដេអូ រូបភាព និងសញ្ញាអារម្មណ៍** → ទាញពី IQ-AI
