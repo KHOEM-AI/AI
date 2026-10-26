@@ -75,3 +75,11 @@ src/components/CodeCenter.tsx:211:                <div>TODO: {health.todoCount} 
 - **ភាសា** → ទាញពី KHOEM_AI
 - **API** → ទាយពី KI
 - **សំឡេង វីដេអូ រូបភាព និងសញ្ញាអារម្មណ៍** → ទាញពី IQ-AI
+
+## ច្រក និងការតភ្ជាប់
+- `server.mjs` -> ច្រក 8787 (Vite បញ្ជូន `/api` មកទីនេះ)
+- Vite dev -> ច្រក 5175
+- IQ-AI -> ច្រក 8799 (Vite បញ្ជូន `/iqai` ទៅ `~/IQ-AI`)
+- IQAI_TOKEN ត្រូវដូចគ្នាក្នុង `.env` ទាំង 2 គម្រោង
+- មើលលម្អិត IQ-AI៖ `~/IQ-AI/docs/NOTES.md`
+- Termux គ្មាន `/tmp` ប្រើ `$PREFIX/tmp`
