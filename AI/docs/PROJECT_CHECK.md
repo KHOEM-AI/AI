@@ -101,5 +101,10 @@ src/components/CodeCenter.tsx:211:                <div>TODO: {health.todoCount} 
 - ជំហានបន្ទាប់៖ ភ្ជាប់ UI និងធ្វើព័ត៌មានវីដេអូ
 - `iqaiInspectVideo(file)` — ព័ត៌មានវីដេអូ mp4/webm (ទទឹង កម្ពស់ រយៈពេល) (2026-10-26)
 - IQ-AI ធ្វើរួចទាំង 4៖ អារម្មណ៍ សំឡេង រូបភាព វីដេអូ។ ជំហានបន្ទាប់៖ ភ្ជាប់ UI
-- UI៖ `src/components/IqaiCenter.tsx` (ម៉ឺនុយ "🎭 IQ-AI Center") ហៅ 4 មុខងារ IQ-AI (2026-10-26)
+- UI៖ `src/components/IqaiCenter.tsx` (ម៉ឺនុយ "🎭 Emotion and Media Analyzer (វិភាគអារម្មណ៍ និងឯកសារ)") ហៅ 4 មុខងារ IQ-AI (2026-10-26)
 - បើក UI៖ `export IQAI_TOKEN=$(grep '^IQAI_TOKEN=' ~/IQ-AI/.env | cut -d= -f2-)` មុន `npm run dev` ហើយ IQ-AI ត្រូវបើក (`cd ~/IQ-AI && npm start`)
+
+## កម្រិតនៃ Emotion and Media Analyzer (2026-10-26)
+- អារម្មណ៍៖ rule-based ប្រហែល 50 ពាក្យគន្លឹះ 6 អារម្មណ៍ មិនទាន់ដោះស្រាយពាក្យអវិជ្ជមាន ("មិនសប្បាយ" នឹងចេញ joy)
+- សំឡេង/រូបភាព/វីដេអូ៖ អានតែក្បាលឯកសារ (ទំហំ រយៈពេល) មិនយល់មាតិកាទេ
+- ជំហានបន្ទាប់៖ ដោះស្រាយពាក្យអវិជ្ជមាន បន្ថែមពាក្យ វិភាគអារម្មណ៍ក្នុង Chat ភ្ជាប់ AI provider

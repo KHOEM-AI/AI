@@ -8,13 +8,13 @@ import {
 import type { IqaiEmotion } from "../api/client";
 
 const EMO: Record<string, string> = {
-  joy: "😊 សប្បាយ",
-  sadness: "😢 សោកសៅ",
-  anger: "😠 ខឹង",
-  fear: "😨 ខ្លាច",
-  love: "❤️ ស្រឡាញ់",
-  surprise: "😮 ភ្ញាក់ផ្អើល",
-  neutral: "😐 ធម្មតា",
+  joy: "😊 សប្បាយ · Joy",
+  sadness: "😢 សោកសៅ · Sadness",
+  anger: "😠 ខឹង · Anger",
+  fear: "😨 ខ្លាច · Fear",
+  love: "❤️ ស្រឡាញ់ · Love",
+  surprise: "😮 ភ្ញាក់ផ្អើល · Surprise",
+  neutral: "😐 ធម្មតា · Neutral",
 };
 
 const box: React.CSSProperties = {
@@ -73,20 +73,20 @@ export default function IqaiCenter({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-          <b style={{ fontSize: 18 }}>🎭 IQ-AI Center</b>
-          <button style={{ ...btn, background: "#444" }} onClick={onClose}>បិទ</button>
+          <b style={{ fontSize: 18 }}>🎭 Emotion and Media Analyzer · វិភាគអារម្មណ៍ និងឯកសារ</b>
+          <button style={{ ...btn, background: "#444" }} onClick={onClose}>បិទ · Close</button>
         </div>
 
         <div style={box}>
-          <div style={{ marginBottom: 6 }}>សញ្ញាអារម្មណ៍ (អត្ថបទខ្មែរ)</div>
+          <div style={{ marginBottom: 6 }}>សញ្ញាអារម្មណ៍ · Emotion (ពាក្យគន្លឹះខ្មែរ · Khmer keywords)</div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={3}
             style={{ width: "100%", boxSizing: "border-box", borderRadius: 8, padding: 8, fontSize: 15 }}
-            placeholder="សរសេរអត្ថបទនៅទីនេះ..."
+            placeholder="សរសេរអត្ថបទនៅទីនេះ... · Write text here..."
           />
-          <button style={{ ...btn, marginTop: 8 }} disabled={busy} onClick={runEmotion}>វិភាគ</button>
+          <button style={{ ...btn, marginTop: 8 }} disabled={busy} onClick={runEmotion}>វិភាគ · Analyze</button>
           {emo && (
             <div style={{ marginTop: 8, fontSize: 16 }}>
               {EMO[emo.emotion] || emo.emotion} · {Math.round(emo.confidence * 100)}%
@@ -95,7 +95,7 @@ export default function IqaiCenter({ onClose }: { onClose: () => void }) {
         </div>
 
         <div style={box}>
-          <div style={{ marginBottom: 6 }}>ព័ត៌មានឯកសារ (សំឡេង WAV · រូបភាព · វីដេអូ)</div>
+          <div style={{ marginBottom: 6 }}>ព័ត៌មានឯកសារ · File info (សំឡេង Audio WAV · រូបភាព Image · វីដេអូ Video)</div>
           <input
             type="file"
             accept="audio/*,image/*,video/*"
@@ -107,7 +107,7 @@ export default function IqaiCenter({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-        {busy && <div>កំពុងដំណើរការ...</div>}
+        {busy && <div>កំពុងដំណើរការ... · Working...</div>}
         {err && <div style={{ color: "#ff8a8a" }}>⚠️ {err}</div>}
       </div>
     </div>
