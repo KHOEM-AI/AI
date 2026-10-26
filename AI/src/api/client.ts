@@ -54,3 +54,18 @@ export const deleteMedia = (id: string) =>
   iqai<{ id: string; deleted: boolean }>(`/media/${encodeURIComponent(id)}`, { method: "DELETE" });
 
 export const iqaiContentUrl = (id: string) => `/iqai/media/${encodeURIComponent(id)}/content`;
+
+// ---- IQ-AI emotion (rule-based, Khmer text) ----
+export type IqaiEmotionName = "joy" | "sadness" | "anger" | "fear" | "love" | "surprise" | "neutral";
+export interface IqaiEmotion {
+  emotion: IqaiEmotionName;
+  confidence: number;
+  scores: Record<string, number>;
+  matched: { emotion: string; word: string }[];
+}
+export const iqaiAnalyzeEmotion = (text: string) =>
+  iqai<IqaiEmotion>("/emotion/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
