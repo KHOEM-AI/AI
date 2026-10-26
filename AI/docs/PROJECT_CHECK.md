@@ -99,3 +99,5 @@ src/components/CodeCenter.tsx:211:                <div>TODO: {health.todoCount} 
 - មុននឹងបើក Vite ត្រូវដាក់ `IQAI_TOKEN` ក្នុង environment (vite.config.ts អានពី `process.env.IQAI_TOKEN`)
 - ត្រូវបើក IQ-AI ជាមុន (`cd ~/IQ-AI && npm start`)
 - ជំហានបន្ទាប់៖ ភ្ជាប់ UI និងធ្វើព័ត៌មានវីដេអូ
+- `iqaiInspectVideo(file)` — ព័ត៌មានវីដេអូ mp4/webm (ទទឹង កម្ពស់ រយៈពេល) (2026-10-26)
+- IQ-AI ធ្វើរួចទាំង 4៖ អារម្មណ៍ សំឡេង រូបភាព វីដេអូ។ ជំហានបន្ទាប់៖ ភ្ជាប់ UI

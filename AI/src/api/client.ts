@@ -98,3 +98,18 @@ export const iqaiInspectImage = (file: Blob) =>
     headers: { "Content-Type": file.type || "application/octet-stream" },
     body: file,
   });
+
+// ---- IQ-AI video inspect ----
+export interface IqaiVideoInfo {
+  format: "mp4" | "webm";
+  width: number;
+  height: number;
+  durationSec: number;
+  bytes: number;
+}
+export const iqaiInspectVideo = (file: Blob) =>
+  iqai<IqaiVideoInfo>("/videos/inspect", {
+    method: "POST",
+    headers: { "Content-Type": file.type || "video/mp4" },
+    body: file,
+  });
