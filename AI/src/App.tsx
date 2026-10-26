@@ -15,6 +15,7 @@ import LearningCenter from "./components/LearningCenter";
 import ApiCenter from "./components/ApiCenter";
 import DataCenter from "./components/DataCenter";
 import IqaiCenter from "./components/IqaiCenter";
+import EmotionBadge from "./components/EmotionBadge";
 import ThreeDStudio from "./components/StudioHub";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
@@ -258,6 +259,7 @@ function AppInner() {
             <Fragment key={m.id}>
             <div className={`bubble bubble--${m.role}`}>
               <div className="bubble__text">{m.text}</div>
+              {m.role === "user" && <EmotionBadge text={m.text} />}
               </div>
             {m.role === "assistant" && (
               <MessageActions message={m} isLast={idx === messages.length - 1} disabled={isSending} onFeedback={setFeedback} onRegenerate={regenerate} onNewChat={clearConversation} />

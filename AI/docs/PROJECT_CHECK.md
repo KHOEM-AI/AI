@@ -110,3 +110,4 @@ src/components/CodeCenter.tsx:211:                <div>TODO: {health.todoCount} 
 - ជំហានបន្ទាប់៖ ដោះស្រាយពាក្យអវិជ្ជមាន បន្ថែមពាក្យ វិភាគអារម្មណ៍ក្នុង Chat ភ្ជាប់ AI provider
 - Emotion update (2026-10-26)៖ ដោះស្រាយពាក្យអវិជ្ជមាន (មិន គ្មាន កុំ ពុំ) ហើយ "មិនសប្បាយ" ឥឡូវចេញ sadness។ មើល `~/IQ-AI/docs/NOTES.md`
 - Emotion update (2026-10-26)៖ បន្ថែមពាក្យ និង emoji ច្រើន (មើល `~/IQ-AI/docs/NOTES.md`)។ ជំហានបន្ទាប់៖ វិភាគអារម្មណ៍សារក្នុង Chat
+- Chat (2026-10-26)៖ `src/components/EmotionBadge.tsx` បង្ហាញសញ្ញាអារម្មណ៍ក្បែរសាររបស់អ្នកប្រើ (តែសារដែលមានអក្សរខ្មែរ) ហៅ IQ-AI តាម `iqaiAnalyzeEmotion`។ បើ IQ-AI មិនបើក ឬមិនទាន់មានអារម្មណ៍ នឹងមិនបង្ហាញអ្វីទេ។
