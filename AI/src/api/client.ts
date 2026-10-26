@@ -19,3 +19,38 @@ export const post = <T = any>(path: string, data?: unknown) =>
   api<T>(path, { method: "POST", body: JSON.stringify(data ?? {}) });
 export const del = <T = any>(path: string, data?: unknown) =>
   api<T>(path, { method: "DELETE", body: data ? JSON.stringify(data) : undefined });
+
+// ---- IQ-AI media service (via Vite proxy /iqai -> :8799/api/v1) ----
+export interface IqaiMedia {
+  id: string;
+  type: "image" | "audio" | "video";
+  mime: string;
+  size: number;
+  filename: string;
+  status: string;
+  createdAt: string;
+}
+
+async function iqai<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const r = await fetch(`/iqai${path}`, init);
+  const body = await r.json().catch(() => null);
+  if (!r.ok || !body?.ok) throw new ApiError(r.status, body?.error?.message ?? `HTTP ${r.status}`);
+  return body.data as T;
+}
+
+export const uploadMedia = (file: File | Blob, filename?: string) =>
+  iqai<IqaiMedia>("/media", {
+    method: "POST",
+    headers: {
+      "Content-Type": file.type,
+      "X-Filename": encodeURIComponent(filename ?? (file as File).name ?? "upload"),
+    },
+    body: file,
+  });
+
+export const listMedia = async () => (await iqai<{ items: IqaiMedia[] }>("/media")).items;
+
+export const deleteMedia = (id: string) =>
+  iqai<{ id: string; deleted: boolean }>(`/media/${encodeURIComponent(id)}`, { method: "DELETE" });
+
+export const iqaiContentUrl = (id: string) => `/iqai/media/${encodeURIComponent(id)}/content`;
