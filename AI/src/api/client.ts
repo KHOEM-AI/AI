@@ -69,3 +69,32 @@ export const iqaiAnalyzeEmotion = (text: string) =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text }),
   });
+
+// ---- IQ-AI audio / image inspect ----
+export interface IqaiAudioInfo {
+  audioFormat: number;
+  channels: number;
+  sampleRate: number;
+  byteRate: number;
+  bitsPerSample: number;
+  dataBytes: number;
+  durationSec: number;
+}
+export interface IqaiImageInfo {
+  format: "png" | "jpeg" | "gif" | "webp";
+  width: number;
+  height: number;
+  bytes: number;
+}
+export const iqaiInspectAudio = (file: Blob) =>
+  iqai<IqaiAudioInfo>("/audio/inspect", {
+    method: "POST",
+    headers: { "Content-Type": file.type || "audio/wav" },
+    body: file,
+  });
+export const iqaiInspectImage = (file: Blob) =>
+  iqai<IqaiImageInfo>("/images/inspect", {
+    method: "POST",
+    headers: { "Content-Type": file.type || "application/octet-stream" },
+    body: file,
+  });
