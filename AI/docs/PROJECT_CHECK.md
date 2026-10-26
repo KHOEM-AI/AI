@@ -101,3 +101,5 @@ src/components/CodeCenter.tsx:211:                <div>TODO: {health.todoCount} 
 - ជំហានបន្ទាប់៖ ភ្ជាប់ UI និងធ្វើព័ត៌មានវីដេអូ
 - `iqaiInspectVideo(file)` — ព័ត៌មានវីដេអូ mp4/webm (ទទឹង កម្ពស់ រយៈពេល) (2026-10-26)
 - IQ-AI ធ្វើរួចទាំង 4៖ អារម្មណ៍ សំឡេង រូបភាព វីដេអូ។ ជំហានបន្ទាប់៖ ភ្ជាប់ UI
+- UI៖ `src/components/IqaiCenter.tsx` (ម៉ឺនុយ "🎭 IQ-AI Center") ហៅ 4 មុខងារ IQ-AI (2026-10-26)
+- បើក UI៖ `export IQAI_TOKEN=$(grep '^IQAI_TOKEN=' ~/IQ-AI/.env | cut -d= -f2-)` មុន `npm run dev` ហើយ IQ-AI ត្រូវបើក (`cd ~/IQ-AI && npm start`)

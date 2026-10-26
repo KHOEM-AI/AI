@@ -14,6 +14,7 @@ import ToolRegistryCenter from "./components/ToolRegistryCenter";
 import LearningCenter from "./components/LearningCenter";
 import ApiCenter from "./components/ApiCenter";
 import DataCenter from "./components/DataCenter";
+import IqaiCenter from "./components/IqaiCenter";
 import ThreeDStudio from "./components/StudioHub";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
@@ -89,6 +90,7 @@ function AppInner() {
   const [showLearningCenter, setShowLearningCenter] = useState(false);
   const [showApiCenter, setShowApiCenter] = useState(false);
   const [showDataCenter, setShowDataCenter] = useState(false);
+  const [showIqai, setShowIqai] = useState(false);
   const [showThreeDStudio, setShowThreeDStudio] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -182,6 +184,7 @@ function AppInner() {
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
+                <button className="app__sidebar-item" onClick={() => { setShowIqai(true); setShowMenu(false); }}>🎭 IQ-AI Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowThreeDStudio(true); setShowMenu(false); }}><span aria-hidden="true">🧊</span> 3D Studio · Orbit 360°</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
@@ -316,6 +319,7 @@ function AppInner() {
         {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
         {showApiCenter && <ErrorBoundary onClose={() => setShowApiCenter(false)}><ApiCenter onClose={() => setShowApiCenter(false)} /></ErrorBoundary>}
         {showDataCenter && <ErrorBoundary onClose={() => setShowDataCenter(false)}><DataCenter onClose={() => setShowDataCenter(false)} /></ErrorBoundary>}
+        {showIqai && <ErrorBoundary onClose={() => setShowIqai(false)}><IqaiCenter onClose={() => setShowIqai(false)} /></ErrorBoundary>}
         {showThreeDStudio && <ErrorBoundary onClose={() => setShowThreeDStudio(false)}><ThreeDStudio onClose={() => setShowThreeDStudio(false)} /></ErrorBoundary>}
 
         {(!honorific || showHonorific) && (
