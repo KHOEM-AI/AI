@@ -13,6 +13,7 @@ import SafetyCenter from "./components/SafetyCenter";
 import ToolRegistryCenter from "./components/ToolRegistryCenter";
 import LearningCenter from "./components/LearningCenter";
 import ApiCenter from "./components/ApiCenter";
+import ColorLightCenter from "./components/ColorLightCenter";
 import DataCenter from "./components/DataCenter";
 import IqaiCenter from "./components/IqaiCenter";
 import EmotionBadge from "./components/EmotionBadge";
@@ -90,6 +91,7 @@ function AppInner() {
   const [showToolRegistry, setShowToolRegistry] = useState(false);
   const [showLearningCenter, setShowLearningCenter] = useState(false);
   const [showApiCenter, setShowApiCenter] = useState(false);
+const [showColorLight, setShowColorLight] = useState(false);
   const [showDataCenter, setShowDataCenter] = useState(false);
   const [showIqai, setShowIqai] = useState(false);
   const [showThreeDStudio, setShowThreeDStudio] = useState(false);
@@ -184,6 +186,7 @@ function AppInner() {
                   <span aria-hidden="true">💻</span> {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
+<button className="app__sidebar-item" onClick={() => { setShowColorLight(true); setShowMenu(false); }}>🎨 Color and Light · ពណ៌ និងអំពូលភ្លើង</button>
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowIqai(true); setShowMenu(false); }}>🎭 Emotion and Media Analyzer · វិភាគអារម្មណ៍ និងឯកសារ</button>
                 <button className="app__sidebar-item" onClick={() => { setShowThreeDStudio(true); setShowMenu(false); }}><span aria-hidden="true">🧊</span> 3D Studio · Orbit 360°</button>
@@ -320,6 +323,7 @@ function AppInner() {
         {showToolRegistry && <ErrorBoundary onClose={() => setShowToolRegistry(false)}><ToolRegistryCenter onClose={() => setShowToolRegistry(false)} /></ErrorBoundary>}
         {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
         {showApiCenter && <ErrorBoundary onClose={() => setShowApiCenter(false)}><ApiCenter onClose={() => setShowApiCenter(false)} /></ErrorBoundary>}
+{showColorLight && <ErrorBoundary onClose={() => setShowColorLight(false)}><ColorLightCenter onClose={() => setShowColorLight(false)} /></ErrorBoundary>}
         {showDataCenter && <ErrorBoundary onClose={() => setShowDataCenter(false)}><DataCenter onClose={() => setShowDataCenter(false)} /></ErrorBoundary>}
         {showIqai && <ErrorBoundary onClose={() => setShowIqai(false)}><IqaiCenter onClose={() => setShowIqai(false)} /></ErrorBoundary>}
         {showThreeDStudio && <ErrorBoundary onClose={() => setShowThreeDStudio(false)}><ThreeDStudio onClose={() => setShowThreeDStudio(false)} /></ErrorBoundary>}

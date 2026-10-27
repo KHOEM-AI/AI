@@ -1,5 +1,6 @@
 import express from "express";
 import { registerAllApis } from "./src/ai/registerAll.mjs";
+import { registerColorLightApi } from "./src/ai/colorLight.mjs";
 import { summarizeEngines } from "./src/ai/enginesSummary.mjs";
 import cors from "cors";
 import "dotenv/config";
@@ -113,6 +114,7 @@ app.use("/api", (req, res, next) => {
 });
 
 registerAllApis(app);
+registerColorLightApi(app);
 app.get("/api/status", async (req, res) => {
   try {
     res.json(await collectStatus(aiCore));
