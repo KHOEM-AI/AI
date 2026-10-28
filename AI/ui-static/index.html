@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="km"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI — UI</title>
+<style>
+:root{--ok:#00A651;--warn:#FFBF00;--bad:#FF0000;--bg:#000;--card:#1f1f1f;--ln:#262626;--mu:#c9c9c9}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font:16px/1.5 "Noto Sans Khmer",system-ui,sans-serif;padding:14px}
+main{max-width:520px;margin:auto;border:1px solid var(--ln);border-radius:26px;padding:16px}
+.top{background:var(--card);border-radius:20px;padding:18px}
+.top h1,.top h2{margin:0 0 6px;font-size:24px;display:flex;gap:12px;align-items:center}
+.top p{margin:0;color:var(--mu)}
+.arr{text-align:center;margin:14px 0;color:var(--mu)}.arr b{display:block;font-size:30px;color:var(--ok);line-height:1.1}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.c{border:1px solid var(--ln);border-radius:18px;padding:14px;display:block;color:inherit;text-decoration:none;position:relative}
+.c .i{font-size:22px}.c h3{margin:6px 0 4px;font-size:20px}.c p{margin:2px 0;color:var(--mu);font-size:15px}.c .pt{color:#fff}
+.dot{position:absolute;top:14px;right:14px;width:11px;height:11px;border-radius:50%;background:var(--warn)}
+.dot.on{background:var(--ok)}.dot.off{background:var(--bad)}
+.st{font-size:13px;color:var(--mu)}
+.pal{display:flex;gap:6px;margin-top:14px;align-items:center;color:var(--mu);font-size:13px}.pal i{width:18px;height:18px;border-radius:5px}
+</style></head><body><main>
+<div class="top"><h1>🖥 AI — UI និងទំព័រគ្រប់គ្រង</h1><p>Port 5175 · Frontend ដែលអ្នកប្រើប្រាស់មើលឃើញ និងប្រើប្រាស់</p></div>
+<div class="arr"><b>⇅</b>ការទំនាក់ទំនងរវាង UI និង API</div>
+<div class="grid">
+ <a class="c" data-port="8790" href="http://localhost:8790"><span class="dot"></span><div class="i">⑃</div><h3>KI — API</h3><p class="pt">Port 8790</p><p>ផ្លូវទំនាក់ទំនង និងសេវាកម្ម API</p><p class="st"></p></a>
+ <a class="c" href="https://github.com/KHOEM-AI/KHOEM_AI"><span class="dot on"></span><div class="i">🛢</div><h3>KHOEM_AI</h3><p class="pt">ភាសា និងទិន្នន័យ</p><p>ប្រព័ន្ធភាសា និងការផ្ទុកទិន្នន័យ</p></a>
+ <a class="c" data-port="8799" href="http://localhost:8799"><span class="dot"></span><div class="i">〰</div><h3>IQ-AI</h3><p class="pt">Port 8799</p><p>សំឡេង វីដេអូ និងសញ្ញាអារម្មណ៍</p><p class="st"></p></a>
+ <a class="c" href="https://github.com/KHOEM-AI/khoem-now"><span class="dot" id="kn"></span><div class="i">💡</div><h3>khoem-now</h3><p class="pt">តួនាទីប្រព័ន្ធ</p><p>ពណ៌ និងការគ្រប់គ្រងអំពូលភ្លើង</p><p class="st" id="knst"></p></a>
+</div>
+<div class="arr"><b>⇅</b></div>
+<div class="top"><h2>⚙ KSV — ឧបករណ៍បញ្ជាទូទៅអេឡិចត្រូនិច</h2><p>Port 4000 · Gateway ដែលបានរាយការណ៍ថាកំពុងរត់</p>
+ <p class="st" id="ksvst" data-port="4000" style="margin-top:6px"></p></div>
+<div class="pal" id="pal">ពណ៌ពី khoem-now: កំពុងផ្ទុក…</div>
+</main>
+<script>
+const RAW='palettes.json';
+const root=document.documentElement.style;
+async function loadColors(){
+ try{const j=await(await fetch(RAW)).json(),m={};j.items.forEach(p=>m[p.id]=p.colors);
+  const t=m['traffic-light'];if(t){root.setProperty('--bad',t[0]);root.setProperty('--warn',t[1]);root.setProperty('--ok',t[2])}
+  document.getElementById('pal').innerHTML='ពណ៌ពី khoem-now: '+(m.rainbow||[]).map(c=>`<i style="background:${c}"></i>`).join('');
+  document.getElementById('kn').className='dot on';document.getElementById('knst').textContent='បានភ្ជាប់';
+ }catch(e){document.getElementById('pal').textContent='ពណ៌ពី khoem-now: មិនអាចផ្ទុក (ប្រើពណ៌លំនាំដើម)';
+  document.getElementById('kn').className='dot off';document.getElementById('knst').textContent='មិនទាន់ភ្ជាប់'}}
+async function ping(port){const c=new AbortController(),t=setTimeout(()=>c.abort(),2500);
+ try{await fetch('http://localhost:'+port,{mode:'no-cors',signal:c.signal});return 1}catch(e){return 0}finally{clearTimeout(t)}}
+async function check(){for(const el of document.querySelectorAll('[data-port]')){const on=await ping(el.dataset.port),d=el.querySelector('.dot'),s=el.querySelector('.st')||el;
+  if(d)d.className='dot '+(on?'on':'off');s.textContent=on?'កំពុងរត់':'មិនទាន់រត់'}}
+loadColors();check();setInterval(check,10000);
+</script></body></html>
