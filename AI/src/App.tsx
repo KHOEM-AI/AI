@@ -191,12 +191,9 @@ const [showColorLight, setShowColorLight] = useState(false);
                   <span aria-hidden="true">💻</span> {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
-<button className="app__sidebar-item" onClick={() => { setShowColorLight(true); setShowMenu(false); }}>🎨 Color and Light · ពណ៌ និងអំពូលភ្លើង</button>
+
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
-                <button className="app__sidebar-item" onClick={() => { setShowIqai(true); setShowMenu(false); }}>🎭 Emotion and Media Analyzer · វិភាគអារម្មណ៍ និងឯកសារ</button>
-                <button className="app__sidebar-item" onClick={() => { setShowThreeDStudio(true); setShowMenu(false); }}><span aria-hidden="true">🧊</span> 3D Studio · Orbit 360°</button>
-                <button className="app__sidebar-item" onClick={() => { setShowAvStudio(true); setShowMenu(false); }}><span aria-hidden="true">🎧</span> Audio · Video · Creative Studio</button>
-                <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
+                                <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>

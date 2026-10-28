@@ -86,7 +86,15 @@ function harmonize(cs: Col[], base: number, hm: string): Col[] {
 
 const btn = { background: "#2a3350", color: "inherit", border: 0, borderRadius: 7, padding: "7px 11px", cursor: "pointer" } as const;
 
-export default function ColorLightCenter({ onClose }: { onClose: () => void }) {
+export default function ColorLightCenter({
+  onClose,
+  embedded = false,
+  paletteOnly = false,
+}: {
+  onClose: () => void;
+  embedded?: boolean;
+  paletteOnly?: boolean;
+}) {
   const lang = useLanguageCode();
   const km = lang === "km";
 
@@ -250,12 +258,12 @@ export default function ColorLightCenter({ onClose }: { onClose: () => void }) {
   const row = { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 10 } as const;
 
   return (
-    <div className="status-overlay" role="dialog" aria-label="Color and Light">
-      <div className="status-panel">
+    <div className={embedded ? "ks-color-embed" : "status-overlay"} role="dialog" aria-label={paletteOnly ? "Color Palette" : "Color and Light"}>
+      <div className="status-panel" style={embedded ? { width: "100%", maxWidth: "none", maxHeight: "none", minHeight: "100%", overflow: "visible" } : undefined}>
         <div className="status-panel__head">
           <div>
-            <div className="status-panel__ai-name">Color and Light</div>
-            <div className="status-panel__page-title">{km ? "ពណ៌ និងអំពូលភ្លើង" : "Colors and lights"}</div>
+            <div className="status-panel__ai-name">{paletteOnly ? "KHOEM-AI Creative Studio" : "Color and Light"}</div>
+            <div className="status-panel__page-title">{paletteOnly ? "Color Palette" : km ? "ពណ៌ និងអំពូលភ្លើង" : "Colors and lights"}</div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label={km ? "បិទ" : "Close"}>✕</button>
         </div>
@@ -331,12 +339,16 @@ export default function ColorLightCenter({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
+{!paletteOnly && (
+        <>
         {/* lamp preview */}
         <div style={{ ...row, justifyContent: "flex-start" }}>
           <span style={{ width: 44, height: 44, borderRadius: "50%", background: cur0, boxShadow: "0 0 24px 8px " + cur0 + "99" }} />
           <span>{km ? "អំពូល (មើលជាមុន)" : "Lamp preview"} · {cur0}</span>
         </div>
 
+          </>
+        )}
         {/* actions */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
           <button style={btn} onClick={gen}>Generate</button>
@@ -354,6 +366,8 @@ export default function ColorLightCenter({ onClose }: { onClose: () => void }) {
           </select>
         )}
 
+{!paletteOnly && (
+        <>
         {/* library: khoem-now data (colors + lights) */}
         <div className="status-panel__meta" style={{ marginTop: 18 }}>
           {km ? "បណ្ណាល័យ khoem-now · ចុចពណ៌ដើម្បីបន្ថែម" : "khoem-now library · tap a color to add"}
@@ -385,7 +399,9 @@ export default function ColorLightCenter({ onClose }: { onClose: () => void }) {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        </>
+        )}
       </div>
     </div>
   );

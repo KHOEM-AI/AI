@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import khoemLogo from "../assets/khoem-ai-logo.webp";
+import IqaiCenter from "../components/IqaiCenter";
+import ColorLightCenter from "../components/ColorLightCenter";
 import { iqaiContentUrl, listMedia, uploadMedia, type IqaiMedia } from "../api/client";
 import "./studio.css";
 
@@ -593,7 +595,7 @@ type Props = { onClose: () => void; onOpenAv?: () => void; onOpen3d?: () => void
 const AUDIO_WORDS = /សំឡេង|ភ្លេង|audio|sound|music|bass|volume|mp3|wav/i;
 
 export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
-  const [view, setView] = useState<"home" | "audio">("home");
+  const [view, setView] = useState<"home" | "audio" | "emotion" | "color">("home");
   const [prompt, setPrompt] = useState("");
   const [note, setNote] = useState("");
 
@@ -617,6 +619,8 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
         <img src={khoemLogo} alt="KHOEM-AI" className="ks-logo" />
         <button className={view === "home" ? "on" : ""} onClick={() => setView("home")}><span>🏠</span><em>Home</em></button>
         <button className={view === "audio" ? "on" : ""} onClick={() => setView("audio")}><span>🎚</span><em>Audio</em></button>
+        <button className={view === "emotion" ? "on" : ""} onClick={() => setView("emotion")}><span>🎭</span><em>Emotion</em></button>
+        <button className={view === "color" ? "on" : ""} onClick={() => setView("color")}><span>🎨</span><em>Color Palette</em></button>
         <button disabled={!onOpenAv} onClick={onOpenAv}><span>🎬</span><em>Video</em></button>
         <button disabled={!onOpen3d} onClick={onOpen3d}><span>🧊</span><em>3D</em></button>
         <button className="ks-close" onClick={onClose}><span>✕</span><em>បិទ</em></button>
@@ -625,6 +629,15 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
       <main className="ks-main">
         {view === "audio" ? (
           <AudioEditor onBack={() => setView("home")} />
+        ) : view === "color" ? (
+          <div style={{ position: "relative", minHeight: "100%", overflow: "auto" }}>
+            <ColorLightCenter embedded paletteOnly onClose={() => setView("home")} />
+          </div>
+        ) : view === "emotion" ? (
+          <div style={{ position: "relative", minHeight: "100%", padding: 12, overflow: "auto" }}>
+            <button className="ks-btn" onClick={() => setView("home")} style={{ marginBottom: 12 }}>← Home</button>
+            <IqaiCenter embedded onClose={() => setView("home")} />
+          </div>
         ) : (
           <div className="ks-home">
             <h1>KHOEM-AI <small>Creative Studio</small></h1>

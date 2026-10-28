@@ -33,7 +33,12 @@ const btn: React.CSSProperties = {
   fontSize: 15,
 };
 
-export default function IqaiCenter({ onClose }: { onClose: () => void }) {
+type IqaiCenterProps = {
+  onClose: () => void;
+  embedded?: boolean;
+};
+
+export default function IqaiCenter({ onClose, embedded = false }: IqaiCenterProps) {
   const [text, setText] = useState("");
   const [emo, setEmo] = useState<IqaiEmotion | null>(null);
   const [fileInfo, setFileInfo] = useState<string>("");
@@ -66,11 +71,11 @@ export default function IqaiCenter({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, overflow: "auto" }}
+      style={embedded ? { position: "relative", width: "100%", minHeight: "100%", overflow: "auto", color: "#eee" } : { position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, overflow: "auto" }}
       onClick={onClose}
     >
       <div
-        style={{ maxWidth: 520, margin: "20px auto", background: "#1a1a1f", color: "#eee", borderRadius: 12, padding: 16 }}
+        style={{ width: "100%", maxWidth: 720, boxSizing: "border-box", margin: embedded ? "0 auto" : "20px auto", background: "#1a1a1f", color: "#eee", borderRadius: 12, padding: 16 }}
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
