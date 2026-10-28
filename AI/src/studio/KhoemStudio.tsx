@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import khoemLogo from "../assets/khoem-ai-logo.webp";
 import IqaiCenter from "../components/IqaiCenter";
 import ColorLightCenter from "../components/ColorLightCenter";
+import TranslatePanel from "./TranslatePanel";
 import { iqaiContentUrl, listMedia, uploadMedia, type IqaiMedia } from "../api/client";
 import "./studio.css";
 
@@ -595,7 +596,7 @@ type Props = { onClose: () => void; onOpenAv?: () => void; onOpen3d?: () => void
 const AUDIO_WORDS = /សំឡេង|ភ្លេង|audio|sound|music|bass|volume|mp3|wav/i;
 
 export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
-  const [view, setView] = useState<"home" | "audio" | "emotion" | "color">("home");
+  const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate">("home");
   const [prompt, setPrompt] = useState("");
   const [note, setNote] = useState("");
 
@@ -610,7 +611,7 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
     { icon: "🎚", title: "កែសំឡេង", sub: "Voice · Music · Effects", on: true, go: () => setView("audio") },
     { icon: "🎬", title: "កាត់តវីដេអូ", sub: "Clips · Text · Audio", on: !!onOpenAv, go: onOpenAv },
     { icon: "🖼", title: "កែរូបភាព", sub: "Edit · Design · AI", on: false },
-    { icon: "🌐", title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: false },
+    { icon: "🌐", title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: true, go: () => setView("translate") },
   ];
 
   return (
@@ -621,6 +622,7 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
         <button className={view === "audio" ? "on" : ""} onClick={() => setView("audio")}><span>🎚</span><em>Audio</em></button>
         <button className={view === "emotion" ? "on" : ""} onClick={() => setView("emotion")}><span>🎭</span><em>Emotion</em></button>
         <button className={view === "color" ? "on" : ""} onClick={() => setView("color")}><span>🎨</span><em>Color Palette</em></button>
+        <button className={view === "translate" ? "on" : ""} onClick={() => setView("translate")}><span>🌐</span><em>Translate</em></button>
         <button disabled={!onOpenAv} onClick={onOpenAv}><span>🎬</span><em>Video</em></button>
         <button disabled={!onOpen3d} onClick={onOpen3d}><span>🧊</span><em>3D</em></button>
         <button className="ks-close" onClick={onClose}><span>✕</span><em>បិទ</em></button>
@@ -629,6 +631,10 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
       <main className="ks-main">
         {view === "audio" ? (
           <AudioEditor onBack={() => setView("home")} />
+        ) : view === "translate" ? (
+          <div style={{ position: "relative", minHeight: "100%", overflow: "auto" }}>
+            <TranslatePanel onBack={() => setView("home")} />
+          </div>
         ) : view === "color" ? (
           <div style={{ position: "relative", minHeight: "100%", overflow: "auto" }}>
             <ColorLightCenter embedded paletteOnly onClose={() => setView("home")} />
