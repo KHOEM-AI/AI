@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 const LANGS = [
   { code: "km", label: "ខ្មែរ", name: "Khmer" },
-  { code: "en", label: "English", name: "English" },
+  { code: "en", label: "English (US)", name: "American English" },
   { code: "zh", label: "中文", name: "Simplified Chinese" },
 ] as const;
 
