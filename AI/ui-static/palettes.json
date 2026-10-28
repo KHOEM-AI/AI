@@ -1,0 +1,64 @@
+{
+  "name_en": "Ordered light palettes (chase effects)",
+  "name_km": "ក្រុមពណ៌ភ្លើងតាមលំដាប់",
+  "order": "colors are listed in playback order",
+  "count": 4,
+  "items": [
+    {
+      "id": "rainbow",
+      "name_en": "Rainbow (ROYGBIV)",
+      "name_km": "ឥន្ទធនូ",
+      "colors": [
+        "#FF0000",
+        "#FF7F00",
+        "#FFFF00",
+        "#00FF00",
+        "#0000FF",
+        "#4B0082",
+        "#9400D3"
+      ]
+    },
+    {
+      "id": "fire",
+      "name_en": "Fire gradient",
+      "name_km": "ពណ៌ភ្លើង",
+      "colors": [
+        "#000000",
+        "#2E0000",
+        "#5D0000",
+        "#8B0000",
+        "#B21700",
+        "#D82E00",
+        "#FF4500",
+        "#FF6500",
+        "#FF8500",
+        "#FFA500",
+        "#FFC300",
+        "#FFE100",
+        "#FFFF00",
+        "#FFFF55",
+        "#FFFFAA",
+        "#FFFFFF"
+      ]
+    },
+    {
+      "id": "traffic-light",
+      "name_en": "Traffic light",
+      "name_km": "ភ្លើងចរាចរណ៍",
+      "colors": [
+        "#FF0000",
+        "#FFBF00",
+        "#00A651"
+      ]
+    },
+    {
+      "id": "police",
+      "name_en": "Police flasher",
+      "name_km": "",
+      "colors": [
+        "#FF0000",
+        "#0000FF"
+      ]
+    }
+  ]
+}
