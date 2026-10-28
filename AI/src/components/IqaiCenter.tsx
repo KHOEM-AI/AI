@@ -6,6 +6,7 @@ import {
   iqaiInspectVideo,
 } from "../api/client";
 import type { IqaiEmotion } from "../api/client";
+import SoundLibrary from "./SoundLibrary";
 
 const EMO: Record<string, string> = {
   joy: "😊 សប្បាយ · Joy",
@@ -106,6 +107,8 @@ export default function IqaiCenter({ onClose }: { onClose: () => void }) {
             <pre style={{ marginTop: 8, fontSize: 13, whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{fileInfo}</pre>
           )}
         </div>
+
+        <SoundLibrary />
 
         {busy && <div>កំពុងដំណើរការ... · Working...</div>}
         {err && <div style={{ color: "#ff8a8a" }}>⚠️ {err}</div>}

@@ -16,6 +16,8 @@ import ApiCenter from "./components/ApiCenter";
 import ColorLightCenter from "./components/ColorLightCenter";
 import DataCenter from "./components/DataCenter";
 import IqaiCenter from "./components/IqaiCenter";
+import { lazy, Suspense } from "react";
+const AvStudio = lazy(() => import("./components/AvStudio"));
 import EmotionBadge from "./components/EmotionBadge";
 import ThreeDStudio from "./components/StudioHub";
 import MessageActions from "./components/MessageActions";
@@ -95,6 +97,7 @@ const [showColorLight, setShowColorLight] = useState(false);
   const [showDataCenter, setShowDataCenter] = useState(false);
   const [showIqai, setShowIqai] = useState(false);
   const [showThreeDStudio, setShowThreeDStudio] = useState(false);
+  const [showAvStudio, setShowAvStudio] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showDone, setShowDone] = useState(false);
@@ -190,6 +193,7 @@ const [showColorLight, setShowColorLight] = useState(false);
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowIqai(true); setShowMenu(false); }}>🎭 Emotion and Media Analyzer · វិភាគអារម្មណ៍ និងឯកសារ</button>
                 <button className="app__sidebar-item" onClick={() => { setShowThreeDStudio(true); setShowMenu(false); }}><span aria-hidden="true">🧊</span> 3D Studio · Orbit 360°</button>
+                <button className="app__sidebar-item" onClick={() => { setShowAvStudio(true); setShowMenu(false); }}><span aria-hidden="true">🎧</span> Audio · Video · Creative Studio</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
@@ -327,6 +331,7 @@ const [showColorLight, setShowColorLight] = useState(false);
         {showDataCenter && <ErrorBoundary onClose={() => setShowDataCenter(false)}><DataCenter onClose={() => setShowDataCenter(false)} /></ErrorBoundary>}
         {showIqai && <ErrorBoundary onClose={() => setShowIqai(false)}><IqaiCenter onClose={() => setShowIqai(false)} /></ErrorBoundary>}
         {showThreeDStudio && <ErrorBoundary onClose={() => setShowThreeDStudio(false)}><ThreeDStudio onClose={() => setShowThreeDStudio(false)} /></ErrorBoundary>}
+        {showAvStudio && <ErrorBoundary onClose={() => setShowAvStudio(false)}><Suspense fallback={null}><AvStudio onClose={() => setShowAvStudio(false)} /></Suspense></ErrorBoundary>}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt
