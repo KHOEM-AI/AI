@@ -1,0 +1,59 @@
+.kei{min-height:100vh;padding:12px;background:radial-gradient(circle at 20% 0,#10254f,#050b1c 60%);color:#e8f1ff;font-family:system-ui,'Noto Sans Khmer','Noto Sans SC',sans-serif}
+.kei-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.kei-logo{font-size:20px}.kei-logo i{color:#4aa3ff;margin-left:8px}.kei-logo small{display:block;font-size:12px;color:#8fb4e8}
+.kei h1{font-size:16px;margin:0;color:#8fd0ff}
+.kei-lang{display:flex;gap:6px}
+.kei-lang button{background:#0b1a3a;color:#cfe3ff;border:1px solid #234a8a;border-radius:8px;padding:6px 10px}
+.kei-lang button.on{background:#1e6bff;border-color:#4aa3ff}
+.kei-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.card,.panel{background:#0a1633;border:1px solid #1d3a73;border-radius:12px;padding:12px}
+.card span{display:block;font-size:12px;color:#8fb4e8}.card b{font-size:22px;color:#5dffb0}.card em{font-size:12px;color:#8fb4e8;margin-left:6px;font-style:normal}
+.state{display:flex;align-items:center;justify-content:center;font-weight:700}
+.ok{color:#3dff9a}.off{color:#ff6b6b}
+.kei-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-bottom:12px}
+.panel h2{font-size:14px;margin:0 0 8px;color:#8fd0ff}.muted{color:#7f95b8}
+.row{display:grid;grid-template-columns:48px 64px 1fr;gap:8px;padding:6px 0;border-top:1px solid #16315f;font-size:13px}
+.row small{display:block;color:#7f95b8}
+.lv{border-radius:6px;text-align:center;font-size:11px;padding:2px 4px;background:#334}
+.lv.high{background:#c0392b}.lv.medium{background:#d68910}.lv.low{background:#1e8449}.lv.info{background:#2471a3}
+.subs{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.sub{background:#0d1d40;border:1px solid #234a8a;border-radius:10px;padding:10px;text-align:center;font-size:13px}
+.sub em{display:block;font-size:11px;font-style:normal;margin-top:4px}
+.reload{margin-top:12px;background:#1e6bff;color:#fff;border:0;border-radius:8px;padding:8px 14px}
+.status-panel .kei{min-height:0;padding:0;background:none}
+.kei-lang{position:relative}
+.kei-lang .flagbtn{display:flex;align-items:center;padding:6px 8px}
+.kei-langmenu{position:absolute;right:0;top:110%;z-index:5;display:flex;flex-direction:column;gap:6px;min-width:150px;background:#0a1633;border:1px solid #234a8a;border-radius:10px;padding:6px}
+.kei-langmenu button{display:flex;align-items:center;gap:8px;text-align:left}
+.kei-top svg{flex:none}
+.kei-logo{display:flex;align-items:center;gap:8px}
+.kei-logo b{display:block}
+.kei-top .hkbtn{background:#3a0f14;color:#ffb4a8;border:1px solid #a33;border-radius:8px;padding:6px 10px}
+.hk-head{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.hk-head h2{margin:0;font-size:16px;color:#ff9a8a}
+.hk-head button{background:#0b1a3a;color:#cfe3ff;border:1px solid #234a8a;border-radius:8px;padding:6px 10px}
+.hk-row{padding:8px 0;border-top:1px solid #16315f;font-size:13px;overflow-wrap:anywhere}
+.hk-row small{display:block;color:#7f95b8}
+.hk-files{font-size:12px;color:#cfe3ff;overflow-wrap:anywhere;padding:2px 0}
+/* ===== black + 3D buttons (KEI panel only) ===== */
+.status-panel:has(.kei){background:#000;border-color:#262626;box-shadow:0 0 24px rgba(0,0,0,.9)}
+.kei{background:#000;color:#eee}
+.kei .card,.kei .panel{background:linear-gradient(#151515,#080808);border:1px solid #2a2a2a;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 3px 8px rgba(0,0,0,.8)}
+.kei .sub{background:linear-gradient(#171717,#090909);border:1px solid #2c2c2c;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.kei-langmenu{background:#0b0b0b;border-color:#333}
+.kei button,.status-panel:has(.kei) .status-panel__close{
+  background:linear-gradient(180deg,#3d3d3d 0%,#1b1b1b 55%,#0c0c0c 100%);
+  color:#eaf2ff;border:1px solid #000;border-radius:10px;
+  box-shadow:0 5px 0 #000,0 8px 10px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.28);
+  transition:transform .08s,box-shadow .08s}
+.kei button:active,.status-panel:has(.kei) .status-panel__close:active{transform:translateY(4px);box-shadow:0 1px 0 #000,inset 0 2px 5px rgba(0,0,0,.9)}
+.kei-lang button.on{background:linear-gradient(180deg,#3b86ff,#0d3fb0)}
+.kei-top .hkbtn{background:linear-gradient(180deg,#e04040,#8a1212 55%,#4a0808);color:#fff;border:1px solid #000}
+.kei .reload{background:linear-gradient(180deg,#3b86ff,#0b3aa8 60%,#082a7a);color:#fff}
+.kei-top,.kei-cards,.kei-grid{margin-bottom:16px}
+.kei-top .eitbtn{background:linear-gradient(180deg,#38b26b,#12623a 55%,#0a3a22);color:#fff;border:1px solid #000}
+.eit-in{width:100%;box-sizing:border-box;background:#0b0b0b;color:#eee;border:1px solid #333;border-radius:8px;padding:8px;margin:4px 0 8px;font-size:14px}
+.eit-row{display:flex;gap:6px}
+.eit-out{white-space:pre-wrap;overflow-wrap:anywhere;background:#050505;border:1px solid #222;border-radius:8px;padding:8px;margin-top:10px;font-size:13px}
+.eit-err{color:#ff8a8a}
+.kei button:disabled{opacity:.45}

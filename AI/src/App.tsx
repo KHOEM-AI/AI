@@ -13,6 +13,7 @@ import SafetyCenter from "./components/SafetyCenter";
 import ToolRegistryCenter from "./components/ToolRegistryCenter";
 import LearningCenter from "./components/LearningCenter";
 import ApiCenter from "./components/ApiCenter";
+import KeiCenter from "./components/KeiCenter";
 import ColorLightCenter from "./components/ColorLightCenter";
 import DataCenter from "./components/DataCenter";
 import IqaiCenter from "./components/IqaiCenter";
@@ -91,6 +92,7 @@ function AppInner() {
   const [showObservability, setShowObservability] = useState(false);
   const [showManagement, setShowManagement] = useState(false);
   const [showSafety, setShowSafety] = useState(false);
+  const [showKei, setShowKei] = useState(false);
   const [showToolRegistry, setShowToolRegistry] = useState(false);
   const [showLearningCenter, setShowLearningCenter] = useState(false);
   const [showApiCenter, setShowApiCenter] = useState(false);
@@ -209,6 +211,7 @@ const [showColorLight, setShowColorLight] = useState(false);
                 <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🛡</span> {k("ai.menu.safety") || "Safety"}
                 </button>
+                <button className="app__sidebar-item" onClick={() => { setShowKei(true); setShowMenu(false); }}><span aria-hidden="true">🛡️</span> KEI</button>
                 <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🧰</span> {k("ai.menu.toolRegistry") || "Tool Registry"}
                 </button>
@@ -324,6 +327,7 @@ const [showColorLight, setShowColorLight] = useState(false);
         {showObservability && <ErrorBoundary onClose={() => setShowObservability(false)}><ObservabilityCenter onClose={() => setShowObservability(false)} /></ErrorBoundary>}
         {showManagement && <ErrorBoundary onClose={() => setShowManagement(false)}><ManagementCenter onClose={() => setShowManagement(false)} /></ErrorBoundary>}
         {showSafety && <ErrorBoundary onClose={() => setShowSafety(false)}><SafetyCenter onClose={() => setShowSafety(false)} /></ErrorBoundary>}
+        {showKei && <ErrorBoundary onClose={() => setShowKei(false)}><KeiCenter onClose={() => setShowKei(false)} /></ErrorBoundary>}
         {showToolRegistry && <ErrorBoundary onClose={() => setShowToolRegistry(false)}><ToolRegistryCenter onClose={() => setShowToolRegistry(false)} /></ErrorBoundary>}
         {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
         {showApiCenter && <ErrorBoundary onClose={() => setShowApiCenter(false)}><ApiCenter onClose={() => setShowApiCenter(false)} /></ErrorBoundary>}
