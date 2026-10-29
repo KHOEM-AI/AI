@@ -18,6 +18,7 @@ import ColorLightCenter from "./components/ColorLightCenter";
 import DataCenter from "./components/DataCenter";
 import IqaiCenter from "./components/IqaiCenter";
 import { lazy, Suspense } from "react";
+const AvStudio = lazy(() => import("./components/AvStudio"));
 const KhoemStudio = lazy(() => import("./studio/KhoemStudio"));
 import EmotionBadge from "./components/EmotionBadge";
 import ThreeDStudio from "./components/StudioHub";
@@ -99,6 +100,7 @@ const [showColorLight, setShowColorLight] = useState(false);
   const [showDataCenter, setShowDataCenter] = useState(false);
   const [showIqai, setShowIqai] = useState(false);
   const [showThreeDStudio, setShowThreeDStudio] = useState(false);
+  const [showAvStudio, setShowAvStudio] = useState(false);
   const [showKhoemStudio, setShowKhoemStudio] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -333,6 +335,8 @@ const [showColorLight, setShowColorLight] = useState(false);
         {showDataCenter && <ErrorBoundary onClose={() => setShowDataCenter(false)}><DataCenter onClose={() => setShowDataCenter(false)} /></ErrorBoundary>}
         {showIqai && <ErrorBoundary onClose={() => setShowIqai(false)}><IqaiCenter onClose={() => setShowIqai(false)} /></ErrorBoundary>}
         {showThreeDStudio && <ErrorBoundary onClose={() => setShowThreeDStudio(false)}><ThreeDStudio onClose={() => setShowThreeDStudio(false)} /></ErrorBoundary>}
+        {showAvStudio && <ErrorBoundary onClose={() => setShowAvStudio(false)}><Suspense fallback={null}><AvStudio onClose={() => setShowAvStudio(false)} /></Suspense></ErrorBoundary>}
+        {showKhoemStudio && <ErrorBoundary onClose={() => setShowKhoemStudio(false)}><Suspense fallback={null}><KhoemStudio onClose={() => setShowKhoemStudio(false)} onOpenAv={() => { setShowKhoemStudio(false); setShowAvStudio(true); }} onOpen3d={() => { setShowKhoemStudio(false); setShowThreeDStudio(true); }} /></Suspense></ErrorBoundary>}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt

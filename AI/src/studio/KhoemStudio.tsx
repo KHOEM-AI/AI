@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import khoemLogo from "../assets/khoem-ai-logo.webp";
-import { uploadMedia } from "../api/client";
-import SoundLibrary from "../components/SoundLibrary";
+import IqaiCenter from "../components/IqaiCenter";
+import ColorLightCenter from "../components/ColorLightCenter";
+import TranslatePanel from "./TranslatePanel";
+import { iqaiContentUrl, listMedia, uploadMedia, type IqaiMedia } from "../api/client";
 import "./studio.css";
 
-// KHOEM-AI Creative Studio: Home, Audio editor (library, record, AI sound tools, quick/pro
-// controls, timeline, export), Video preview and the sound Library. Calls IQ-AI through /iqai.
+// KHOEM-AI Creative Studio: Home (describe what you want + action cards) and an
+// Audio editor (library, preview, quick/pro controls, timeline, export).
+// Audio runs in the browser with the Web Audio API; files are stored through IQ-AI (/iqai).
 
 type Fx = { vol: number; bass: number; mid: number; treble: number; speed: number; comp: boolean };
 type Sel = { a: number; b: number };
@@ -33,14 +36,14 @@ function loadFx(): Fx {
 function buildChain(ctx: BaseAudioContext, fx: Fx): Chain {
   const bass = ctx.createBiquadFilter();
   bass.type = "lowshelf";
-  bass.frequency.value = 120;
+  bass.frequency.value = 200;
   const mid = ctx.createBiquadFilter();
   mid.type = "peaking";
   mid.frequency.value = 1000;
   mid.Q.value = 0.8;
   const treble = ctx.createBiquadFilter();
   treble.type = "highshelf";
-  treble.frequency.value = 6000;
+  treble.frequency.value = 4000;
   const comp = ctx.createDynamicsCompressor();
   const gain = ctx.createGain();
   const analyser = ctx.createAnalyser();
@@ -237,34 +240,8 @@ function Slider(p: {
   );
 }
 
-/* ---------- IQ-AI helper + offline render ---------- */
-async function api(path: string, init?: RequestInit): Promise<Response> {
-  const r = await fetch("/iqai" + path, init);
-  if (!r.ok) {
-    const j = await r.json().catch(() => null);
-    const e = j?.error;
-    throw new Error((typeof e === "string" ? e : e?.message ?? e?.code) ?? "HTTP " + r.status);
-  }
-  return r;
-}
-
-async function renderBuffer(b: AudioBuffer, f: Fx, lo: number, hi: number): Promise<AudioBuffer> {
-  const len = Math.max(1, Math.ceil(((hi - lo) / f.speed) * b.sampleRate));
-  const off = new OfflineAudioContext(b.numberOfChannels, len, b.sampleRate);
-  const chain = buildChain(off, f);
-  const src = off.createBufferSource();
-  src.buffer = b;
-  src.playbackRate.value = f.speed;
-  src.connect(chain.input);
-  src.start(0, lo, hi - lo);
-  return off.startRendering();
-}
-
-type Sound = { id: string; name: string };
-const PRESETS = ["ghost", "demon", "alien", "underwater", "male", "female"];
-
 /* ---------- audio editor ---------- */
-function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }) {
+function AudioEditor({ onBack }: { onBack: () => void }) {
   const [name, setName] = useState("");
   const [dur, setDur] = useState(0);
   const [peaks, setPeaks] = useState<number[]>([]);
@@ -272,13 +249,10 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
   const [sel, setSel] = useState<Sel | null>(null);
   const [playing, setPlaying] = useState(false);
   const [loop, setLoop] = useState(false);
-  const [recording, setRecording] = useState(false);
   const [fx, setFx] = useState<Fx>(loadFx);
   const [pro, setPro] = useState(false);
-  const [sounds, setSounds] = useState<Sound[]>([]);
-  const [soundsErr, setSoundsErr] = useState("");
-  const [sfxType, setSfxType] = useState("siren");
-  const [ttsText, setTtsText] = useState("");
+  const [lib, setLib] = useState<IqaiMedia[]>([]);
+  const [libErr, setLibErr] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [, bump] = useState(0);
@@ -296,7 +270,6 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
   const past = useRef<Fx[]>([]);
   const future = useRef<Fx[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
-  const rec = useRef<MediaRecorder | null>(null);
 
   const getCtx = () => {
     if (!ctxRef.current) {
@@ -362,7 +335,7 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
 
   const pause = () => {
     const b = bufRef.current;
-    if (b && srcRef.current) { headRef.current = posNow() / b.duration; setHead(headRef.current); }
+    if (b) { headRef.current = posNow() / b.duration; setHead(headRef.current); }
     stopSrc();
     setPlaying(false);
   };
@@ -433,31 +406,25 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing]);
 
-  useEffect(() => {
-    if (!active) pause();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
-
   useEffect(() => () => {
     stopSrc();
     void ctxRef.current?.close();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    api("/sounds?limit=200")
-      .then((r) => r.json())
-      .then((j) => setSounds((j.items ?? []) as Sound[]))
-      .catch(() => setSoundsErr("មិនអាចទាញបញ្ជីបណ្ណាល័យបានទេ (ពិនិត្យ IQ-AI ច្រក 8799)"));
-  }, []);
-
-  const run = async (fn: () => Promise<void>) => {
-    setBusy(true);
-    setMsg("");
-    try { await fn(); } catch (e) { setMsg(e instanceof Error ? e.message : String(e)); } finally { setBusy(false); }
+  const refreshLib = async () => {
+    try {
+      setLib((await listMedia()).filter((m) => m.type === "audio"));
+      setLibErr("");
+    } catch {
+      setLibErr("មិនអាចភ្ជាប់ IQ-AI បានទេ (ពិនិត្យ npm start ក្នុង ~/IQ-AI ច្រក 8799)");
+    }
   };
+  useEffect(() => { void refreshLib(); }, []);
 
   const openBuffer = async (data: ArrayBuffer, label: string) => {
+    setBusy(true);
+    setMsg("កំពុងបើក…");
     try {
       const b = await getCtx().decodeAudioData(data);
       stopSrc();
@@ -472,76 +439,73 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
       setMsg("");
     } catch {
       setMsg("បើកឯកសារមិនបាន (ទ្រង់ទ្រាយមិនគាំទ្រ ឬខូច)");
+    } finally {
+      setBusy(false);
     }
   };
 
-  const openFile = (f: File | undefined) => {
-    if (f) void run(async () => { await openBuffer(await f.arrayBuffer(), f.name); });
+  const openFile = async (f: File | undefined) => {
+    if (f) await openBuffer(await f.arrayBuffer(), f.name);
   };
-  const pickSound = (s: Sound) => run(async () => {
-    const r = await api("/sounds/" + encodeURIComponent(s.id) + "/content");
-    await openBuffer(await r.arrayBuffer(), s.name);
-  });
+  const openLib = async (m: IqaiMedia) => {
+    try {
+      const r = await fetch(iqaiContentUrl(m.id));
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      await openBuffer(await r.arrayBuffer(), m.filename);
+    } catch {
+      setMsg("ទាញយកពី IQ-AI មិនបាន");
+    }
+  };
 
-  const toggleRec = () => run(async () => {
-    if (recording) { rec.current?.stop(); return; }
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mr = new MediaRecorder(stream);
-    const chunks: Blob[] = [];
-    mr.ondataavailable = (e) => chunks.push(e.data);
-    mr.onstop = () => {
-      stream.getTracks().forEach((t) => t.stop());
-      setRecording(false);
-      void run(async () => { await openBuffer(await new Blob(chunks).arrayBuffer(), "ថតសំឡេង"); });
-    };
-    mr.start();
-    rec.current = mr;
-    setRecording(true);
-  });
-
-  const genSfx = () => run(async () => {
-    const r = await api("/audio/sfx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: sfxType, durationSec: 3 }) });
-    await openBuffer(await r.arrayBuffer(), "SFX · " + sfxType);
-  });
-  const applyVoice = (preset: string) => run(async () => {
-    const b = bufRef.current;
-    if (!b) throw new Error("បើកសំឡេងមុន");
-    const wav = encodeWav(await renderBuffer(b, FX0, 0, b.duration));
-    const r = await api("/audio/voice?preset=" + preset, { method: "POST", body: wav });
-    await openBuffer(await r.arrayBuffer(), name + " · " + preset);
-  });
-  const tts = () => run(async () => {
-    const r = await fetch("/iqai/audio/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: ttsText }) });
-    if (r.status === 501) throw new Error("មិនទាន់ភ្ជាប់ TTS provider (Not Configured)");
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    await openBuffer(await r.arrayBuffer(), "TTS");
-  });
-
-  const doExport = (toIqai: boolean) => run(async () => {
-    const b = bufRef.current;
-    if (!b) return;
+  const renderWav = async (): Promise<Blob> => {
+    const b = bufRef.current!;
     const s = selRef.current;
-    const wav = encodeWav(await renderBuffer(b, fxRef.current, s ? s.a * b.duration : 0, s ? s.b * b.duration : b.duration));
-    const blob = new Blob([wav], { type: "audio/wav" });
-    const fname = (name.replace(/\.[^.]+$/, "") || "khoem-audio") + "-khoem.wav";
-    if (toIqai) {
-      await uploadMedia(blob, fname);
-      setMsg("រក្សាទុកក្នុង IQ-AI រួច");
-    } else {
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = fname;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-      setMsg("នាំចេញរួច");
+    const lo = s ? s.a * b.duration : 0;
+    const hi = s ? s.b * b.duration : b.duration;
+    const f = fxRef.current;
+    const len = Math.max(1, Math.ceil(((hi - lo) / f.speed) * b.sampleRate));
+    const off = new OfflineAudioContext(b.numberOfChannels, len, b.sampleRate);
+    const chain = buildChain(off, f);
+    const src = off.createBufferSource();
+    src.buffer = b;
+    src.playbackRate.value = f.speed;
+    src.connect(chain.input);
+    src.start(0, lo, hi - lo);
+    return new Blob([encodeWav(await off.startRendering())], { type: "audio/wav" });
+  };
+
+  const doExport = async (toIqai: boolean) => {
+    if (!bufRef.current) return;
+    setBusy(true);
+    setMsg("កំពុងនាំចេញ…");
+    try {
+      const blob = await renderWav();
+      const fname = (name.replace(/\.[^.]+$/, "") || "khoem-audio") + "-khoem.wav";
+      if (toIqai) {
+        await uploadMedia(blob, fname);
+        setMsg("រក្សាទុកក្នុង IQ-AI រួច");
+        void refreshLib();
+      } else {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fname;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        setMsg("នាំចេញរួច");
+      }
+    } catch {
+      setMsg("នាំចេញមិនបាន");
+    } finally {
+      setBusy(false);
     }
-  });
+  };
 
   const has = peaks.length > 0;
+  const total = dur;
   const ticks = [0, 0.25, 0.5, 0.75, 1];
 
   return (
-    <div className="ks-editor" style={{ display: active ? undefined : "none" }}>
+    <div className="ks-editor">
       <header className="ks-top">
         <button className="ks-btn" onClick={onBack} aria-label="ត្រឡប់ក្រោយ">←</button>
         <strong className="ks-title">{name || "Audio Studio"}</strong>
@@ -556,40 +520,23 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
       <div className="ks-grid">
         <aside className="ks-panel ks-lib">
           <h3>ឯកសារសំឡេង</h3>
-          <input ref={fileRef} type="file" accept="audio/*" hidden onChange={(e) => { openFile(e.target.files?.[0]); e.target.value = ""; }} />
+          <input ref={fileRef} type="file" accept="audio/*" hidden onChange={(e) => { void openFile(e.target.files?.[0]); e.target.value = ""; }} />
           <button className="ks-btn ks-wide" onClick={() => fileRef.current?.click()} disabled={busy}>＋ បើកឯកសារ</button>
-          <button className={"ks-btn ks-wide" + (recording ? " ks-rec" : "")} onClick={() => void toggleRec()} disabled={busy && !recording}>
-            {recording ? "⏹ បញ្ឈប់ថត" : "⏺ ថតសំឡេង"}
-          </button>
-
-          <h4>បណ្ណាល័យ</h4>
-          {soundsErr && <p className="ks-warn">{soundsErr}</p>}
-          {!soundsErr && !sounds.length && <p className="ks-dim">មិនទាន់មានសំឡេង</p>}
+          <h4>IQ-AI Library</h4>
+          {libErr && <p className="ks-warn">{libErr}</p>}
+          {!libErr && !lib.length && <p className="ks-dim">មិនទាន់មានសំឡេង</p>}
           <ul>
-            {sounds.map((s) => (
-              <li key={s.id}><button onClick={() => void pickSound(s)} disabled={busy}>{s.name}</button></li>
+            {lib.map((m) => (
+              <li key={m.id}>
+                <button onClick={() => void openLib(m)}>{m.filename}<small>{(m.size / 1024).toFixed(0)} KB</small></button>
+              </li>
             ))}
           </ul>
-
-          <h4>សំឡេង AI</h4>
-          <div className="ks-row">
-            <input value={sfxType} onChange={(e) => setSfxType(e.target.value)} placeholder="siren…" aria-label="SFX type" />
-            <button className="ks-btn" onClick={() => void genSfx()} disabled={busy || !sfxType.trim()}>SFX</button>
-          </div>
-          <div className="ks-chips">
-            {PRESETS.map((p) => (
-              <button key={p} className="ks-chip" onClick={() => void applyVoice(p)} disabled={!has || busy}>{p}</button>
-            ))}
-          </div>
-          <div className="ks-row">
-            <input value={ttsText} onChange={(e) => setTtsText(e.target.value)} placeholder="អត្ថបទ…" aria-label="Text to speech" />
-            <button className="ks-btn" onClick={() => void tts()} disabled={busy || !ttsText.trim()}>TTS</button>
-          </div>
         </aside>
 
         <section className="ks-panel ks-preview">
           <Bars analyser={() => chainRef.current?.analyser ?? null} active={playing} />
-          <div className="ks-time">{fmt(head * dur)} <span>/ {fmt(dur)}</span></div>
+          <div className="ks-time">{fmt(head * total)} <span>/ {fmt(total)}</span></div>
           <div className="ks-transport">
             <button className="ks-btn" onClick={stop} disabled={!has} aria-label="Stop">■</button>
             <button className="ks-btn ks-play" onClick={() => (playing ? pause() : void play())} disabled={!has} aria-label="Play/Pause">{playing ? "❚❚" : "▶"}</button>
@@ -599,19 +546,19 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
               disabled={!has} aria-label="Loop"
             >⟲</button>
           </div>
-          {!has && <p className="ks-dim">បើកឯកសារ ថត ឬជ្រើសពីបណ្ណាល័យ ដើម្បីចាប់ផ្តើម</p>}
+          {!has && <p className="ks-dim">បើកឯកសារសំឡេង ដើម្បីចាប់ផ្តើម</p>}
           {msg && <p className="ks-msg" role="status">{msg}</p>}
         </section>
 
         <aside className="ks-panel ks-fx">
           <h3>កែសំឡេង</h3>
           <Slider label="Volume" min={0} max={2} step={0.05} value={fx.vol} onChange={(v) => setLive({ vol: v })} onCommit={commit} />
-          <Slider label="Bass" min={-18} max={18} step={1} value={fx.bass} unit=" dB" onChange={(v) => setLive({ bass: v })} onCommit={commit} />
+          <Slider label="Bass" min={-12} max={12} step={0.5} value={fx.bass} unit=" dB" onChange={(v) => setLive({ bass: v })} onCommit={commit} />
           <Slider label="Speed" min={0.5} max={2} step={0.05} value={fx.speed} unit="×" onChange={(v) => setLive({ speed: v })} onCommit={commit} />
           {pro && (
             <>
-              <Slider label="Mid" min={-18} max={18} step={1} value={fx.mid} unit=" dB" onChange={(v) => setLive({ mid: v })} onCommit={commit} />
-              <Slider label="Treble" min={-18} max={18} step={1} value={fx.treble} unit=" dB" onChange={(v) => setLive({ treble: v })} onCommit={commit} />
+              <Slider label="Mid" min={-12} max={12} step={0.5} value={fx.mid} unit=" dB" onChange={(v) => setLive({ mid: v })} onCommit={commit} />
+              <Slider label="Treble" min={-12} max={12} step={0.5} value={fx.treble} unit=" dB" onChange={(v) => setLive({ treble: v })} onCommit={commit} />
               <label className="ks-check">
                 <input type="checkbox" checked={fx.comp} onChange={(e) => { setLive({ comp: e.target.checked }); commit(); }} />
                 Compressor
@@ -627,7 +574,7 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
       </div>
 
       <footer className="ks-timeline">
-        <div className="ks-ruler">{ticks.map((t) => <span key={t}>{fmt(t * dur)}</span>)}</div>
+        <div className="ks-ruler">{ticks.map((t) => <span key={t}>{fmt(t * total)}</span>)}</div>
         <div className="ks-lane">
           <span className="ks-lane-label">Audio</span>
           <div className="ks-lane-wave">
@@ -638,118 +585,66 @@ function AudioEditor({ onBack, active }: { onBack: () => void; active: boolean }
             )}
           </div>
         </div>
-        <p className="ks-dim">ប៉ះដើម្បីរំលង · អូសដើម្បីជ្រើសផ្នែក{sel ? " · " + fmt(sel.a * dur) + " – " + fmt(sel.b * dur) : ""}</p>
+        <p className="ks-dim">ប៉ះដើម្បីរំលង · អូសដើម្បីជ្រើសផ្នែក{sel ? " · " + fmt(sel.a * total) + " – " + fmt(sel.b * total) : ""}</p>
       </footer>
     </div>
   );
 }
 
-/* ---------- video ---------- */
-function VideoView({ onBack }: { onBack: () => void }) {
-  const [url, setUrl] = useState("");
-  const [info, setInfo] = useState<[string, string][]>([]);
-  const [msg, setMsg] = useState("");
-  const [busy, setBusy] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+/* ---------- home ---------- */
+type Props = { onClose: () => void; onOpenAv?: () => void; onOpen3d?: () => void };
+const AUDIO_WORDS = /សំឡេង|ភ្លេង|audio|sound|music|bass|volume|mp3|wav/i;
 
-  useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
-
-  const pick = async (f?: File) => {
-    if (!f) return;
-    setUrl(URL.createObjectURL(f));
-    setInfo([]);
-    setMsg("");
-    setBusy(true);
-    try {
-      const j = await (await api("/videos/inspect", { method: "POST", body: f })).json();
-      const d = (j?.data ?? j ?? {}) as Record<string, unknown>;
-      setInfo(Object.entries(d).map(([k, v]) => [k, typeof v === "object" ? JSON.stringify(v) : String(v)] as [string, string]));
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : String(e));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div className="ks-editor">
-      <header className="ks-top">
-        <button className="ks-btn" onClick={onBack} aria-label="ត្រឡប់ក្រោយ">←</button>
-        <strong className="ks-title">Video</strong>
-      </header>
-      <div className="ks-grid">
-        <aside className="ks-panel ks-lib">
-          <h3>ឯកសារវីដេអូ</h3>
-          <input ref={fileRef} type="file" accept="video/mp4,video/webm" hidden onChange={(e) => { void pick(e.target.files?.[0]); e.target.value = ""; }} />
-          <button className="ks-btn ks-wide" onClick={() => fileRef.current?.click()} disabled={busy}>＋ បើកវីដេអូ</button>
-          <h4>ព័ត៌មាន</h4>
-          {busy && <p className="ks-dim">កំពុងពិនិត្យ…</p>}
-          {!busy && !info.length && <p className="ks-dim">គ្មានព័ត៌មាន</p>}
-          <dl className="ks-info">
-            {info.map(([k, v]) => (<div key={k}><dt>{k}</dt><dd>{v}</dd></div>))}
-          </dl>
-        </aside>
-        <section className="ks-panel ks-preview">
-          {url ? <video src={url} controls className="ks-video" /> : <p className="ks-dim">បើកវីដេអូ mp4 ឬ webm ដើម្បីមើលជាមុន</p>}
-          {msg && <p className="ks-warn" role="status">{msg}</p>}
-        </section>
-        <aside className="ks-panel ks-fx">
-          <h3>កាត់ត / នាំចេញ</h3>
-          <p className="ks-dim">មិនទាន់ភ្ជាប់ (ត្រូវការ ffmpeg នៅ server)។ ឥឡូវនេះអាចមើលជាមុន និងពិនិត្យព័ត៌មានវីដេអូបាន។</p>
-        </aside>
-      </div>
-    </div>
-  );
-}
-
-/* ---------- shell ---------- */
-type View = "home" | "audio" | "video" | "library";
-const AUDIO_WORDS = /សំឡេង|ភ្លេង|ថត|audio|sound|music|bass|volume|mp3|wav|voice|tts|sfx/i;
-const VIDEO_WORDS = /វីដេអូ|video|mp4|webm/i;
-const LIB_WORDS = /បណ្ណាល័យ|library/i;
-
-export default function KhoemStudio({ onClose }: { onClose: () => void }) {
-  const [view, setView] = useState<View>("home");
+export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
+  const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate">("home");
   const [prompt, setPrompt] = useState("");
   const [note, setNote] = useState("");
 
   const submit = () => {
     const t = prompt.trim();
     if (!t) return;
-    setNote("");
-    if (LIB_WORDS.test(t)) setView("library");
-    else if (VIDEO_WORDS.test(t)) setView("video");
-    else if (AUDIO_WORDS.test(t)) setView("audio");
-    else setNote("សូមជ្រើសកាតខាងក្រោម។ ការបង្កើតរូបភាព/វីដេអូដោយ AI មិនទាន់ភ្ជាប់ provider ទេ។");
+    if (AUDIO_WORDS.test(t)) { setNote(""); setView("audio"); }
+    else setNote("ការបង្កើតរូបភាព/វីដេអូដោយ AI មិនទាន់ភ្ជាប់ provider ទេ។ ឥឡូវនេះអាចកែសំឡេងបាន។");
   };
 
-  const cards: { icon: string; title: string; sub: string; go: () => void }[] = [
-    { icon: "🎚", title: "កែសំឡេង", sub: "Voice · Music · Effects", go: () => setView("audio") },
-    { icon: "✨", title: "សំឡេង AI", sub: "SFX · Voice · Text-to-Speech", go: () => setView("audio") },
-    { icon: "🎬", title: "វីដេអូ", sub: "Preview · Info", go: () => setView("video") },
-    { icon: "📚", title: "បណ្ណាល័យសំឡេង", sub: "Library", go: () => setView("library") },
-  ];
-  const nav: { v: View; icon: string; label: string }[] = [
-    { v: "home", icon: "🏠", label: "Home" },
-    { v: "audio", icon: "🎚", label: "Audio" },
-    { v: "video", icon: "🎬", label: "Video" },
-    { v: "library", icon: "📚", label: "Library" },
+  const cards: { icon: string; title: string; sub: string; on: boolean; go?: () => void }[] = [
+    { icon: "🎚", title: "កែសំឡេង", sub: "Voice · Music · Effects", on: true, go: () => setView("audio") },
+    { icon: "🎬", title: "កាត់តវីដេអូ", sub: "Clips · Text · Audio", on: !!onOpenAv, go: onOpenAv },
+    { icon: "🖼", title: "កែរូបភាព", sub: "Edit · Design · AI", on: false },
+    { icon: "🌐", title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: true, go: () => setView("translate") },
   ];
 
   return (
     <div className="ks-root" role="dialog" aria-label="KHOEM-AI Creative Studio">
       <nav className="ks-side">
         <img src={khoemLogo} alt="KHOEM-AI" className="ks-logo" />
-        {nav.map((n) => (
-          <button key={n.v} className={view === n.v ? "on" : ""} onClick={() => setView(n.v)}>
-            <span>{n.icon}</span><em>{n.label}</em>
-          </button>
-        ))}
+        <button className={view === "home" ? "on" : ""} onClick={() => setView("home")}><span>🏠</span><em>Home</em></button>
+        <button className={view === "audio" ? "on" : ""} onClick={() => setView("audio")}><span>🎚</span><em>Audio</em></button>
+        <button className={view === "emotion" ? "on" : ""} onClick={() => setView("emotion")}><span>🎭</span><em>Emotion</em></button>
+        <button className={view === "color" ? "on" : ""} onClick={() => setView("color")}><span>🎨</span><em>Color Palette</em></button>
+        <button className={view === "translate" ? "on" : ""} onClick={() => setView("translate")}><span>🌐</span><em>Translate</em></button>
+        <button disabled={!onOpenAv} onClick={onOpenAv}><span>🎬</span><em>Video</em></button>
+        <button disabled={!onOpen3d} onClick={onOpen3d}><span>🧊</span><em>3D</em></button>
         <button className="ks-close" onClick={onClose}><span>✕</span><em>បិទ</em></button>
       </nav>
 
       <main className="ks-main">
-        {view === "home" && (
+        {view === "audio" ? (
+          <AudioEditor onBack={() => setView("home")} />
+        ) : view === "translate" ? (
+          <div style={{ position: "relative", minHeight: "100%", overflow: "auto" }}>
+            <TranslatePanel onBack={() => setView("home")} />
+          </div>
+        ) : view === "color" ? (
+          <div style={{ position: "relative", minHeight: "100%", overflow: "auto" }}>
+            <ColorLightCenter embedded paletteOnly onClose={() => setView("home")} />
+          </div>
+        ) : view === "emotion" ? (
+          <div style={{ position: "relative", minHeight: "100%", padding: 12, overflow: "auto" }}>
+            <button className="ks-btn" onClick={() => setView("home")} style={{ marginBottom: 12 }}>← Home</button>
+            <IqaiCenter embedded onClose={() => setView("home")} />
+          </div>
+        ) : (
           <div className="ks-home">
             <h1>KHOEM-AI <small>Creative Studio</small></h1>
             <h2>តើបងចង់បង្កើតអ្វីថ្ងៃនេះ?</h2>
@@ -765,24 +660,13 @@ export default function KhoemStudio({ onClose }: { onClose: () => void }) {
             {note && <p className="ks-msg" role="status">{note}</p>}
             <div className="ks-cards">
               {cards.map((c) => (
-                <button key={c.title} className="ks-card" onClick={c.go}>
+                <button key={c.title} className="ks-card" disabled={!c.on} onClick={c.go}>
                   <span className="ks-card-icon">{c.icon}</span>
                   <strong>{c.title}</strong>
-                  <small>{c.sub}</small>
+                  <small>{c.on ? c.sub : "ឆាប់ៗនេះ"}</small>
                 </button>
               ))}
             </div>
-          </div>
-        )}
-        <AudioEditor active={view === "audio"} onBack={() => setView("home")} />
-        {view === "video" && <VideoView onBack={() => setView("home")} />}
-        {view === "library" && (
-          <div className="ks-editor">
-            <header className="ks-top">
-              <button className="ks-btn" onClick={() => setView("home")} aria-label="ត្រឡប់ក្រោយ">←</button>
-              <strong className="ks-title">បណ្ណាល័យសំឡេង</strong>
-            </header>
-            <div className="ks-libpage"><SoundLibrary /></div>
           </div>
         )}
       </main>
