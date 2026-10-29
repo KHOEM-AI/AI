@@ -1,6 +1,8 @@
 import crypto from "node:crypto";
 import { khoemReply } from "./khoem.mjs";
 import { policyCheck, getAudit, DECISION } from "./permission.mjs";
+import { recordAuditEvent } from "./audit.mjs";
+import { buildSecurityAlerts } from "./securityAlerts.mjs";
 import {
   createApprovalRequest, getApproval, listApprovals,
   approveRequest, rejectRequest, verifyBeforeExecution, markExecuted,
@@ -41,8 +43,12 @@ export function guard(req, res, next) {
   if (!key) return res.status(503).json({ error: "មិនទាន់កំណត់ KHOEM_API_KEY ក្នុង .env" });
   const a = Buffer.from(String(req.get("x-api-key") || ""));
   const b = Buffer.from(key);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b))
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    try {
+      recordAuditEvent("AUTH_DENY", { ip: req.ip, action: req.path, actor: String(req.get("x-actor") || "user") });
+    } catch { /* a failing audit write must never change the 401 */ }
     return res.status(401).json({ error: "key មិនត្រឹមត្រូវ" });
+  }
   next();
 }
 
@@ -119,6 +125,7 @@ export function registerApi(app) {
 
   app.get("/api/scan", guard, policy("tool.scan"), wrap(() => run("/scan")));
   app.get("/api/integrity", guard, policy("integrity.check"), wrap(async () => scanIntegrity()));
+  app.get("/api/security/alerts", guard, policy("security.alerts"), wrap(async () => buildSecurityAlerts()));
   app.get("/api/check", guard, policy("tool.check"), wrap(() => run("/check")));
   app.get("/api/learned", guard, policy("knowledge.readLearned"), wrap(() => run("/learned")));
   app.get("/api/find", guard, policy("tool.find"), wrap((req) => {

@@ -82,6 +82,7 @@ export const REGISTRY = {
   "patch.read": { permission: "system.read", risk: RISK.LOW },
   "verify.read": { permission: "system.read", risk: RISK.LOW },
   "audit.read": { permission: "system.read", risk: RISK.LOW },
+  "security.alerts": { permission: "system.read", risk: RISK.LOW },
   "approval.read": { permission: "system.read", risk: RISK.LOW },
   "approval.decide": { permission: "system.modify", risk: RISK.MEDIUM },
   "approval.execute": { permission: "system.modify", risk: RISK.LOW },

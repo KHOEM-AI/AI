@@ -1,20 +1,22 @@
 import { useCallback, useEffect, useState } from "react";
 
-type Result = { ok: boolean; added: string[]; missing: string[]; changed: string[]; checkedAt: string };
+type Root = { name: string; path?: string; ok: boolean; files?: number; skipped?: number; added?: string[]; missing?: string[]; changed?: string[]; error?: string };
+type Result = { ok: boolean; checkedAt: string; roots: Root[] };
 
-function Group({ title, items }: { title: string; items: string[] }) {
-  if (!items.length) return null;
+function List({ title, items }: { title: string; items?: string[] }) {
+  if (!items || !items.length) return null;
+  const shown = items.slice(0, 50);
   return (
-    <div className="status-card">
-      <div className="status-card__extra">
-        <strong>{title} ({items.length})</strong>
-        <pre style={{ whiteSpace: "pre-wrap", margin: "6px 0 0", fontSize: "0.85em" }}>{items.join("\n")}</pre>
-      </div>
+    <div style={{ marginTop: 6 }}>
+      <strong>{title} ({items.length})</strong>
+      <pre style={{ whiteSpace: "pre-wrap", margin: "4px 0 0", fontSize: "0.85em" }}>
+        {shown.join("\n")}{items.length > shown.length ? `\n… +${items.length - shown.length}` : ""}
+      </pre>
     </div>
   );
 }
 
-export default function IntegrityCenter({ onClose }: { onClose: () => void }) {
+export default function IntegrityCenter() {
   const [data, setData] = useState<Result | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,27 +40,34 @@ export default function IntegrityCenter({ onClose }: { onClose: () => void }) {
   useEffect(() => { load(); }, [load]);
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", overflow: "auto", padding: 16, zIndex: 1000 }}>
-      <div style={{ maxWidth: 720, margin: "0 auto", color: "#eee" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <h2 style={{ margin: 0 }}>🛡 File Integrity (KEI)</h2>
-          <div>
-            <button onClick={load} disabled={loading}>{loading ? "..." : "Refresh"}</button>{" "}
-            <button onClick={onClose}>Close</button>
-          </div>
+    <div className="status-card" style={{ marginTop: 16 }}>
+      <div className="status-card__extra">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <strong>🛡 File Integrity — ទាំងគម្រោង</strong>
+          <button onClick={load} disabled={loading}>{loading ? "..." : "Refresh"}</button>
         </div>
-        {error && <div className="status-card"><div className="status-card__extra">⚠ {error}</div></div>}
+        {error && <div style={{ marginTop: 8 }}>⚠ {error}</div>}
         {data && (
           <>
-            <div className="status-card">
-              <div className="status-card__extra">
-                {data.ok ? "✅ គ្មានការផ្លាស់ប្ដូរ (OK)" : "⚠ រកឃើញការផ្លាស់ប្ដូរ"}
-                <div style={{ opacity: 0.7, fontSize: "0.8em" }}>{data.checkedAt}</div>
-              </div>
+            <div style={{ marginTop: 8 }}>
+              {data.ok ? "✅ គ្មានការផ្លាស់ប្ដូរ" : "⚠ រកឃើញការផ្លាស់ប្ដូរ ឬបញ្ហា"}
+              <span style={{ opacity: 0.7, fontSize: "0.8em" }}> · {data.checkedAt}</span>
             </div>
-            <Group title="Changed" items={data.changed} />
-            <Group title="Added" items={data.added} />
-            <Group title="Missing" items={data.missing} />
+            {data.roots.map((r) => (
+              <details key={r.name} open={!r.ok} style={{ marginTop: 6 }}>
+                <summary>
+                  {r.error ? "✗" : r.ok ? "✓" : "⚠"} {r.name}
+                  {r.files !== undefined ? ` · ${r.files} files` : ""}
+                  {r.changed?.length ? ` · changed ${r.changed.length}` : ""}
+                  {r.added?.length ? ` · added ${r.added.length}` : ""}
+                  {r.missing?.length ? ` · missing ${r.missing.length}` : ""}
+                </summary>
+                {r.error && <div style={{ marginTop: 4 }}>{r.error}</div>}
+                <List title="Changed" items={r.changed} />
+                <List title="Added" items={r.added} />
+                <List title="Missing" items={r.missing} />
+              </details>
+            ))}
           </>
         )}
       </div>

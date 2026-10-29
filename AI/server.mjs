@@ -12,7 +12,9 @@ import { listApprovals } from "./src/ai/approvals.mjs";
 import { inputGuardMiddleware } from "./src/ai/inputGuard.mjs";
 
 const app = express();
-app.use(cors({ origin: (process.env.CORS_ORIGINS || "http://localhost:5175,http://127.0.0.1:5175").split(",") }));
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || "http://localhost:5175,http://127.0.0.1:5175")
+  .split(",").map((s) => s.trim()).filter(Boolean);
+app.use(cors({ origin: ALLOWED_ORIGINS }));
 app.use(express.json({ limit: "2mb" }));
 app.use(trackActivity);
 app.use("/api", inputGuardMiddleware);
@@ -90,7 +92,7 @@ const BRIDGE_GET = [
   "/api/metrics", "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget", "/api/rollback", "/api/tools", "/api/system/status",
   "/api/code", "/api/learned", "/api/library", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon", "/api/hub",
-  "/api/khoem", "/api/integrity", "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
+  "/api/khoem", "/api/integrity", "/api/security", "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
 ];
 const BRIDGE_POST = [
   "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
@@ -109,7 +111,9 @@ app.use("/api", (req, res, next) => {
     (req.method === "GET" && matches(BRIDGE_GET, p)) ||
     (req.method === "POST" && matches(BRIDGE_POST, p)) ||
     /* BRIDGE_DELETE_REFS */ (req.method === "DELETE" && /^\/api\/characters\/[^/]+\/refs\/[^/]+$/.test(p));
-  if (key && ok && !req.get("x-api-key")) req.headers["x-api-key"] = key;
+    // Only fill the key for the app's own UI origin — not for any other local caller.
+  const fromOwnUi = ALLOWED_ORIGINS.includes(req.get("origin") || "");
+  if (key && ok && fromOwnUi && !req.get("x-api-key")) req.headers["x-api-key"] = key;
   next();
 });
 
