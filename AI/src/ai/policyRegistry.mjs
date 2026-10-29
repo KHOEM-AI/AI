@@ -8,6 +8,7 @@ export const RISK = Object.freeze({ LOW: "LOW", MEDIUM: "MEDIUM", HIGH: "HIGH", 
 // registry: action -> { permission, risk }
 export const REGISTRY = {
   "tool.scan": { permission: "tool.execute", risk: RISK.LOW },
+  "integrity.check": { permission: "tool.execute", risk: RISK.LOW },
   "tool.check": { permission: "tool.execute", risk: RISK.LOW },
   "tool.find": { permission: "file.read", risk: RISK.LOW },
   "tool.funcs": { permission: "file.read", risk: RISK.LOW },

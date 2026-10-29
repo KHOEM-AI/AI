@@ -8,6 +8,7 @@ import PatchDashboard from "./components/PatchDashboard";
 import CodeCenter from "./components/CodeCenter";
 import AuditMetricsCenter from "./components/AuditMetricsCenter";
 import ObservabilityCenter from "./components/ObservabilityCenter";
+import IntegrityCenter from "./components/IntegrityCenter";
 import ManagementCenter from "./components/ManagementCenter";
 import SafetyCenter from "./components/SafetyCenter";
 import ToolRegistryCenter from "./components/ToolRegistryCenter";
@@ -89,6 +90,7 @@ function AppInner() {
   const [showCodeCenter, setShowCodeCenter] = useState(false);
   const [showAuditMetrics, setShowAuditMetrics] = useState(false);
   const [showObservability, setShowObservability] = useState(false);
+  const [showIntegrity, setShowIntegrity] = useState(false);
   const [showManagement, setShowManagement] = useState(false);
   const [showSafety, setShowSafety] = useState(false);
   const [showToolRegistry, setShowToolRegistry] = useState(false);
@@ -202,6 +204,9 @@ const [showColorLight, setShowColorLight] = useState(false);
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🔭</span> {k("ai.menu.observability") || "Observability"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowIntegrity(true); setShowMenu(false); }}>
+                  <span aria-hidden="true">🛡</span> Integrity
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
                   <span aria-hidden="true">⚙️</span> {k("ai.menu.management") || "Management"}
@@ -322,6 +327,7 @@ const [showColorLight, setShowColorLight] = useState(false);
         {showCodeCenter && <ErrorBoundary onClose={() => setShowCodeCenter(false)}><CodeCenter onClose={() => setShowCodeCenter(false)} /></ErrorBoundary>}
         {showAuditMetrics && <ErrorBoundary onClose={() => setShowAuditMetrics(false)}><AuditMetricsCenter onClose={() => setShowAuditMetrics(false)} /></ErrorBoundary>}
         {showObservability && <ErrorBoundary onClose={() => setShowObservability(false)}><ObservabilityCenter onClose={() => setShowObservability(false)} /></ErrorBoundary>}
+        {showIntegrity && <ErrorBoundary onClose={() => setShowIntegrity(false)}><IntegrityCenter onClose={() => setShowIntegrity(false)} /></ErrorBoundary>}
         {showManagement && <ErrorBoundary onClose={() => setShowManagement(false)}><ManagementCenter onClose={() => setShowManagement(false)} /></ErrorBoundary>}
         {showSafety && <ErrorBoundary onClose={() => setShowSafety(false)}><SafetyCenter onClose={() => setShowSafety(false)} /></ErrorBoundary>}
         {showToolRegistry && <ErrorBoundary onClose={() => setShowToolRegistry(false)}><ToolRegistryCenter onClose={() => setShowToolRegistry(false)} /></ErrorBoundary>}

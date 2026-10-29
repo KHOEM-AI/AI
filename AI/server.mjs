@@ -90,7 +90,7 @@ const BRIDGE_GET = [
   "/api/metrics", "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",
   "/api/budget", "/api/rollback", "/api/tools", "/api/system/status",
   "/api/code", "/api/learned", "/api/library", "/api/characters", "/api/assets", "/api/storyboards", "/api/lexicon", "/api/hub",
-  "/api/khoem", "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
+  "/api/khoem", "/api/integrity", "/api/scan", "/api/check", "/api/find", "/api/funcs", "/api/read",
 ];
 const BRIDGE_POST = [
   "/api/goals", "/api/ideas", "/api/plans", "/api/experiments",

@@ -27,6 +27,7 @@ import * as Experiments from "./experiments.mjs";
 import * as SelfEval from "./selfEval.mjs";
 import { analyzeConsistency } from "./selfConsistency.mjs";
 import { runAgent } from "./agentLoop.mjs";
+import { scanIntegrity } from "./integrity.mjs";
 
 const run = (text) => khoemReply([{ role: "user", content: text }]);
 // Caller-supplied identity. Still only as trustworthy as the shared API key —
@@ -117,6 +118,7 @@ export function registerApi(app) {
   }));
 
   app.get("/api/scan", guard, policy("tool.scan"), wrap(() => run("/scan")));
+  app.get("/api/integrity", guard, policy("integrity.check"), wrap(async () => scanIntegrity()));
   app.get("/api/check", guard, policy("tool.check"), wrap(() => run("/check")));
   app.get("/api/learned", guard, policy("knowledge.readLearned"), wrap(() => run("/learned")));
   app.get("/api/find", guard, policy("tool.find"), wrap((req) => {
