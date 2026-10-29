@@ -1,3 +1,4 @@
+import { keiRouter } from "./src/ai/kei.mjs";
 import express from "express";
 import { registerAllApis } from "./src/ai/registerAll.mjs";
 import { registerColorLightApi } from "./src/ai/colorLight.mjs";
@@ -112,13 +113,14 @@ app.use("/api", (req, res, next) => {
     (req.method === "POST" && matches(BRIDGE_POST, p)) ||
     /* BRIDGE_DELETE_REFS */ (req.method === "DELETE" && /^\/api\/characters\/[^/]+\/refs\/[^/]+$/.test(p));
     // Only fill the key for the app's own UI origin — not for any other local caller.
-  const fromOwnUi = ALLOWED_ORIGINS.includes(req.get("origin") || "");
+  const fromOwnUi = ALLOWED_ORIGINS.includes(req.get("origin") || "") || (!req.get("origin") && req.get("sec-fetch-site") === "same-origin");
   if (key && ok && fromOwnUi && !req.get("x-api-key")) req.headers["x-api-key"] = key;
   next();
 });
 
 registerAllApis(app);
 registerColorLightApi(app);
+app.use("/api/kei", keiRouter);
 app.get("/api/status", async (req, res) => {
   try {
     res.json(await collectStatus(aiCore));
