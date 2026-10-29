@@ -193,6 +193,7 @@ const [showColorLight, setShowColorLight] = useState(false);
                   <span aria-hidden="true">💻</span> {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
+                <button className="app__sidebar-item" onClick={() => { setShowColorLight(true); setShowMenu(false); }}><span aria-hidden="true">🎨</span> Color and Light · ពណ៌ និងអំពូលភ្លើង</button>
 
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
                                 <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
