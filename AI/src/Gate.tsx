@@ -35,10 +35,17 @@ function build(w: number, h: number): Seg[] {
   return segs.sort((p, q) => p.t - q.t);
 }
 
+const readFlag = (k: string): boolean => {
+  try { return sessionStorage.getItem("khoem." + k) === "1"; } catch { return false; }
+};
+const writeFlag = (k: string): void => {
+  try { sessionStorage.setItem("khoem." + k, "1"); } catch { /* storage may be disabled */ }
+};
+
 export default function Gate() {
-  const [ok, setOk] = useState(false);
+  const [ok, setOk] = useState(() => readFlag("gate.ok"));
   const [pct, setPct] = useState(0);
-  const [poemDone, setPoemDone] = useState(false);
+  const [poemDone, setPoemDone] = useState(() => readFlag("gate.poem"));
   const cv = useRef<HTMLCanvasElement>(null);
   const segs = useRef<Seg[]>([]);
   const drawn = useRef(0);
@@ -79,7 +86,7 @@ export default function Gate() {
     const p = Math.min(1, (performance.now() - start.current) / 6000);
     setPct(p);
     draw(p);
-    if (p >= 1) { start.current = null; setOk(true); return; }
+    if (p >= 1) { start.current = null; setOk(true); writeFlag("gate.ok"); return; }
     raf.current = requestAnimationFrame(tick);
   };
 
@@ -99,7 +106,7 @@ export default function Gate() {
     setPct(0);
   };
 
-  if (ok && !poemDone) return <GatePoem onContinue={() => setPoemDone(true)} />;
+  if (ok && !poemDone) return <GatePoem onContinue={() => { setPoemDone(true); writeFlag("gate.poem"); }} />;
   if (ok) return <App />;
 
   return (
