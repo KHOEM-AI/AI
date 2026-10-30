@@ -102,7 +102,51 @@ const [showColorLight, setShowColorLight] = useState(false);
   const [showThreeDStudio, setShowThreeDStudio] = useState(false);
   const [showAvStudio, setShowAvStudio] = useState(false);
   const [showKhoemStudio, setShowKhoemStudio] = useState(false);
+  // Remember the open page so a reload (Vite HMR reconnect, Chrome tab restore) returns to it.
+  const [pageRestored, setPageRestored] = useState(false);
+  const openPage = showStatus ? "status" : showControl ? "control" : showPatchDashboard ? "patch"
+    : showCodeCenter ? "code" : showAuditMetrics ? "audit" : showObservability ? "observability"
+    : showManagement ? "management" : showSafety ? "safety" : showKei ? "kei"
+    : showToolRegistry ? "tools" : showLearningCenter ? "learning" : showApiCenter ? "api"
+    : showDataCenter ? "data" : showIqai ? "iqai" : showThreeDStudio ? "threed"
+    : showAvStudio ? "av" : showKhoemStudio ? "studio" : "";
+  useEffect(() => {
+    const setters: Record<string, (v: boolean) => void> = {
+      status: setShowStatus, control: setShowControl, patch: setShowPatchDashboard,
+      code: setShowCodeCenter, audit: setShowAuditMetrics, observability: setShowObservability,
+      management: setShowManagement, safety: setShowSafety, kei: setShowKei,
+      tools: setShowToolRegistry, learning: setShowLearningCenter, api: setShowApiCenter,
+      data: setShowDataCenter, iqai: setShowIqai, threed: setShowThreeDStudio,
+      av: setShowAvStudio, studio: setShowKhoemStudio,
+    };
+    try {
+      const saved = sessionStorage.getItem("khoem.openPage");
+      if (saved && Object.prototype.hasOwnProperty.call(setters, saved)) setters[saved](true);
+    } catch { /* storage may be disabled */ }
+    setPageRestored(true);
+  }, []);
+  useEffect(() => {
+    if (!pageRestored) return;
+    try {
+      if (openPage) sessionStorage.setItem("khoem.openPage", openPage);
+      else sessionStorage.removeItem("khoem.openPage");
+    } catch { /* storage may be disabled */ }
+  }, [openPage, pageRestored]);
+
   const [showMenu, setShowMenu] = useState(false);
+  const [menuRestored, setMenuRestored] = useState(false);
+  useEffect(() => {
+    try { if (sessionStorage.getItem("khoem.menuOpen") === "1") setShowMenu(true); } catch { /* storage may be disabled */ }
+    setMenuRestored(true);
+  }, []);
+  useEffect(() => {
+    if (!menuRestored) return;
+    try {
+      if (showMenu) sessionStorage.setItem("khoem.menuOpen", "1");
+      else sessionStorage.removeItem("khoem.menuOpen");
+    } catch { /* storage may be disabled */ }
+  }, [showMenu, menuRestored]);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showDone, setShowDone] = useState(false);
   const wasSending = useRef(false);
@@ -193,10 +237,10 @@ const [showColorLight, setShowColorLight] = useState(false);
                   <span aria-hidden="true">💻</span> {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
-                <button className="app__sidebar-item" onClick={() => { setShowColorLight(true); setShowMenu(false); }}><span aria-hidden="true">🎨</span> Color and Light · ពណ៌ និងអំពូលភ្លើង</button>
 
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
                                 <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
+                                <button className="app__sidebar-item" onClick={() => { window.location.href = `http://${window.location.hostname}:5180/cai-scan.html`; setShowMenu(false); }}><span aria-hidden="true">📷</span> Scan Photo Location + Count</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
