@@ -21,6 +21,7 @@ const KhoemStudio = lazy(() => import("./studio/KhoemStudio"));
 import EmotionBadge from "./components/EmotionBadge";
 import ThreeDStudio from "./components/StudioHub";
 import CaiScan from "./components/CaiScan";
+import KsvKiAiCenter from "./components/KsvKiAiCenter";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -100,6 +101,7 @@ function AppInner() {
   const [showAvStudio, setShowAvStudio] = useState(false);
   const [showKhoemStudio, setShowKhoemStudio] = useState(false);
   const [showCai, setShowCai] = useState(false);
+  const [showKsvKiAi, setShowKsvKiAi] = useState(false);
   // Remember the open page so a reload (Vite HMR reconnect, Chrome tab restore) returns to it.
   const [pageRestored, setPageRestored] = useState(false);
   const openPage = showStatus ? "status" : showControl ? "control" : showPatchDashboard ? "patch"
@@ -107,7 +109,7 @@ function AppInner() {
     : showManagement ? "management" : showSafety ? "safety" : showKei ? "kei"
     : showToolRegistry ? "tools" : showLearningCenter ? "learning" : showApiCenter ? "api"
     : showDataCenter ? "data" : showThreeDStudio ? "threed"
-    : showAvStudio ? "av" : showKhoemStudio ? "studio" : "";
+    : showAvStudio ? "av" : showKhoemStudio ? "studio" : showKsvKiAi ? "ksvkiai" : "";
   useEffect(() => {
     const setters: Record<string, (v: boolean) => void> = {
       status: setShowStatus, control: setShowControl, patch: setShowPatchDashboard,
@@ -115,7 +117,7 @@ function AppInner() {
       management: setShowManagement, safety: setShowSafety, kei: setShowKei,
       tools: setShowToolRegistry, learning: setShowLearningCenter, api: setShowApiCenter,
       data: setShowDataCenter, threed: setShowThreeDStudio,
-      av: setShowAvStudio, studio: setShowKhoemStudio,
+      av: setShowAvStudio, studio: setShowKhoemStudio, ksvkiai: setShowKsvKiAi,
     };
     try {
       const saved = sessionStorage.getItem("khoem.openPage");
@@ -251,6 +253,7 @@ function AppInner() {
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
+                <button className="app__sidebar-item" onClick={() => { setShowKsvKiAi(true); setShowMenu(false); }}><span aria-hidden="true">🤝</span> KSV 🤝 KI 🤝 AI</button>
 
                 <div className="app__sidebar-section">{"📷 កាមេរ៉ា · រូបភាព · វីដេអូ"}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
@@ -388,6 +391,7 @@ function AppInner() {
         {showAvStudio && <ErrorBoundary onClose={() => setShowAvStudio(false)}><Suspense fallback={null}><AvStudio onClose={() => setShowAvStudio(false)} /></Suspense></ErrorBoundary>}
         {showKhoemStudio && <ErrorBoundary onClose={() => setShowKhoemStudio(false)}><Suspense fallback={null}><KhoemStudio onClose={() => setShowKhoemStudio(false)} onOpenAv={() => { setShowKhoemStudio(false); setShowAvStudio(true); }} onOpen3d={() => { setShowKhoemStudio(false); setShowThreeDStudio(true); }} /></Suspense></ErrorBoundary>}
         {showCai && <ErrorBoundary onClose={() => setShowCai(false)}><CaiScan onClose={() => setShowCai(false)} /></ErrorBoundary>}
+        {showKsvKiAi && <ErrorBoundary onClose={() => setShowKsvKiAi(false)}><KsvKiAiCenter onClose={() => setShowKsvKiAi(false)} /></ErrorBoundary>}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt
