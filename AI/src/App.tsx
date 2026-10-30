@@ -14,14 +14,13 @@ import ToolRegistryCenter from "./components/ToolRegistryCenter";
 import LearningCenter from "./components/LearningCenter";
 import ApiCenter from "./components/ApiCenter";
 import KeiCenter from "./components/KeiCenter";
-import ColorLightCenter from "./components/ColorLightCenter";
 import DataCenter from "./components/DataCenter";
-import IqaiCenter from "./components/IqaiCenter";
 import { lazy, Suspense } from "react";
 const AvStudio = lazy(() => import("./components/AvStudio"));
 const KhoemStudio = lazy(() => import("./studio/KhoemStudio"));
 import EmotionBadge from "./components/EmotionBadge";
 import ThreeDStudio from "./components/StudioHub";
+import CaiScan from "./components/CaiScan";
 import MessageActions from "./components/MessageActions";
 import HonorificPrompt from "./components/HonorificPrompt";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -96,19 +95,18 @@ function AppInner() {
   const [showToolRegistry, setShowToolRegistry] = useState(false);
   const [showLearningCenter, setShowLearningCenter] = useState(false);
   const [showApiCenter, setShowApiCenter] = useState(false);
-const [showColorLight, setShowColorLight] = useState(false);
   const [showDataCenter, setShowDataCenter] = useState(false);
-  const [showIqai, setShowIqai] = useState(false);
   const [showThreeDStudio, setShowThreeDStudio] = useState(false);
   const [showAvStudio, setShowAvStudio] = useState(false);
   const [showKhoemStudio, setShowKhoemStudio] = useState(false);
+  const [showCai, setShowCai] = useState(false);
   // Remember the open page so a reload (Vite HMR reconnect, Chrome tab restore) returns to it.
   const [pageRestored, setPageRestored] = useState(false);
   const openPage = showStatus ? "status" : showControl ? "control" : showPatchDashboard ? "patch"
     : showCodeCenter ? "code" : showAuditMetrics ? "audit" : showObservability ? "observability"
     : showManagement ? "management" : showSafety ? "safety" : showKei ? "kei"
     : showToolRegistry ? "tools" : showLearningCenter ? "learning" : showApiCenter ? "api"
-    : showDataCenter ? "data" : showIqai ? "iqai" : showThreeDStudio ? "threed"
+    : showDataCenter ? "data" : showThreeDStudio ? "threed"
     : showAvStudio ? "av" : showKhoemStudio ? "studio" : "";
   useEffect(() => {
     const setters: Record<string, (v: boolean) => void> = {
@@ -116,7 +114,7 @@ const [showColorLight, setShowColorLight] = useState(false);
       code: setShowCodeCenter, audit: setShowAuditMetrics, observability: setShowObservability,
       management: setShowManagement, safety: setShowSafety, kei: setShowKei,
       tools: setShowToolRegistry, learning: setShowLearningCenter, api: setShowApiCenter,
-      data: setShowDataCenter, iqai: setShowIqai, threed: setShowThreeDStudio,
+      data: setShowDataCenter, threed: setShowThreeDStudio,
       av: setShowAvStudio, studio: setShowKhoemStudio,
     };
     try {
@@ -224,41 +222,50 @@ const [showColorLight, setShowColorLight] = useState(false);
               </div>
 
               <nav className="app__sidebar-nav">
+                <div className="app__sidebar-section">{"📊 ត្រួតពិនិត្យប្រព័ន្ធ"}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowStatus(true); setShowMenu(false); }}>
                   <span aria-hidden="true">📊</span> {t.navStatus}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowControl(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🎛</span> {t.navControlCenter}
                 </button>
+                <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
+                  <span aria-hidden="true">🔭</span> {k("ai.menu.observability") || "Observability"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowAuditMetrics(true); setShowMenu(false); }}>
+                  <span aria-hidden="true">📈</span> {k("ai.menu.auditMetrics") || "Audit & Metrics"}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
+                  <span aria-hidden="true">⚙️</span> {k("ai.menu.management") || "Management"}
+                </button>
+
+                <div className="app__sidebar-section">{"💻 កូដ & ឧបករណ៍"}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowPatchDashboard(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🧩</span> {k("ai.menu.patchDashboard") || "Patch Dashboard"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowCodeCenter(true); setShowMenu(false); }}>
                   <span aria-hidden="true">💻</span> {k("ai.menu.codeCenter") || "Code Center"}
                 </button>
+                <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
+                  <span aria-hidden="true">🧰</span> {k("ai.menu.toolRegistry") || "Tool Registry"}
+                </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
-
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
-                                <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
-                                <button className="app__sidebar-item" onClick={() => { window.location.href = `http://${window.location.hostname}:5180/cai-scan.html`; setShowMenu(false); }}><span aria-hidden="true">📷</span> Scan Photo Location + Count</button>
-                <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
-                </button>
-                <button className="app__sidebar-item" onClick={() => { setShowAuditMetrics(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">📈</span> {k("ai.menu.auditMetrics") || "Audit & Metrics"}
-                </button>
-                <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🔭</span> {k("ai.menu.observability") || "Observability"}
-                </button>
-                <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">⚙️</span> {k("ai.menu.management") || "Management"}
-                </button>
+
+                <div className="app__sidebar-section">{"📷 កាមេរ៉ា · រូបភាព · វីដេអូ"}</div>
+                <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
+                <button className="app__sidebar-item" onClick={() => { setShowCai(true); setShowMenu(false); }}><span aria-hidden="true">📷</span> CAI · ស្កេន និងរាប់</button>
+                <button className="app__sidebar-item" onClick={() => { window.location.href = `http://${window.location.hostname}:5180/cai-scan.html`; setShowMenu(false); }}><span aria-hidden="true">📷</span> Scan Photo Location + Count</button>
+
+                <div className="app__sidebar-section">{"🛡 ការពារ & សុវត្ថិភាព"}</div>
+                <button className="app__sidebar-item" onClick={() => { setShowKei(true); setShowMenu(false); }}><span aria-hidden="true">🛡️</span> ការពារប្រព័ន្ធ</button>
                 <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🛡</span> {k("ai.menu.safety") || "Safety"}
                 </button>
-                <button className="app__sidebar-item" onClick={() => { setShowKei(true); setShowMenu(false); }}><span aria-hidden="true">🛡️</span> KEI</button>
-                <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🧰</span> {k("ai.menu.toolRegistry") || "Tool Registry"}
+
+                <div className="app__sidebar-section">{"⚙ ផ្សេងៗ"}</div>
+                <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
+                  <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🙏</span> {t.navHonorific}
@@ -376,12 +383,11 @@ const [showColorLight, setShowColorLight] = useState(false);
         {showToolRegistry && <ErrorBoundary onClose={() => setShowToolRegistry(false)}><ToolRegistryCenter onClose={() => setShowToolRegistry(false)} /></ErrorBoundary>}
         {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
         {showApiCenter && <ErrorBoundary onClose={() => setShowApiCenter(false)}><ApiCenter onClose={() => setShowApiCenter(false)} /></ErrorBoundary>}
-{showColorLight && <ErrorBoundary onClose={() => setShowColorLight(false)}><ColorLightCenter onClose={() => setShowColorLight(false)} /></ErrorBoundary>}
         {showDataCenter && <ErrorBoundary onClose={() => setShowDataCenter(false)}><DataCenter onClose={() => setShowDataCenter(false)} /></ErrorBoundary>}
-        {showIqai && <ErrorBoundary onClose={() => setShowIqai(false)}><IqaiCenter onClose={() => setShowIqai(false)} /></ErrorBoundary>}
         {showThreeDStudio && <ErrorBoundary onClose={() => setShowThreeDStudio(false)}><ThreeDStudio onClose={() => setShowThreeDStudio(false)} /></ErrorBoundary>}
         {showAvStudio && <ErrorBoundary onClose={() => setShowAvStudio(false)}><Suspense fallback={null}><AvStudio onClose={() => setShowAvStudio(false)} /></Suspense></ErrorBoundary>}
         {showKhoemStudio && <ErrorBoundary onClose={() => setShowKhoemStudio(false)}><Suspense fallback={null}><KhoemStudio onClose={() => setShowKhoemStudio(false)} onOpenAv={() => { setShowKhoemStudio(false); setShowAvStudio(true); }} onOpen3d={() => { setShowKhoemStudio(false); setShowThreeDStudio(true); }} /></Suspense></ErrorBoundary>}
+        {showCai && <ErrorBoundary onClose={() => setShowCai(false)}><CaiScan onClose={() => setShowCai(false)} /></ErrorBoundary>}
 
         {(!honorific || showHonorific) && (
           <HonorificPrompt
