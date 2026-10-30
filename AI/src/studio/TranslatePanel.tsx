@@ -1,54 +1,74 @@
 import { useRef, useState } from "react";
 
+const LANG_BASE = "/l10n";
+const MAX_CHARS = 200;
+
 const LANGS = [
-  { code: "km", label: "ខ្មែរ", name: "Khmer" },
-  { code: "en", label: "English (US)", name: "American English" },
-  { code: "zh", label: "中文", name: "Simplified Chinese" },
+  { code: "km", label: "ខ្មែរ" },
+  { code: "en", label: "English (US)" },
+  { code: "zh", label: "中文" },
 ] as const;
 
-const MAX_CHARS = 2000;
+type Code = (typeof LANGS)[number]["code"];
+
+interface Match {
+  key: string;
+  source: "ui" | "color";
+  original: string;
+  text: string;
+  missing: boolean;
+}
+
+interface Result {
+  found: boolean;
+  matches: Match[];
+  suggestions: Match[];
+}
+
+function detect(s: string): Code {
+  if (/[\u1780-\u17FF]/.test(s)) return "km";
+  if (/[\u3400-\u9FFF]/.test(s)) return "zh";
+  return "en";
+}
 
 export default function TranslatePanel({ onBack }: { onBack: () => void }) {
   const [text, setText] = useState("");
-  const [to, setTo] = useState<string>("km");
-  const [out, setOut] = useState("");
+  const [to, setTo] = useState<Code>("km");
+  const [res, setRes] = useState<Result | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [copied, setCopied] = useState(false);
   const ctl = useRef<AbortController | null>(null);
 
-  async function run() {
-    const src = text.trim();
+  async function run(override?: string) {
+    const src = (override ?? text).trim();
     if (!src || busy) return;
-    const lang = LANGS.find((l) => l.code === to) ?? LANGS[0];
-    setBusy(true);
+    if (override !== undefined) setText(src);
     setErr("");
-    setOut("");
+    setRes(null);
     setCopied(false);
+    const from = detect(src);
+    if (from === to) {
+      setErr("ភាសាដើម និងភាសាគោលដៅដូចគ្នា សូមជ្រើសភាសាផ្សេង");
+      return;
+    }
+    setBusy(true);
     const c = new AbortController();
     ctl.current = c;
-    const timer = setTimeout(() => c.abort(), 60000);
+    const timer = setTimeout(() => c.abort(), 15000);
     try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: c.signal,
-        body: JSON.stringify({
-          messages: [
-            {
-              role: "user",
-              content: `Translate the following text into ${lang.name}. Reply with the translation only, with no explanation and no quotation marks.\n\n${src}`,
-            },
-          ],
-        }),
-      });
-      if (!res.ok) {
-        const b = await res.json().catch(() => ({}));
-        throw new Error(b.error || `សំណើមិនជោគជ័យ (${res.status})`);
+      const url = `${LANG_BASE}/api/dictionary?q=${encodeURIComponent(src)}&from=${from}&to=${to}`;
+      const r = await fetch(url, { signal: c.signal });
+      const body = await r.json().catch(() => null);
+      if (!r.ok || !body || body.success !== true) {
+        const m = body && body.error ? (typeof body.error === "string" ? body.error : body.error.message) : "";
+        throw new Error(m || `សំណើមិនជោគជ័យ (${r.status})`);
       }
-      const data = await res.json();
-      if (typeof data.reply !== "string" || !data.reply.trim()) throw new Error("គ្មានចម្លើយពី AI");
-      setOut(data.reply.trim());
+      setRes({
+        found: Boolean(body.data.found),
+        matches: body.data.matches ?? [],
+        suggestions: body.data.suggestions ?? [],
+      });
     } catch (e) {
       setErr(
         e instanceof DOMException && e.name === "AbortError"
@@ -64,8 +84,10 @@ export default function TranslatePanel({ onBack }: { onBack: () => void }) {
   }
 
   async function copy() {
+    const first = res?.matches.find((m) => !m.missing);
+    if (!first) return;
     try {
-      await navigator.clipboard.writeText(out);
+      await navigator.clipboard.writeText(first.text);
       setCopied(true);
     } catch {
       setErr("ចម្លងមិនបាន សូមជ្រើសអត្ថបទចម្លងដោយដៃ");
@@ -81,13 +103,14 @@ export default function TranslatePanel({ onBack }: { onBack: () => void }) {
   return (
     <div style={{ padding: 12, maxWidth: 720, margin: "0 auto", color: "#eee" }}>
       <button className="ks-btn" onClick={onBack} style={{ marginBottom: 12 }}>← Home</button>
-      <h2 style={{ margin: "0 0 12px" }}>🌐 បកប្រែ AI</h2>
-      <textarea
-        style={{ ...box, minHeight: 120, resize: "vertical" }}
-        placeholder="វាយអត្ថបទដែលចង់បកប្រែ..."
+      <h2 style={{ margin: "0 0 12px" }}>🌐 បកប្រែ · Translate · 翻译</h2>
+      <input
+        style={box}
+        placeholder="វាយពាក្យ ឬឃ្លា (ឧ. Save, ក្រហម, 保存)..."
         value={text}
         maxLength={MAX_CHARS}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") void run(); }}
       />
       <div style={{ fontSize: 12, opacity: 0.6, margin: "4px 0 10px" }}>{text.length}/{MAX_CHARS}</div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -99,17 +122,40 @@ export default function TranslatePanel({ onBack }: { onBack: () => void }) {
         ))}
       </div>
       <div style={{ marginTop: 12 }}>
-        <button className="ks-btn ks-primary" disabled={busy || !text.trim()} onClick={run}>
-          {busy ? "កំពុងបកប្រែ..." : "បកប្រែ"}
+        <button className="ks-btn ks-primary" disabled={busy || !text.trim()} onClick={() => void run()}>
+          {busy ? "កំពុងស្វែងរក..." : "បកប្រែ"}
         </button>
       </div>
       {err && <p className="ks-msg" role="alert">{err}</p>}
-      {out && (
+      {res && res.found && (
         <div style={{ marginTop: 14 }}>
-          <div style={{ ...box, whiteSpace: "pre-wrap", minHeight: 80 }}>{out}</div>
-          <button className="ks-btn" onClick={copy} style={{ marginTop: 8 }}>{copied ? "បានចម្លង ✓" : "ចម្លង"}</button>
+          {res.matches.map((m, i) => (
+            <div key={m.key + i} style={{ ...box, marginBottom: 8 }}>
+              <div style={{ fontSize: 22 }}>{m.missing ? "— មិនទាន់មានភាសានេះ" : m.text}</div>
+              <div style={{ fontSize: 12, opacity: 0.6, marginTop: 4 }}>
+                {m.original} · {m.source === "color" ? "ពណ៌" : "ឃ្លាកម្មវិធី"}
+              </div>
+            </div>
+          ))}
+          <button className="ks-btn" onClick={() => void copy()}>{copied ? "បានចម្លង ✓" : "ចម្លង"}</button>
         </div>
       )}
+      {res && !res.found && (
+        <div style={{ marginTop: 14 }}>
+          <p>មិនទាន់ស្គាល់ពាក្យ ឬឃ្លានេះក្នុងវចនានុក្រម KHOEM_AI</p>
+          {res.suggestions.length > 0 && (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <span>ប្រហែលជា៖</span>
+              {res.suggestions.map((s, i) => (
+                <button key={s.key + i} className="ks-btn" onClick={() => void run(s.original)}>{s.original}</button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <p style={{ fontSize: 12, opacity: 0.6, marginTop: 16 }}>
+        វចនានុក្រមមានឃ្លាក្នុងកម្មវិធី និងឈ្មោះពណ៌ ពីទំព័រ KHOEM_AI។ មិនបកអត្ថបទសេរីទេ។
+      </p>
     </div>
   );
 }
