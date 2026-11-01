@@ -1357,3 +1357,6 @@ body::after {
     min-height: 42vh;
   }
 }
+
+.app__sidebar-section{margin:14px 0 4px;padding:0 4px;font-size:11px;letter-spacing:.04em;color:#7dd3fc;opacity:.75;text-transform:uppercase}
+.app__sidebar-section:first-child{margin-top:0}

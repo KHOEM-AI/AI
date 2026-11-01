@@ -1,7 +1,7 @@
 import express from "express";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 
 const HOME = homedir();
 const KEI_ROOT = process.env.KEI_ROOT || join(HOME, "KEI");
@@ -73,5 +73,67 @@ keiRouter.post("/eit", async (req, res) => {
     res.status(r.status).json(await r.json());
   } catch {
     res.status(503).json({ error: "EI_T_OFFLINE" });
+  }
+});
+
+// ---- Protection coverage (read-only): roots.json + .baselines/*.json vs files on disk ----
+const SEC = join(KEI_ROOT, "security");
+const SKIP_DIRS = new Set(["node_modules", ".git", ".expo", "dist"]);
+const CANDIDATES = [{ name: "CAI", path: "~/CAI" }, { name: "khoem-now", path: "~/khoem-now" }];
+const expand = (p) => p.replace(/^~/, HOME);
+
+function listFiles(root, cap = 20000) {
+  const out = new Set();
+  const stack = [root];
+  while (stack.length && out.size < cap) {
+    const d = stack.pop();
+    let ents;
+    try { ents = readdirSync(d, { withFileTypes: true }); } catch { continue; }
+    for (const e of ents) {
+      const p = join(d, e.name);
+      if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) stack.push(p); }
+      else if (e.isFile()) out.add(relative(root, p));
+    }
+  }
+  return { files: out, capped: out.size >= cap };
+}
+
+let protCache = { at: 0, data: null };
+function buildProtection() {
+  let roots = [];
+  try { roots = JSON.parse(readFileSync(join(SEC, "file-integrity", "roots.json"), "utf8")); } catch { /* none */ }
+  const names = new Set(roots.map((r) => r.name));
+  const all = [
+    ...roots,
+    ...CANDIDATES.filter((c) => !names.has(c.name) && existsSync(expand(c.path))),
+  ].filter((r) => r && /^[\w.-]+$/.test(String(r.name)) && typeof r.path === "string");
+  const projects = all.map((r) => {
+    const { files: disk, capped } = listFiles(expand(r.path));
+    let base = null, created = null;
+    try {
+      const b = JSON.parse(readFileSync(join(SEC, ".baselines", r.name + ".json"), "utf8"));
+      base = b.files || {}; created = b.created || null;
+    } catch { /* no baseline */ }
+    if (!base) return { name: r.name, protected: false, covered: 0, onDisk: disk.size, outside: disk.size, created: null, capped };
+    let covered = 0;
+    for (const f of disk) if (Object.hasOwn(base, f)) covered++;
+    return { name: r.name, protected: true, covered, onDisk: disk.size, outside: disk.size - covered, created, capped };
+  });
+  const prot = projects.filter((p) => p.protected);
+  return {
+    projects,
+    protectedProjects: prot.length,
+    totalProjects: projects.length,
+    filesCovered: projects.reduce((s, p) => s + p.covered, 0),
+    filesOnDisk: projects.reduce((s, p) => s + p.onDisk, 0),
+  };
+}
+
+keiRouter.get("/protection", (_req, res) => {
+  try {
+    if (!protCache.data || Date.now() - protCache.at > 20000) protCache = { at: Date.now(), data: buildProtection() };
+    res.json(protCache.data);
+  } catch {
+    res.status(500).json({ error: "PROTECTION_FAILED" });
   }
 });

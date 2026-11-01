@@ -3,7 +3,7 @@ import khoemLogo from "../assets/khoem-ai-logo.webp";
 import IqaiCenter from "../components/IqaiCenter";
 import ColorLightCenter from "../components/ColorLightCenter";
 import TranslatePanel from "./TranslatePanel";
-import { iqaiContentUrl, listMedia, uploadMedia, type IqaiMedia } from "../api/client";
+import { iqaiSoundContentUrl, listSounds, uploadSound, type IqaiSound } from "../api/client";
 import "./studio.css";
 
 // KHOEM-AI Creative Studio: Home (describe what you want + action cards) and an
@@ -251,7 +251,7 @@ function AudioEditor({ onBack }: { onBack: () => void }) {
   const [loop, setLoop] = useState(false);
   const [fx, setFx] = useState<Fx>(loadFx);
   const [pro, setPro] = useState(false);
-  const [lib, setLib] = useState<IqaiMedia[]>([]);
+  const [lib, setLib] = useState<IqaiSound[]>([]);
   const [libErr, setLibErr] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
@@ -414,7 +414,7 @@ function AudioEditor({ onBack }: { onBack: () => void }) {
 
   const refreshLib = async () => {
     try {
-      setLib((await listMedia()).filter((m) => m.type === "audio"));
+      setLib(await listSounds());
       setLibErr("");
     } catch {
       setLibErr("មិនអាចភ្ជាប់ IQ-AI បានទេ (ពិនិត្យ npm start ក្នុង ~/IQ-AI ច្រក 8799)");
@@ -447,11 +447,11 @@ function AudioEditor({ onBack }: { onBack: () => void }) {
   const openFile = async (f: File | undefined) => {
     if (f) await openBuffer(await f.arrayBuffer(), f.name);
   };
-  const openLib = async (m: IqaiMedia) => {
+  const openLib = async (m: IqaiSound) => {
     try {
-      const r = await fetch(iqaiContentUrl(m.id));
+      const r = await fetch(iqaiSoundContentUrl(m.id));
       if (!r.ok) throw new Error("HTTP " + r.status);
-      await openBuffer(await r.arrayBuffer(), m.filename);
+      await openBuffer(await r.arrayBuffer(), m.name);
     } catch {
       setMsg("ទាញយកពី IQ-AI មិនបាន");
     }
@@ -482,7 +482,7 @@ function AudioEditor({ onBack }: { onBack: () => void }) {
       const blob = await renderWav();
       const fname = (name.replace(/\.[^.]+$/, "") || "khoem-audio") + "-khoem.wav";
       if (toIqai) {
-        await uploadMedia(blob, fname);
+        await uploadSound(blob, fname, "unknown", "khoem-studio-edit");
         setMsg("រក្សាទុកក្នុង IQ-AI រួច");
         void refreshLib();
       } else {
@@ -528,7 +528,7 @@ function AudioEditor({ onBack }: { onBack: () => void }) {
           <ul>
             {lib.map((m) => (
               <li key={m.id}>
-                <button onClick={() => void openLib(m)}>{m.filename}<small>{(m.size / 1024).toFixed(0)} KB</small></button>
+                <button onClick={() => void openLib(m)}>{m.name}<small>{(m.size / 1024).toFixed(0)} KB</small></button>
               </li>
             ))}
           </ul>

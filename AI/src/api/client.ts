@@ -55,6 +55,53 @@ export const deleteMedia = (id: string) =>
 
 export const iqaiContentUrl = (id: string) => `/iqai/media/${encodeURIComponent(id)}/content`;
 
+// ---- IQ-AI sound library (/iqai/sounds -> :8799/api/v1/sounds) ----
+// Separate response shape from the /media helpers above: /sounds returns
+// plain JSON directly (no {ok,data,error} envelope), and upload/edit take
+// X-Filename/X-Category/X-Tags headers rather than query params.
+export interface IqaiSound {
+  id: string;
+  name: string;
+  category: string;
+  tags: string[];
+  source: string;
+  license: string;
+  mime: string;
+  format: string;
+  size: number;
+  favorite: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+async function soundsApi<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const r = await fetch(`/iqai/sounds${path}`, init);
+  const body = await r.json().catch(() => null);
+  if (!r.ok || !body) {
+    const message = (body && (body.message ?? body.error)) ?? `HTTP ${r.status}`;
+    throw new ApiError(r.status, String(message));
+  }
+  return body as T;
+}
+
+export const listSounds = (q = "") =>
+  soundsApi<{ items: IqaiSound[]; total: number }>(`?limit=200${q ? `&q=${encodeURIComponent(q)}` : ""}`)
+    .then((r) => r.items);
+
+export const iqaiSoundContentUrl = (id: string) => `/iqai/sounds/${encodeURIComponent(id)}/content`;
+
+export const uploadSound = (file: File | Blob, filename: string, category = "unknown", tags = "") =>
+  soundsApi<IqaiSound>("/upload", {
+    method: "POST",
+    headers: {
+      "Content-Type": file.type || "audio/wav",
+      "X-Filename": encodeURIComponent(filename),
+      "X-Category": encodeURIComponent(category),
+      ...(tags ? { "X-Tags": encodeURIComponent(tags) } : {}),
+    },
+    body: file,
+  });
+
 // ---- IQ-AI emotion (rule-based, Khmer text) ----
 export type IqaiEmotionName = "joy" | "sadness" | "anger" | "fear" | "love" | "surprise" | "neutral";
 export interface IqaiEmotion {

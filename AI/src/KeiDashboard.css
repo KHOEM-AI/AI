@@ -57,3 +57,13 @@
 .eit-out{white-space:pre-wrap;overflow-wrap:anywhere;background:#050505;border:1px solid #222;border-radius:8px;padding:8px;margin-top:10px;font-size:13px}
 .eit-err{color:#ff8a8a}
 .kei button:disabled{opacity:.45}
+.kei-top .prtbtn{background:linear-gradient(180deg,#4a90ff,#1a4fb8 55%,#0e2f78);color:#fff;border:1px solid #000}
+.kei-langmenu{max-height:55vh;overflow-y:auto}
+.kei[dir=rtl] .kei-langmenu{right:auto;left:0}
+.chip{display:inline-flex;align-items:center;justify-content:center;width:30px;height:20px;border-radius:3px;background:#1a1a1a;color:#cfe3ff;font-size:11px;font-weight:700;border:1px solid #444}
+.pr-row{padding:10px 0;border-top:1px solid #1d1d1d}
+.pr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.badge{font-size:11px;padding:2px 8px;border-radius:6px;background:#111;border:1px solid #333}
+.bar{height:8px;border-radius:4px;background:#1c1c1c;overflow:hidden;margin-bottom:4px}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#1fbf6a,#7dffb0)}
+.pr-row small{color:#8a8a8a}
