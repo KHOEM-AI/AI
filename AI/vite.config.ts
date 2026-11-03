@@ -19,6 +19,12 @@ export default defineConfig({
         rewrite: (p) => p.replace(/^\/iqai/, "/api/v1"),
         headers: { Authorization: `Bearer ${process.env.IQAI_TOKEN ?? ""}` },
       },
+      // CIDC dashboard server (:5190) adds the token server-side.
+      "/cidc": {
+        target: "http://127.0.0.1:5190",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/cidc/, ""),
+      },
       // frontend calls fetch("/api/chat"); Vite forwards it to server.mjs
       "/api": {
         target: "http://127.0.0.1:8787",
