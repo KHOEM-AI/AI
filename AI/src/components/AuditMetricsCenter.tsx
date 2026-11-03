@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
+import { api } from "../lib/api";
 
 interface PolicyDecision {
   id: string; timestamp: string; actor: string; action: string;
@@ -17,11 +18,6 @@ const DECISION_COLOR: Record<string, string> = {
   DENY: "#f87171", REQUIRE_APPROVAL: "#facc15", ALLOW: "#4ade80", SANDBOX_ONLY: "#38bdf8",
 };
 
-async function api(url: string, opts: RequestInit = {}) {
-  const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
-  const json = await r.json();
-  return (json && typeof json === "object" && "result" in json) ? json.result : json;
-}
 
 export default function AuditMetricsCenter({ onClose }: { onClose: () => void }) {
   const t = useT();

@@ -3,12 +3,8 @@ import { useT, useLanguageCode, pickText } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
 import AgentRunPanel from "./AgentRunPanel";
 import GoalLinkPanel from "./GoalLinkPanel";
+import { api } from "../lib/api";
 
-async function api(url: string, opts: RequestInit = {}) {
-  const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
-  const json = await r.json();
-  return (json && typeof json === "object" && "result" in json) ? json.result : json;
-}
 
 function JsonBlock({ data }: { data: unknown }) {
   return (
