@@ -25,6 +25,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/cidc/, ""),
       },
+      // KSV device gateway: /ksv-api -> http://127.0.0.1:4000/api/ksv
+      "/ksv-api": {
+        target: "http://127.0.0.1:4000",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/ksv-api/, "/api/ksv"),
+      },
       // frontend calls fetch("/api/chat"); Vite forwards it to server.mjs
       "/api": {
         target: "http://127.0.0.1:8787",
