@@ -25,6 +25,21 @@ interface Result {
   suggestions: Match[];
 }
 
+interface WordTok {
+  text: string;
+  known: boolean;
+  tier: "A" | "B" | "C" | null;
+  count: number | null;
+  translation: string | null;
+}
+
+interface WordsResult {
+  tokens: WordTok[];
+  known: number;
+  unknown: number;
+  translated: number;
+}
+
 function detect(s: string): Code {
   if (/[\u1780-\u17FF]/.test(s)) return "km";
   if (/[\u3400-\u9FFF]/.test(s)) return "zh";
@@ -35,6 +50,7 @@ export default function TranslatePanel({ onBack }: { onBack: () => void }) {
   const [text, setText] = useState("");
   const [to, setTo] = useState<Code>("km");
   const [res, setRes] = useState<Result | null>(null);
+  const [words, setWords] = useState<WordsResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [copied, setCopied] = useState(false);
@@ -46,6 +62,7 @@ export default function TranslatePanel({ onBack }: { onBack: () => void }) {
     if (override !== undefined) setText(src);
     setErr("");
     setRes(null);
+    setWords(null);
     setCopied(false);
     const from = detect(src);
     if (from === to) {
@@ -69,6 +86,15 @@ export default function TranslatePanel({ onBack }: { onBack: () => void }) {
         matches: body.data.matches ?? [],
         suggestions: body.data.suggestions ?? [],
       });
+      if (!body.data.found && from === "km" && to !== "km") {
+        try {
+          const wr = await fetch(`${LANG_BASE}/api/khmer-words?q=${encodeURIComponent(src)}&to=${to}`, { signal: c.signal });
+          const wb = await wr.json().catch(() => null);
+          if (wr.ok && wb && wb.success === true) setWords(wb.data as WordsResult);
+        } catch {
+          /* word-by-word is optional */
+        }
+      }
     } catch (e) {
       setErr(
         e instanceof DOMException && e.name === "AbortError"
@@ -151,6 +177,35 @@ export default function TranslatePanel({ onBack }: { onBack: () => void }) {
               ))}
             </div>
           )}
+        </div>
+      )}
+      {words && words.tokens.length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          <div style={{ marginBottom: 6 }}>
+            ពាក្យមួយៗ · ស្គាល់ {words.known}/{words.known + words.unknown}
+            {words.translated > 0 ? ` · មានពាក្យបកប្រែ ${words.translated}` : ""}
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {words.tokens.map((t, i) => (
+              <span
+                key={t.text + i}
+                title={t.known ? `ថ្នាក់ ${t.tier}` : "មិនស្គាល់"}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: 8,
+                  fontSize: 15,
+                  border: t.known ? "1px solid rgba(120,200,255,0.5)" : "1px dashed rgba(255,150,150,0.7)",
+                  background: t.translation ? "rgba(120,200,255,0.12)" : "transparent",
+                }}
+              >
+                {t.text}
+                {t.translation ? ` → ${t.translation}` : t.known ? "" : " ?"}
+              </span>
+            ))}
+          </div>
+          <p style={{ fontSize: 12, opacity: 0.6, marginTop: 6 }}>
+            ស្គាល់ = មានក្នុងបញ្ជីពាក្យខ្មែរ KHOEM_AI (មិនមែនមានន័យបកប្រែទេ)។ ព្រួញ (→) មានតែពាក្យដែលមានក្នុងវចនានុក្រម។
+          </p>
         </div>
       )}
       <p style={{ fontSize: 12, opacity: 0.6, marginTop: 16 }}>
