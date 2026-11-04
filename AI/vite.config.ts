@@ -1,5 +1,19 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import fs from "node:fs";
+import os from "node:os";
+
+// Reads the KSV gateway secret server-side only (never sent to the browser).
+function gatewayToken(): string {
+  if (process.env.GATEWAY_TOKEN) return process.env.GATEWAY_TOKEN;
+  try {
+    const f = os.homedir() + "/KSV/gateway/.env";
+    const m = fs.readFileSync(f, "utf8").match(/^\s*(?:export\s+)?GATEWAY_TOKEN\s*=\s*(.*)$/m);
+    return m ? m[1].trim().replace(/^['"]|['"]$/g, "") : "";
+  } catch {
+    return "";
+  }
+}
 
 export default defineConfig({
   plugins: [react()],
@@ -30,6 +44,7 @@ export default defineConfig({
         target: "http://127.0.0.1:4000",
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/ksv-api/, "/api/ksv"),
+        headers: { "x-gateway-token": gatewayToken() },
       },
       // frontend calls fetch("/api/chat"); Vite forwards it to server.mjs
       "/api": {
