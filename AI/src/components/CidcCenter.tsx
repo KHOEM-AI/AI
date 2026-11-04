@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { apiStrict } from "../lib/api";
 
-type Collection = "languages" | "file-formats" | "templates";
+type Collection = "languages" | "file-formats" | "templates" | "frameworks" | "databases" | "protocols" | "tools" | "platforms";
 interface Item {
   name?: string; language?: string; language_id?: string; file_format_id?: string;
   groups?: string[]; extensions?: string[]; mime_type?: string | null; verification_status?: string;
+  framework_id?: string; database_id?: string; protocol_id?: string; tool_id?: string; platform_id?: string; template_id?: string;
+  domain?: string; category?: string; kind?: string; standard?: string | null; type?: string | string[]; languages?: string[];
 }
 const BASE = "/cidc/api/cidc";
-const COLLECTIONS: Collection[] = ["languages", "file-formats", "templates"];
+const COLLECTIONS: Collection[] = ["languages", "file-formats", "templates", "frameworks", "databases", "protocols", "tools", "platforms"];
+const extraOf = (i: Item) => [i.domain, i.category, i.kind, i.standard, Array.isArray(i.type) ? i.type.join(", ") : i.type, (i.languages ?? []).join(", ")].filter(Boolean).join(" · ");
 
 export default function CidcCenter({ onClose }: { onClose: () => void }) {
   const [stats, setStats] = useState<Record<string, number> | null>(null);
@@ -55,13 +58,13 @@ export default function CidcCenter({ onClose }: { onClose: () => void }) {
         </div>
         <div className="status-grid">
           {items.slice(0, 100).map((i, n) => (
-            <div className="status-card" key={i.language_id ?? i.file_format_id ?? n}>
+            <div className="status-card" key={i.language_id ?? i.file_format_id ?? i.framework_id ?? i.database_id ?? i.protocol_id ?? i.tool_id ?? i.platform_id ?? i.template_id ?? n}>
               <div className="status-card__head">
                 <span className="status-card__name">{i.name ?? i.language}</span>
                 <span className="status-badge">{i.verification_status}</span>
               </div>
               <div className="status-card__extra">
-                {(i.groups ?? []).join(", ")}{(i.extensions ?? []).join(" ")}{i.mime_type ? ` · ${i.mime_type}` : ""}
+                {(i.groups ?? []).join(", ")}{(i.extensions ?? []).join(" ")}{i.mime_type ? ` · ${i.mime_type}` : ""}{extraOf(i) ? ` · ${extraOf(i)}` : ""}
               </div>
             </div>
           ))}
