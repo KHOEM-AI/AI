@@ -14,6 +14,7 @@ import { approveRequest, rejectRequest } from "./approvals.mjs";
 import { detectLanguage, RE, SAY } from "./languageRegistry.mjs";
 import { searchAllKnowledge } from "./knowledge.mjs";
 import { searchKhoemKnowledge, searchKhoemKhmer } from "./khoemApi.mjs";
+import { findChatReply } from "./chatData.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -250,6 +251,13 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
       catch { exactAnswer = null; }
       if (exactAnswer) { onStage?.("RETRIEVING", "knowledge base exact match"); return exactAnswer; }
     }
+  }
+
+  // khoem-now chat data (data/chat), checked before KHOEM_AI
+  if (!q.startsWith("/") && q !== "help") {
+    let chatAnswer = null;
+    try { chatAnswer = await findChatReply(last); } catch { chatAnswer = null; }
+    if (chatAnswer) { onStage?.("RETRIEVING", "khoem-now chat"); return chatAnswer; }
   }
 
   // KHOEM_AI hosts the Khmer replies; khmer.mjs stays as fallback.
