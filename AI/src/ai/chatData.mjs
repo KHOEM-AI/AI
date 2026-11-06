@@ -41,10 +41,19 @@ const norm = (s) =>
 
 const isAscii = (s) => /^[\x00-\x7f]*$/.test(s);
 
+// Substring matches are only trusted for short, non-negated sentences.
+// Longer or negated sentences fall through to KHOEM_AI.
+const NEGATION = ["មិន", "អត់", "កុំ", "គ្មាន"];
+const MAX_EXTRA = 8;
+
 function matches(q, key) {
   if (key.startsWith("=")) return q === norm(key.slice(1));
   const nk = norm(key);
-  return isAscii(nk) ? q === nk : q.includes(nk);
+  if (isAscii(nk)) return q === nk;
+  if (!q.includes(nk)) return false;
+  const rest = q.replace(nk, "");
+  if (rest.length > MAX_EXTRA) return false;
+  return !NEGATION.some((w) => rest.includes(w));
 }
 
 const fill = (s) => s.replace(/\{pro\}/g, () => (Math.random() < PRO_RATE ? "ប្រូ" : ""));
