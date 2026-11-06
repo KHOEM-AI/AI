@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useT, pickText, useLanguageCode } from "../i18n";
 import { api } from "../api/client";
+import KiRegistry from "./KiRegistry";
 
 type R = { method: string; path: string };
 const groupOf = (p: string) => p.split("/")[2] || "api";
@@ -252,6 +253,7 @@ export default function ApiCenter({ onClose }: { onClose: () => void }) {
           <button disabled={busy} onClick={probeWarn}>{pickText(lang, "សាក ⚠️ ដោយ query គំរូ", "Probe ⚠️ with sample query")}</button>
         </div>
 
+        <KiRegistry />
         {report.length > 0 && (
           <div className="status-card__extra" style={{ whiteSpace: "pre-wrap", maxHeight: "55vh", overflow: "auto" }}>
             {report.join("\n")}
