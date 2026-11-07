@@ -1,5 +1,6 @@
 import { keiRouter } from "./src/ai/kei.mjs";
 import express from "express";
+import { createIqaiProxy } from "./src/ai/iqaiProxy.mjs";
 import { registerAllApis } from "./src/ai/registerAll.mjs";
 import { registerColorLightApi } from "./src/ai/colorLight.mjs";
 import { summarizeEngines } from "./src/ai/enginesSummary.mjs";
@@ -25,6 +26,13 @@ const isOwnUi = (req) =>
 app.use(express.json({ limit: "2mb" }));
 app.use(trackActivity);
 app.use("/api", inputGuardMiddleware);
+app.use(
+  "/api/iq-ai",
+  createIqaiProxy({
+    isOwnUi,
+  })
+);
+
 
 const PORT = process.env.PORT || 8787;
 
