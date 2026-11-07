@@ -16,6 +16,12 @@ const app = express();
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || "http://localhost:5175,http://127.0.0.1:5175")
   .split(",").map((s) => s.trim()).filter(Boolean);
 app.use(cors({ origin: ALLOWED_ORIGINS }));
+
+// True only for requests coming from the app's own UI (allowed origin, or a
+// same-origin request without an Origin header). Used before any key injection.
+const isOwnUi = (req) =>
+  ALLOWED_ORIGINS.includes(req.get("origin") || "") ||
+  (!req.get("origin") && req.get("sec-fetch-site") === "same-origin");
 app.use(express.json({ limit: "2mb" }));
 app.use(trackActivity);
 app.use("/api", inputGuardMiddleware);
@@ -69,7 +75,7 @@ app.get("/api/models", (req, res) => {
 // The secret stays server-side; it is never exposed to the frontend.
 app.use("/api/patch", (req, res, next) => {
   const key = process.env.KHOEM_API_KEY;
-  if (key && !req.get("x-api-key")) {
+  if (key && isOwnUi(req) && !req.get("x-api-key")) {
     req.headers["x-api-key"] = key;
   }
   next();
@@ -79,7 +85,7 @@ app.use("/api/patch", (req, res, next) => {
 // The secret stays server-side; it is never exposed to the frontend.
 app.use("/api/approvals", (req, res, next) => {
   const key = process.env.KHOEM_API_KEY;
-  if (key && !req.get("x-api-key")) {
+  if (key && isOwnUi(req) && !req.get("x-api-key")) {
     req.headers["x-api-key"] = key;
   }
   next();
@@ -113,8 +119,7 @@ app.use("/api", (req, res, next) => {
     (req.method === "POST" && matches(BRIDGE_POST, p)) ||
     /* BRIDGE_DELETE_REFS */ (req.method === "DELETE" && /^\/api\/characters\/[^/]+\/refs\/[^/]+$/.test(p));
     // Only fill the key for the app's own UI origin — not for any other local caller.
-  const fromOwnUi = ALLOWED_ORIGINS.includes(req.get("origin") || "") || (!req.get("origin") && req.get("sec-fetch-site") === "same-origin");
-  if (key && ok && fromOwnUi && !req.get("x-api-key")) req.headers["x-api-key"] = key;
+  if (key && ok && isOwnUi(req) && !req.get("x-api-key")) req.headers["x-api-key"] = key;
   next();
 });
 
