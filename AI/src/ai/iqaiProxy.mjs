@@ -1,6 +1,7 @@
 import { Readable } from "node:stream";
 
 const ALLOWED_ROOTS = new Set([
+  "health",
   "media",
   "sounds",
   "audio",
@@ -59,11 +60,6 @@ export function createIqaiProxy({
       return;
     }
 
-    if (!token) {
-      res.status(503).json({ error: "iqai_not_configured" });
-      return;
-    }
-
     if (!["GET", "POST", "PATCH", "DELETE"].includes(req.method)) {
       res.set("Allow", "GET, POST, PATCH, DELETE");
       res.status(405).end();
@@ -113,6 +109,13 @@ export function createIqaiProxy({
       return;
     }
 
+    const isHealthCheck = rawPath === "health";
+
+    if (!isHealthCheck && !token) {
+      res.status(503).json({ error: "iqai_not_configured" });
+      return;
+    }
+
     const target = new URL(
       `/api/v1/${rawPath}${incoming.search}`,
       upstreamBase
@@ -125,7 +128,9 @@ export function createIqaiProxy({
       if (value !== undefined) headers.set(name, value);
     }
 
-    headers.set("authorization", `Bearer ${token}`);
+    if (!isHealthCheck && token) {
+      headers.set("authorization", `Bearer ${token}`);
+    }
 
     const controller = new AbortController();
 
