@@ -174,6 +174,7 @@ Endpoint ដែលត្រូវការ key ត្រូវដាក់ heade
 - Endpoint ដែលអានកូដ ត្រូវការ key ទាំងអស់
 - `/read` និង `/funcs` អានបានតែក្នុងថត `src/`
 - `/find` មិនមើលឯកសារ `.env` និងថតលាក់ទេ
+- `server.mjs` ចាក់ `KHOEM_API_KEY` ឱ្យ `/api/patch`, `/api/approvals` និង bridge តែពេលសំណើមកពី UI របស់ខ្លួនឯង (origin ក្នុង `CORS_ORIGINS` ឬ same-origin) — `curl` ឬឧបករណ៍ក្រៅត្រូវដាក់ `x-api-key` ដោយខ្លួនឯង
 - កុំបើកច្រក 8787 ទៅអ៊ីនធឺណិត ដោយគ្មានការការពារបន្ថែម
 - Control Center ប្រើ `window.prompt()` សុំ `x-api-key` ពេល Kill/Resume/Approve/Reject —
   key ត្រូវបានរក្សាទុកក្នុង `sessionStorage` (`src/components/adminKey.ts`) សម្រាប់តែ tab
@@ -311,6 +312,12 @@ Test ដែលរត់ sandbox ពិតចំណាយពេលយូរ ដ�
 | ឧបករណ៍ចាស់ (Legacy Phase 1) | Scan/Check/Find/Funcs/Read ចាស់ (មុន Code Data Center) |
 
 ## ១៥. កំណត់ត្រាការផ្លាស់ប្តូរ
+
+**2026-11-07**
+
+- `server.mjs`៖ `/api/patch` និង `/api/approvals` ចាក់ `KHOEM_API_KEY` តែពេលសំណើមកពី UI របស់ខ្លួនឯង (`isOwnUi`) ដូច bridge ធំ — មុននេះចាក់ឱ្យគ្រប់អ្នកហៅ ដូច្នេះ approve/reject/execute និង patch ឆ្លងកាត់ `guard` ដោយគ្មាន key
+- លុប `public/ksv-device-guide.html` (គ្មានអ្វីយោងក្នុងកូដ)
+- `.github/LOCKED-FILES.md`៖ ធ្វើឱ្យត្រូវនឹង `.github/CODEOWNERS` (45 ឯកសារ); `docs/SYSTEM_MAP.md`៖ បន្ថែមសេវាដែល `ai` បើក
 
 **2026-09-29**
 

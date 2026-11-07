@@ -42,3 +42,20 @@
 - `km`: បំពេញ 273/273 (100%) ប៉ុន្តែស្ថានភាពប្រកាសនៅ `draft` (ភាសាដទៃភាគច្រើនជា `review`) ម្ចាស់គម្រោងត្រូវសម្រេចថាត្រូវប្ដូរឬអត់
 - 8 ភាសាជា planned-only (មិនទាន់មានទិន្នន័យបកប្រែ)
 - ផ្នែកនីមួយៗរបស់ `verify:all` (typecheck, build, test, localization verify) បានរត់ដាច់ដោយឡែក ហើយជាប់ទាំងអស់
+
+## 2026-11-07
+
+**Commits**
+- `797307c` លុប `public/ksv-device-guide.html` (គ្មានអ្វីយោង)
+- `608af4e` `server.mjs`៖ ចាក់ `KHOEM_API_KEY` តែឱ្យសំណើពី UI ខ្លួនឯង (`isOwnUi`) លើ `/api/patch`, `/api/approvals` និង bridge ធំ
+- commit នេះ៖ ធ្វើឱ្យ `LOCKED-FILES.md` ត្រូវនឹង `CODEOWNERS`, បន្ថែមសេវាក្នុង `SYSTEM_MAP.md`, README និង WORKLOG នេះ
+
+**លទ្ធផលត្រួតពិនិត្យ**
+- `npx tsc --noEmit`: ជាប់ · `npm test`: 83 files / 619 tests ជាប់ទាំងអស់ (157s)
+- ផ្ទៀងផ្ទាត់ផ្ទាល់ក្រោយកែ `server.mjs`៖ `POST /api/approvals/x/execute` គ្មាន Origin → 401, ជាមួយ Origin `http://localhost:5175` → 404 (id មិនមាន)
+- Pre-push safety check ជាប់ទាំង ៤
+
+**នៅសល់ (មិនទាន់ធ្វើ)**
+- `eval/q200_raw/` មាន 116 ឯកសារទទេ (0 byte) ហើយត្រូវបាន track ទោះមានក្នុង `.gitignore`; `q200.txt` មាន 200 សំណួរ
+- comment ជាភាសាខ្មែរក្នុងកូដ ~275 បន្ទាត់ ក្នុង 42 ឯកសារ
+- `@khoem-ai/localization`, `ai.sh` និង `vite.config.ts` ពឹងលើថតក្រៅ repo (`~/KHOEM_AI`, `~/KSV`)
