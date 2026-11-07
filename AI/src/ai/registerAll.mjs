@@ -5,6 +5,7 @@ import { registerShotlistApi } from "./shotlistApi.mjs";
 import { registerCharacterRefsApi } from "./characterRefsApi.mjs";
 import { registerKhoemBridgeApi } from "./khoemBridgeApi.mjs";
 import { registerRouteListApi } from "./routeList.mjs";
+import { registerTranslateApi } from "./translateApi.mjs";
 
 export const API_MODULES = [
   { name: "api", register: registerApi },
@@ -13,6 +14,7 @@ export const API_MODULES = [
   { name: "shotlist", register: registerShotlistApi },
   { name: "characterRefs", register: registerCharacterRefsApi },
   { name: "khoemBridge", register: registerKhoemBridgeApi },
+  { name: "translate", register: registerTranslateApi },
 ];
 
 export function registerAllApis(app, modules = API_MODULES) {
