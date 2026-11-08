@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import khoemLogo from "../assets/khoem-ai-logo.webp";
 import IqaiCenter from "../components/IqaiCenter";
+import MediaLibrary from "../components/MediaLibrary";
 import ColorLightCenter from "../components/ColorLightCenter";
 import TranslatePanel from "./TranslatePanel";
 import { iqaiSoundContentUrl, listSounds, uploadSound, type IqaiSound } from "../api/client";
@@ -593,24 +594,33 @@ function AudioEditor({ onBack }: { onBack: () => void }) {
 
 /* ---------- home ---------- */
 type Props = { onClose: () => void; onOpenAv?: () => void; onOpen3d?: () => void };
+const VIDEO_WORDS = /វីដេអូ|video|clip/i;
+const IMAGE_WORDS = /រូបភាព|រូប|image|photo|picture/i;
+const TEXT_WORDS = /អត្ថបទ|អារម្មណ៍|emotion|text/i;
+const TRANSLATE_WORDS = /បកប្រែ|translate/i;
 const AUDIO_WORDS = /សំឡេង|ភ្លេង|audio|sound|music|bass|volume|mp3|wav/i;
 
 export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
-  const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate">("home");
+  const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate" | "media">("home");
   const [prompt, setPrompt] = useState("");
   const [note, setNote] = useState("");
 
   const submit = () => {
     const t = prompt.trim();
     if (!t) return;
-    if (AUDIO_WORDS.test(t)) { setNote(""); setView("audio"); }
+    setNote("");
+    if (AUDIO_WORDS.test(t)) setView("audio");
+    else if (VIDEO_WORDS.test(t) && onOpenAv) onOpenAv();
+    else if (IMAGE_WORDS.test(t)) setView("media");
+    else if (TEXT_WORDS.test(t)) setView("emotion");
+    else if (TRANSLATE_WORDS.test(t)) setView("translate");
     else setNote("ការបង្កើតរូបភាព/វីដេអូដោយ AI មិនទាន់ភ្ជាប់ provider ទេ។ ឥឡូវនេះអាចកែសំឡេងបាន។");
   };
 
   const cards: { icon: string; title: string; sub: string; on: boolean; go?: () => void }[] = [
     { icon: "🎚", title: "កែសំឡេង", sub: "Voice · Music · Effects", on: true, go: () => setView("audio") },
     { icon: "🎬", title: "កាត់តវីដេអូ", sub: "Clips · Text · Audio", on: !!onOpenAv, go: onOpenAv },
-    { icon: "🖼", title: "កែរូបភាព", sub: "Edit · Design · AI", on: false },
+    { icon: "🖼", title: "រូបភាព & ឯកសារ", sub: "Library · Share · Inspect", on: true, go: () => setView("media") },
     { icon: "🌐", title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: true, go: () => setView("translate") },
   ];
 
@@ -623,6 +633,7 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
         <button className={view === "emotion" ? "on" : ""} onClick={() => setView("emotion")}><span>🎭</span><em>Emotion</em></button>
         <button className={view === "color" ? "on" : ""} onClick={() => setView("color")}><span>🎨</span><em>Color Palette</em></button>
         <button className={view === "translate" ? "on" : ""} onClick={() => setView("translate")}><span>🌐</span><em>Translate</em></button>
+        <button className={view === "media" ? "on" : ""} onClick={() => setView("media")}><span>🗂</span><em>Library</em></button>
         <button disabled={!onOpenAv} onClick={onOpenAv}><span>🎬</span><em>Video</em></button>
         <button disabled={!onOpen3d} onClick={onOpen3d}><span>🧊</span><em>3D</em></button>
         <button className="ks-close" onClick={onClose}><span>✕</span><em>បិទ</em></button>
@@ -638,6 +649,11 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
         ) : view === "color" ? (
           <div style={{ position: "relative", minHeight: "100%", overflow: "auto" }}>
             <ColorLightCenter embedded paletteOnly onClose={() => setView("home")} />
+          </div>
+        ) : view === "media" ? (
+          <div style={{ position: "relative", minHeight: "100%", padding: 12, overflow: "auto" }}>
+            <button className="ks-btn" onClick={() => setView("home")} style={{ marginBottom: 12 }}>← Home</button>
+            <MediaLibrary />
           </div>
         ) : view === "emotion" ? (
           <div style={{ position: "relative", minHeight: "100%", padding: 12, overflow: "auto" }}>

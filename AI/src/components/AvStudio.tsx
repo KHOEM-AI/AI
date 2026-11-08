@@ -253,7 +253,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   });
   const tts = () => run(async () => {
     const r = await fetch("/iqai/audio/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: ttsText }) });
-    if (r.status === 501) throw new Error("Not Configured · មិនទាន់ភ្ជាប់ TTS provider");
+    if (r.status === 501 || r.status === 404) throw new Error("Not Configured · មិនទាន់ភ្ជាប់ TTS provider");
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     await decode(await r.arrayBuffer());
   });
