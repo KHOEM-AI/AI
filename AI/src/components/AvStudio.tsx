@@ -9,6 +9,7 @@ type S = typeof S0;
 const PRESETS = ["ghost", "demon", "alien", "underwater", "male", "female"];
 type Aspect = "9:16" | "16:9" | "1:1";
 const SIZE_OF: Record<Aspect, [number, number]> = { "9:16": [720, 1280], "16:9": [1280, 720], "1:1": [720, 720] };
+const MAX_EDIT_BYTES = 50 * 1024 * 1024; // IQ-AI limit for /videos/edit, /thumbnail, /audio
 
 async function api(path: string, init?: RequestInit) {
   const r = await fetch(`/iqai${path}`, init);
@@ -102,6 +103,17 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   const [gInfo, setGInfo] = useState("");
   const [gBusy, setGBusy] = useState(false);
   const [sfxTypes, setSfxTypes] = useState<string[]>([]);
+  // edit an existing video (IQ-AI /videos/edit, /videos/thumbnail, /videos/audio)
+  const [vfile, setVfile] = useState<File | null>(null);
+  const [eStart, setEStart] = useState("");
+  const [eEnd, setEEnd] = useState("");
+  const [eWidth, setEWidth] = useState("");
+  const [eSpeed, setESpeed] = useState(1);
+  const [eMute, setEMute] = useState(false);
+  const [eUrl, setEUrl] = useState("");
+  const [eInfo, setEInfo] = useState("");
+  const [tUrl, setTUrl] = useState("");
+  const [eBusy, setEBusy] = useState(false);
 
   const ctxRef = useRef<AudioContext | null>(null);
   const bufRef = useRef<AudioBuffer | null>(null);
@@ -115,6 +127,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const level = useRef<HTMLDivElement | null>(null);
   const mr = useRef<MediaRecorder | null>(null);
+  const vref = useRef<HTMLVideoElement | null>(null);
 
   const ac = () => (ctxRef.current ||= new AudioContext());
   const run = async (fn: () => Promise<void>) => {
@@ -223,6 +236,8 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   }, []);
   useEffect(() => () => { if (vurl) URL.revokeObjectURL(vurl); }, [vurl]);
   useEffect(() => () => { if (gUrl) URL.revokeObjectURL(gUrl); }, [gUrl]);
+  useEffect(() => () => { if (eUrl) URL.revokeObjectURL(eUrl); }, [eUrl]);
+  useEffect(() => () => { if (tUrl) URL.revokeObjectURL(tUrl); }, [tUrl]);
   useEffect(() => {
     api("/videos/effects").then((r) => r.json()).then((j) => setSfxTypes((j.data?.sfxTypes as string[]) ?? [])).catch(() => {});
   }, []);
@@ -273,9 +288,49 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
     await decode(await r.arrayBuffer());
   });
   const pickVideo = (f?: File) => f && run(async () => {
+    setVfile(f); setEUrl(""); setTUrl(""); setEInfo("");
     setVurl(URL.createObjectURL(f)); setVinfo("");
     const j = await (await api("/videos/inspect", { method: "POST", body: f })).json();
     setVinfo(JSON.stringify(j.data));
+  });
+
+  const needVideo = (): File => {
+    if (!vfile) throw new Error("ជ្រើសវីដេអូមុន · Pick a video first");
+    if (vfile.size > MAX_EDIT_BYTES) throw new Error("វីដេអូធំជាង 50 MB · Video is larger than 50 MB");
+    return vfile;
+  };
+  const editVideo = () => run(async () => {
+    const f = needVideo();
+    setEBusy(true);
+    try {
+      const qs = new URLSearchParams();
+      if (eStart.trim()) qs.set("trimStart", eStart.trim());
+      if (eEnd.trim()) qs.set("trimEnd", eEnd.trim());
+      if (eWidth.trim()) qs.set("width", eWidth.trim());
+      if (eSpeed !== 1) qs.set("speed", String(eSpeed));
+      if (eMute) qs.set("mute", "true");
+      const r = await api(`/videos/edit?${qs}`, { method: "POST", body: f });
+      setEInfo(r.headers.get("X-Applied") ?? "");
+      setEUrl(URL.createObjectURL(await r.blob()));
+    } finally { setEBusy(false); }
+  });
+  const makeThumb = () => run(async () => {
+    const f = needVideo();
+    setEBusy(true);
+    try {
+      const at = (vref.current?.currentTime ?? 0).toFixed(2);
+      const r = await api(`/videos/thumbnail?at=${at}&width=480`, { method: "POST", body: f });
+      setTUrl(URL.createObjectURL(await r.blob()));
+    } finally { setEBusy(false); }
+  });
+  const extractAudio = () => run(async () => {
+    const f = needVideo();
+    setEBusy(true);
+    try {
+      const r = await api("/videos/audio", { method: "POST", body: f });
+      await decode(await r.arrayBuffer());
+      setTab("audio");
+    } finally { setEBusy(false); }
   });
 
   const showGenerated = async (r: Response) => {
@@ -350,11 +405,35 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
       {tab === "video" && (
         <div style={box}>
           <input style={inp} type="file" accept="video/mp4,video/webm" onChange={(e) => pickVideo(e.target.files?.[0])} />
-          {vurl && <video src={vurl} controls style={{ width: "100%", borderRadius: 8, marginBottom: 6 }} />}
+          {vurl && <video ref={vref} src={vurl} controls style={{ width: "100%", borderRadius: 8, marginBottom: 6 }} />}
           {vinfo && <div style={{ fontSize: 13, opacity: 0.8 }}>{vinfo}</div>}
           <div style={{ fontSize: 13, opacity: 0.7, marginTop: 6 }}>
-            កាត់ត/Export វីដេអូដែលមានស្រាប់៖ មិនទាន់ភ្ជាប់។ ឥឡូវមើលជាមុន និងពិនិត្យព័ត៌មានបាន។ ខាងក្រោមបង្កើតវីដេអូថ្មីពីអត្ថបទ ឬរូបថត (ffmpeg មិនមែន AI model)។
+            កាត់ត/Export វីដេអូដែលមានស្រាប់៖ ជ្រើសវីដេអូ ហើយកែខាងក្រោម (ffmpeg មិនមែន AI model)។ បន្ទាប់ទៀតបង្កើតវីដេអូថ្មីពីអត្ថបទ ឬរូបថត។
           </div>
+          {vfile && (
+            <div style={{ marginTop: 8 }}>
+              <div style={{ marginBottom: 6 }}>✂ កែវីដេអូ · Edit video</div>
+              <input style={{ ...inp, width: 110 }} type="number" min={0} step={0.1} value={eStart}
+                onChange={(e) => setEStart(e.target.value)} placeholder="ចាប់ផ្ដើម s" />
+              <input style={{ ...inp, width: 110 }} type="number" min={0} step={0.1} value={eEnd}
+                onChange={(e) => setEEnd(e.target.value)} placeholder="ចប់ s" />
+              <input style={{ ...inp, width: 110 }} type="number" min={160} max={1920} step={2} value={eWidth}
+                onChange={(e) => setEWidth(e.target.value)} placeholder="ទទឹង px" />
+              <Slider label="ល្បឿន · Speed" min={0.5} max={2} step={0.1} value={eSpeed} unit="×" onChange={setESpeed} />
+              <label style={{ display: "block", fontSize: 14, marginBottom: 8 }}>
+                <input type="checkbox" checked={eMute} onChange={(e) => setEMute(e.target.checked)} /> 🔇 បិទសំឡេង · Mute
+              </label>
+              <button style={btn} onClick={editVideo} disabled={eBusy}>✂ កែ → MP4</button>
+              <button style={btn} onClick={makeThumb} disabled={eBusy}>🖼 Thumbnail (frame បច្ចុប្បន្ន)</button>
+              <button style={btn} onClick={extractAudio} disabled={eBusy}>🔊 ទាញសំឡេង → Audio</button>
+              {eBusy && <div style={{ fontSize: 13, opacity: 0.8 }}>⏳ កំពុងដំណើរការ…</div>}
+              {eUrl && <video src={eUrl} controls style={{ width: "100%", borderRadius: 8, margin: "6px 0" }} />}
+              {eUrl && <a href={eUrl} download="khoem-edit.mp4" style={{ ...btn, display: "inline-block", textDecoration: "none" }}>⬇ Download MP4</a>}
+              {eInfo && <div style={{ fontSize: 13, opacity: 0.8 }}>{eInfo}</div>}
+              {tUrl && <img src={tUrl} alt="thumbnail" style={{ width: "100%", borderRadius: 8, margin: "6px 0" }} />}
+              {tUrl && <a href={tUrl} download="khoem-thumb.jpg" style={{ ...btn, display: "inline-block", textDecoration: "none" }}>⬇ Download JPG</a>}
+            </div>
+          )}
         </div>
       )}
 
