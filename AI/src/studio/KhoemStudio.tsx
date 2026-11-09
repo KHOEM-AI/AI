@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import khoemLogo from "../assets/khoem-ai-logo.webp";
 import IqaiCenter from "../components/IqaiCenter";
 import MediaLibrary from "../components/MediaLibrary";
+import CreatePanel from "../components/CreatePanel";
 import ColorLightCenter from "../components/ColorLightCenter";
 import TranslatePanel from "./TranslatePanel";
 import { iqaiSoundContentUrl, listSounds, uploadSound, type IqaiSound } from "../api/client";
@@ -601,7 +602,7 @@ const TRANSLATE_WORDS = /បកប្រែ|translate/i;
 const AUDIO_WORDS = /សំឡេង|ភ្លេង|audio|sound|music|bass|volume|mp3|wav/i;
 
 export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
-  const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate" | "media">("home");
+  const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate" | "media" | "create">("home");
   const [prompt, setPrompt] = useState("");
   const [note, setNote] = useState("");
 
@@ -610,7 +611,7 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
     if (!t) return;
     setNote("");
     if (AUDIO_WORDS.test(t)) setView("audio");
-    else if (VIDEO_WORDS.test(t) && onOpenAv) onOpenAv();
+    else if (VIDEO_WORDS.test(t)) setView("create");
     else if (IMAGE_WORDS.test(t)) setView("media");
     else if (TEXT_WORDS.test(t)) setView("emotion");
     else if (TRANSLATE_WORDS.test(t)) setView("translate");
@@ -620,6 +621,7 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
   const cards: { icon: string; title: string; sub: string; on: boolean; go?: () => void }[] = [
     { icon: "🎚", title: "កែសំឡេង", sub: "Voice · Music · Effects", on: true, go: () => setView("audio") },
     { icon: "🎬", title: "កាត់តវីដេអូ", sub: "Clips · Text · Audio", on: !!onOpenAv, go: onOpenAv },
+    { icon: "🎥", title: "បង្កើតវីដេអូ", sub: "Text · Photo → MP4", on: true, go: () => setView("create") },
     { icon: "🖼", title: "រូបភាព & ឯកសារ", sub: "Library · Share · Inspect", on: true, go: () => setView("media") },
     { icon: "🌐", title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: true, go: () => setView("translate") },
   ];
@@ -633,6 +635,7 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
         <button className={view === "emotion" ? "on" : ""} onClick={() => setView("emotion")}><span>🎭</span><em>Emotion</em></button>
         <button className={view === "color" ? "on" : ""} onClick={() => setView("color")}><span>🎨</span><em>Color Palette</em></button>
         <button className={view === "translate" ? "on" : ""} onClick={() => setView("translate")}><span>🌐</span><em>Translate</em></button>
+        <button className={view === "create" ? "on" : ""} onClick={() => setView("create")}><span>🎥</span><em>Create</em></button>
         <button className={view === "media" ? "on" : ""} onClick={() => setView("media")}><span>🗂</span><em>Library</em></button>
         <button disabled={!onOpenAv} onClick={onOpenAv}><span>🎬</span><em>Video</em></button>
         <button disabled={!onOpen3d} onClick={onOpen3d}><span>🧊</span><em>3D</em></button>
@@ -649,6 +652,12 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
         ) : view === "color" ? (
           <div style={{ position: "relative", minHeight: "100%", overflow: "auto" }}>
             <ColorLightCenter embedded paletteOnly onClose={() => setView("home")} />
+          </div>
+        ) : view === "create" ? (
+          <div style={{ position: "relative", minHeight: "100%", padding: 12, overflow: "auto" }}>
+            <button className="ks-btn" onClick={() => setView("home")} style={{ marginBottom: 12 }}>← Home</button>
+            <CreatePanel initialText={prompt} />
+            <MediaLibrary />
           </div>
         ) : view === "media" ? (
           <div style={{ position: "relative", minHeight: "100%", padding: 12, overflow: "auto" }}>

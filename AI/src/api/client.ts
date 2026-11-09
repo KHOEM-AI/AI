@@ -160,3 +160,45 @@ export const iqaiInspectVideo = (file: Blob) =>
     headers: { "Content-Type": file.type || "video/mp4" },
     body: file,
   });
+
+// ---- IQ-AI video creation (ffmpeg, offline, no AI model) ----
+// /videos/text and /videos/photo return raw MP4 bytes; errors use the {ok,error} envelope.
+export interface IqaiVideoOptions { effects: string[]; sfxTypes: string[] }
+export const iqaiVideoOptions = async (): Promise<IqaiVideoOptions> => {
+  const d = await iqai<{ effects: string[]; sfxTypes: string[] }>("/videos/effects");
+  return { effects: d.effects ?? [], sfxTypes: d.sfxTypes ?? [] };
+};
+
+async function iqaiMp4(path: string, init: RequestInit): Promise<Blob> {
+  const r = await fetch(`/iqai${path}`, init);
+  if (!r.ok) {
+    const body = await r.json().catch(() => null);
+    throw new ApiError(r.status, body?.error?.message ?? `HTTP ${r.status}`);
+  }
+  return r.blob();
+}
+
+export interface IqaiTextVideoOpts {
+  text: string;
+  durationSec?: number;
+  bgColor?: string;
+  textColor?: string;
+  sfx?: string | null;
+}
+export const iqaiTextVideo = (o: IqaiTextVideoOpts) =>
+  iqaiMp4("/videos/text", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(o),
+  });
+
+export const iqaiPhotoVideo = (file: Blob, effect = "zoom-in", durationSec?: number, sfx?: string | null) => {
+  const qs = new URLSearchParams({ effect });
+  if (durationSec) qs.set("durationSec", String(durationSec));
+  if (sfx) qs.set("sfx", sfx);
+  return iqaiMp4(`/videos/photo?${qs}`, {
+    method: "POST",
+    headers: { "Content-Type": file.type || "image/png" },
+    body: file,
+  });
+};

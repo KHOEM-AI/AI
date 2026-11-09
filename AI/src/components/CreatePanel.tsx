@@ -1,0 +1,122 @@
+import { useEffect, useRef, useState } from "react";
+import { iqaiPhotoVideo, iqaiTextVideo, iqaiVideoOptions, uploadMedia } from "../api/client";
+
+// Create video from text or from a photo (IQ-AI, ffmpeg, offline) and
+// send the result to the library (MediaLibrary) for storage and sharing.
+
+const box: React.CSSProperties = { background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 12, marginBottom: 12 };
+const input: React.CSSProperties = { borderRadius: 8, padding: 8, fontSize: 15, marginRight: 6, marginBottom: 6 };
+const btn: React.CSSProperties = { padding: "8px 14px", borderRadius: 8, border: "none", background: "#4f7cff", color: "#fff", fontSize: 15, marginRight: 8, marginTop: 4 };
+const soft: React.CSSProperties = { ...btn, background: "rgba(255,255,255,0.14)" };
+
+const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
+
+export default function CreatePanel({ initialText = "" }: { initialText?: string }) {
+  const [mode, setMode] = useState<"text" | "photo">("text");
+  const [text, setText] = useState(initialText);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [dur, setDur] = useState(5);
+  const [bg, setBg] = useState("#000000");
+  const [fg, setFg] = useState("#ffffff");
+  const [effect, setEffect] = useState("zoom-in");
+  const [sfx, setSfx] = useState("");
+  const [effects, setEffects] = useState<string[]>(["zoom-in", "zoom-out"]);
+  const [sfxTypes, setSfxTypes] = useState<string[]>([]);
+  const [video, setVideo] = useState<Blob | null>(null);
+  const [url, setUrl] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [ok, setOk] = useState("");
+  const urlRef = useRef("");
+
+  useEffect(() => {
+    iqaiVideoOptions().then((o) => {
+      if (o.effects.length) setEffects(o.effects);
+      setSfxTypes(o.sfxTypes);
+    }).catch(() => { /* defaults are fine; the real error shows when generating */ });
+    return () => { if (urlRef.current) URL.revokeObjectURL(urlRef.current); };
+  }, []);
+
+  async function generate() {
+    setBusy(true); setErr(""); setOk("");
+    try {
+      const blob = mode === "text"
+        ? await iqaiTextVideo({ text, durationSec: dur, bgColor: bg, textColor: fg, sfx: sfx || null })
+        : await iqaiPhotoVideo(photo as File, effect, dur, sfx || null);
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+      urlRef.current = URL.createObjectURL(blob);
+      setVideo(blob); setUrl(urlRef.current);
+    } catch (e) { setErr(msg(e)); }
+    setBusy(false);
+  }
+
+  async function save() {
+    if (!video) return;
+    setBusy(true); setErr(""); setOk("");
+    try {
+      await uploadMedia(video, `video-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.mp4`);
+      setOk("☁ បានរក្សាទុកក្នុងបណ្ណាល័យ (ផ្ទាំង Library) · Saved to library");
+    } catch (e) { setErr(msg(e)); }
+    setBusy(false);
+  }
+
+  const canGo = !busy && (mode === "text" ? text.trim().length > 0 : photo !== null);
+
+  return (
+    <div style={box}>
+      <div style={{ marginBottom: 8 }}>🎬 បង្កើតវីដេអូ · Create video (offline, ffmpeg)</div>
+      <button style={mode === "text" ? btn : soft} onClick={() => setMode("text")}>📝 ពីអត្ថបទ · Text</button>
+      <button style={mode === "photo" ? btn : soft} onClick={() => setMode("photo")}>🖼 ពីរូបភាព · Photo</button>
+      <div style={{ marginTop: 8 }}>
+        {mode === "text" ? (
+          <>
+            <textarea
+              style={{ ...input, width: "95%", minHeight: 80 }}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="អត្ថបទ · Text (≤ 2000)"
+            />
+            <div>
+              <label>ផ្ទៃ · BG <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} /></label>{" "}
+              <label>អក្សរ · Text <input type="color" value={fg} onChange={(e) => setFg(e.target.value)} /></label>
+            </div>
+          </>
+        ) : (
+          <>
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} />
+            <div style={{ marginTop: 6 }}>
+              <select style={input} value={effect} onChange={(e) => setEffect(e.target.value)}>
+                {effects.map((x) => <option key={x} value={x}>{x}</option>)}
+              </select>
+            </div>
+          </>
+        )}
+        <div>
+          <label>រយៈពេល · Seconds (1–20){" "}
+            <input style={{ ...input, width: 70 }} type="number" min={1} max={20} value={dur}
+              onChange={(e) => setDur(Math.min(20, Math.max(1, Number(e.target.value) || 5)))} />
+          </label>
+          {sfxTypes.length > 0 && (
+            <select style={input} value={sfx} onChange={(e) => setSfx(e.target.value)}>
+              <option value="">🔇 គ្មានសំឡេង · No sound</option>
+              {sfxTypes.map((x) => <option key={x} value={x}>🔊 {x}</option>)}
+            </select>
+          )}
+        </div>
+        <button style={btn} disabled={!canGo} onClick={() => void generate()}>▶ បង្កើត · Generate</button>
+      </div>
+      {busy && <div>កំពុងដំណើរការ... · Working...</div>}
+      {err && <div style={{ color: "#ff8a8a" }}>⚠️ {err}</div>}
+      {ok && <div style={{ color: "#8affb0" }}>{ok}</div>}
+      {url && (
+        <div style={{ marginTop: 8 }}>
+          <video controls src={url} style={{ maxWidth: "100%", maxHeight: 280, borderRadius: 8 }} />
+          <div>
+            <button style={btn} disabled={busy} onClick={() => void save()}>☁ រក្សាទុក · Save to library</button>
+            <a href={url} download="khoem-video.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
