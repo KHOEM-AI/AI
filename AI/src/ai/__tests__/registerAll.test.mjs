@@ -28,10 +28,10 @@ async function boot(modules) {
 afterEach(() => new Promise((r) => (server ? server.close(r) : r())));
 
 describe("registerAll", () => {
-  it("បញ្ជី module មានឈ្មោះមិនស្ទួន ហើយមាន 7", () => {
+  it("បញ្ជី module មានឈ្មោះមិនស្ទួន ហើយមាន 6", () => {
     const names = API_MODULES.map((m) => m.name);
-    expect(names.length).toBe(7);
-    expect(new Set(names).size).toBe(7);
+    expect(names.length).toBe(6);
+    expect(new Set(names).size).toBe(6);
   });
   it("module មួយខូច មិនធ្វើឱ្យទាំងអស់ដួល ហើយ /api/registry រាយ", async () => {
     const { base } = await boot([
