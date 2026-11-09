@@ -7,6 +7,8 @@ interface Item { id: string; name: string }
 const S0 = { vol: 1, bass: 0, mid: 0, treble: 0, speed: 1, a: 0, b: 1 };
 type S = typeof S0;
 const PRESETS = ["ghost", "demon", "alien", "underwater", "male", "female"];
+type Aspect = "9:16" | "16:9" | "1:1";
+const SIZE_OF: Record<Aspect, [number, number]> = { "9:16": [720, 1280], "16:9": [1280, 720], "1:1": [720, 720] };
 
 async function api(path: string, init?: RequestInit) {
   const r = await fetch(`/iqai${path}`, init);
@@ -91,6 +93,15 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   const [ttsText, setTtsText] = useState("");
   const [vurl, setVurl] = useState("");
   const [vinfo, setVinfo] = useState("");
+  const [gText, setGText] = useState("");
+  const [gSec, setGSec] = useState(5);
+  const [gAspect, setGAspect] = useState<Aspect>("9:16");
+  const [gSfx, setGSfx] = useState("");
+  const [gEffect, setGEffect] = useState("zoom-in");
+  const [gUrl, setGUrl] = useState("");
+  const [gInfo, setGInfo] = useState("");
+  const [gBusy, setGBusy] = useState(false);
+  const [sfxTypes, setSfxTypes] = useState<string[]>([]);
 
   const ctxRef = useRef<AudioContext | null>(null);
   const bufRef = useRef<AudioBuffer | null>(null);
@@ -211,6 +222,10 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
     return () => { stopSrc(); void ctxRef.current?.close(); };
   }, []);
   useEffect(() => () => { if (vurl) URL.revokeObjectURL(vurl); }, [vurl]);
+  useEffect(() => () => { if (gUrl) URL.revokeObjectURL(gUrl); }, [gUrl]);
+  useEffect(() => {
+    api("/videos/effects").then((r) => r.json()).then((j) => setSfxTypes((j.data?.sfxTypes as string[]) ?? [])).catch(() => {});
+  }, []);
 
   const seek = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const b = bufRef.current; if (!b) return;
@@ -263,6 +278,32 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
     setVinfo(JSON.stringify(j.data));
   });
 
+  const showGenerated = async (r: Response) => {
+    const blob = await r.blob();
+    setGInfo(r.headers.get("X-Applied") ?? "");
+    setGUrl(URL.createObjectURL(blob));
+  };
+  const makeTextVideo = () => run(async () => {
+    setGBusy(true);
+    try {
+      const [width, height] = SIZE_OF[gAspect];
+      const body: Record<string, unknown> = { text: gText, durationSec: gSec, width, height };
+      if (gSfx) body.sfx = gSfx;
+      const r = await api("/videos/text", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      await showGenerated(r);
+    } finally { setGBusy(false); }
+  });
+  const makePhotoVideo = (f?: File) => f && run(async () => {
+    setGBusy(true);
+    try {
+      const [width, height] = SIZE_OF[gAspect];
+      const qs = new URLSearchParams({ effect: gEffect, durationSec: String(gSec), width: String(width), height: String(height) });
+      if (gSfx) qs.set("sfx", gSfx);
+      const r = await api(`/videos/photo?${qs}`, { method: "POST", body: f });
+      await showGenerated(r);
+    } finally { setGBusy(false); }
+  });
+
   const tabs: [Tab, string][] = [["audio", "🎧 Audio"], ["video", "🎬 Video"], ["library", "📚 Library"], ["ai", "✨ AI"]];
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#0b0b10", color: "#fff", overflowY: "auto", padding: 12 }}>
@@ -312,8 +353,43 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
           {vurl && <video src={vurl} controls style={{ width: "100%", borderRadius: 8, marginBottom: 6 }} />}
           {vinfo && <div style={{ fontSize: 13, opacity: 0.8 }}>{vinfo}</div>}
           <div style={{ fontSize: 13, opacity: 0.7, marginTop: 6 }}>
-            កាត់ត/Export វីដេអូ៖ Not Configured · មិនទាន់ភ្ជាប់ (ត្រូវការ ffmpeg នៅ server)។ ឥឡូវមើលជាមុន និងពិនិត្យព័ត៌មានបាន។
+            កាត់ត/Export វីដេអូដែលមានស្រាប់៖ មិនទាន់ភ្ជាប់។ ឥឡូវមើលជាមុន និងពិនិត្យព័ត៌មានបាន។ ខាងក្រោមបង្កើតវីដេអូថ្មីពីអត្ថបទ ឬរូបថត (ffmpeg មិនមែន AI model)។
           </div>
+        </div>
+      )}
+
+      {tab === "video" && (
+        <div style={box}>
+          <div style={{ marginBottom: 6 }}>🎞 បង្កើតវីដេអូ · Create video</div>
+          <textarea style={{ ...inp, width: "100%", minHeight: 70 }} value={gText}
+            onChange={(e) => setGText(e.target.value)} placeholder="អត្ថបទសម្រាប់វីដេអូ…" />
+          <div>
+            <select style={inp} value={gAspect} onChange={(e) => setGAspect(e.target.value as Aspect)}>
+              <option value="9:16">9:16</option>
+              <option value="16:9">16:9</option>
+              <option value="1:1">1:1</option>
+            </select>
+            <input style={{ ...inp, width: 70 }} type="number" min={1} max={20} value={gSec}
+              onChange={(e) => setGSec(Math.min(20, Math.max(1, Number(e.target.value) || 5)))} />s
+            <select style={inp} value={gSfx} onChange={(e) => setGSfx(e.target.value)}>
+              <option value="">គ្មានសំឡេង · No sound</option>
+              {sfxTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <button style={btn} onClick={makeTextVideo} disabled={gBusy || !gText.trim()}>📝 អត្ថបទ → វីដេអូ</button>
+          <select style={inp} value={gEffect} onChange={(e) => setGEffect(e.target.value)}>
+            <option value="zoom-in">zoom-in</option>
+            <option value="zoom-out">zoom-out</option>
+          </select>
+          <label style={{ ...btn, display: "inline-block", opacity: gBusy ? 0.5 : 1 }}>
+            🖼 រូបថត → វីដេអូ
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: "none" }} disabled={gBusy}
+              onChange={(e) => { makePhotoVideo(e.target.files?.[0]); e.target.value = ""; }} />
+          </label>
+          {gBusy && <div style={{ fontSize: 13, opacity: 0.8 }}>⏳ កំពុងបង្កើត…</div>}
+          {gUrl && <video src={gUrl} controls style={{ width: "100%", borderRadius: 8, margin: "6px 0" }} />}
+          {gUrl && <a href={gUrl} download="khoem-video.mp4" style={{ ...btn, display: "inline-block", textDecoration: "none" }}>⬇ Download MP4</a>}
+          {gInfo && <div style={{ fontSize: 13, opacity: 0.8 }}>{gInfo}</div>}
         </div>
       )}
 
