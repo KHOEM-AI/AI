@@ -15,6 +15,7 @@ import LearningCenter from "./components/LearningCenter";
 import ApiCenter from "./components/ApiCenter";
 import KeiCenter from "./components/KeiCenter";
 import DataCenter from "./components/DataCenter";
+import CidcCenter from "./components/CidcCenter";
 import { lazy, Suspense } from "react";
 const AvStudio = lazy(() => import("./components/AvStudio"));
 const KhoemStudio = lazy(() => import("./studio/KhoemStudio"));
@@ -97,6 +98,7 @@ function AppInner() {
   const [showLearningCenter, setShowLearningCenter] = useState(false);
   const [showApiCenter, setShowApiCenter] = useState(false);
   const [showDataCenter, setShowDataCenter] = useState(false);
+  const [showCidc, setShowCidc] = useState(false);
   const [showThreeDStudio, setShowThreeDStudio] = useState(false);
   const [showAvStudio, setShowAvStudio] = useState(false);
   const [showKhoemStudio, setShowKhoemStudio] = useState(false);
@@ -108,7 +110,7 @@ function AppInner() {
     : showCodeCenter ? "code" : showAuditMetrics ? "audit" : showObservability ? "observability"
     : showManagement ? "management" : showSafety ? "safety" : showKei ? "kei"
     : showToolRegistry ? "tools" : showLearningCenter ? "learning" : showApiCenter ? "api"
-    : showDataCenter ? "data" : showThreeDStudio ? "threed"
+    : showDataCenter ? "data" : showCidc ? "cidc" : showThreeDStudio ? "threed"
     : showAvStudio ? "av" : showKhoemStudio ? "studio" : "";
   useEffect(() => {
     const setters: Record<string, (v: boolean) => void> = {
@@ -116,7 +118,7 @@ function AppInner() {
       code: setShowCodeCenter, audit: setShowAuditMetrics, observability: setShowObservability,
       management: setShowManagement, safety: setShowSafety, kei: setShowKei,
       tools: setShowToolRegistry, learning: setShowLearningCenter, api: setShowApiCenter,
-      data: setShowDataCenter, threed: setShowThreeDStudio,
+      data: setShowDataCenter, cidc: setShowCidc, threed: setShowThreeDStudio,
       av: setShowAvStudio, studio: setShowKhoemStudio,
     };
     try {
@@ -253,6 +255,7 @@ function AppInner() {
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
                 <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
+                <button className="app__sidebar-item" onClick={() => { setShowCidc(true); setShowMenu(false); }}>🧠 CIDC · Central Data Core</button>
                 <button className="app__sidebar-item" onClick={() => { setShowKsv(true); setShowMenu(false); }}><span aria-hidden="true">🕹️</span> KSV · General Device Control</button>
 
                 <div className="app__sidebar-section">{"📷 កាមេរ៉ា · រូបភាព · វីដេអូ"}</div>
@@ -386,6 +389,7 @@ function AppInner() {
         {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
         {showApiCenter && <ErrorBoundary onClose={() => setShowApiCenter(false)}><ApiCenter onClose={() => setShowApiCenter(false)} /></ErrorBoundary>}
         {showDataCenter && <ErrorBoundary onClose={() => setShowDataCenter(false)}><DataCenter onClose={() => setShowDataCenter(false)} /></ErrorBoundary>}
+        {showCidc && <ErrorBoundary onClose={() => setShowCidc(false)}><CidcCenter onClose={() => setShowCidc(false)} /></ErrorBoundary>}
         {showThreeDStudio && <ErrorBoundary onClose={() => setShowThreeDStudio(false)}><ThreeDStudio onClose={() => setShowThreeDStudio(false)} /></ErrorBoundary>}
         {showAvStudio && <ErrorBoundary onClose={() => setShowAvStudio(false)}><Suspense fallback={null}><AvStudio onClose={() => setShowAvStudio(false)} /></Suspense></ErrorBoundary>}
         {showKhoemStudio && <ErrorBoundary onClose={() => setShowKhoemStudio(false)}><Suspense fallback={null}><KhoemStudio onClose={() => setShowKhoemStudio(false)} onOpenAv={() => { setShowKhoemStudio(false); setShowAvStudio(true); }} onOpen3d={() => { setShowKhoemStudio(false); setShowThreeDStudio(true); }} /></Suspense></ErrorBoundary>}

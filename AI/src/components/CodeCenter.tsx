@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
+import { api } from "../lib/api";
 
 interface FileEntry {
   path: string; filename: string; extension: string; sizeBytes: number;
@@ -20,12 +21,6 @@ const SEV_COLOR: Record<string, string> = {
   CRITICAL: "#f87171", HIGH: "#fb923c", MEDIUM: "#facc15", LOW: "#38bdf8",
 };
 
-async function api(url: string, opts: RequestInit = {}) {
-  const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
-  const json = await r.json();
-  // ម៉ូឌុល /api/code/* ទាំងអស់ រុំ payload ក្នុង { result: ... }
-  return (json && typeof json === "object" && "result" in json) ? json.result : json;
-}
 
 export default function CodeCenter({ onClose }: { onClose: () => void }) {
   const t = useT();
