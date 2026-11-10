@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 
 const ROOT = path.resolve(
-  process.env.CHAT_DATA_DIR || process.env.COLORLIGHT_DIR || path.join(os.homedir(), "khoem-now-github"),
+  process.env.CHAT_DATA_DIR || process.env.COLORLIGHT_DIR || path.join(os.homedir(), "khoem-now"),
 );
 const PRO_RATE = 0.5;
 let cache = null;

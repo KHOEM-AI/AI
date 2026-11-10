@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-const ROOT = path.resolve(process.env.COLORLIGHT_DIR || path.join(os.homedir(), "khoem-now-github"));
+const ROOT = path.resolve(process.env.COLORLIGHT_DIR || path.join(os.homedir(), "khoem-now"));
 
 async function readJson(rel) {
   const full = path.resolve(ROOT, rel);

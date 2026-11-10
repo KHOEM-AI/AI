@@ -103,6 +103,8 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   const [gInfo, setGInfo] = useState("");
   const [gBusy, setGBusy] = useState(false);
   const [sfxTypes, setSfxTypes] = useState<string[]>([]);
+  const [voices, setVoices] = useState<{ id: string; label: string }[]>([]);
+  const [sys, setSys] = useState<{ ffmpeg: boolean; khmerFont: boolean } | null>(null);
   // edit an existing video (IQ-AI /videos/edit, /videos/thumbnail, /videos/audio)
   const [vfile, setVfile] = useState<File | null>(null);
   const [eStart, setEStart] = useState("");
@@ -240,6 +242,8 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   useEffect(() => () => { if (tUrl) URL.revokeObjectURL(tUrl); }, [tUrl]);
   useEffect(() => {
     api("/videos/effects").then((r) => r.json()).then((j) => setSfxTypes((j.data?.sfxTypes as string[]) ?? [])).catch(() => {});
+    api("/audio/voices").then((r) => r.json()).then((j) => setVoices((j.data?.presets as { id: string; label: string }[]) ?? [])).catch(() => {});
+    api("/capabilities").then((r) => r.json()).then((j) => setSys(j.data?.system ?? null)).catch(() => {});
   }, []);
 
   const seek = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -370,6 +374,8 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
         <button key={k} style={{ ...btn, background: tab === k ? "#4f7cff" : "#2a2a35" }} onClick={() => setTab(k)}>{l}</button>
       ))}</div>
       {msg && <div style={{ color: "#ff8a8a", marginBottom: 8 }}>⚠️ {msg}</div>}
+      {sys && !sys.ffmpeg && <div style={{ color: "#ffd24f", marginBottom: 8 }}>⚠️ ffmpeg មិនទាន់ដំឡើង (pkg install ffmpeg) · វីដេអូ/ប្តូរសំឡេង មិនដំណើរការ</div>}
+      {sys && sys.ffmpeg && !sys.khmerFont && <div style={{ color: "#ffd24f", marginBottom: 8 }}>⚠️ គ្មានពុម្ពអក្សរខ្មែរ · អត្ថបទ→វីដេអូ មិនដំណើរការ (កំណត់ KHMER_FONT ក្នុង IQ-AI/.env)</div>}
 
       {tab === "audio" && (
         <div style={box}>
@@ -448,8 +454,8 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
               <option value="16:9">16:9</option>
               <option value="1:1">1:1</option>
             </select>
-            <input style={{ ...inp, width: 70 }} type="number" min={1} max={20} value={gSec}
-              onChange={(e) => setGSec(Math.min(20, Math.max(1, Number(e.target.value) || 5)))} />s
+            <input style={{ ...inp, width: 70 }} type="number" min={1} max={1800} value={gSec}
+              onChange={(e) => setGSec(Math.min(1800, Math.max(1, Number(e.target.value) || 5)))} />s
             <select style={inp} value={gSfx} onChange={(e) => setGSfx(e.target.value)}>
               <option value="">គ្មានសំឡេង · No sound</option>
               {sfxTypes.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -477,10 +483,18 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
       {tab === "ai" && (
         <div style={box}>
           <div style={{ marginBottom: 6 }}>🔔 បង្កើតសំឡេងបែបផែន · SFX</div>
-          <input style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)} placeholder="type (siren…)" />
+          {sfxTypes.length ? (
+            <select style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)}>
+              {sfxTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          ) : (
+            <input style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)} placeholder="type (siren…)" />
+          )}
           <button style={btn} onClick={genSfx}>បង្កើត · Generate</button>
           <div style={{ margin: "10px 0 6px" }}>🗣 ប្តូរសំឡេង · Voice (ប្រើសំឡេងក្នុង Audio Studio)</div>
-          {PRESETS.map((p) => <button key={p} style={btn} onClick={() => void applyVoice(p)}>{p}</button>)}
+          {(voices.length ? voices : PRESETS.map((id) => ({ id, label: id }))).map((v) => (
+            <button key={v.id} style={btn} onClick={() => void applyVoice(v.id)}>{v.label}</button>
+          ))}
           <div style={{ margin: "10px 0 6px" }}>📝 អត្ថបទទៅសំឡេង · Text-to-Speech</div>
           <input style={{ ...inp, width: "70%" }} value={ttsText} onChange={(e) => setTtsText(e.target.value)} placeholder="អត្ថបទ…" />
           <button style={btn} onClick={tts} disabled={!ttsText.trim()}>បង្កើត</button>

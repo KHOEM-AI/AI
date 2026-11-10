@@ -258,7 +258,6 @@ function AppInner() {
                 <div className="app__sidebar-section">{"📷 កាមេរ៉ា · រូបភាព · វីដេអូ"}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
                 <button className="app__sidebar-item" onClick={() => { setShowCai(true); setShowMenu(false); }}><span aria-hidden="true">📷</span> CAI · ស្កេន និងរាប់</button>
-                <button className="app__sidebar-item" onClick={() => { window.location.href = `http://${window.location.hostname}:5180/cai-scan.html`; setShowMenu(false); }}><span aria-hidden="true">📷</span> Scan Photo Location + Count</button>
 
                 <div className="app__sidebar-section">{"🛡 ការពារ & សុវត្ថិភាព"}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowKei(true); setShowMenu(false); }}><span aria-hidden="true">🛡️</span> ការពារប្រព័ន្ធ</button>

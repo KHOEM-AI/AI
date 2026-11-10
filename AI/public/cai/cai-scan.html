@@ -3,56 +3,71 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KHOEM-AI · Vision · Count · Locate</title>
 <style>
-:root{--bg:#050a08;--pn:#0d1613;--pn2:#12201b;--ln:#1d3a2f;--tx:#e8f5ee;--mu:#86a395;--g:#00e676;--g2:#00a152;--bl:#1565c0}
-body.light{--bg:#eef6f1;--pn:#fff;--pn2:#e3f0e8;--ln:#b9d6c5;--tx:#10241a;--mu:#52705f}
-*{box-sizing:border-box}html,body{margin:0}
-body{background:var(--bg);color:var(--tx);font:14px/1.4 Inter,"Noto Sans Khmer",system-ui,sans-serif;padding-bottom:84px}
+:root{--bg:#bfe6ff;--pn:#fff;--pn2:#e8f5ff;--ln:#8cc7ee;--tx:#0b2a44;--mu:#4a6f8c;--g:#0a84ff;--g2:#0a6fd8;--sh:rgba(10,70,130,.22)}
+body.light{--bg:#06203a;--pn:#0c2f52;--pn2:#12406c;--ln:#1e5a94;--tx:#e6f3ff;--mu:#8fb6da;--sh:rgba(0,0,0,.4)}
+*{box-sizing:border-box}html,body{margin:0}html{background:#8fd3ff}
+body{background:linear-gradient(180deg,#8fd3ff,#e3f4ff) fixed;color:var(--tx);font:14px/1.4 system-ui,"Noto Sans Khmer",sans-serif;padding-bottom:84px}
+body.light{background:linear-gradient(180deg,#06203a,#0b3a63) fixed}
 #app{max-width:520px;margin:auto;padding:12px}
-button{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--ln);background:var(--pn2);border-radius:12px;padding:9px 12px}
+button{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--ln);background:var(--pn2);border-radius:12px;padding:9px 12px;box-shadow:0 4px 0 var(--sh);transition:transform .08s,box-shadow .08s}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--sh)}
 header{display:flex;align-items:center;gap:10px}.logo{display:flex;gap:10px;align-items:center;flex:1}
 .logo b{font-size:23px;letter-spacing:1px}.logo b i{color:var(--g);font-style:normal}.logo small{display:block;color:var(--mu);font-size:12px}
 .hb{display:flex;gap:6px}.hb button{width:40px;height:40px;padding:0;border-radius:12px}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--pn);border:1px solid var(--ln);border-radius:16px;margin-top:12px;overflow:hidden}
-.tabs button{border:0;border-radius:0;background:none;padding:13px 4px;font-weight:600}.tabs .on{background:linear-gradient(#0b3d26,#082a1b);color:var(--g);box-shadow:inset 0 -3px 0 var(--g)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);background:var(--pn);border:1px solid var(--ln);border-radius:16px;margin-top:12px;overflow:hidden}
+.tabs button{border:0;border-radius:0;background:none;padding:13px 2px;font-weight:600;font-size:13px;box-shadow:none}
+.tabs button:active,.nav button:active{transform:none}
+.tabs .on{background:var(--pn2);color:var(--g);box-shadow:inset 0 -3px 0 var(--g)}
 .hero{position:relative;height:250px;margin-top:10px;display:flex;justify-content:center;align-items:center;overflow:hidden}
-.ring{position:absolute;border:2px solid #00e67655;border-radius:50%;box-shadow:0 0 22px #00e67666,inset 0 0 22px #00e67633;transform:rotateX(70deg)}
-.r1{width:290px;height:290px}.r2{width:220px;height:220px}body.busy .r1{animation:sp 12s linear infinite}body.busy .r2{animation:sp 8s linear infinite reverse}
+.ring{position:absolute;border:2px solid #0a84ff77;border-radius:50%;box-shadow:0 0 22px #0a84ff55,inset 0 0 22px #0a84ff33;transform:rotateX(70deg)}
+.r1{width:290px;height:290px}.r2{width:220px;height:220px}
+body.busy .r1{animation:sp 12s linear infinite}body.busy .r2{animation:sp 8s linear infinite reverse}
 @keyframes sp{to{transform:rotateX(70deg) rotateZ(360deg)}}
-.hero svg{position:relative;width:170px;filter:drop-shadow(0 0 18px #00e67688)}
-.t360{position:absolute;bottom:20px;font-size:34px;font-weight:800;text-shadow:0 0 14px var(--g)}
+.hero svg{position:relative;width:170px;filter:drop-shadow(0 0 18px #0a84ff88)}
+.t360{position:absolute;bottom:20px;font-size:34px;font-weight:800;color:var(--g)}
 .side{position:absolute;top:0;display:flex;flex-direction:column;gap:10px}.side.l{left:0}.side.r{right:0}
-.side button{width:68px;padding:8px 2px;font-size:11px;text-align:center;border-radius:14px;line-height:1.2}.side span{display:block;font-size:22px}
-.big{width:100%;margin-top:6px;padding:18px;border-radius:40px;border:2px solid var(--g);background:linear-gradient(#0f6b3c,#0a4a2a);display:flex;align-items:center;gap:14px;box-shadow:0 0 22px #00e67655;text-align:left}
-.big .ic{width:54px;height:54px;border-radius:50%;background:#bfffd9;color:#06331c;display:flex;align-items:center;justify-content:center;font-size:26px}
-.big b{font-size:21px;display:block}.big small{opacity:.85}.big .go{margin-left:auto;background:#0b1f16;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.two button{text-align:left;padding:12px;border-radius:18px}.two small{display:block;color:var(--mu)}
-.two .bk{border-color:#1e88e5;background:#0d2a4a}
-.card{background:var(--pn);border:1px solid var(--ln);border-radius:16px;padding:10px;margin-top:12px}
-.card img,.card .ph{width:100%;height:110px;object-fit:cover;border-radius:10px;background:#0a1410 center/cover}
+.side button{width:68px;padding:8px 2px;font-size:11px;text-align:center;border-radius:14px;line-height:1.2;background:linear-gradient(#fff,#d4ecff)}
+.side span{display:block;font-size:22px}
+body.light .side button,body.light .two button{background:linear-gradient(#17508a,#0f3d6e)}
+.big{width:100%;margin-top:6px;padding:18px;border-radius:40px;border:2px solid #0a5cb5;background:linear-gradient(#5bbcff,#0a74e0);color:#fff;display:flex;align-items:center;gap:14px;text-align:left;box-shadow:0 6px 0 #084a94,0 12px 20px rgba(10,90,180,.35)}
+.big:active{transform:translateY(4px);box-shadow:0 2px 0 #084a94}
+.big .ic{width:54px;height:54px;border-radius:50%;background:#e3f4ff;color:#0a5cb5;display:flex;align-items:center;justify-content:center;font-size:26px;flex:none}
+.big b{font-size:21px;display:block}.big small{opacity:.9}
+.big .go{margin-left:auto;background:#0a5cb5;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.two button{text-align:left;padding:12px;border-radius:18px;background:linear-gradient(#fff,#d4ecff);box-shadow:0 5px 0 #8cc7ee,0 10px 16px var(--sh)}
+.two small{display:block;color:var(--mu)}.two .bk{border-color:#0a84ff}
+.card{background:var(--pn);border:1px solid var(--ln);border-radius:16px;padding:10px;margin-top:12px;box-shadow:0 6px 0 var(--sh)}
+.card img,.card .ph{width:100%;height:110px;object-fit:cover;border-radius:10px;background:var(--pn2) center/cover}
 .card h3{margin:8px 0 2px;font-size:15px}.mu{color:var(--mu);font-size:12px}
 .r{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--ln)}.r b{display:inline-block;min-width:34px;text-align:center}.r button{padding:2px 11px}
 input[type=text],select{background:var(--pn2);color:inherit;border:1px solid var(--ln);border-radius:10px;padding:8px;font:inherit}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.bar{height:10px;background:linear-gradient(90deg,var(--g2),var(--g));border-radius:6px}
 .pv{width:100%;border-radius:12px;display:block}.th{display:flex;gap:6px;overflow:auto;margin-top:6px}.th img{height:54px;border-radius:8px}
-.nav{position:fixed;left:0;right:0;bottom:0;background:var(--pn);border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;padding:6px 0 10px}
-.nav button{background:none;border:0;color:var(--mu);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}.nav button span{font-size:22px}.nav .on{color:var(--g)}
-.nav .sc{width:62px;height:62px;border-radius:50%;border:3px solid var(--g);background:#06150e;color:var(--g);box-shadow:0 0 20px #00e67688;margin-top:-26px;font-size:26px}
-.hide{display:none}#st{margin-top:10px;color:var(--mu)}#toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:#000d;color:#fff;padding:8px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s}#toast.on{opacity:1}
-a{color:#5aa9ff}iframe{width:100%;height:230px;border:0;border-radius:12px;margin-top:8px}
-.warn{color:#ffc107;margin-top:6px}#st.ok{color:var(--g)}#st.er{color:#ff5252}
-.nav .sc.busy{animation:pl 1s infinite}@keyframes pl{50%{box-shadow:0 0 34px #00e676}}.nav .sc.done{background:var(--g);color:#04210f}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--pn);border-top:1px solid var(--ln);display:flex;justify-content:space-around;align-items:center;padding:6px 0 10px;z-index:5}
+.nav button{background:none;border:0;box-shadow:none;color:var(--mu);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nav button span{font-size:22px}.nav .on{color:var(--g)}
+.nav .sc{width:62px;height:62px;border-radius:50%;border:3px solid #0a5cb5;background:linear-gradient(#5bbcff,#0a74e0);color:#fff;box-shadow:0 4px 0 #084a94,0 0 20px #0a84ff88;margin-top:-26px;font-size:26px}
+.nav .sc.busy{animation:pl 1s infinite}@keyframes pl{50%{box-shadow:0 4px 0 #084a94,0 0 34px #0a84ff}}
+.nav .sc.done{background:#2ecc71;color:#04210f}
+.hide{display:none}#st{margin-top:10px;color:var(--mu)}
+#toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:#000d;color:#fff;padding:8px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:9}#toast.on{opacity:1}
+a{color:#0a64c8}body.light a{color:#5aa9ff}iframe{width:100%;height:230px;border:0;border-radius:12px;margin-top:8px}
+.warn{color:#b45f00;margin-top:6px}body.light .warn{color:#ffc107}
+#st.ok{color:#0a7a3a}body.light #st.ok{color:#4cd98a}#st.er{color:#d32f2f}
 button:disabled{opacity:.4;cursor:not-allowed}label{display:flex;gap:8px;align-items:center}
-@media(min-width:768px){#app{max-width:760px}.hero{height:290px}}
-</style></head><body><div id="app">
-<header><div class="logo"><svg width="46" height="52" viewBox="0 0 46 52"><path d="M23 2l19 8v16c0 13-8 21-19 24C12 47 4 39 4 26V10z" fill="#062b19" stroke="#00e676" stroke-width="3"/><path d="M16 14v24M16 26l14-12M16 26l14 12" stroke="#00e676" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+
+</style></head><body>
+<div id="app">
+<header><button id="back" aria-label="Back" style="width:40px;height:40px;padding:0">←</button><div class="logo"><svg width="46" height="52" viewBox="0 0 46 52"><path d="M23 2l19 8v16c0 13-8 21-19 24C12 47 4 39 4 26V10z" fill="#0a3a66" stroke="#0a84ff" stroke-width="3"/><path d="M16 14v24M16 26l14-12M16 26l14 12" stroke="#0a84ff" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
 <div><b>KHOEM<i>-AI</i></b><small>Vision · Count · Locate</small></div></div>
 <div class="hb"><button id="bset">⚙</button><button id="bmoon">☾</button><button id="bmore">⋯</button></div></header>
-<nav class="tabs"><button data-v="cam" class="on">📷 Camera</button><button data-v="r360">🧊 360° Scan</button><button data-v="gps">📍 GPS</button></nav>
+<nav class="tabs"><button data-v="cam" class="on">📷 Camera</button><button data-v="r360">🧊 360° Scan</button><button data-v="gps">📍 GPS</button><button data-v="share">👥 Share</button></nav>
 <div id="st">ថតរូប ឬជ្រើសរូបដើម្បីចាប់ផ្តើម</div>
 
 <section id="v-cam">
  <div class="hero"><div class="ring r1"></div><div class="ring r2"></div>
-  <svg viewBox="0 0 200 150"><rect x="14" y="40" width="172" height="96" rx="14" fill="#15211c" stroke="#00e67688" stroke-width="3"/><rect x="62" y="22" width="52" height="24" rx="6" fill="#1b2c25"/><circle cx="100" cy="88" r="40" fill="#0a120f" stroke="#00e676" stroke-width="5"/><circle cx="100" cy="88" r="26" fill="#08301d" stroke="#00e67699" stroke-width="3"/><path d="M92 74v28M92 88l13-12M92 88l13 12" stroke="#00e676" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+  <svg viewBox="0 0 200 150"><rect x="14" y="40" width="172" height="96" rx="14" fill="#0f2f4d" stroke="#0a84ff88" stroke-width="3"/><rect x="62" y="22" width="52" height="24" rx="6" fill="#14395c"/><circle cx="100" cy="88" r="40" fill="#082540" stroke="#0a84ff" stroke-width="5"/><circle cx="100" cy="88" r="26" fill="#0b3f73" stroke="#0a84ff99" stroke-width="3"/><path d="M92 74v28M92 88l13-12M92 88l13 12" stroke="#0a84ff" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
   <div class="t360">360°</div>
   <div class="side l"><button data-a="cam"><span>🤖</span>Count</button><button data-a="gal"><span>🧊</span>Detect Objects</button><button data-a="r360"><span>🎯</span>360° Scan</button></div>
   <div class="side r"><button data-a="gps"><span>📍</span>GPS Location</button><button data-a="map"><span>🗺</span>Show on Map</button><button data-a="info"><span>🖼</span>Photo Info</button></div></div>
@@ -68,7 +83,7 @@ button:disabled{opacity:.4;cursor:not-allowed}label{display:flex;gap:8px;align-i
  <div class="row" style="margin-top:8px"><button class="big" id="rn" style="width:auto;padding:12px 18px;margin:0"><b>Start</b></button><button id="rf">បញ្ចប់</button><span id="rp" class="mu"></span></div></div></section>
 
 <section id="v-gps" class="hide"><div class="card"><h3>GPS</h3><div id="gl" class="mu"></div><div id="gm"></div>
- <div class="row" style="margin-top:8px"><button id="gmap">ផែនទី</button><button id="gplace">ឈ្មោះទីកន្លែង</button><button id="gd">ទីតាំងឧបករណ៍</button><button id="gh">វាយដោយដៃ</button></div>
+ <div class="row" style="margin-top:8px"><button id="gmap">ផែនទី</button><button id="gsh">📤</button><button id="glive">👥 ផ្ទាល់</button><button id="gplace">ឈ្មោះទីកន្លែង</button><button id="gd">ទីតាំងឧបករណ៍</button><button id="gh">វាយដោយដៃ</button></div>
  <div class="mu" style="margin-top:6px">GPS ក្នុងរូប = កន្លែងដែលថតរូប មិនមែនទីតាំងពិតរបស់វត្ថុនីមួយៗ ។ Android/Chrome ច្រើនតែលុប GPS ពីរូបដែលជ្រើស ឬថតតាម browser ។ ទីតាំងឧបករណ៍/ដោយដៃមិនមែនជា GPS របស់រូបទេ ។ ផែនទី និងឈ្មោះទីកន្លែងផ្ញើកូអរដោនេទៅ OpenStreetMap តែពេលអ្នកចុច ។</div></div></section>
 
 <section id="v-hist" class="hide"><div class="card"><h3>History</h3><input id="hq" type="text" placeholder="ស្វែងរក (ពេលវេលា / ប្រភេទ)" style="width:100%;margin:6px 0"><div id="hl"></div></div></section>
@@ -79,7 +94,27 @@ button:disabled{opacity:.4;cursor:not-allowed}label{display:flex;gap:8px;align-i
  <div class="row" style="margin-top:8px">360° shots <select id="rs"><option>4</option><option>6</option><option selected>8</option><option>12</option></select></div>
  <label style="margin-top:8px"><input type="checkbox" id="dd"> ដកប្រអប់ដែលប្រហែលស្ទួន (IoU &gt; 0.6)</label><label style="margin-top:8px"><input type="checkbox" id="sg"> រក្សា/នាំចេញ GPS (បិទជាលំនាំដើម)</label><div class="mu" style="margin-top:6px">រូបដើមមិនត្រូវបានកែទេ · វិភាគលើច្បាប់ចម្លងក្នុង Memory ។</div><div class="row" style="margin-top:8px"><button id="clr">លុបប្រវត្តិ</button><span id="kis" class="mu"></span></div></div></section>
 
-<div id="out"></div>
+<!--share-ui--><section id="v-share" class="hide">
+ <div class="card" id="sh-login"><h3>👥 ចែករំលែកទីតាំង · ឧបករណ៍</h3>
+  <div class="mu" id="sh-msg">កំពុងភ្ជាប់ server…</div>
+  <div id="sh-gbtn" style="margin-top:8px"></div>
+  <div class="row" style="margin-top:8px"><input id="sh-api" type="text" placeholder="Server URL" style="flex:1"><button id="sh-apisave">OK</button></div></div>
+ <div id="sh-main" class="hide">
+  <div class="card"><div class="row" style="justify-content:space-between"><b id="sh-me"></b><button id="sh-logout">ចាកចេញ</button></div></div>
+  <div class="card"><h3>ចែករំលែកទីតាំងខ្ញុំ</h3>
+   <div class="row"><input id="sh-to" type="text" placeholder="អ៊ីមែលអ្នកទទួល" style="flex:1;min-width:140px"><select id="sh-min"><option value="30">កន្លះម៉ោង</option><option value="60">១ ម៉ោង</option><option value="0">24/7</option></select><button class="big" id="sh-send" style="width:auto;margin:0;padding:8px 16px"><b style="font-size:15px">ផ្ញើ</b></button></div>
+   <label style="margin-top:8px"><input type="checkbox" id="sh-mutual"> ទៅវិញទៅមក (គេឃើញខ្ញុំ ហើយខ្ញុំឃើញគេ)</label>
+   <label style="margin-top:6px"><input type="checkbox" id="sh-awake"> ទុកអេក្រង់បើកពេលកំពុងចែករំលែក</label>
+   <div class="mu" style="margin-top:6px">អ្នកទទួលត្រូវចុច "យល់ព្រម" ជាមុន ទើបឃើញទីតាំង។ 24/7 បន្តរហូតដល់ចុច "បិទ"។ ទីតាំងផ្ញើបានតែពេល app នេះបើក។</div>
+   <div id="sh-outl"></div>
+   <div class="row" style="margin-top:8px"><button id="sh-stopall" class="hide">បិទការចែករំលែកទាំងអស់</button></div></div>
+  <div class="card"><h3>គេចែករំលែកមកខ្ញុំ</h3><div id="sh-inl"></div><div id="sh-map"></div></div>
+  <div class="card"><h3>ឧបករណ៍របស់ខ្ញុំ</h3><div id="sh-dev"></div>
+   <div class="row" style="margin-top:8px"><input id="sh-dn" type="text" placeholder="ឈ្មោះឧបករណ៍នេះ" style="flex:1;min-width:120px"><button id="sh-dreg">តាមដានឧបករណ៍នេះ</button></div>
+   <textarea id="sh-key" class="hide" readonly rows="5" style="width:100%;margin-top:8px;background:var(--pn2);color:inherit;border:1px solid var(--ln);border-radius:10px;padding:8px;font:11px monospace"></textarea>
+   <div class="mu" style="margin-top:6px">ឃើញទីតាំងបានតែពេល app បើកលើឧបករណ៍នោះ ហើយមានអ៊ីនធឺណិត។ ឧបករណ៍ដែលមិនអាចបើក app (កាមេរ៉ា ។ល។) ចុច 🔑 ដើម្បីបាន key សម្រាប់ផ្ញើទីតាំងដោយ HTTP។</div></div>
+  <div class="card hide" id="sh-blk"><h3>បានទប់ស្កាត់</h3><div id="sh-bl"></div></div>
+ </div></section><!--/share-ui--><div id="out"></div>
 <input id="fc" type="file" accept="image/*" capture="environment" hidden><input id="fg" type="file" accept="image/*" hidden><input id="fb" type="file" accept="image/*" multiple hidden><input id="fr" type="file" accept="image/*" capture="environment" hidden>
 </div>
 <nav class="nav"><button data-n="cam" class="on"><span>🏠</span>Home</button><button data-n="hist"><span>🕘</span>History</button><button class="sc" id="sc">⛶</button><button data-n="res"><span>📊</span>Results</button><button data-n="set"><span>⚙</span>Settings</button></nav>
@@ -136,7 +171,7 @@ async function run(files,mode,append){if(!append||!ses||ses.mode!==mode){ses={id
  busy(0,ok);if(ok)say('វិភាគរួច · សូមពិនិត្យលទ្ធផល','ok');renderOut()}
 function totals(){const t={};if(!ses)return t;const ks=new Set();ses.shots.forEach(s=>Object.keys(cn(s)).forEach(k=>ks.add(k)));Object.keys(ses.adj).forEach(k=>ks.add(k));
  ks.forEach(k=>{const a=ses.shots.map(s=>cn(s)[k]||0),b=a.length?(cfg.agg==='max'?Math.max(...a):a.reduce((x,y)=>x+y,0)):0,v=b+(ses.adj[k]||0);if(v>0)t[k]=v});return t}
-const sgps=()=>ses&&(ses.shots.find(s=>s.gps)||{}).gps||null,anyg=()=>sgps()||(ses&&ses.gps)||null;
+const sgps=()=>ses&&(ses.shots.find(s=>s.gps)||{}).gps||null,anyg=()=>sgps()||(ses&&ses.gps)||window.__me||null;
 const mapUrl=g=>`https://www.openstreetmap.org/?mlat=${g.lat}&mlon=${g.lon}#map=18/${g.lat}/${g.lon}`;
 function renderOut(){const o=$('#out');if(!ses||!ses.shots.length){o.innerHTML='';return}const t=totals(),ks=Object.keys(t),last=ses.shots[ses.shots.length-1],r=last.runs[last.cur],g=sgps();
  $('#cph').style.backgroundImage=`url(${last.th})`;
@@ -178,9 +213,9 @@ function renderGps(){const gl=$('#gl'),gm=$('#gm'),g=anyg();if(!gl)return;
 function info(){const i=$('#info');i.classList.remove('hide');if(!ses||!ses.shots.length){i.textContent='មិនទាន់មានរូប';return}
  const s=ses.shots[ses.shots.length-1],e=s.ex||{},L=[['ឯកសារ',s.name],['ទំហំ',s.w+'×'+s.h+' · '+Math.round(s.size/1024)+' KB'],['កាមេរ៉ា',[e.make,e.model].filter(Boolean).join(' ')],['ថតនៅ',e.date],['ISO',e.iso],['f/',e.f&&e.f.toFixed(1)],['Exposure',e.exp&&(e.exp<1?'1/'+Math.round(1/e.exp):e.exp)+'s'],['Focal',e.focal&&e.focal.toFixed(1)+' mm'],['GPS',s.gps?s.gps.lat+', '+s.gps.lon:'គ្មាន']].filter(x=>x[1]);
  i.innerHTML='<h3>Photo Info</h3>'+L.map(x=>`<div class="r"><span>${x[0]}</span><span>${esc(x[1])}</span></div>`).join('')}
-function show(v){view=v;['cam','r360','gps','hist','res','set'].forEach(x=>$('#v-'+x).classList.toggle('hide',x!==v));
+function show(v){view=v;['cam','r360','gps','share','hist','res','set'].forEach(x=>$('#v-'+x).classList.toggle('hide',x!==v));
  $$('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$$('.nav button[data-n]').forEach(b=>b.classList.toggle('on',b.dataset.n===v));
- $('#out').classList.toggle('hide',!['cam','r360'].includes(v));if(v==='hist')rHist();if(v==='res')rRes();if(v==='gps')renderGps();if(v==='set')rSet();scrollTo(0,0)}
+ $('#out').classList.toggle('hide',!['cam','r360'].includes(v));if(v==='hist')rHist();if(v==='res')rRes();if(v==='gps')renderGps();if(v==='set')rSet();if(v==='share'&&window.shareOpen)shareOpen();try{history.replaceState(null,'','#'+v)}catch(e){}scrollTo(0,0)}
 function rHist(){const q=($('#hq').value||'').toLowerCase(),L=hist.map((h,i)=>({h,i})).reverse().filter(({h})=>!q||(new Date(h.time).toLocaleString()+' '+h.mode+' '+Object.keys(h.counts).map(nm).join(' ')).toLowerCase().includes(q));
  $('#hl').innerHTML=L.length?L.map(({h,i})=>`<div class="r"><span style="display:flex;gap:8px;align-items:center"><img src="${h.th}" style="height:44px;border-radius:8px"><span>${new Date(h.time).toLocaleString()}<br><span class="mu">${esc(h.mode)} · ${h.n} រូប · សរុប ${Object.values(h.counts).reduce((a,b)=>a+b,0)} · ${h.hasGps?'មាន GPS':'គ្មាន GPS'}</span></span></span><span>${h.gps?`<a href="${mapUrl(h.gps)}" target="_blank" rel="noopener">📍</a> `:''}<button data-del="${i}">🗑</button></span></div>`).join(''):'<div class="mu">គ្មានប្រវត្តិ</div>'}
 function rRes(){const t={};hist.forEach(h=>Object.entries(h.counts).forEach(([k,v])=>t[k]=(t[k]||0)+v));const e=Object.entries(t).sort((a,b)=>b[1]-a[1]),mx=e.length?e[0][1]:1;
@@ -202,7 +237,7 @@ function rp(){$('#rp').textContent=ring?'រូប '+ring+'/'+cfg.rs:'';$('#rn')
 $('#rn').onclick=()=>{if(ring>=cfg.rs)return toast('គ្រប់ហើយ ចុច "បញ្ចប់"');$('#fr').click()};
 $('#fr').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;await run([f],'360',ring>0);ring++;rp();if(ring>=cfg.rs)say('ថតគ្រប់ '+cfg.rs+' រូប · ចុច "បញ្ចប់"')};
 $('#rf').onclick=()=>{ring=0;rp();toast('បញ្ចប់ 360° · កែលេខ +/− ហើយ Save')};
-$('#gd').onclick=async()=>{say('កំពុងយកទីតាំង…');const g=await devGps();if(g&&ses){ses.gps=g;renderOut()}else if(!ses)toast('ថតរូបជាមុន');say(g?'បានទីតាំង':'យកទីតាំងមិនបាន (បើកការអនុញ្ញាត GPS)');renderGps()};
+$('#gd').onclick=async()=>{say('កំពុងយកទីតាំង…');const g=await devGps();if(g){if(ses){ses.gps=g;renderOut()}else{window.__me=g;mapOn=1}}else if(!ses)toast('ថតរូបជាមុន');say(g?'បានទីតាំង':'យកទីតាំងមិនបាន (បើកការអនុញ្ញាត GPS)');renderGps()};
 $('#gh').onclick=()=>{if(!ses)return toast('ថតរូបជាមុន');const t=prompt('lat,lon (ឧ. 11.5564,104.9282)');if(!t)return;const[a,b]=t.split(',').map(Number);
  if(isFinite(a)&&isFinite(b)&&Math.abs(a)<=90&&Math.abs(b)<=180){ses.gps={lat:a,lon:b,src:'manual'};renderOut()}else toast('ទម្រង់មិនត្រឹមត្រូវ')};
 $('#bset').onclick=()=>show('set');$('#bmore').onclick=()=>toast('KHOEM-AI · CAI v2');
@@ -212,5 +247,90 @@ $('#dd').onchange=e=>{cfg.dd=e.target.checked?1:0;sv()};$('#sg').onchange=e=>{cf
 $('#gmap').onclick=()=>{if(!anyg())return toast('មិនទាន់មានទីតាំង');mapOn=1;renderGps()};
 $('#gplace').onclick=async()=>{const g=anyg();if(!g)return toast('មិនទាន់មានទីតាំង');if(!confirm('ផ្ញើកូអរដោនេទៅ OpenStreetMap ដើម្បីរកឈ្មោះទីកន្លែង?'))return;
  try{const j=await(await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+g.lat+'&lon='+g.lon+'&accept-language=km,en')).json();place=j.display_name||'រកមិនឃើញឈ្មោះ'}catch(e){place='រកមិនបាន (ត្រូវអ៊ីនធឺណិត)'}renderGps()};
-document.body.classList.toggle('light',!!cfg.light);rp();probe();
-</script></body></html>
+document.body.classList.toggle('light',!!cfg.light);function fit(){document.documentElement.style.zoom=Math.min(3,Math.max(1,innerWidth/520))}rp();probe();addEventListener('resize',fit);fit();if(self!==top)$('#back').hidden=true;else $('#back').onclick=()=>{history.length>1?history.back():location.href='http://'+location.hostname+':5175/'};
+</script><!--share-js--><script>(function(){
+const A0=window.CAI_SHARE_API||'http://'+(location.hostname||'localhost')+':5181',api=()=>String(ls.get('cai:shareapi','')||A0).replace(/\/+$/,'');
+const ER={bad_email:'អ៊ីមែលមិនត្រឹមត្រូវ',self:'មិនអាចចែករំលែកទៅខ្លួនឯងបានទេ',exists:'មានសំណើនេះរួចហើយ',too_many:'ច្រើនពេក សូមបិទខ្លះសិន',not_found:'រកមិនឃើញ',rate:'ញឹកពេក សូមរង់ចាំបន្តិច',unauthorized:'សូមចូលម្តងទៀត',forbidden:'មិនអនុញ្ញាត',bad_token:'ចូលមិនបាន (Google មិនទទួលស្គាល់)',no_client_id:'server មិនទាន់មាន Google Client ID'};
+const er=e=>ER[e.message]||e.message||'error',DUR={30:'កន្លះម៉ោង',60:'១ ម៉ោង',0:'24/7'};
+let tok=ls.get('cai:sharetok','')||'',me=null,watch=null,pos=null,lastPush=0,sel=null,gsi=false,wl=null,S={out:[],in:[]},D=[],B=[];
+let devId=ls.get('cai:devid','');if(!devId){devId='d'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);ls.set('cai:devid',devId)}
+const mob=/Mobi|Android|iPhone/.test(navigator.userAgent);
+let track=!!ls.get('cai:track',false),awake=!!ls.get('cai:awake',false),devName=ls.get('cai:devname','')||(mob?'Phone':'Computer');
+const on=(s,f)=>{const e=$(s);if(e)e.onclick=f};
+const msg=t=>{$('#sh-msg').textContent=t},hm=t=>new Date(t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const seen=l=>hm(l.t)+(l.acc?' ±'+l.acc+'m':'')+(Date.now()-l.t>3e5?' <span class="warn">ចាស់</span>':'');
+const emb=g=>`<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=${g.lon-.004},${g.lat-.003},${g.lon+.004},${g.lat+.003}&layer=mapnik&marker=${g.lat},${g.lon}"></iframe>`;
+const lk=g=>`<a href="${mapUrl(g)}" target="_blank" rel="noopener">📍</a> <a href="https://www.google.com/maps/dir/?api=1&destination=${g.lat},${g.lon}" target="_blank" rel="noopener">🧭</a> <a href="#" data-shareloc="${g.lat},${g.lon}">📤</a>`;
+async function shareLoc(g){const url=mapUrl(g),text='ទីតាំង: '+g.lat+', '+g.lon;
+ try{if(navigator.share)await navigator.share({title:'KHOEM-AI',text,url});else{await navigator.clipboard.writeText(text+' '+url);toast('បានចម្លង link ទីតាំង')}}catch(e){if(e&&e.name!=='AbortError')toast('ចែករំលែកមិនបាន')}}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-shareloc]');if(!a)return;e.preventDefault();const[la,lo]=a.dataset.shareloc.split(',').map(Number);if(isFinite(la)&&isFinite(lo))shareLoc({lat:la,lon:lo})});
+async function call(p,body){
+ const h={};if(body!==undefined)h['Content-Type']='application/json';if(tok)h.Authorization='Bearer '+tok;
+ const r=await fetch(api()+p,{method:body===undefined?'GET':'POST',headers:h,body:body===undefined?undefined:JSON.stringify(body)});
+ const j=await r.json().catch(()=>({}));
+ if(r.status===401&&tok&&p!=='/auth/google'){tok='';me=null;ls.set('cai:sharetok','');stopWatch();paint();initLogin()}
+ if(!r.ok)throw new Error(j.error||'HTTP '+r.status);return j}
+function paint(){$('#sh-login').classList.toggle('hide',!!me);$('#sh-main').classList.toggle('hide',!me);if(me)$('#sh-me').textContent=me.name+' · '+me.email}
+function loadGsi(){return new Promise((ok,no)=>{if(window.google&&google.accounts)return ok();const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=ok;s.onerror=()=>no(new Error('gsi'));document.head.appendChild(s)})}
+async function initLogin(){
+ $('#sh-gbtn').innerHTML='';let cid=null;
+ try{cid=(await call('/config')).clientId}catch(e){return msg('server មិនឆ្លើយតប ('+api()+') · រត់ ./ai.sh restart')}
+ if(!cid)return msg('ត្រូវដាក់ Google Client ID ក្នុង ~/.cai-google-client-id ហើយ ./ai.sh restart');
+ try{await loadGsi()}catch(e){return msg('ទាញ Google មិនបាន (ត្រូវអ៊ីនធឺណិត)')}
+ if(!gsi){gsi=true;google.accounts.id.initialize({client_id:cid,callback:async r=>{
+  try{const j=await call('/auth/google',{credential:r.credential});tok=j.token;ls.set('cai:sharetok',tok);me={email:j.email,name:j.name};paint();refresh()}catch(e){msg('ចូលមិនបាន: '+er(e))}}})}
+ google.accounts.id.renderButton($('#sh-gbtn'),{theme:'filled_blue',size:'large',text:'signin_with',shape:'pill'});
+ msg('ចូលដោយគណនី Google របស់បង · app មិនទទួល password ទេ')}
+const act=(a,id,t)=>`<button data-act="${a}" data-id="${esc(id)}">${t}</button>`;
+function render(){
+ $('#sh-outl').innerHTML=S.out.length?S.out.map(s=>`<div class="r"><span>${esc(s.to)}${s.mutual?' ⇄':''}<br><span class="mu">${s.state==='pending'?'រង់ចាំគេយល់ព្រម · '+DUR[s.minutes]:'កំពុងចែករំលែក · '+(s.until?'ដល់ '+hm(s.until):'24/7')}</span></span>${act('stop',s.id,s.state==='pending'?'បោះបង់':'បិទ')}</div>`).join(''):'<div class="mu" style="margin-top:6px">មិនទាន់មាន</div>';
+ $('#sh-stopall').classList.toggle('hide',!S.out.length);
+ const back=e=>S.out.some(o=>o.to===e);
+ $('#sh-inl').innerHTML=S.in.length?S.in.map(s=>s.state==='pending'?`<div class="r"><span>${esc(s.fromName)}${s.mutual?' ⇄':''}<br><span class="mu">${esc(s.from)} · ${DUR[s.minutes]}${s.mutual?' · ទៅវិញទៅមក':''}</span></span><span>${act('yes',s.id,'យល់ព្រម')} ${act('no',s.id,'បដិសេធ')} ${act('blk',s.id,'ទប់ស្កាត់')}</span></div>`:`<div class="r"><span>${esc(s.fromName)}<br><span class="mu">${s.loc?'ទីតាំង '+seen(s.loc):'មិនទាន់មានទីតាំង'} · ${s.until?'ដល់ '+hm(s.until):'24/7'}</span></span><span>${s.loc?lk(s.loc)+' '+act('map',s.id,'ផែនទី'):''} ${back(s.from)?'':act('back',s.id,'ចែករំលែកត្រឡប់')} ${act('stop',s.id,'បិទ')}</span></div>`).join(''):'<div class="mu">មិនទាន់មាន</div>';
+ const c=S.in.find(s=>s.id===sel&&s.state==='active'&&s.loc);
+ $('#sh-map').innerHTML=c?emb(c.loc):'';
+ $('#sh-dev').innerHTML=D.length?D.map(d=>`<div class="r"><span>${d.kind==='phone'?'📱':d.kind==='camera'?'📷':'💻'} ${esc(d.name)}${d.id===devId?' <span class="mu">(នេះ)</span>':''}${d.keyed?' 🔑':''}<br><span class="mu">${d.t?seen(d):'គ្មានទីតាំង'}</span></span><span>${d.t?lk(d)+' ':''}${act('key',d.id,'🔑')} ${act('drm',d.id,'🗑')}</span></div>`).join(''):'<div class="mu">មិនទាន់មាន</div>';
+ $('#sh-dreg').textContent=track?'ឈប់តាមដានឧបករណ៍នេះ':'តាមដានឧបករណ៍នេះ';
+ $('#sh-blk').classList.toggle('hide',!B.length);$('#sh-bl').innerHTML=B.map(e=>`<div class="r"><span>${esc(e)}</span>${act('unb',e,'ដោះចេញ')}</div>`).join('');
+ const n=S.in.filter(s=>s.state==='pending').length,tb=document.querySelector('.tabs [data-v="share"]');if(tb)tb.textContent='👥 Share'+(n?' ('+n+')':'')}
+async function wake(){if(!awake||wl||!navigator.wakeLock)return;try{wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}catch(e){}}
+function unwake(){if(wl){try{wl.release()}catch(e){}wl=null}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&watch!=null)wake()});
+function startWatch(){if(watch!=null||!navigator.geolocation)return;watch=navigator.geolocation.watchPosition(p=>{pos={lat:+p.coords.latitude.toFixed(6),lon:+p.coords.longitude.toFixed(6),acc:Math.round(p.coords.accuracy)};push()},()=>{},{enableHighAccuracy:true,maximumAge:10000,timeout:20000})}
+function stopWatch(){if(watch!=null&&navigator.geolocation)navigator.geolocation.clearWatch(watch);watch=null;unwake()}
+function wantWatch(){if(tok&&(S.out.some(s=>s.state==='active')||track)){startWatch();wake()}else stopWatch()}
+async function push(force){if(!tok||!pos||(!force&&Date.now()-lastPush<10000))return;lastPush=Date.now();
+ try{if(S.out.some(s=>s.state==='active'))await call('/loc',pos);if(track)await call('/device',Object.assign({id:devId,name:devName,kind:mob?'phone':'laptop'},pos))}catch(e){}}
+async function refresh(){if(!tok)return;
+ try{const[a,b,c]=await Promise.all([call('/shares'),call('/devices'),call('/blocks')]);S=a;D=b.devices;B=c.blocks;render();wantWatch();push(true)}catch(e){if(view==='share')toast(er(e))}}
+window.shareOpen=async()=>{$('#sh-api').placeholder=A0;$('#sh-api').value=ls.get('cai:shareapi','')||'';$('#sh-dn').value=devName;$('#sh-awake').checked=awake;
+ if(tok&&!me){try{me=await call('/me')}catch(e){}}paint();if(me)refresh();else initLogin()};
+on('#sh-apisave',()=>{const v=$('#sh-api').value.trim();if(v&&!/^https?:\/\//.test(v))return toast('Server URL ត្រូវចាប់ផ្តើមដោយ http:// ឬ https://');ls.set('cai:shareapi',v);initLogin()});
+on('#sh-logout',async()=>{try{await call('/auth/logout',{})}catch(e){}tok='';me=null;S={out:[],in:[]};ls.set('cai:sharetok','');stopWatch();paint();if(window.google&&google.accounts)google.accounts.id.disableAutoSelect();initLogin()});
+on('#sh-send',async()=>{const to=$('#sh-to').value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to))return toast('អ៊ីមែលមិនត្រឹមត្រូវ');
+ try{await call('/share',{to,minutes:+$('#sh-min').value,mutual:!!$('#sh-mutual').checked});$('#sh-to').value='';toast('បានផ្ញើសំណើ · រង់ចាំគេយល់ព្រម');refresh()}catch(e){toast(er(e))}});
+on('#sh-stopall',async()=>{if(!confirm('បិទការចែករំលែកទាំងអស់?'))return;try{await call('/share/stop-all',{});toast('បានបិទទាំងអស់');await refresh()}catch(e){toast(er(e))}});
+const awk=$('#sh-awake');if(awk)awk.onchange=()=>{awake=!!awk.checked;ls.set('cai:awake',awake);if(awake&&watch!=null)wake();else unwake()};
+on('#sh-dreg',async()=>{try{
+ if(!track){devName=($('#sh-dn').value.trim()||devName).slice(0,40);ls.set('cai:devname',devName);await call('/device',{id:devId,name:devName,kind:mob?'phone':'laptop'});track=true}
+ else{await call('/device/remove',{id:devId});track=false}
+ ls.set('cai:track',track);await refresh();render()}catch(e){toast(er(e))}});
+$('#v-share').onclick=async e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,id=b.dataset.id;
+ try{if(a==='yes'||a==='no')await call('/share/respond',{id,accept:a==='yes'});
+  else if(a==='blk')await call('/share/respond',{id,accept:false,block:true});
+  else if(a==='stop')await call('/share/stop',{id});
+  else if(a==='map')sel=id;
+  else if(a==='back'){const s=S.in.find(x=>x.id===id);if(s){await call('/share',{to:s.from,minutes:s.minutes});toast('បានផ្ញើសំណើត្រឡប់')}}
+  else if(a==='unb')await call('/unblock',{email:id});
+  else if(a==='drm'){await call('/device/remove',{id});if(id===devId){track=false;ls.set('cai:track',false)}}
+  else if(a==='key'){const j=await call('/device/key',{id}),k=$('#sh-key');
+   k.value='# key បង្ហាញតែម្តង · ចម្លងទុក · ប្រើបានតែផ្ញើទីតាំងរបស់ឧបករណ៍នេះ\ncurl -X POST '+api()+'/device/report -H "Authorization: Bearer '+j.key+'" -H "Content-Type: application/json" -d \'{"lat":11.5564,"lon":104.9282}\'';
+   k.classList.remove('hide');toast('បាន key · ចម្លងទុក')}
+  await refresh();render()}catch(err){toast(er(err))}};
+on('#gsh',()=>{const g=anyg();if(!g)return toast('មិនទាន់មានទីតាំង');shareLoc(g)});
+on('#glive',()=>show('share'));
+setInterval(()=>{if(tok&&me)refresh()},30000);
+if(tok)call('/me').then(j=>{me=j;paint();refresh()}).catch(()=>{});
+const VIEWS=['cam','r360','gps','share','hist','res','set'],fromHash=()=>{const v=location.hash.slice(1);if(VIEWS.includes(v)&&v!==view)show(v)};
+addEventListener('hashchange',fromHash);fromHash();
+})();</script><!--/share-js--></body></html>
