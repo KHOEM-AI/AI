@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useT, useLanguageCode, pickText } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
+import { apiRaw as apiFetch } from "../lib/api";
 
 interface Proposal {
   id: string;
@@ -15,13 +16,6 @@ interface Proposal {
 
 const POLL_MS = 10000;
 
-async function apiFetch(url: string, opts: RequestInit = {}) {
-  const r = await fetch(url, {
-    ...opts,
-    headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
-  });
-  return r.json();
-}
 
 export default function PatchDashboard({ onClose }: { onClose: () => void }) {
   const t = useT();

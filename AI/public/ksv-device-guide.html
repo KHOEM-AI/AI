@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>សៀវភៅណែនាំ៖ បញ្ជាឧបករណ៍ទូទៅ (KSV)</title>
+<style>
+:root{color-scheme:dark light;--bg:#0b0f14;--card:#121923;--line:#223044;--text:#e6edf5;--muted:#8fa3b8;--accent:#4cc2ff;--code:#0a0e13}
+@media (prefers-color-scheme:light){:root{--bg:#f6f8fb;--card:#fff;--line:#d9e1ea;--text:#16202b;--muted:#566779;--accent:#0b6cb8;--code:#eef3f8}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 "Noto Sans Khmer","Khmer OS System",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px 14px 64px}
+h1{font-size:1.45rem;margin:.6em 0 .2em}h2{font-size:1.2rem;margin:1.6em 0 .4em;color:var(--accent)}
+h3{font-size:1.1rem;margin:0 0 .3em}h3 small{color:var(--muted);font-weight:400}h4{margin:0 0 .3em;font-size:1rem}h4 span{color:var(--muted);font-weight:400}
+p,li{color:var(--text)}.sub{color:var(--muted);margin:0 0 1em}
+code,pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem}
+code{background:var(--code);padding:1px 6px;border-radius:6px}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:.4em 0 0;overflow-x:auto;white-space:pre}
+.card,.type,.cmd{background:var(--card);border:1px solid var(--line);border-radius:12px}
+.card{padding:10px 14px}.type{padding:14px;margin:14px 0}.cmd{padding:10px 12px;margin:10px 0;background:transparent}
+.alias{color:var(--muted);margin:.2em 0 .6em}.params{margin:.2em 0 .2em;padding-left:1.2em;color:var(--muted)}
+.ro{font-size:.72rem;font-weight:400;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.toc a{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;text-decoration:none;color:var(--text);font-size:.92rem}
+#q{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);font:inherit;margin:8px 0}
+table{width:100%;border-collapse:collapse}td{border-top:1px solid var(--line);padding:6px 4px;vertical-align:top}td:first-child{white-space:nowrap;padding-right:12px}
+.hidden{display:none}footer{color:var(--muted);font-size:.85rem;margin-top:32px}
+</style>
+</head>
+<body>
+<main>
+<h1>សៀវភៅណែនាំ៖ បញ្ជាឧបករណ៍ទូទៅ (KSV)</h1>
+<p class="sub">22 ប្រភេទឧបករណ៍ · 158 ពាក្យបញ្ជា · បង្កើតស្វ័យប្រវត្តិពីកាតាឡុកពិតរបស់ប្រព័ន្ធ</p>
+
+<h2>១. របៀបបញ្ជា</h2>
+<div class="card"><ol><li>ចូលប្រព័ន្ធ (ត្រូវមានសិទ្ធិ device:command)។</li><li>ជ្រើសឧបករណ៍ ហើយផ្ញើ POST /api/devices/:id/commands ដោយមាន commandType និង payload (ប្រសិនបើពាក្យបញ្ជាត្រូវការ)។</li><li>Safety Engine និង Emergency Stop ត្រួតពិនិត្យមុនគេ។ ពាក្យបញ្ជាត្រូវបានផ្ញើទៅឧបករណ៍ តាម Wi-Fi/HTTP (PROTO_WIFI) ឬ MQTT (PROTO_MQTT)។</li><li>ពាក្យបញ្ជាជោគជ័យ តែពេលឧបករណ៍ពិតបញ្ជាក់ថាបានទទួលប៉ុណ្ណោះ។</li></ol>
+<p>ឧទាហរណ៍ បើកអំពូល៖</p><pre>POST /api/devices/&lt;id&gt;/commands
+{&quot;commandType&quot;:&quot;ON&quot;}</pre>
+<p>កែកម្រិតពន្លឺ៖</p><pre>{&quot;commandType&quot;:&quot;SET_BRIGHTNESS&quot;,&quot;payload&quot;:{&quot;value&quot;:60}}</pre></div>
+
+<h2>២. សុវត្ថិភាព</h2>
+<div class="card"><ul><li>ឧបករណ៍ប្រភេទ appliance (ឧបករណ៍កម្ដៅ/ចម្អិន) និង energy ត្រូវការ &quot;confirmed&quot;: true ក្នុង payload សម្រាប់ ON, START, SET_TEMPERATURE, SET_POWER។ បើគ្មាន ប្រព័ន្ធឆ្លើយ 403 SAFETY_BLOCKED។</li><li>ឧបករណ៍កម្ដៅ (ឆ្នាំង ឧបករណ៍កម្ដៅ) ត្រូវមាន durationMinutes ជានិច្ច ដើម្បីបិទស្វ័យប្រវត្តិ។</li><li>ពេល Emergency Stop សកម្ម គ្រប់ពាក្យបញ្ជាត្រូវបានរារាំង (423 EMERGENCY_STOP_ACTIVE)។</li><li>កាតាឡុកនេះគ្រាន់តែពណ៌នា និងត្រួតពិនិត្យទម្រង់ពាក្យបញ្ជា។ ការអនុញ្ញាត ឬរារាំង ជាការសម្រេចរបស់ Safety Engine ជានិច្ច។</li></ul></div>
+
+<h2>៣. ប្រភេទឧបករណ៍</h2>
+<input id="q" type="search" placeholder="ស្វែងរក៖ អំពូល, ឡាន, SET_VOLUME ..." aria-label="ស្វែងរក">
+<nav class="toc"><a href="#light">អំពូល</a><a href="#speaker">ឧបករណ៍ភ្លេង</a><a href="#subwoofer">ធុងបាស</a><a href="#ac">ម៉ាស៊ីនត្រជាក់</a><a href="#fridge">ទូទឹកកក</a><a href="#cooker">ឆ្នាំង</a><a href="#dishwasher">ម៉ាស៊ីនលាងចាន</a><a href="#car">ឡាន</a><a href="#street_light">ភ្លើងផ្លូវ</a><a href="#tv">ទូរទស្សន៍</a><a href="#fan">កង្ហារ</a><a href="#washer">ម៉ាស៊ីនបោកគក់</a><a href="#heater">ឧបករណ៍កម្ដៅ</a><a href="#pump">ម៉ាស៊ីនបូមទឹក</a><a href="#motor">ម៉ូទ័រ</a><a href="#door">ទ្វារ</a><a href="#gate">ទ្វាររំកិល / វាំងនន</a><a href="#camera">កាមេរ៉ា</a><a href="#motorcycle">ម៉ូតូ</a><a href="#generic">ឧបករណ៍ទូទៅ</a><a href="#sensor">សិនស័រ</a><a href="#robot">មនុស្សយន្ត</a></nav>
+<section class="type" id="light">
+<h3>អំពូល <small><code>light</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>bulb</code> <code>lamp</code> <code>led</code> <code>lighting</code> <code>lights</code></p>
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>TOGGLE</code> <span>ប្តូរបើក/បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;TOGGLE&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_BRIGHTNESS</code> <span>កម្រិតពន្លឺ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_BRIGHTNESS&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>SET_COLOR</code> <span>ពណ៌</span></h4><ul class="params"><li><code>hex</code> — ពណ៌ HEX ដូច #ff8800</li></ul><pre>{&quot;commandType&quot;:&quot;SET_COLOR&quot;,&quot;payload&quot;:{&quot;hex&quot;:&quot;#ff8800&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_COLOR_TEMP</code> <span>សីតុណ្ហភាពពណ៌</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 2000 ដល់ 6500 K</li></ul><pre>{&quot;commandType&quot;:&quot;SET_COLOR_TEMP&quot;,&quot;payload&quot;:{&quot;value&quot;:4250}}</pre></article>
+<article class="cmd"><h4><code>SET_SCENE</code> <span>ទិដ្ឋភាព</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ relax | reading | party | night | focus</li></ul><pre>{&quot;commandType&quot;:&quot;SET_SCENE&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;relax&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_TIMER</code> <span>កំណត់ម៉ោងបិទ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 1440 min</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TIMER&quot;,&quot;payload&quot;:{&quot;value&quot;:721}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="speaker">
+<h3>ឧបករណ៍ភ្លេង <small><code>speaker</code></small></h3>
+
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>PLAY</code> <span>ចាក់</span></h4><ul class="params"><li><code>source</code> — ជ្រើសមួយ៖ bluetooth | aux | wifi | usb <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;PLAY&quot;}</pre></article>
+<article class="cmd"><h4><code>PAUSE</code> <span>ផ្អាក</span></h4><pre>{&quot;commandType&quot;:&quot;PAUSE&quot;}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>NEXT</code> <span>បន្ទាប់</span></h4><pre>{&quot;commandType&quot;:&quot;NEXT&quot;}</pre></article>
+<article class="cmd"><h4><code>PREVIOUS</code> <span>ត្រឡប់ក្រោយ</span></h4><pre>{&quot;commandType&quot;:&quot;PREVIOUS&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_VOLUME</code> <span>កម្រិតសំឡេង</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_VOLUME&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>MUTE</code> <span>បិទសំឡេង</span></h4><pre>{&quot;commandType&quot;:&quot;MUTE&quot;}</pre></article>
+<article class="cmd"><h4><code>UNMUTE</code> <span>បើកសំឡេង</span></h4><pre>{&quot;commandType&quot;:&quot;UNMUTE&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_SOURCE</code> <span>ប្រភពសំឡេង</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ bluetooth | aux | wifi | usb</li></ul><pre>{&quot;commandType&quot;:&quot;SET_SOURCE&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;bluetooth&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_EQ</code> <span>សមតុល្យសំឡេង</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ flat | bass_boost | vocal | treble_boost</li></ul><pre>{&quot;commandType&quot;:&quot;SET_EQ&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;flat&quot;}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="subwoofer">
+<h3>ធុងបាស <small><code>subwoofer</code></small></h3>
+
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_VOLUME</code> <span>កម្រិតសំឡេង</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_VOLUME&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>SET_BASS_LEVEL</code> <span>កម្រិតបាស</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ -10 ដល់ 10 dB</li></ul><pre>{&quot;commandType&quot;:&quot;SET_BASS_LEVEL&quot;,&quot;payload&quot;:{&quot;value&quot;:0}}</pre></article>
+<article class="cmd"><h4><code>SET_CROSSOVER</code> <span>Crossover</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 40 ដល់ 200 Hz</li></ul><pre>{&quot;commandType&quot;:&quot;SET_CROSSOVER&quot;,&quot;payload&quot;:{&quot;value&quot;:120}}</pre></article>
+<article class="cmd"><h4><code>SET_PHASE</code> <span>Phase</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ 0 | 180</li></ul><pre>{&quot;commandType&quot;:&quot;SET_PHASE&quot;,&quot;payload&quot;:{&quot;value&quot;:0}}</pre></article>
+<article class="cmd"><h4><code>MUTE</code> <span>បិទសំឡេង</span></h4><pre>{&quot;commandType&quot;:&quot;MUTE&quot;}</pre></article>
+<article class="cmd"><h4><code>UNMUTE</code> <span>បើកសំឡេង</span></h4><pre>{&quot;commandType&quot;:&quot;UNMUTE&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="ac">
+<h3>ម៉ាស៊ីនត្រជាក់ <small><code>ac</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>hvac</code> <code>aircon</code> <code>air_conditioner</code></p>
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_TEMPERATURE</code> <span>សីតុណ្ហភាព</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 16 ដល់ 30 °C</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TEMPERATURE&quot;,&quot;payload&quot;:{&quot;value&quot;:23}}</pre></article>
+<article class="cmd"><h4><code>SET_MODE</code> <span>របៀប</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ cool | heat | dry | fan | auto</li></ul><pre>{&quot;commandType&quot;:&quot;SET_MODE&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;cool&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_FAN_SPEED</code> <span>ល្បឿនកង្ហារ</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ auto | low | medium | high</li></ul><pre>{&quot;commandType&quot;:&quot;SET_FAN_SPEED&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;auto&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_SWING</code> <span>ផ្លុំបក់</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ off | vertical | horizontal | both</li></ul><pre>{&quot;commandType&quot;:&quot;SET_SWING&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;off&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_TIMER</code> <span>កំណត់ម៉ោងបិទ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 720 min</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TIMER&quot;,&quot;payload&quot;:{&quot;value&quot;:361}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="fridge">
+<h3>ទូទឹកកក <small><code>fridge</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>refrigerator</code> <code>freezer</code></p>
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_TEMPERATURE</code> <span>សីតុណ្ហភាពទូទឹកកក</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 8 °C</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TEMPERATURE&quot;,&quot;payload&quot;:{&quot;value&quot;:5}}</pre></article>
+<article class="cmd"><h4><code>SET_FREEZER_TEMPERATURE</code> <span>សីតុណ្ហភាពកន្លែងកកកំណក</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ -24 ដល់ -14 °C</li></ul><pre>{&quot;commandType&quot;:&quot;SET_FREEZER_TEMPERATURE&quot;,&quot;payload&quot;:{&quot;value&quot;:-19}}</pre></article>
+<article class="cmd"><h4><code>SET_MODE</code> <span>របៀប</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ normal | eco | turbo_cool | vacation</li></ul><pre>{&quot;commandType&quot;:&quot;SET_MODE&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;normal&quot;}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="cooker">
+<h3>ឆ្នាំង <small><code>cooker</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>rice_cooker</code> <code>pot</code> <code>stove</code></p>
+<article class="cmd"><h4><code>START</code> <span>ចាប់ផ្តើមចម្អិន</span> <b class="ro">ត្រូវ confirmed</b></h4><ul class="params"><li><code>mode</code> — ជ្រើសមួយ៖ rice | soup | steam | boil | keep_warm | fry</li><li><code>durationMinutes</code> — ចំនួនគត់ 1 ដល់ 480 min</li><li><code>temperature</code> — ចំនួនគត់ 40 ដល់ 250 °C <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;START&quot;,&quot;payload&quot;:{&quot;mode&quot;:&quot;rice&quot;,&quot;durationMinutes&quot;:30,&quot;confirmed&quot;:true}}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់ចម្អិន</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_TEMPERATURE</code> <span>សីតុណ្ហភាព</span> <b class="ro">ត្រូវ confirmed</b></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 40 ដល់ 250 °C</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TEMPERATURE&quot;,&quot;payload&quot;:{&quot;value&quot;:145,&quot;confirmed&quot;:true}}</pre></article>
+<article class="cmd"><h4><code>SET_POWER</code> <span>កម្រិតកម្ដៅ</span> <b class="ro">ត្រូវ confirmed</b></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 10 level</li></ul><pre>{&quot;commandType&quot;:&quot;SET_POWER&quot;,&quot;payload&quot;:{&quot;value&quot;:6,&quot;confirmed&quot;:true}}</pre></article>
+<article class="cmd"><h4><code>SET_TIMER</code> <span>កំណត់ម៉ោងបិទ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 480 min</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TIMER&quot;,&quot;payload&quot;:{&quot;value&quot;:241}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="dishwasher">
+<h3>ម៉ាស៊ីនលាងចាន <small><code>dishwasher</code></small></h3>
+
+<article class="cmd"><h4><code>START</code> <span>ចាប់ផ្តើមលាង</span> <b class="ro">ត្រូវ confirmed</b></h4><ul class="params"><li><code>program</code> — ជ្រើសមួយ៖ eco | normal | intensive | quick</li><li><code>delayHours</code> — ចំនួនគត់ 0 ដល់ 24 h <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;START&quot;,&quot;payload&quot;:{&quot;program&quot;:&quot;eco&quot;,&quot;confirmed&quot;:true}}</pre></article>
+<article class="cmd"><h4><code>PAUSE</code> <span>ផ្អាក</span></h4><pre>{&quot;commandType&quot;:&quot;PAUSE&quot;}</pre></article>
+<article class="cmd"><h4><code>RESUME</code> <span>បន្ត</span></h4><pre>{&quot;commandType&quot;:&quot;RESUME&quot;}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="car">
+<h3>ឡាន <small><code>car</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>vehicle</code></p>
+<article class="cmd"><h4><code>LOCK</code> <span>ចាក់សោ</span></h4><pre>{&quot;commandType&quot;:&quot;LOCK&quot;}</pre></article>
+<article class="cmd"><h4><code>UNLOCK</code> <span>ដោះសោ</span></h4><pre>{&quot;commandType&quot;:&quot;UNLOCK&quot;}</pre></article>
+<article class="cmd"><h4><code>HORN</code> <span>ផ្លុំកញ្ចែ</span></h4><ul class="params"><li><code>durationSeconds</code> — ចំនួនគត់ 1 ដល់ 5 s <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;HORN&quot;}</pre></article>
+<article class="cmd"><h4><code>FLASH_LIGHTS</code> <span>បញ្ចេញភ្លើង</span></h4><pre>{&quot;commandType&quot;:&quot;FLASH_LIGHTS&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_HEADLIGHT</code> <span>ភ្លើងមុខ</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ off | parking | low | high</li></ul><pre>{&quot;commandType&quot;:&quot;SET_HEADLIGHT&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;off&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_TURN_SIGNAL</code> <span>ភ្លើងសញ្ញា</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ off | left | right | hazard</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TURN_SIGNAL&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;off&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_INTERIOR_LIGHT</code> <span>ភ្លើងក្នុងឡាន</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_INTERIOR_LIGHT&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>START_ENGINE</code> <span>បញ្ឆេះម៉ាស៊ីន</span></h4><ul class="params"><li><code>durationMinutes</code> — ចំនួនគត់ 1 ដល់ 15 min</li></ul><pre>{&quot;commandType&quot;:&quot;START_ENGINE&quot;,&quot;payload&quot;:{&quot;durationMinutes&quot;:15}}</pre></article>
+<article class="cmd"><h4><code>STOP_ENGINE</code> <span>ពន្លត់ម៉ាស៊ីន</span></h4><pre>{&quot;commandType&quot;:&quot;STOP_ENGINE&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_CABIN_TEMPERATURE</code> <span>សីតុណ្ហភាពក្នុងឡាន</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 16 ដល់ 30 °C</li></ul><pre>{&quot;commandType&quot;:&quot;SET_CABIN_TEMPERATURE&quot;,&quot;payload&quot;:{&quot;value&quot;:23}}</pre></article>
+<article class="cmd"><h4><code>GET_LOCATION</code> <span>ទីតាំង</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_LOCATION&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="street_light">
+<h3>ភ្លើងផ្លូវ <small><code>street_light</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>streetlight</code> <code>outdoor_light</code></p>
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_BRIGHTNESS</code> <span>កម្រិតពន្លឺ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_BRIGHTNESS&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>SET_MODE</code> <span>របៀប</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ auto | manual | schedule</li></ul><pre>{&quot;commandType&quot;:&quot;SET_MODE&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;auto&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_TIMER</code> <span>កំណត់ម៉ោងបិទ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 1440 min</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TIMER&quot;,&quot;payload&quot;:{&quot;value&quot;:721}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="tv">
+<h3>ទូរទស្សន៍ <small><code>tv</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>television</code></p>
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_VOLUME</code> <span>កម្រិតសំឡេង</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_VOLUME&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>MUTE</code> <span>បិទសំឡេង</span></h4><pre>{&quot;commandType&quot;:&quot;MUTE&quot;}</pre></article>
+<article class="cmd"><h4><code>UNMUTE</code> <span>បើកសំឡេង</span></h4><pre>{&quot;commandType&quot;:&quot;UNMUTE&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_CHANNEL</code> <span>ឆានែល</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 999</li></ul><pre>{&quot;commandType&quot;:&quot;SET_CHANNEL&quot;,&quot;payload&quot;:{&quot;value&quot;:500}}</pre></article>
+<article class="cmd"><h4><code>SET_INPUT</code> <span>ប្រភពរូបភាព</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ antenna | hdmi1 | hdmi2 | hdmi3 | av | usb</li></ul><pre>{&quot;commandType&quot;:&quot;SET_INPUT&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;antenna&quot;}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="fan">
+<h3>កង្ហារ <small><code>fan</code></small></h3>
+
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_SPEED</code> <span>ល្បឿន</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 5 level</li></ul><pre>{&quot;commandType&quot;:&quot;SET_SPEED&quot;,&quot;payload&quot;:{&quot;value&quot;:3}}</pre></article>
+<article class="cmd"><h4><code>SET_OSCILLATION</code> <span>ផ្លុំបក់</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ on | off</li></ul><pre>{&quot;commandType&quot;:&quot;SET_OSCILLATION&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;on&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_TIMER</code> <span>កំណត់ម៉ោងបិទ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 720 min</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TIMER&quot;,&quot;payload&quot;:{&quot;value&quot;:361}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="washer">
+<h3>ម៉ាស៊ីនបោកគក់ <small><code>washer</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>washing_machine</code></p>
+<article class="cmd"><h4><code>START</code> <span>ចាប់ផ្តើមបោក</span> <b class="ro">ត្រូវ confirmed</b></h4><ul class="params"><li><code>program</code> — ជ្រើសមួយ៖ cotton | synthetic | delicate | quick | eco</li><li><code>delayHours</code> — ចំនួនគត់ 0 ដល់ 24 h <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;START&quot;,&quot;payload&quot;:{&quot;program&quot;:&quot;cotton&quot;,&quot;confirmed&quot;:true}}</pre></article>
+<article class="cmd"><h4><code>PAUSE</code> <span>ផ្អាក</span></h4><pre>{&quot;commandType&quot;:&quot;PAUSE&quot;}</pre></article>
+<article class="cmd"><h4><code>RESUME</code> <span>បន្ត</span></h4><pre>{&quot;commandType&quot;:&quot;RESUME&quot;}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="heater">
+<h3>ឧបករណ៍កម្ដៅ <small><code>heater</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>water_heater</code> <code>boiler</code></p>
+<article class="cmd"><h4><code>START</code> <span>ចាប់ផ្តើមកម្ដៅ</span> <b class="ro">ត្រូវ confirmed</b></h4><ul class="params"><li><code>durationMinutes</code> — ចំនួនគត់ 1 ដល់ 480 min</li><li><code>temperature</code> — ចំនួនគត់ 20 ដល់ 80 °C <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;START&quot;,&quot;payload&quot;:{&quot;durationMinutes&quot;:30,&quot;confirmed&quot;:true}}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់កម្ដៅ</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_TEMPERATURE</code> <span>សីតុណ្ហភាព</span> <b class="ro">ត្រូវ confirmed</b></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 20 ដល់ 80 °C</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TEMPERATURE&quot;,&quot;payload&quot;:{&quot;value&quot;:50,&quot;confirmed&quot;:true}}</pre></article>
+<article class="cmd"><h4><code>SET_TIMER</code> <span>កំណត់ម៉ោងបិទ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 480 min</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TIMER&quot;,&quot;payload&quot;:{&quot;value&quot;:241}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="pump">
+<h3>ម៉ាស៊ីនបូមទឹក <small><code>pump</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>water_pump</code></p>
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_SPEED</code> <span>ល្បឿន</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 10 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_SPEED&quot;,&quot;payload&quot;:{&quot;value&quot;:55}}</pre></article>
+<article class="cmd"><h4><code>SET_TIMER</code> <span>កំណត់ម៉ោងបិទ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 720 min</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TIMER&quot;,&quot;payload&quot;:{&quot;value&quot;:361}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="motor">
+<h3>ម៉ូទ័រ <small><code>motor</code></small></h3>
+
+<article class="cmd"><h4><code>START</code> <span>ចាប់ផ្តើម</span></h4><ul class="params"><li><code>durationMinutes</code> — ចំនួនគត់ 1 ដល់ 1440 min <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;START&quot;}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>EMERGENCY_STOP</code> <span>ឈប់បន្ទាន់</span></h4><pre>{&quot;commandType&quot;:&quot;EMERGENCY_STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_SPEED</code> <span>ល្បឿន</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_SPEED&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>SET_DIRECTION</code> <span>ទិស</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ forward | reverse</li></ul><pre>{&quot;commandType&quot;:&quot;SET_DIRECTION&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;forward&quot;}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="door">
+<h3>ទ្វារ <small><code>door</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>lock</code> <code>smart_lock</code></p>
+<article class="cmd"><h4><code>LOCK</code> <span>ចាក់សោ</span></h4><pre>{&quot;commandType&quot;:&quot;LOCK&quot;}</pre></article>
+<article class="cmd"><h4><code>UNLOCK</code> <span>ដោះសោ</span></h4><pre>{&quot;commandType&quot;:&quot;UNLOCK&quot;}</pre></article>
+<article class="cmd"><h4><code>OPEN</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;OPEN&quot;}</pre></article>
+<article class="cmd"><h4><code>CLOSE</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;CLOSE&quot;}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="gate">
+<h3>ទ្វាររំកិល / វាំងនន <small><code>gate</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>garage</code> <code>shutter</code> <code>curtain</code> <code>blind</code></p>
+<article class="cmd"><h4><code>OPEN</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;OPEN&quot;}</pre></article>
+<article class="cmd"><h4><code>CLOSE</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;CLOSE&quot;}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_POSITION</code> <span>ទីតាំង</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_POSITION&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="camera">
+<h3>កាមេរ៉ា <small><code>camera</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>cctv</code></p>
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>START_RECORDING</code> <span>ចាប់ផ្តើមថត</span></h4><pre>{&quot;commandType&quot;:&quot;START_RECORDING&quot;}</pre></article>
+<article class="cmd"><h4><code>STOP_RECORDING</code> <span>ឈប់ថត</span></h4><pre>{&quot;commandType&quot;:&quot;STOP_RECORDING&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_MODE</code> <span>របៀប</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ day | night | auto</li></ul><pre>{&quot;commandType&quot;:&quot;SET_MODE&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;day&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_RESOLUTION</code> <span>គុណភាព</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ 720p | 1080p | 4k</li></ul><pre>{&quot;commandType&quot;:&quot;SET_RESOLUTION&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;720p&quot;}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="motorcycle">
+<h3>ម៉ូតូ <small><code>motorcycle</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>motorbike</code> <code>scooter</code></p>
+<article class="cmd"><h4><code>LOCK</code> <span>ចាក់សោ</span></h4><pre>{&quot;commandType&quot;:&quot;LOCK&quot;}</pre></article>
+<article class="cmd"><h4><code>UNLOCK</code> <span>ដោះសោ</span></h4><pre>{&quot;commandType&quot;:&quot;UNLOCK&quot;}</pre></article>
+<article class="cmd"><h4><code>HORN</code> <span>ផ្លុំកញ្ចែ</span></h4><ul class="params"><li><code>durationSeconds</code> — ចំនួនគត់ 1 ដល់ 5 s <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;HORN&quot;}</pre></article>
+<article class="cmd"><h4><code>FLASH_LIGHTS</code> <span>បញ្ចេញភ្លើង</span></h4><pre>{&quot;commandType&quot;:&quot;FLASH_LIGHTS&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_HEADLIGHT</code> <span>ភ្លើងមុខ</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ off | parking | low | high</li></ul><pre>{&quot;commandType&quot;:&quot;SET_HEADLIGHT&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;off&quot;}}</pre></article>
+<article class="cmd"><h4><code>SET_TURN_SIGNAL</code> <span>ភ្លើងសញ្ញា</span></h4><ul class="params"><li><code>value</code> — ជ្រើសមួយ៖ off | left | right | hazard</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TURN_SIGNAL&quot;,&quot;payload&quot;:{&quot;value&quot;:&quot;off&quot;}}</pre></article>
+<article class="cmd"><h4><code>START_ENGINE</code> <span>បញ្ឆេះម៉ាស៊ីន</span></h4><ul class="params"><li><code>durationMinutes</code> — ចំនួនគត់ 1 ដល់ 15 min</li></ul><pre>{&quot;commandType&quot;:&quot;START_ENGINE&quot;,&quot;payload&quot;:{&quot;durationMinutes&quot;:15}}</pre></article>
+<article class="cmd"><h4><code>STOP_ENGINE</code> <span>ពន្លត់ម៉ាស៊ីន</span></h4><pre>{&quot;commandType&quot;:&quot;STOP_ENGINE&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_LOCATION</code> <span>ទីតាំង</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_LOCATION&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="generic">
+<h3>ឧបករណ៍ទូទៅ <small><code>generic</code></small></h3>
+<p class="alias">ឈ្មោះដែលស្គាល់ដូចគ្នា៖ <code>switch</code> <code>outlet</code> <code>plug</code> <code>socket</code> <code>relay</code> <code>device</code></p>
+<article class="cmd"><h4><code>ON</code> <span>បើក</span></h4><pre>{&quot;commandType&quot;:&quot;ON&quot;}</pre></article>
+<article class="cmd"><h4><code>OFF</code> <span>បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;OFF&quot;}</pre></article>
+<article class="cmd"><h4><code>TOGGLE</code> <span>ប្តូរបើក/បិទ</span></h4><pre>{&quot;commandType&quot;:&quot;TOGGLE&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_LEVEL</code> <span>កម្រិត</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 0 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_LEVEL&quot;,&quot;payload&quot;:{&quot;value&quot;:50}}</pre></article>
+<article class="cmd"><h4><code>SET_TIMER</code> <span>កំណត់ម៉ោងបិទ</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 1440 min</li></ul><pre>{&quot;commandType&quot;:&quot;SET_TIMER&quot;,&quot;payload&quot;:{&quot;value&quot;:721}}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+<section class="type" id="sensor">
+<h3>សិនស័រ <small><code>sensor</code></small></h3>
+
+<article class="cmd"><h4><code>READ</code> <span>អានតម្លៃ</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><ul class="params"><li><code>metric</code> — ជ្រើសមួយ៖ temperature | humidity | motion | smoke | gas | water_leak | door_contact | light_level <em>(ជម្រើស)</em></li></ul><pre>{&quot;commandType&quot;:&quot;READ&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+<article class="cmd"><h4><code>SET_INTERVAL</code> <span>រយៈពេលរាយការណ៍</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 3600 s</li></ul><pre>{&quot;commandType&quot;:&quot;SET_INTERVAL&quot;,&quot;payload&quot;:{&quot;value&quot;:1801}}</pre></article>
+<article class="cmd"><h4><code>SET_THRESHOLD</code> <span>កម្រិតជូនដំណឹង</span></h4><ul class="params"><li><code>metric</code> — ជ្រើសមួយ៖ temperature | humidity | motion | smoke | gas | water_leak | door_contact | light_level</li><li><code>value</code> — ចំនួនគត់ -100 ដល់ 10000</li></ul><pre>{&quot;commandType&quot;:&quot;SET_THRESHOLD&quot;,&quot;payload&quot;:{&quot;metric&quot;:&quot;temperature&quot;,&quot;value&quot;:4950}}</pre></article>
+</section>
+<section class="type" id="robot">
+<h3>មនុស្សយន្ត <small><code>robot</code></small></h3>
+
+<article class="cmd"><h4><code>EMERGENCY_STOP</code> <span>ឈប់បន្ទាន់</span></h4><pre>{&quot;commandType&quot;:&quot;EMERGENCY_STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>RESET_ESTOP</code> <span>លុបស្ថានភាពឈប់បន្ទាន់</span></h4><pre>{&quot;commandType&quot;:&quot;RESET_ESTOP&quot;}</pre></article>
+<article class="cmd"><h4><code>START</code> <span>ចាប់ផ្តើមដំណើរការ</span></h4><pre>{&quot;commandType&quot;:&quot;START&quot;}</pre></article>
+<article class="cmd"><h4><code>STOP</code> <span>ឈប់</span></h4><pre>{&quot;commandType&quot;:&quot;STOP&quot;}</pre></article>
+<article class="cmd"><h4><code>RESUME</code> <span>បន្ត</span></h4><pre>{&quot;commandType&quot;:&quot;RESUME&quot;}</pre></article>
+<article class="cmd"><h4><code>MOVE</code> <span>ធ្វើចលនា</span></h4><ul class="params"><li><code>direction</code> — ជ្រើសមួយ៖ forward | backward | left | right</li><li><code>distanceCm</code> — ចំនួនគត់ 1 ដល់ 500 cm</li><li><code>speedPercent</code> — ចំនួនគត់ 1 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;MOVE&quot;,&quot;payload&quot;:{&quot;direction&quot;:&quot;forward&quot;,&quot;distanceCm&quot;:251,&quot;speedPercent&quot;:51}}</pre></article>
+<article class="cmd"><h4><code>SET_SPEED</code> <span>ល្បឿន</span></h4><ul class="params"><li><code>value</code> — ចំនួនគត់ 1 ដល់ 100 %</li></ul><pre>{&quot;commandType&quot;:&quot;SET_SPEED&quot;,&quot;payload&quot;:{&quot;value&quot;:51}}</pre></article>
+<article class="cmd"><h4><code>GO_HOME</code> <span>ត្រឡប់ទៅទីតាំងដើម</span></h4><pre>{&quot;commandType&quot;:&quot;GO_HOME&quot;}</pre></article>
+<article class="cmd"><h4><code>GET_STATUS</code> <span>ស្ថានភាព</span> <b class="ro">អានតែប៉ុណ្ណោះ</b></h4><pre>{&quot;commandType&quot;:&quot;GET_STATUS&quot;}</pre></article>
+</section>
+
+<h2>៤. លទ្ធផលដែលអាចទទួលបាន</h2>
+<div class="card"><table><tr><td><code>200</code></td><td>ជោគជ័យ — ឧបករណ៍បានបញ្ជាក់ទទួល</td></tr><tr><td><code>400 CATALOG_INVALID</code></td><td>ទម្រង់ពាក្យបញ្ជាខុស (តែក្នុងរបៀប strict)</td></tr><tr><td><code>403 SAFETY_BLOCKED</code></td><td>Safety Engine រារាំង (ឧ. ខ្វះ confirmed)</td></tr><tr><td><code>404 DEVICE_NOT_FOUND</code></td><td>រកឧបករណ៍មិនឃើញ</td></tr><tr><td><code>423 EMERGENCY_STOP_ACTIVE</code></td><td>Emergency Stop កំពុងសកម្ម</td></tr></table></div>
+
+<h2>៥. ការត្រួតពិនិត្យទម្រង់ពាក្យបញ្ជា</h2>
+<div class="card"><p>កំណត់ក្នុង <code>.env</code> ដោយ <code>KSV_DEVICE_CATALOG</code>៖</p>
+<table><tr><td><code>off (លំនាំដើម)</code></td><td>មិនត្រួតពិនិត្យ — ដំណើរការដូចមុន</td></tr><tr><td><code>warn</code></td><td>សរសេរភាពខុសគ្នាក្នុង log ([CATALOG]) ប៉ុន្តែពាក្យបញ្ជានៅតែដើរ</td></tr><tr><td><code>strict</code></td><td>បដិសេធពាក្យបញ្ជាខុសទម្រង់ដោយ HTTP 400</td></tr></table>
+<p>UI អាចអានកាតាឡុកផ្ទាល់ពី <code>GET /api/device-catalog</code> និង <code>GET /api/device-catalog/:type</code>។</p></div>
+
+<footer>បង្កើតដោយ <code>npm run guide:devices</code> — កុំកែឯកសារនេះដោយដៃ ត្រូវកែកាតាឡុក (<code>device.catalog.ts</code>) ហើយបង្កើតឡើងវិញ។</footer>
+</main>
+<script>
+(function(){var q=document.getElementById('q');if(!q)return;var s=[].slice.call(document.querySelectorAll('.type'));
+q.addEventListener('input',function(){var v=q.value.trim().toLowerCase();s.forEach(function(e){e.classList.toggle('hidden',v!==''&&e.textContent.toLowerCase().indexOf(v)===-1)})})})();
+</script>
+</body>
+</html>
