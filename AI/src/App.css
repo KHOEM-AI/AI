@@ -1360,3 +1360,555 @@ body::after {
 
 .app__sidebar-section{margin:14px 0 4px;padding:0 4px;font-size:11px;letter-spacing:.04em;color:#7dd3fc;opacity:.75;text-transform:uppercase}
 .app__sidebar-section:first-child{margin-top:0}
+
+
+/* KHOEM-AI bilingual SVG sidebar */
+.app__sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  line-height: 1.45;
+}
+.app__menu-glyph {
+  display: block;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  color: #63c9ef;
+}
+.app__sidebar-section {
+  margin: 15px 0 5px;
+  padding: 0 8px;
+  color: #71c9ed;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.app__sidebar-section:first-child {
+  margin-top: 2px;
+}
+
+
+/* ==========================================
+   KHOEM-AI DAY / NIGHT THEME
+   ========================================== */
+
+.app__theme-toggle {
+  position: relative;
+}
+
+.app__theme-toggle .app__menu-glyph {
+  width: 23px;
+  height: 23px;
+  flex-basis: 23px;
+  transition: transform .35s ease, filter .35s ease;
+}
+
+.app__theme-toggle:hover .app__menu-glyph {
+  transform: rotate(18deg) scale(1.12);
+}
+
+.app[data-theme="night"] .app__theme-toggle .app__menu-glyph {
+  color: #7dd3fc;
+  filter: drop-shadow(0 0 7px rgba(56,189,248,.85));
+}
+
+.app[data-theme="day"] .app__theme-toggle .app__menu-glyph {
+  color: #f59e0b;
+  filter: drop-shadow(0 0 7px rgba(245,158,11,.65));
+}
+
+.app__theme-indicator {
+  margin-left: auto;
+  padding: 3px 7px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  color: #7dd3fc;
+  border: 1px solid rgba(56,189,248,.4);
+}
+
+.app[data-theme="day"] .app__theme-indicator {
+  color: #a16207;
+  border-color: rgba(217,119,6,.4);
+  background: rgba(251,191,36,.12);
+}
+
+
+
+/* ==========================================
+   KHOEM-AI DAY MODE - CLEAN COLOR SYSTEM
+   ========================================== */
+
+html[data-theme="day"] {
+  --bg: #d9dee6;
+  --surface: #e8edf3;
+  --surface-2: #dce4ed;
+  --surface-3: #cbd7e3;
+  --border: #b7c6d5;
+  --border-light: #aabccc;
+  --text: #17466b;
+  --text-dim: #526f89;
+  --silver: #17466b;
+  --user-bubble: #d2e5f3;
+  --assistant-bubble: #e9eef4;
+}
+
+html[data-theme="day"] body {
+  background: #d9dee6 !important;
+  color: #17466b !important;
+}
+
+html[data-theme="day"] body::before,
+html[data-theme="day"] body::after {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+html[data-theme="day"] #root .app {
+  color: #17466b !important;
+  background: linear-gradient(145deg, #e1e7ee, #d5dde7) !important;
+}
+
+html[data-theme="day"] .app__header,
+html[data-theme="day"] .app__sidebar {
+  color: #17466b !important;
+  background: linear-gradient(145deg, #e8edf3, #d5dee8) !important;
+  border-color: #b7c6d5 !important;
+}
+
+html[data-theme="day"] .app__brand-name,
+html[data-theme="day"] .app__sidebar-section {
+  color: #17618e !important;
+}
+
+html[data-theme="day"] .app__sidebar-item {
+  color: #17466b !important;
+  -webkit-text-fill-color: #17466b !important;
+  background: linear-gradient(145deg, #e8edf3, #cbd7e3) !important;
+  border: 1px solid #aabccc !important;
+  box-shadow: 0 2px 5px rgba(30,55,80,.10) !important;
+}
+
+html[data-theme="day"] .app__sidebar-item span {
+  color: #17466b !important;
+  -webkit-text-fill-color: #17466b !important;
+}
+
+html[data-theme="day"] .app__sidebar-item:hover {
+  color: #075985 !important;
+  background: linear-gradient(145deg, #d9edff, #c3dced) !important;
+  border-color: #75afd2 !important;
+}
+
+html[data-theme="day"] .app__menu-glyph {
+  color: #078fc5 !important;
+}
+
+html[data-theme="day"] .app__theme-indicator {
+  color: #087eb5 !important;
+  -webkit-text-fill-color: #087eb5 !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="day"] .app__sidebar-close,
+html[data-theme="day"] .app__menu-btn,
+html[data-theme="day"] .app__new-btn {
+  color: #17466b !important;
+  background-color: #e3eaf1 !important;
+}
+
+html[data-theme="day"] .app__body,
+html[data-theme="day"] .bubble,
+html[data-theme="day"] .empty-state {
+  color: #17466b !important;
+}
+
+html[data-theme="day"] .composer__input {
+  color: #17466b !important;
+  -webkit-text-fill-color: #17466b !important;
+  background: #edf1f5 !important;
+  border-color: #aabccc !important;
+}
+
+html[data-theme="day"] .composer__input::placeholder {
+  color: #71869a !important;
+  -webkit-text-fill-color: #71869a !important;
+}
+
+html[data-theme="day"] .language-option,
+html[data-theme="day"] .language-panel__back {
+  color: #17466b !important;
+  -webkit-text-fill-color: #17466b !important;
+  background: #e8edf3 !important;
+  border-color: #aabccc !important;
+}
+
+html[data-theme="day"] .language-option--active {
+  background: #d2e5f3 !important;
+}
+
+html[data-theme="day"] .app__overlay {
+  background: rgba(23,43,67,.35) !important;
+}
+
+html[data-theme="day"] .app__theme-toggle .app__menu-glyph {
+  color: #f59e0b !important;
+  filter: drop-shadow(0 0 5px rgba(245,158,11,.5));
+}
+
+
+/* ==========================================
+   KHOEM-AI DAY MODE - WARM EGGSHELL
+   ========================================== */
+
+html[data-theme="day"] {
+  --bg: #F3E3B0;
+  --surface: #FAF0D5;
+  --surface-2: #F5E8C5;
+  --surface-3: #EAD9AC;
+  --border: #D5C18F;
+  --border-light: #C8B47F;
+  --text: #49351B;
+  --text-dim: #765E3C;
+  --silver: #49351B;
+  --user-bubble: #EBD9A8;
+  --assistant-bubble: #FAF0D5;
+}
+
+html[data-theme="day"] body {
+  background: #F3E3B0 !important;
+  color: #49351B !important;
+}
+
+html[data-theme="day"] body::before,
+html[data-theme="day"] body::after {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+html[data-theme="day"] #root .app {
+  background: linear-gradient(145deg, #F8EBCB, #EEDDAF) !important;
+  color: #49351B !important;
+}
+
+html[data-theme="day"] .app__header,
+html[data-theme="day"] .app__sidebar {
+  background: linear-gradient(145deg, #FFF7E4, #F3E5C3) !important;
+  border-color: #D5C18F !important;
+  color: #49351B !important;
+}
+
+html[data-theme="day"] .app__brand-name,
+html[data-theme="day"] .app__sidebar-section {
+  color: #79521D !important;
+  -webkit-text-fill-color: #79521D !important;
+}
+
+html[data-theme="day"] .app__sidebar-item {
+  background: linear-gradient(145deg, #FFF8E8, #F0E2BE) !important;
+  border: 1px solid #D5C18F !important;
+  color: #49351B !important;
+  -webkit-text-fill-color: #49351B !important;
+  box-shadow: 0 2px 6px rgba(91, 65, 25, .10) !important;
+}
+
+html[data-theme="day"] .app__sidebar-item span {
+  color: #49351B !important;
+  -webkit-text-fill-color: #49351B !important;
+}
+
+html[data-theme="day"] .app__sidebar-item:hover {
+  background: #EAD6A3 !important;
+  border-color: #B99A5C !important;
+}
+
+html[data-theme="day"] .app__menu-glyph {
+  color: #A66B16 !important;
+}
+
+html[data-theme="day"] .app__theme-toggle .app__menu-glyph {
+  color: #D97706 !important;
+}
+
+html[data-theme="day"] .app__theme-indicator {
+  color: #79521D !important;
+  -webkit-text-fill-color: #79521D !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="day"] .app__sidebar-close,
+html[data-theme="day"] .app__menu-btn,
+html[data-theme="day"] .app__new-btn {
+  background: #F7EAC9 !important;
+  color: #49351B !important;
+  border-color: #D5C18F !important;
+}
+
+html[data-theme="day"] .app__body,
+html[data-theme="day"] .bubble,
+html[data-theme="day"] .empty-state {
+  color: #49351B !important;
+}
+
+html[data-theme="day"] .composer__input {
+  background: #FFF9EA !important;
+  color: #49351B !important;
+  -webkit-text-fill-color: #49351B !important;
+  border: 1px solid #C8B47F !important;
+}
+
+html[data-theme="day"] .composer__input::placeholder {
+  color: #806B4B !important;
+  -webkit-text-fill-color: #806B4B !important;
+}
+
+html[data-theme="day"] .language-option,
+html[data-theme="day"] .language-panel__back {
+  color: #49351B !important;
+  -webkit-text-fill-color: #49351B !important;
+  background: #FAF0D5 !important;
+  border-color: #D5C18F !important;
+}
+
+html[data-theme="day"] .language-option--active {
+  background: #EBD9A8 !important;
+}
+
+html[data-theme="day"] .app__overlay {
+  background: rgba(73, 53, 27, .30) !important;
+}
+
+/* Readable text inside Day Mode */
+html[data-theme="day"] #root .app *:not(svg):not(path) {
+  color: #49351B;
+  -webkit-text-fill-color: #49351B;
+}
+
+html[data-theme="day"] #root .app svg {
+  color: #A66B16;
+}
+/* KHOEM-AI DAY MODE - BUBBLES AND BUTTONS FIX */
+html[data-theme="day"] #root .app .bubble {
+  background: #FAF0D5 !important;
+  border: 1px solid #D5C18F !important;
+  box-shadow: 0 2px 6px rgba(91, 65, 25, .12) !important;
+  color: #49351B !important;
+  -webkit-text-fill-color: #49351B !important;
+}
+
+html[data-theme="day"] #root .app .bubble[class*="user"],
+html[data-theme="day"] #root .app .bubble--user {
+  background: #EBD9A8 !important;
+}
+
+html[data-theme="day"] #root .app .composer button {
+  background: #F7EAC9 !important;
+  border: 1px solid #C8B47F !important;
+  box-shadow: none !important;
+  color: #49351B !important;
+  -webkit-text-fill-color: #49351B !important;
+}
+
+html[data-theme="day"] #root .app .app__menu-btn svg,
+html[data-theme="day"] #root .app .app__menu-btn svg *,
+html[data-theme="day"] #root .app .app__new-btn svg,
+html[data-theme="day"] #root .app .app__new-btn svg * {
+  color: #A66B16 !important;
+  stroke: #A66B16 !important;
+}
+/* KHOEM-AI DAY MODE - SKY WHITE */
+html[data-theme="day"] {
+  --bg: #DCEEFB;
+  --surface: #FBFCFE;
+  --surface-2: #F1F7FC;
+  --surface-3: #E3EFF9;
+  --border: #B9D6EE;
+  --border-light: #A5C9E6;
+  --text: #1E3A56;
+  --text-dim: #4A6784;
+  --silver: #1E3A56;
+  --user-bubble: #CFE6F8;
+  --assistant-bubble: #FBFDFF;
+}
+
+html[data-theme="day"] body {
+  background: #DCEEFB !important;
+  color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .app {
+  background: linear-gradient(145deg, #E8F4FD, #D3E8F8) !important;
+  color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .app__header,
+html[data-theme="day"] #root .app__sidebar {
+  background: linear-gradient(145deg, #FDFEFF, #EAF3FB) !important;
+  border-color: #B9D6EE !important;
+  color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .app__brand-name,
+html[data-theme="day"] #root .app__sidebar-section,
+html[data-theme="day"] #root .app__theme-indicator {
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+}
+
+html[data-theme="day"] #root .app__sidebar-item {
+  background: linear-gradient(145deg, #FFFFFF, #EEF5FB) !important;
+  border: 1px solid #B9D6EE !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  box-shadow: 0 2px 6px rgba(30, 80, 130, .10) !important;
+}
+
+html[data-theme="day"] #root .app__sidebar-item span {
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .app__sidebar-item:hover {
+  background: #D6E9F8 !important;
+  border-color: #8DBBE0 !important;
+}
+
+html[data-theme="day"] #root .app__sidebar-close,
+html[data-theme="day"] #root .app__menu-btn,
+html[data-theme="day"] #root .app__new-btn {
+  background: #F4F9FD !important;
+  border-color: #B9D6EE !important;
+  color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .app .bubble {
+  background: #FBFDFF !important;
+  border: 1px solid #B9D6EE !important;
+  box-shadow: 0 2px 6px rgba(30, 80, 130, .12) !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .app .bubble[class*="user"],
+html[data-theme="day"] #root .app .bubble--user {
+  background: #CFE6F8 !important;
+}
+
+html[data-theme="day"] #root .app .composer__input {
+  background: #FFFFFF !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  border: 1px solid #A5C9E6 !important;
+}
+
+html[data-theme="day"] #root .app .composer__input::placeholder {
+  color: #6B87A3 !important;
+  -webkit-text-fill-color: #6B87A3 !important;
+}
+
+html[data-theme="day"] #root .app .composer button {
+  background: #EAF3FB !important;
+  border: 1px solid #A5C9E6 !important;
+  box-shadow: none !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .language-option,
+html[data-theme="day"] #root .language-panel__back {
+  background: #FBFCFE !important;
+  border-color: #B9D6EE !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .language-option--active {
+  background: #CFE6F8 !important;
+}
+
+html[data-theme="day"] #root .app__overlay {
+  background: rgba(30, 58, 86, .30) !important;
+}
+
+html[data-theme="day"] #root .app *:not(svg):not(path) {
+  color: #1E3A56;
+  -webkit-text-fill-color: #1E3A56;
+}
+
+html[data-theme="day"] #root .app svg,
+html[data-theme="day"] #root .app .app__menu-glyph {
+  color: #2B7BB9 !important;
+}
+/* KHOEM-AI DAY MODE - CLEAN HEADER AND FOOTER */
+html[data-theme="day"] {
+  --bg: #EEF7FD;
+}
+
+html[data-theme="day"] body {
+  background: #EEF7FD !important;
+}
+
+html[data-theme="day"] #root .app {
+  background: #EEF7FD !important;
+}
+
+/* Header: no dark shadow, same color as screen */
+html[data-theme="day"] #root .app__header {
+  background: #EEF7FD !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid #D3E6F5 !important;
+}
+
+html[data-theme="day"] #root .app__header *,
+html[data-theme="day"] #root .app__brand-name {
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+html[data-theme="day"] #root .app__header img {
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Bottom bar: no black, same color as screen */
+html[data-theme="day"] #root [class*="composer"] {
+  background: #EEF7FD !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="day"] #root [class*="composer"]::before,
+html[data-theme="day"] #root [class*="composer"]::after,
+html[data-theme="day"] #root .app__body::after {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="day"] #root [class*="composer"] button {
+  background: #FFFFFF !important;
+  border: 1px solid #A5C9E6 !important;
+  box-shadow: none !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root [class*="composer"] button svg,
+html[data-theme="day"] #root [class*="composer"] button svg * {
+  color: #2B7BB9 !important;
+  stroke: #2B7BB9 !important;
+}
+
+html[data-theme="day"] #root [class*="composer"] input,
+html[data-theme="day"] #root [class*="composer"] textarea,
+html[data-theme="day"] #root .app .composer__input {
+  background: #FFFFFF !important;
+  border: 1px solid #A5C9E6 !important;
+  box-shadow: none !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
