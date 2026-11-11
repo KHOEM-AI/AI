@@ -13,7 +13,7 @@ type Code = (typeof LANGS)[number]["code"];
 
 interface Match {
   key: string;
-  source: "ui" | "color";
+  source: "ui" | "color" | "phrase";
   original: string;
   text: string;
   missing: boolean;
@@ -159,7 +159,7 @@ export default function TranslatePanel({ onBack }: { onBack: () => void }) {
             <div key={m.key + i} style={{ ...box, marginBottom: 8 }}>
               <div style={{ fontSize: 22 }}>{m.missing ? "— មិនទាន់មានភាសានេះ" : m.text}</div>
               <div style={{ fontSize: 12, opacity: 0.6, marginTop: 4 }}>
-                {m.original} · {m.source === "color" ? "ពណ៌" : "ឃ្លាកម្មវិធី"}
+                {m.original} · {m.source === "color" ? "ពណ៌" : m.source === "phrase" ? "ពាក្យ/ឃ្លាប្រចាំថ្ងៃ (ព្រាង)" : "ឃ្លាកម្មវិធី"}
               </div>
             </div>
           ))}
