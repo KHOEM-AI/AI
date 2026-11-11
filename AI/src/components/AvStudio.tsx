@@ -105,6 +105,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   const [gInfo, setGInfo] = useState("");
   const [gBusy, setGBusy] = useState(false);
   const [sfxTypes, setSfxTypes] = useState<string[]>([]);
+  const [sys, setSys] = useState<{ ffmpeg: boolean; khmerFont: boolean } | null>(null);
   const [voices, setVoices] = useState<Voice[]>(PRESETS);
   const [natural, setNatural] = useState("");
   // edit an existing video (IQ-AI /videos/edit, /videos/thumbnail, /videos/audio)
@@ -256,6 +257,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   useEffect(() => () => { if (tUrl) URL.revokeObjectURL(tUrl); }, [tUrl]);
   useEffect(() => {
     api("/videos/effects").then((r) => r.json()).then((j) => setSfxTypes((j.data?.sfxTypes as string[]) ?? [])).catch(() => {});
+    api("/capabilities").then((r) => r.json()).then((j) => setSys(j.data?.system ?? null)).catch(() => {});
   }, []);
 
   const seek = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -386,6 +388,8 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
         <button key={k} style={{ ...btn, background: tab === k ? "#4f7cff" : "#2a2a35" }} onClick={() => setTab(k)}>{l}</button>
       ))}</div>
       {msg && <div style={{ color: "#ff8a8a", marginBottom: 8 }}>⚠️ {msg}</div>}
+      {sys && !sys.ffmpeg && <div style={{ color: "#ffd24f", marginBottom: 8 }}>⚠️ ffmpeg មិនទាន់ដំឡើង (pkg install ffmpeg) · វីដេអូ/ប្តូរសំឡេង មិនដំណើរការ</div>}
+      {sys && sys.ffmpeg && !sys.khmerFont && <div style={{ color: "#ffd24f", marginBottom: 8 }}>⚠️ គ្មានពុម្ពអក្សរខ្មែរ · អត្ថបទ→វីដេអូ មិនដំណើរការ (កំណត់ KHMER_FONT ក្នុង IQ-AI/.env)</div>}
 
       {tab === "audio" && (
         <div style={box}>
@@ -493,7 +497,13 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
       {tab === "ai" && (
         <div style={box}>
           <div style={{ marginBottom: 6 }}>🔔 បង្កើតសំឡេងបែបផែន · SFX</div>
-          <input style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)} placeholder="type (siren…)" />
+          {sfxTypes.length ? (
+            <select style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)}>
+              {sfxTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          ) : (
+            <input style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)} placeholder="type (siren…)" />
+          )}
           <button style={btn} onClick={genSfx}>បង្កើត · Generate</button>
           <div style={{ margin: "10px 0 6px" }}>🗣 ប្តូរសំឡេង · Voice (ប្រើសំឡេងក្នុង Audio Studio)</div>
           {voices.filter((v) => !v.natural).map((v) => (
