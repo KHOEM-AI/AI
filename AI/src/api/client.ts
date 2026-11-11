@@ -202,3 +202,11 @@ export const iqaiPhotoVideo = (file: Blob, effect = "zoom-in", durationSec?: num
     body: file,
   });
 };
+
+// Join stored videos (ids from /media) into one mp4 on the IQ-AI side (POST /videos/merge).
+export const iqaiMergeVideos = (ids: string[], o: { width?: number; height?: number } = {}) =>
+  iqaiMp4("/videos/merge", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ids, ...o }),
+  });
