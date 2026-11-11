@@ -4,6 +4,7 @@ import {
   iqaiContentUrl,
   iqaiInspectImage,
   iqaiInspectVideo,
+  iqaiMergeVideos,
   listMedia,
   uploadMedia,
 } from "../api/client";
@@ -13,7 +14,7 @@ import type { IqaiMedia } from "../api/client";
 // Stores images / audio / video in IQ-AI (/iqai/media) and lets the user
 // preview, download, share and delete them. Sounds live in <SoundLibrary/>.
 
-const box: React.CSSProperties = { background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 12, marginBottom: 12 };
+const box: React.CSSProperties = { background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 12, marginBottom: 12, boxSizing: "border-box", maxWidth: "100%" };
 const btn: React.CSSProperties = { padding: "6px 12px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.14)", color: "#fff", marginRight: 8, marginTop: 4 };
 const TYPES: [string, string][] = [["", "ទាំងអស់ · All"], ["image", "🖼 រូបភាព"], ["audio", "🎧 សំឡេង"], ["video", "🎬 វីដេអូ"]];
 
@@ -26,6 +27,13 @@ export default function MediaLibrary() {
   const [err, setErr] = useState("");
   const [info, setInfo] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  // merge: ids of the videos picked, in the order they were picked
+  const [picked, setPicked] = useState<string[]>([]);
+  const [merged, setMerged] = useState<Blob | null>(null);
+  const [mergedUrl, setMergedUrl] = useState("");
+  const mergedRef = useRef("");
+
+  useEffect(() => () => { if (mergedRef.current) URL.revokeObjectURL(mergedRef.current); }, []);
 
   const load = useCallback(async () => {
     setBusy(true); setErr("");
@@ -55,8 +63,34 @@ export default function MediaLibrary() {
   async function remove(m: IqaiMedia) {
     if (!window.confirm(`លុប "${m.filename}"?`)) return;
     setBusy(true); setErr("");
-    try { await deleteMedia(m.id); setItems((p) => p.filter((x) => x.id !== m.id)); }
+    try { await deleteMedia(m.id); setItems((p) => p.filter((x) => x.id !== m.id)); setPicked((p) => p.filter((x) => x !== m.id)); }
     catch (e) { setErr(msg(e)); }
+    setBusy(false);
+  }
+
+  const togglePick = (id: string) =>
+    setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+
+  async function mergePicked() {
+    setBusy(true); setErr(""); setInfo("");
+    try {
+      const blob = await iqaiMergeVideos(picked);
+      if (mergedRef.current) URL.revokeObjectURL(mergedRef.current);
+      mergedRef.current = URL.createObjectURL(blob);
+      setMerged(blob); setMergedUrl(mergedRef.current);
+    } catch (e) { setErr(msg(e)); }
+    setBusy(false);
+  }
+
+  async function saveMerged() {
+    if (!merged) return;
+    setBusy(true); setErr(""); setInfo("");
+    try {
+      await uploadMedia(merged, `film-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.mp4`);
+      setInfo("☁ បានរក្សាទុកវីដេអូដែលភ្ជាប់ · Merged video saved");
+      setMerged(null); setMergedUrl(""); setPicked([]);
+      await load();
+    } catch (e) { setErr(msg(e)); }
     setBusy(false);
   }
 
@@ -87,6 +121,24 @@ export default function MediaLibrary() {
         {TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
       </select>
       <button style={btn} onClick={() => void load()}>↻</button>
+      {picked.length > 0 && (
+        <div style={{ marginTop: 6 }}>
+          <button style={{ ...btn, background: "#4f7cff" }} disabled={busy || picked.length < 2} onClick={() => void mergePicked()}>
+            🎞 ភ្ជាប់ · Merge ({picked.length})
+          </button>
+          <button style={btn} onClick={() => { setPicked([]); }}>✖ សម្អាត · Clear</button>
+          {picked.length < 2 && <span style={{ fontSize: 13, opacity: 0.8 }}>ជ្រើសយ៉ាងតិច 2 វីដេអូ · Pick at least 2 videos</span>}
+        </div>
+      )}
+      {mergedUrl && (
+        <div style={{ marginTop: 8 }}>
+          <video controls src={mergedUrl} style={{ maxWidth: "100%", maxHeight: 260, borderRadius: 8 }} />
+          <div>
+            <button style={{ ...btn, background: "#4f7cff" }} disabled={busy} onClick={() => void saveMerged()}>☁ រក្សាទុក · Save merged</button>
+            <a href={mergedUrl} download="khoem-film.mp4" style={{ ...btn, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
+          </div>
+        </div>
+      )}
       {busy && <div>កំពុងដំណើរការ... · Working...</div>}
       {info && <div style={{ fontSize: 13, opacity: 0.85 }}>{info}</div>}
       {err && <div style={{ color: "#ff8a8a" }}>⚠️ {err}</div>}
@@ -101,6 +153,11 @@ export default function MediaLibrary() {
           <div>
             <a href={url(m)} download={m.filename} style={{ ...btn, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
             <button style={btn} onClick={() => void share(m)}>📤 ចែកចាយ</button>
+            {m.type === "video" && (
+              <button style={picked.includes(m.id) ? { ...btn, background: "#4f7cff" } : btn} onClick={() => togglePick(m.id)}>
+                {picked.includes(m.id) ? `✔ ${picked.indexOf(m.id) + 1}` : "＋ ភ្ជាប់"}
+              </button>
+            )}
             <button style={{ ...btn, background: "rgba(255,80,80,0.35)" }} onClick={() => void remove(m)}>🗑 លុប</button>
           </div>
         </div>
