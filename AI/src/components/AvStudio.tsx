@@ -6,7 +6,9 @@ type Tab = "audio" | "video" | "library" | "ai";
 interface Item { id: string; name: string }
 const S0 = { vol: 1, bass: 0, mid: 0, treble: 0, speed: 1, a: 0, b: 1 };
 type S = typeof S0;
-const PRESETS = ["ghost", "demon", "alien", "underwater", "male", "female"];
+interface Voice { id: string; label: string; natural?: boolean }
+// Fallback when /audio/voices is unreachable; the real list (effects + 36 natural voices) comes from IQ-AI.
+const PRESETS: Voice[] = ["ghost", "demon", "alien", "underwater", "male", "female"].map((id) => ({ id, label: id }));
 type Aspect = "9:16" | "16:9" | "1:1";
 const SIZE_OF: Record<Aspect, [number, number]> = { "9:16": [720, 1280], "16:9": [1280, 720], "1:1": [720, 720] };
 const MAX_EDIT_BYTES = 50 * 1024 * 1024; // IQ-AI limit for /videos/edit, /thumbnail, /audio
@@ -103,6 +105,8 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   const [gInfo, setGInfo] = useState("");
   const [gBusy, setGBusy] = useState(false);
   const [sfxTypes, setSfxTypes] = useState<string[]>([]);
+  const [voices, setVoices] = useState<Voice[]>(PRESETS);
+  const [natural, setNatural] = useState("");
   // edit an existing video (IQ-AI /videos/edit, /videos/thumbnail, /videos/audio)
   const [vfile, setVfile] = useState<File | null>(null);
   const [eStart, setEStart] = useState("");
@@ -114,6 +118,18 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   const [eInfo, setEInfo] = useState("");
   const [tUrl, setTUrl] = useState("");
   const [eBusy, setEBusy] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    fetch("/iqai/audio/voices")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const list = j?.data?.presets as Voice[] | undefined;
+        if (live && Array.isArray(list) && list.length) setVoices(list);
+      })
+      .catch(() => { /* keep the fallback list */ });
+    return () => { live = false; };
+  }, []);
 
   const ctxRef = useRef<AudioContext | null>(null);
   const bufRef = useRef<AudioBuffer | null>(null);
@@ -480,7 +496,18 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
           <input style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)} placeholder="type (siren…)" />
           <button style={btn} onClick={genSfx}>បង្កើត · Generate</button>
           <div style={{ margin: "10px 0 6px" }}>🗣 ប្តូរសំឡេង · Voice (ប្រើសំឡេងក្នុង Audio Studio)</div>
-          {PRESETS.map((p) => <button key={p} style={btn} onClick={() => void applyVoice(p)}>{p}</button>)}
+          {voices.filter((v) => !v.natural).map((v) => (
+            <button key={v.id} style={btn} onClick={() => void applyVoice(v.id)}>{v.label}</button>
+          ))}
+          {voices.some((v) => v.natural) && (
+            <div style={{ marginTop: 6 }}>
+              <select style={inp} value={natural} onChange={(e) => setNatural(e.target.value)}>
+                <option value="">🧑 សំឡេងធម្មជាតិ · Natural voice…</option>
+                {voices.filter((v) => v.natural).map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
+              </select>
+              <button style={btn} disabled={!natural} onClick={() => void applyVoice(natural)}>ប្រើ · Apply</button>
+            </div>
+          )}
           <div style={{ margin: "10px 0 6px" }}>📝 អត្ថបទទៅសំឡេង · Text-to-Speech</div>
           <input style={{ ...inp, width: "70%" }} value={ttsText} onChange={(e) => setTtsText(e.target.value)} placeholder="អត្ថបទ…" />
           <button style={btn} onClick={tts} disabled={!ttsText.trim()}>បង្កើត</button>
