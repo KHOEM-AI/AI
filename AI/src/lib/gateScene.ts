@@ -33,13 +33,15 @@ interface Key { p: number; x: number; y: number; r: number; a: number }
 // Where the water drop is over time (x, y as fraction of the screen).
 const DROP: Key[] = [
   { p: 0.0, x: 0.3, y: 0.86, r: 4, a: 0 },
-  { p: 0.06, x: 0.3, y: 0.79, r: 9, a: 1 },
-  { p: 0.18, x: 0.55, y: 0.55, r: 11, a: 1 },
-  { p: 0.34, x: 0.75, y: 0.3, r: 11, a: 1 },
-  { p: 0.5, x: 0.42, y: 0.26, r: 10, a: 1 },
-  { p: 0.64, x: 0.5, y: 0.38, r: 9, a: 1 },
-  { p: 0.8, x: 0.5, y: 0.5, r: 7, a: 1 },
-  { p: 0.87, x: 0.5, y: 0.53, r: 3, a: 0 },
+  { p: 0.05, x: 0.3, y: 0.79, r: 9, a: 1 },
+  { p: 0.14, x: 0.42, y: 0.5, r: 11, a: 1 },
+  { p: 0.24, x: 0.68, y: 0.2, r: 11, a: 1 },
+  { p: 0.33, x: 0.58, y: 0.05, r: 10, a: 1 },
+  { p: 0.42, x: 0.5, y: 0.1, r: 9, a: 1 },
+  { p: 0.6, x: 0.5, y: 0.36, r: 9, a: 1 },
+  { p: 0.76, x: 0.5, y: 0.58, r: 8, a: 1 },
+  { p: 0.82, x: 0.5, y: 0.65, r: 7, a: 1 },
+  { p: 0.88, x: 0.5, y: 0.69, r: 3, a: 0 },
 ];
 
 function dropAt(p: number): Key {
@@ -55,67 +57,195 @@ function dropAt(p: number): Key {
   return DROP[DROP.length - 1];
 }
 
+// ---- Earth: a real-looking sphere built once from noise (no photos) ----
+function hash(x: number, y: number, sd: number): number {
+  let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ Math.imul(sd, 1442695041);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
+function vnoise(x: number, y: number, period: number, sd: number): number {
+  const x0 = Math.floor(x);
+  const y0 = Math.floor(y);
+  const fx = x - x0;
+  const fy = y - y0;
+  const sx = fx * fx * (3 - 2 * fx);
+  const sy = fy * fy * (3 - 2 * fy);
+  const i0 = ((x0 % period) + period) % period;
+  const i1 = (i0 + 1) % period;
+  const a = hash(i0, y0, sd);
+  const b = hash(i1, y0, sd);
+  const c = hash(i0, y0 + 1, sd);
+  const d = hash(i1, y0 + 1, sd);
+  return lerp(lerp(a, b, sx), lerp(c, d, sx), sy);
+}
+function fbm(u: number, v: number, base: number, oct: number, sd: number): number {
+  let sum = 0;
+  let amp = 1;
+  let tot = 0;
+  for (let o = 0; o < oct; o++) {
+    const per = base * (1 << o);
+    sum += amp * vnoise(u * per, v * per * 0.5, per, sd + o * 17);
+    tot += amp;
+    amp *= 0.5;
+  }
+  return sum / tot;
+}
+type RGB = [number, number, number];
+const hex = (h: string): RGB => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const mix = (a: RGB, b: RGB, t: number): RGB => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+
 function makeEarth(): HTMLCanvasElement {
-  const W = 1024;
-  const H = 512;
-  const c = document.createElement("canvas");
-  c.width = W;
-  c.height = H;
-  const g = c.getContext("2d")!;
-  const R = rng(7);
-  const sea = g.createLinearGradient(0, 0, 0, H);
-  sea.addColorStop(0, "#0a3560");
-  sea.addColorStop(0.5, "#1b62a0");
-  sea.addColorStop(1, "#0a3560");
-  g.fillStyle = sea;
-  g.fillRect(0, 0, W, H);
-  const land = ["#4b6c3b", "#6b7d46", "#8c7a52", "#3f5f3a", "#7a8a50"];
-  for (let i = 0; i < 13; i++) {
-    const cx = R() * W;
-    const cy = 90 + R() * (H - 180);
-    const rad = 35 + R() * 60;
-    const n = 14;
-    const pts: number[][] = [];
-    for (let k = 0; k < n; k++) {
-      const an = (k / n) * Math.PI * 2;
-      const rr = rad * (0.55 + R() * 0.7);
-      pts.push([Math.cos(an) * rr * 1.3, Math.sin(an) * rr * 0.8]);
-    }
-    const col = land[Math.floor(R() * land.length)];
-    for (const off of [0, -W]) {
-      g.beginPath();
-      pts.forEach((q, k) => (k === 0 ? g.moveTo(cx + off + q[0], cy + q[1]) : g.lineTo(cx + off + q[0], cy + q[1])));
-      g.closePath();
-      g.fillStyle = col;
-      g.globalAlpha = 0.95;
-      g.fill();
-    }
+  const MW = 640;
+  const MH = 320;
+  const height = new Float32Array(MW * MH);
+  for (let j = 0; j < MH; j++) {
+    for (let i = 0; i < MW; i++) height[j * MW + i] = fbm(i / MW, j / MH, 3, 6, 11);
   }
-  g.globalAlpha = 0.85;
-  g.fillStyle = "#eef3f7";
-  g.fillRect(0, 0, W, 26);
-  g.fillRect(0, H - 30, W, 30);
-  g.globalAlpha = 1;
-  for (let i = 0; i < 46; i++) {
-    const cx = R() * W;
-    const cy = 30 + R() * (H - 60);
-    const n = 3 + Math.floor(R() * 4);
-    for (let k = 0; k < n; k++) {
-      const x = cx + (R() - 0.5) * 70;
-      const y = cy + (R() - 0.5) * 18;
-      const rad = 14 + R() * 30;
-      for (const off of [0, -W]) {
-        const gr = g.createRadialGradient(x + off, y, 0, x + off, y, rad);
-        gr.addColorStop(0, "rgba(255,255,255,0.55)");
-        gr.addColorStop(1, "rgba(255,255,255,0)");
-        g.fillStyle = gr;
-        g.beginPath();
-        g.arc(x + off, y, rad, 0, Math.PI * 2);
-        g.fill();
+  // sea level so that about 30% of the planet is land
+  let lo = 1;
+  let hi = 0;
+  for (let i = 0; i < height.length; i++) { if (height[i] < lo) lo = height[i]; if (height[i] > hi) hi = height[i]; }
+  const bins = new Uint32Array(256);
+  for (let i = 0; i < height.length; i++) bins[Math.min(255, Math.floor(((height[i] - lo) / (hi - lo)) * 256))]++;
+  let acc = 0;
+  let level = lo;
+  for (let b = 0; b < 256; b++) {
+    acc += bins[b];
+    if (acc / height.length >= 0.7) { level = lo + ((b + 1) / 256) * (hi - lo); break; }
+  }
+
+  const shallow = hex("#2f86a0");
+  const deep = hex("#06264d");
+  const sand = hex("#b8a878");
+  const greenA = hex("#2e4b27");
+  const greenB = hex("#5a7a3b");
+  const desA = hex("#b69b6c");
+  const desB = hex("#9a7b50");
+  const rockC = hex("#6d5b47");
+  const snow = hex("#eef2f4");
+  const ice = hex("#f0f5f8");
+  const white: RGB = [255, 255, 255];
+
+  const col = new Uint8Array(MW * MH * 3);
+  const isLand = new Uint8Array(MW * MH);
+  const lights = new Uint8Array(MW * MH);
+  const cloud = new Uint8Array(MW * MH);
+  for (let j = 0; j < MH; j++) {
+    const v = j / MH;
+    const al = Math.abs(0.5 - v) * 2; // 0 equator .. 1 pole
+    for (let i = 0; i < MW; i++) {
+      const u = i / MW;
+      const k = j * MW + i;
+      const h = height[k];
+      let c: RGB;
+      if (h < level) {
+        const d = clamp01(((level - h) / (level - lo)) * 3);
+        c = mix(shallow, deep, d);
+      } else {
+        const e = (h - level) / (hi - level);
+        const m = fbm(u, v, 3, 4, 91);
+        const band = smooth(0.12, 0.25, al) * (1 - smooth(0.45, 0.6, al));
+        const dry = clamp01((0.55 - m) * 4) * (0.35 + 0.65 * band);
+        const green = mix(greenA, greenB, clamp01(m * 1.4));
+        const desert = mix(desA, desB, m);
+        c = mix(green, desert, dry);
+        c = mix(sand, c, smooth(0.0, 0.05, e));
+        c = mix(c, rockC, smooth(0.4, 0.7, e));
+        c = mix(c, snow, smooth(0.78, 0.92, e));
+        isLand[k] = 1;
+        if (e < 0.35 && al < 0.7 && vnoise(u * 300, v * 150, 300, 5) > 0.86) lights[k] = 1;
       }
+      const edge = al + (vnoise(u * 40, v * 20, 40, 3) - 0.5) * 0.12;
+      c = mix(c, ice, smooth(0.8, 0.88, edge));
+      const cu = u + 0.08 * (fbm(u, v, 2, 3, 5) - 0.5);
+      const cl = smooth(0.5, 0.7, fbm(cu, v, 5, 5, 33)) * 0.9;
+      cloud[k] = Math.round(cl * 255);
+      c = mix(c, white, cl);
+      col[k * 3] = c[0];
+      col[k * 3 + 1] = c[1];
+      col[k * 3 + 2] = c[2];
     }
   }
-  return c;
+
+  // View direction: pick the longitude with most land in view.
+  const lat0 = 0.15;
+  let best = 0;
+  let bestLand = -1;
+  for (let t = 0; t < 12; t++) {
+    const lon = (t / 12) * Math.PI * 2;
+    let n = 0;
+    for (let q = 0; q < 200; q++) {
+      const a = (q / 200) * Math.PI * 2;
+      const rr = Math.sqrt((q * 7 % 200) / 200) * 0.9;
+      const x = Math.cos(a) * rr;
+      const ys = Math.sin(a) * rr;
+      const z = Math.sqrt(Math.max(0, 1 - x * x - ys * ys));
+      const yp = ys * Math.cos(lat0) + z * Math.sin(lat0);
+      const zp = -ys * Math.sin(lat0) + z * Math.cos(lat0);
+      const la = Math.asin(yp);
+      const lg = Math.atan2(x, zp) + lon;
+      const uu = (((lg / (Math.PI * 2) + 0.5) % 1) + 1) % 1;
+      const vv = 0.5 - la / Math.PI;
+      n += isLand[Math.min(MH - 1, Math.floor(vv * MH)) * MW + Math.min(MW - 1, Math.floor(uu * MW))];
+    }
+    if (n > bestLand) { bestLand = n; best = lon; }
+  }
+
+  const S = 640;
+  const cv = document.createElement("canvas");
+  cv.width = S;
+  cv.height = S;
+  const g = cv.getContext("2d")!;
+  const img = g.createImageData(S, S);
+  const Lx = -0.45;
+  const Ly = 0.5;
+  const Lz = 0.74;
+  const Ln = Math.sqrt(Lx * Lx + Ly * Ly + Lz * Lz);
+  const lx = Lx / Ln;
+  const ly = Ly / Ln;
+  const lz = Lz / Ln;
+  for (let py = 0; py < S; py++) {
+    for (let px = 0; px < S; px++) {
+      const x = ((px + 0.5) / S) * 2 - 1;
+      const ys = -(((py + 0.5) / S) * 2 - 1);
+      const d2 = x * x + ys * ys;
+      const o = (py * S + px) * 4;
+      if (d2 >= 1) continue;
+      const z = Math.sqrt(1 - d2);
+      const yp = ys * Math.cos(lat0) + z * Math.sin(lat0);
+      const zp = -ys * Math.sin(lat0) + z * Math.cos(lat0);
+      const la = Math.asin(yp);
+      const lg = Math.atan2(x, zp) + best;
+      const uu = (((lg / (Math.PI * 2) + 0.5) % 1) + 1) % 1;
+      const vv = 0.5 - la / Math.PI;
+      const k = Math.min(MH - 1, Math.floor(vv * MH)) * MW + Math.min(MW - 1, Math.floor(uu * MW));
+      const diff = Math.max(0, x * lx + ys * ly + z * lz);
+      const shade = 0.07 + 0.93 * Math.pow(diff, 0.8);
+      let r = col[k * 3] * shade;
+      let gg = col[k * 3 + 1] * shade;
+      let b = col[k * 3 + 2] * shade;
+      const cl = cloud[k] / 255;
+      if (!isLand[k]) {
+        const dot = 2 * diff;
+        const rz = dot * z - lz;
+        const spec = Math.pow(Math.max(0, rz), 60) * 0.5 * (1 - cl);
+        r += 255 * spec; gg += 255 * spec; b += 255 * spec;
+      }
+      if (lights[k] && diff < 0.1) {
+        const f = (1 - diff / 0.1) * 0.85 * (1 - cl);
+        r += 255 * f; gg += 190 * f; b += 110 * f;
+      }
+      const rim = Math.pow(1 - z, 2.6) * (0.25 + 0.75 * diff);
+      r += 70 * rim; gg += 120 * rim; b += 200 * rim;
+      img.data[o] = Math.min(255, r);
+      img.data[o + 1] = Math.min(255, gg);
+      img.data[o + 2] = Math.min(255, b);
+      img.data[o + 3] = Math.round(255 * clamp01((1 - Math.sqrt(d2)) * S * 0.5));
+    }
+  }
+  g.putImageData(img, 0, 0);
+  return cv;
 }
 
 export function createScene(W: number, H: number): Scene {
@@ -159,6 +289,8 @@ export function createScene(W: number, H: number): Scene {
   }
 
   const earthMap = makeEarth();
+  const specks2: { x: number; y: number; r: number; c: string }[] = [];
+  for (let i = 0; i < 260; i++) specks2.push({ x: R() * W, y: R(), r: 0.6 + R() * 1.6, c: R() < 0.5 ? "rgba(40,18,10,0.3)" : "rgba(210,130,90,0.22)" });
 
   const drawStars = (ctx: Ctx, p: number, t: number): void => {
     for (const s of stars) {
@@ -173,46 +305,32 @@ export function createScene(W: number, H: number): Scene {
     ctx.globalAlpha = 1;
   };
 
-  const drawEarth = (ctx: Ctx, p: number, t: number): void => {
-    const e = smooth(0.38, 0.62, p);
-    const alpha = smooth(0.38, 0.45, p) * (1 - 0.7 * smooth(0.84, 0.97, p));
+  const drawEarth = (ctx: Ctx, p: number): void => {
+    const alpha = smooth(0.3, 0.36, p);
     if (alpha <= 0.01) return;
+    const e = smooth(0.3, 0.55, p);
+    const r = W * 1.05;
+    const top = lerp(H * 1.1, H * 0.66, e);
     const cx = W / 2;
-    const cy = lerp(H * 1.55, H * 0.62, e);
-    const r = lerp(W * 0.45, W * 0.72, e);
+    const cy = top + r;
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.clip();
-    const shift = (t * 6) % 512;
-    ctx.drawImage(earthMap, shift, 0, 512, 512, cx - r, cy - r, r * 2, r * 2);
-    const lx = cx - r * 0.4;
-    const ly = cy - r * 0.45;
-    const shade = ctx.createRadialGradient(lx, ly, r * 0.2, lx, ly, r * 1.7);
-    shade.addColorStop(0, "rgba(0,0,0,0)");
-    shade.addColorStop(0.55, "rgba(0,0,10,0.15)");
-    shade.addColorStop(1, "rgba(0,0,12,0.85)");
-    ctx.fillStyle = shade;
-    ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-    ctx.restore();
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    const atm = ctx.createRadialGradient(cx, cy, r * 0.94, cx, cy, r * 1.09);
-    atm.addColorStop(0, "rgba(120,180,255,0)");
-    atm.addColorStop(0.35, "rgba(120,180,255,0.38)");
-    atm.addColorStop(1, "rgba(120,180,255,0)");
+    const atm = ctx.createRadialGradient(cx, cy, r * 0.97, cx, cy, r * 1.07);
+    atm.addColorStop(0, "rgba(110,170,255,0.5)");
+    atm.addColorStop(0.4, "rgba(110,170,255,0.22)");
+    atm.addColorStop(1, "rgba(110,170,255,0)");
     ctx.fillStyle = atm;
     ctx.beginPath();
-    ctx.arc(cx, cy, r * 1.09, 0, Math.PI * 2);
+    ctx.arc(cx, cy, r * 1.07, 0, Math.PI * 2);
     ctx.fill();
+    ctx.drawImage(earthMap, cx - r, cy - r, r * 2, r * 2);
     ctx.restore();
   };
 
   const drawMars = (ctx: Ctx, p: number): void => {
-    const alpha = 1 - smooth(0.28, 0.34, p);
+    const alpha = 1 - smooth(0.26, 0.32, p);
     if (alpha <= 0.01) return;
-    const off = smooth(0.05, 0.3, p) * H * 0.55;
+    const off = smooth(0.05, 0.28, p) * H * 0.6;
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.translate(0, off);
@@ -232,6 +350,10 @@ export function createScene(W: number, H: number): Scene {
     ctx.lineTo(W + 12, H + 40);
     ctx.closePath();
     ctx.fill();
+    for (const sp of specks2) {
+      ctx.fillStyle = sp.c;
+      ctx.fillRect(sp.x, base + 14 + sp.y * (H - base), sp.r, sp.r);
+    }
     const draw = (x: number, w: number, h: number, pts: number[], col: string): void => {
       ctx.beginPath();
       pts.forEach((m, k) => {
@@ -375,7 +497,7 @@ export function createScene(W: number, H: number): Scene {
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
       drawStars(ctx, p, t);
-      drawEarth(ctx, p, t);
+      drawEarth(ctx, p);
       drawMars(ctx, p);
       drawRocks(ctx, p);
       drawDrop(ctx, p);

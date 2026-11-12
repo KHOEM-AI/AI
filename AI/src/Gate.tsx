@@ -2,7 +2,6 @@ import khoemLogo from "./assets/khoem-ai-logo.webp";
 import { useEffect, useRef, useState } from "react";
 import App from "./App";
 import GatePoem from "./components/GatePoem";
-import { drawWave } from "./lib/gateWave";
 import { createScene, type Scene } from "./lib/gateScene";
 
 const readFlag = (k: string): boolean => {
@@ -13,11 +12,9 @@ const writeFlag = (k: string): void => {
 };
 
 // Hold time, in milliseconds. The whole space scene plays over this time.
-const HOLD_MS = 60000;
+const HOLD_MS = 30000;
 // The name pops up 1 second before the end.
 const NAME_AT = 1 - 1000 / HOLD_MS;
-// The light wave (3 stripes) starts drawing in the last part of the scene.
-const WAVE_FROM = 0.84;
 
 export default function Gate() {
   const [ok, setOk] = useState(() => readFlag("gate.ok"));
@@ -30,28 +27,30 @@ export default function Gate() {
   const raf = useRef(0);
   const scene = useRef<Scene | null>(null);
   const dpr = useRef(1);
-  const size = useRef({ w: 0, h: 0 });
 
   useEffect(() => {
     const c = cv.current;
     if (!c) return;
     const d = Math.min(2, window.devicePixelRatio || 1);
     dpr.current = d;
-    size.current = { w: window.innerWidth, h: window.innerHeight };
     c.width = Math.round(window.innerWidth * d);
     c.height = Math.round(window.innerHeight * d);
-    scene.current = createScene(window.innerWidth, window.innerHeight);
-    return () => window.clearTimeout(timer.current);
+    // Build the scene a moment after mount so the gate appears instantly.
+    const build = window.setTimeout(() => {
+      scene.current = createScene(window.innerWidth, window.innerHeight);
+    }, 60);
+    return () => {
+      window.clearTimeout(build);
+      window.clearTimeout(timer.current);
+    };
   }, []);
 
   const draw = (p: number, now: number) => {
     const c = cv.current;
     if (!c || !scene.current) return;
     const ctx = c.getContext("2d")!;
-    const { w, h } = size.current;
     ctx.setTransform(dpr.current, 0, 0, dpr.current, 0, 0);
     scene.current.draw(ctx, p, now / 1000);
-    if (p > WAVE_FROM) drawWave(ctx, w, h, (p - WAVE_FROM) / (1 - WAVE_FROM), "night", false);
   };
 
   const tick = () => {
@@ -62,7 +61,7 @@ export default function Gate() {
     setPct(p);
     draw(p, now);
     if (p >= 1) {
-      // Wave reached the right edge: short pause, then unlock.
+      // Scene finished: short pause, then unlock.
       start.current = null;
       doneRef.current = true;
       timer.current = window.setTimeout(() => { setOk(true); writeFlag("gate.ok"); }, 400);

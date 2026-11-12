@@ -1958,12 +1958,12 @@ html[data-theme="day"] #root .status-badge.status-badge .status-badge__dot {
    ========================================== */
 .gate__logo { top: 36% !important; }
 .gate__name {
-  position: absolute; right: 18px; top: calc(52% + 30px);
-  font-size: 24px; font-weight: 800; letter-spacing: 3px;
+  position: absolute; left: 0; right: 0; top: calc(36% + 84px);
+  font-size: 24px; font-weight: 800; letter-spacing: 3px; text-align: center;
   color: #7dd3fc; text-shadow: 0 0 14px rgba(56,189,248,.8);
   opacity: 0; pointer-events: none;
 }
-.gate__name { display: flex; flex-direction: column; align-items: flex-end; }
+.gate__name { display: flex; flex-direction: column; align-items: center; }
 .gate__name-sub { font-size: 11px; font-weight: 600; letter-spacing: 2px; margin-top: 2px; opacity: .85; }
 .gate__name.is-on { animation: gateNamePop .55s ease-out both; }
 @keyframes gateNamePop {
