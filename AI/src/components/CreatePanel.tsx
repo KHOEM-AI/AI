@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import MenuGlyph from "./MenuGlyph";
 import SlideshowTab from "./SlideshowTab";
+import VideoEditPanel from "./VideoEditPanel";
 import { iqaiPhotoVideo, iqaiTextVideo, iqaiVideoOptions, uploadMedia } from "../api/client";
 
 // Create video from text or from a photo (IQ-AI, ffmpeg, offline) and
@@ -14,7 +15,7 @@ const soft: React.CSSProperties = { ...btn, background: "rgba(255,255,255,0.14)"
 const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 export default function CreatePanel({ initialText = "" }: { initialText?: string }) {
-  const [mode, setMode] = useState<"text" | "photo" | "slideshow">("text");
+  const [mode, setMode] = useState<"text" | "photo" | "slideshow" | "edit">("text");
   const [text, setText] = useState(initialText);
   const [photo, setPhoto] = useState<File | null>(null);
   const [dur, setDur] = useState(5);
@@ -79,8 +80,10 @@ export default function CreatePanel({ initialText = "" }: { initialText?: string
       <button style={mode === "text" ? btn : soft} onClick={() => setMode("text")}><span className="ks-inline-icon"><MenuGlyph name="audit" /></span> ពីអត្ថបទ · Text</button>
       <button style={mode === "photo" ? btn : soft} onClick={() => setMode("photo")}><span className="ks-inline-icon"><MenuGlyph name="library" /></span> ពីរូបភាព · Photo</button>
       <button style={mode === "slideshow" ? btn : soft} onClick={() => setMode("slideshow")}>🎞 Slideshow</button>
+      <button style={mode === "edit" ? btn : soft} onClick={() => setMode("edit")}>✂ កាត់ត · Edit</button>
       {mode === "slideshow" && <SlideshowTab effects={effects} sfxTypes={sfxTypes} />}
-      <div style={{ marginTop: 8, display: mode === "slideshow" ? "none" : undefined }}>
+      {mode === "edit" && <VideoEditPanel />}
+      <div style={{ marginTop: 8, display: mode === "slideshow" || mode === "edit" ? "none" : undefined }}>
         {mode === "text" ? (
           <>
             <textarea
@@ -123,7 +126,7 @@ export default function CreatePanel({ initialText = "" }: { initialText?: string
       {busy && <div>កំពុងដំណើរការ... · Working...</div>}
       {err && <div style={{ color: "#ff8a8a" }}><span className="ks-inline-icon"><MenuGlyph name="safety" /></span> {err}</div>}
       {ok && <div style={{ color: "#8affb0" }}>{ok}</div>}
-      {url && mode !== "slideshow" && (
+      {url && mode !== "slideshow" && mode !== "edit" && (
         <div style={{ marginTop: 8 }}>
           <video controls src={url} style={{ maxWidth: "100%", maxHeight: 280, borderRadius: 8 }} />
           <div>

@@ -602,7 +602,7 @@ const TEXT_WORDS = /អត្ថបទ|អារម្មណ៍|emotion|text/i;
 const TRANSLATE_WORDS = /បកប្រែ|translate/i;
 const AUDIO_WORDS = /សំឡេង|ភ្លេង|audio|sound|music|bass|volume|mp3|wav/i;
 
-export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
+export default function KhoemStudio({ onClose, onOpen3d }: Props) {
   const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate" | "media" | "create">("home");
   const [prompt, setPrompt] = useState("");
   const [note, setNote] = useState("");
@@ -621,7 +621,6 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
 
   const cards: { icon: ReactNode; title: string; sub: string; on: boolean; go?: () => void }[] = [
     { icon: <MenuGlyph name="audio" />, title: "កែសំឡេង", sub: "Voice · Music · Effects", on: true, go: () => setView("audio") },
-    { icon: <MenuGlyph name="video" />, title: "កាត់តវីដេអូ", sub: "Clips · Text · Audio", on: !!onOpenAv, go: onOpenAv },
     { icon: <MenuGlyph name="film" />, title: "បង្កើតវីដេអូ", sub: "Text · Photo → MP4", on: true, go: () => setView("create") },
     { icon: <MenuGlyph name="library" />, title: "រូបភាព & ឯកសារ", sub: "Library · Share · Inspect", on: true, go: () => setView("media") },
     { icon: <MenuGlyph name="language" />, title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: true, go: () => setView("translate") },
@@ -638,7 +637,6 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
         <button className={view === "translate" ? "on" : ""} onClick={() => setView("translate")}><span><MenuGlyph name="language" /></span><em>Translate</em></button>
         <button className={view === "create" ? "on" : ""} onClick={() => setView("create")}><span><MenuGlyph name="film" /></span><em>Create</em></button>
         <button className={view === "media" ? "on" : ""} onClick={() => setView("media")}><span><MenuGlyph name="library" /></span><em>Library</em></button>
-        <button disabled={!onOpenAv} onClick={onOpenAv}><span><MenuGlyph name="video" /></span><em>Video</em></button>
         <button disabled={!onOpen3d} onClick={onOpen3d}><span><MenuGlyph name="cube" /></span><em>3D</em></button>
         <button className="ks-close" onClick={onClose}><span><MenuGlyph name="close" /></span><em>បិទ</em></button>
       </nav>

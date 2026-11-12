@@ -40,6 +40,39 @@ export default function Gate() {
   const scene = useRef<Scene | null>(null);
   const dpr = useRef(1);
 
+  // Prepare IQ-AI neural speech during the hold; play when the logo letters appear.
+  const voicePlayed = useRef(false);
+  const voiceRequest = useRef(0);
+  const audioContext = useRef<AudioContext | null>(null);
+  const audioBuffer = useRef<AudioBuffer | null>(null);
+  const audioSource = useRef<AudioBufferSourceNode | null>(null);
+
+  const playBrandVoice = () => {
+    const context = audioContext.current;
+    const buffer = audioBuffer.current;
+    if (voicePlayed.current || !context || !buffer || context.state !== "running") return;
+
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.onended = () => {
+      if (audioSource.current === source) audioSource.current = null;
+    };
+    audioSource.current = source;
+    voicePlayed.current = true;
+    source.start(0);
+  };
+
+  const cancelBrandVoice = () => {
+    voiceRequest.current += 1;
+    try { audioSource.current?.stop(); } catch { /* already stopped */ }
+    audioSource.current = null;
+    audioBuffer.current = null;
+    const context = audioContext.current;
+    audioContext.current = null;
+    if (context && context.state !== "closed") void context.close();
+  };
+
   useEffect(() => {
     const c = cv.current;
     if (!c) return;
@@ -54,6 +87,11 @@ export default function Gate() {
     return () => {
       window.clearTimeout(build);
       window.clearTimeout(timer.current);
+      voiceRequest.current += 1;
+      try { audioSource.current?.stop(); } catch { /* already stopped */ }
+      if (audioContext.current && audioContext.current.state !== "closed") {
+        void audioContext.current.close();
+      }
     };
   }, []);
 
@@ -72,6 +110,10 @@ export default function Gate() {
     const p = Math.min(1, (now - start.current) / HOLD_MS);
     setPct(p);
     draw(p, now);
+
+    // Speak as the KHOEM-AI letters begin to appear.
+    if (p >= 0.70) playBrandVoice();
+
     if (p >= 1) {
       // Scene finished: short pause, then unlock.
       start.current = null;
@@ -84,7 +126,47 @@ export default function Gate() {
 
   const down = () => {
     if (start.current !== null || doneRef.current) return;
+    cancelBrandVoice();
+    voicePlayed.current = false;
     start.current = performance.now();
+
+    // Unlock audio during the user's pointer gesture, then prepare the neural voice.
+    const AudioContextCtor = window.AudioContext;
+    if (AudioContextCtor) {
+      const context = new AudioContextCtor();
+      audioContext.current = context;
+      const requestId = voiceRequest.current;
+
+      void context.resume().catch(() => {});
+
+      const ttsUrl = import.meta.env.DEV
+        ? "/iqai/audio/tts"
+        : "/api/iq-ai/audio/tts";
+
+      void fetch(ttsUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: "Khoem AI", lang: "en" }),
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error("IQ-AI TTS HTTP " + response.status);
+          return response.arrayBuffer();
+        })
+        .then((data) => context.decodeAudioData(data))
+        .then((buffer) => {
+          if (requestId !== voiceRequest.current || start.current === null) return;
+          audioBuffer.current = buffer;
+          if ((performance.now() - start.current) / HOLD_MS >= 0.70) {
+            playBrandVoice();
+          }
+        })
+        .catch((error) => {
+          if (requestId === voiceRequest.current) {
+            console.warn("[KHOEM-AI Gate] IQ-AI voice unavailable:", error);
+          }
+        });
+    }
+
     raf.current = requestAnimationFrame(tick);
   };
 
@@ -92,6 +174,9 @@ export default function Gate() {
     if (ok || doneRef.current) return;
     start.current = null;
     cancelAnimationFrame(raf.current);
+
+    cancelBrandVoice();
+
     const c = cv.current;
     if (c) {
       const ctx = c.getContext("2d")!;
