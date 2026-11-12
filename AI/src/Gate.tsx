@@ -12,7 +12,19 @@ const writeFlag = (k: string): void => {
 };
 
 // Hold time, in milliseconds. The whole space scene plays over this time.
-const HOLD_MS = 30000;
+const HOLD_MS = 15000;
+const GATE_LETTERS: ReadonlyArray<readonly [string, number]> = [
+  ["K", 0.70],
+  ["H", 0.735],
+  ["O", 0.77],
+  ["E", 0.805],
+  ["M", 0.84],
+  ["-", 0.925],
+  ["A", 0.89],
+  ["I", 0.89],
+];
+
+
 // The name pops up 1 second before the end.
 const NAME_AT = 1 - 1000 / HOLD_MS;
 
@@ -101,9 +113,21 @@ export default function Gate() {
       <canvas ref={cv} className="gate__canvas" />
       <img src={khoemLogo} alt="KHOEM-AI" className="gate__eye gate__logo" style={{ width: "180px", height: "auto", opacity: logoOpacity }} />
       <div className="gate__count">{Math.ceil(pct * 100)}</div>
-      <div className={"gate__name" + (pct >= NAME_AT ? " is-on" : "")}>
-        <span className="gate__name-main">KHOEM-AI</span>
-        <span className="gate__name-sub">KHOEM SOKSIVUTHA</span>
+      <div className={"gate__name" + (pct >= 0.68 ? " is-on" : "")}>
+        <span className="gate__name-main" aria-label="KHOEM-AI">
+          {GATE_LETTERS.map(([letter, at], index) => (
+            <span
+              key={index}
+              className="gate__letter"
+              style={{
+                opacity: pct >= at ? 1 : 0,
+                transform: pct >= at ? "translateY(0) scale(1)" : "translateY(12px) scale(.7)",
+              }}
+            >
+              {letter}
+            </span>
+          ))}
+        </span>
       </div>
       <button
         className="gate__btn"

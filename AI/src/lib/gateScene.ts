@@ -28,34 +28,6 @@ function rng(seed: number): () => number {
 interface Star { x: number; y: number; r: number; a: number; sp: number; ph: number; c: string; depth: number }
 interface Rock { x: number; y: number; size: number; rot: number; spin: number; sp: number; ph: number; pts: number[]; tone: string; craters: number[][] }
 interface Speck { x: number; y: number; r: number; sp: number; a: number }
-interface Key { p: number; x: number; y: number; r: number; a: number }
-
-// Where the water drop is over time (x, y as fraction of the screen).
-const DROP: Key[] = [
-  { p: 0.0, x: 0.3, y: 0.86, r: 4, a: 0 },
-  { p: 0.05, x: 0.3, y: 0.79, r: 9, a: 1 },
-  { p: 0.14, x: 0.42, y: 0.5, r: 11, a: 1 },
-  { p: 0.24, x: 0.68, y: 0.2, r: 11, a: 1 },
-  { p: 0.33, x: 0.58, y: 0.05, r: 10, a: 1 },
-  { p: 0.42, x: 0.5, y: 0.1, r: 9, a: 1 },
-  { p: 0.6, x: 0.5, y: 0.36, r: 9, a: 1 },
-  { p: 0.76, x: 0.5, y: 0.58, r: 8, a: 1 },
-  { p: 0.82, x: 0.5, y: 0.65, r: 7, a: 1 },
-  { p: 0.88, x: 0.5, y: 0.69, r: 3, a: 0 },
-];
-
-function dropAt(p: number): Key {
-  if (p <= DROP[0].p) return DROP[0];
-  for (let i = 1; i < DROP.length; i++) {
-    const a = DROP[i - 1];
-    const b = DROP[i];
-    if (p <= b.p) {
-      const t = smooth(a.p, b.p, p);
-      return { p, x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), r: lerp(a.r, b.r, t), a: lerp(a.a, b.a, t) };
-    }
-  }
-  return DROP[DROP.length - 1];
-}
 
 // ---- Earth: a real-looking sphere built once from noise (no photos) ----
 function hash(x: number, y: number, sd: number): number {
@@ -441,51 +413,133 @@ export function createScene(W: number, H: number): Scene {
   };
 
   const drawDrop = (ctx: Ctx, p: number): void => {
-    const k = dropAt(p);
-    if (k.a <= 0.01) return;
-    // faint trail
-    for (let i = 1; i <= 22; i++) {
-      const q = p - i * 0.0035;
-      if (q < 0) break;
-      const d = dropAt(q);
-      ctx.globalAlpha = (1 - i / 22) * 0.22 * Math.min(k.a, d.a);
-      ctx.fillStyle = "#cfe3f2";
-      ctx.beginPath();
-      ctx.arc(d.x * W, d.y * H, d.r * (1 - i / 30) * 0.7, 0, Math.PI * 2);
+    // Seven drops: K H O E M, then A and I together.
+    // The last two meet at Earth's center before separating toward the logo.
+    const drops = [
+      { start: 0.10, end: 0.70, slot: 0 },
+      { start: 0.135, end: 0.735, slot: 1 },
+      { start: 0.17, end: 0.77, slot: 2 },
+      { start: 0.205, end: 0.805, slot: 3 },
+      { start: 0.24, end: 0.84, slot: 4 },
+      { start: 0.27, end: 0.89, slot: 6 },
+      { start: 0.27, end: 0.89, slot: 7 },
+    ];
+
+    const slotGap = Math.min(18, W * 0.052);
+    const targetY = Math.min(H * 0.58, H * 0.36 + 105);
+    const earthX = W * 0.5;
+    const earthY = H * 0.66;
+
+    const pointAt = (d: typeof drops[number], u: number): { x: number; y: number } => {
+      const meet = 0.68;
+      const finalX = W * 0.5 + (d.slot - 3.5) * slotGap;
+
+      if (u <= meet) {
+        const q = smooth(0, meet, u);
+        const sx = W * 0.3;
+        const sy = H * 0.80;
+        const cx = W * (0.34 + d.slot * 0.025);
+        const cy = H * 0.30;
+        const v = 1 - q;
+        return {
+          x: v * v * sx + 2 * v * q * cx + q * q * earthX,
+          y: v * v * sy + 2 * v * q * cy + q * q * earthY,
+        };
+      }
+
+      // A and I share the same Earth meeting point, then move apart evenly.
+      const q = smooth(meet, 1, u);
+      return {
+        x: lerp(earthX, finalX, q),
+        y: lerp(earthY, targetY, q),
+      };
+    };
+
+    for (const d of drops) {
+      if (p < d.start || p > d.end) continue;
+
+      const u = clamp01((p - d.start) / (d.end - d.start));
+      const pos = pointAt(d, u);
+      const fadeIn = smooth(0, 0.045, u);
+      const fadeOut = 1 - smooth(0.91, 1, u);
+      const alpha = fadeIn * fadeOut;
+      if (alpha <= 0.01) continue;
+
+      // Soft water trail, following the same curved route.
+      for (let j = 12; j >= 1; j--) {
+        const trailU = Math.max(0, u - j * 0.022);
+        const trail = pointAt(d, trailU);
+        const trailAlpha = alpha * (1 - j / 13) * 0.17;
+        ctx.globalAlpha = trailAlpha;
+        ctx.fillStyle = "#cfe8f7";
+        ctx.beginPath();
+        ctx.arc(trail.x, trail.y, Math.max(1, 4.2 * (1 - j / 15)), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const radius = 7.2 * (0.82 + Math.sin(u * Math.PI) * 0.25);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(pos.x, pos.y);
+      dropPath(ctx, radius);
+
+      const body = ctx.createRadialGradient(
+        -radius * 0.3, -radius * 0.35, 0,
+        0, 0, radius * 1.4,
+      );
+      body.addColorStop(0, "rgba(255,255,255,0.82)");
+      body.addColorStop(0.42, "rgba(205,231,246,0.58)");
+      body.addColorStop(1, "rgba(105,165,205,0.38)");
+      ctx.fillStyle = body;
       ctx.fill();
+      ctx.strokeStyle = "rgba(245,252,255,0.85)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = "rgba(255,255,255,0.88)";
+      ctx.beginPath();
+      ctx.ellipse(-radius * 0.32, -radius * 0.24, radius * 0.13, radius * 0.29, -0.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
-    ctx.globalAlpha = k.a;
-    ctx.save();
-    ctx.translate(k.x * W, k.y * H);
-    dropPath(ctx, k.r);
-    const body = ctx.createRadialGradient(-k.r * 0.3, -k.r * 0.2, 0, 0, 0, k.r * 1.3);
-    body.addColorStop(0, "rgba(235,246,255,0.55)");
-    body.addColorStop(0.7, "rgba(150,195,225,0.28)");
-    body.addColorStop(1, "rgba(120,175,215,0.45)");
-    ctx.fillStyle = body;
-    ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,0.75)";
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.beginPath();
-    ctx.ellipse(-k.r * 0.35, -k.r * 0.15, k.r * 0.12, k.r * 0.3, -0.4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-    ctx.globalAlpha = 1;
-    // light as it meets the atmosphere
-    const f = smooth(0.78, 0.84, p) * (1 - smooth(0.84, 0.9, p));
-    if (f > 0.01) {
-      const x = k.x * W;
-      const y = k.y * H;
-      const gl = ctx.createRadialGradient(x, y, 0, x, y, 70);
-      gl.addColorStop(0, "rgba(255,240,215," + 0.85 * f + ")");
-      gl.addColorStop(0.4, "rgba(140,190,255," + 0.35 * f + ")");
-      gl.addColorStop(1, "rgba(140,190,255,0)");
-      ctx.fillStyle = gl;
+
+    // Gentle contact shimmer when A and I meet at Earth.
+    const impact = smooth(0.685, 0.705, p) * (1 - smooth(0.745, 0.775, p));
+    if (impact > 0.01) {
+      const pulse = 9 + impact * 23;
+      ctx.save();
+      ctx.globalAlpha = impact * 0.72;
+      ctx.strokeStyle = "rgba(220,242,255,0.9)";
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(x, y, 70, 0, Math.PI * 2);
+      ctx.arc(earthX, earthY, pulse, 0, Math.PI * 2);
+      ctx.stroke();
+
+      const glow = ctx.createRadialGradient(earthX, earthY, 0, earthX, earthY, 34);
+      glow.addColorStop(0, "rgba(235,248,255,0.42)");
+      glow.addColorStop(1, "rgba(130,190,230,0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(earthX, earthY, 34, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
+    }
+
+    // Small silver-blue flash where the hyphen appears after A and I separate.
+    const dashFlash = smooth(0.915, 0.925, p) * (1 - smooth(0.96, 0.985, p));
+    if (dashFlash > 0.01) {
+      const x = W * 0.5;
+      const y = targetY;
+      ctx.save();
+      ctx.globalAlpha = dashFlash * 0.85;
+      ctx.strokeStyle = "rgba(225,244,255,0.95)";
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(x - 7, y);
+      ctx.lineTo(x + 7, y);
+      ctx.stroke();
+      ctx.restore();
     }
   };
 
