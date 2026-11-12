@@ -1951,3 +1951,35 @@ html[data-theme="day"] #root .status-badge.status-badge .status-badge__dot {
   text-shadow: none !important;
   background: transparent !important;
 }
+
+/* ==========================================
+   GATE + WELCOME PAGE THEME (follows day / night)
+   Night values equal the old hard-coded colours, so night looks the same.
+   ========================================== */
+.gate__logo { top: 36% !important; }
+.gate__name {
+  position: absolute; right: 18px; top: calc(58% + 44px);
+  font-size: 24px; font-weight: 800; letter-spacing: 3px;
+  color: #7dd3fc; text-shadow: 0 0 14px rgba(56,189,248,.8);
+  opacity: 0; transform: translateX(10px);
+  transition: opacity .4s ease, transform .4s ease;
+  pointer-events: none;
+}
+.gate__name.is-on { opacity: 1; transform: none; }
+
+html[data-theme="day"] .gate { background: #EEF7FD; color: #1E3A56; }
+html[data-theme="day"] .gate__count { color: #16a34a; text-shadow: none; }
+html[data-theme="day"] .gate__logo { filter: drop-shadow(0 0 6px rgba(31,95,153,.35)) !important; }
+html[data-theme="day"] .gate__name { color: #1F5F99; text-shadow: none; }
+html[data-theme="day"] .gate__hint { color: #4A6784; }
+html[data-theme="day"] .gate__btn { box-shadow: 0 2px 10px rgba(31,95,153,.35); }
+
+html[data-theme="day"] {
+  --gp-bg: #EEF7FD;
+  --gp-text: #1E3A56;
+  --gp-h1: #1F5F99;
+  --gp-h2: #2B77B8;
+  --gp-btn-bg: #1F6FB2;
+  --gp-btn-border: #1F5F99;
+  --gp-btn-text: #ffffff;
+}

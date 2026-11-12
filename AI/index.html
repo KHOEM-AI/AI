@@ -10,6 +10,14 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script>
+      try {
+        document.documentElement.setAttribute(
+          "data-theme",
+          localStorage.getItem("khoem-ai:theme") === "day" ? "day" : "night"
+        );
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

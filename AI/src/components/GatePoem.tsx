@@ -4,8 +4,8 @@ const overlay: CSSProperties = {
   position: "fixed",
   inset: 0,
   zIndex: 10000,
-  background: "#05080d",
-  color: "#f3f4f6",
+  background: "var(--gp-bg, #05080d)",
+  color: "var(--gp-text, #f3f4f6)",
   overflowY: "auto",
   display: "flex",
   justifyContent: "center",
@@ -22,14 +22,14 @@ const card: CSSProperties = {
 };
 
 const heading: CSSProperties = {
-  color: "#7dd3fc",
+  color: "var(--gp-h1, #7dd3fc)",
   fontSize: 28,
   lineHeight: 1.2,
   marginBottom: 10,
 };
 
 const sectionHeading: CSSProperties = {
-  color: "#bae6fd",
+  color: "var(--gp-h2, #bae6fd)",
   fontSize: 17,
   marginTop: 22,
   marginBottom: 6,
@@ -40,9 +40,9 @@ const button: CSSProperties = {
   marginBottom: 16,
   padding: "13px 28px",
   borderRadius: 999,
-  border: "1px solid #38bdf8",
-  background: "#0284c7",
-  color: "#ffffff",
+  border: "1px solid var(--gp-btn-border, #38bdf8)",
+  background: "var(--gp-btn-bg, #0284c7)",
+  color: "var(--gp-btn-text, #ffffff)",
   fontSize: 16,
   fontWeight: 700,
   cursor: "pointer",
