@@ -79,7 +79,7 @@ keiRouter.post("/eit", async (req, res) => {
 });
 
 // ---- Protection coverage (read-only): roots.json + .baselines/*.json vs files on disk ----
-const SEC = join(KEI_ROOT, "security");
+const SEC = join(CIDC_ROOT, "security"); // protection system lives in Central-Intelligence-Data-Core
 const SKIP_DIRS = new Set(["node_modules", ".git", ".expo", "dist"]);
 const CANDIDATES = [{ name: "CAI", path: "~/CAI" }, { name: "khoem-now", path: "~/khoem-now" }];
 const expand = (p) => p.replace(/^~/, HOME);
