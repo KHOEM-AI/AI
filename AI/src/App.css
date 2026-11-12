@@ -1996,3 +1996,192 @@ html[data-theme="day"] #root [class*="modal"] svg,
 html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) svg {
   color: #2B7BB9 !important;
 }
+/* KHOEM-AI DAY MODE - STATUS BADGES AND DOTS */
+html[data-theme="day"] #root .status-badge--online,
+html[data-theme="day"] #root .status-badge--ready,
+html[data-theme="day"] #root .status-badge--active,
+html[data-theme="day"] #root .status-badge--healthy {
+  --badge-color: #1E8E4E !important;
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  background: #E3F6EA !important;
+  border: 1px solid #1E8E4E !important;
+  box-shadow: 0 0 8px #1E8E4E55 !important;
+}
+html[data-theme="day"] #root .status-badge--developing,
+html[data-theme="day"] #root .status-badge--degraded,
+html[data-theme="day"] #root .status-badge--updating,
+html[data-theme="day"] #root .status-badge--timeout {
+  --badge-color: #9A6700 !important;
+  color: #9A6700 !important;
+  -webkit-text-fill-color: #9A6700 !important;
+  background: #FFF3D1 !important;
+  border: 1px solid #9A6700 !important;
+  box-shadow: 0 0 8px #9A670055 !important;
+}
+html[data-theme="day"] #root .status-badge {
+  --badge-color: #B42343;
+  color: #B42343;
+  background: #FDE7EC;
+  border: 1px solid #B42343;
+  box-shadow: 0 0 8px #B4234355;
+}
+html[data-theme="day"] #root .status-badge--online,
+html[data-theme="day"] #root .status-badge--ready,
+html[data-theme="day"] #root .status-badge--active,
+html[data-theme="day"] #root .status-badge--healthy {
+  --badge-color: #1E8E4E !important;
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  background: #E3F6EA !important;
+  border: 1px solid #1E8E4E !important;
+  box-shadow: 0 0 8px #1E8E4E55 !important;
+}
+html[data-theme="day"] #root .status-badge--developing,
+html[data-theme="day"] #root .status-badge--degraded,
+html[data-theme="day"] #root .status-badge--updating,
+html[data-theme="day"] #root .status-badge--timeout {
+  --badge-color: #9A6700 !important;
+  color: #9A6700 !important;
+  -webkit-text-fill-color: #9A6700 !important;
+  background: #FFF3D1 !important;
+  border: 1px solid #9A6700 !important;
+  box-shadow: 0 0 8px #9A670055 !important;
+}
+html[data-theme="day"] #root .status-badge--online .status-badge__dot,
+html[data-theme="day"] #root .status-badge--ready .status-badge__dot,
+html[data-theme="day"] #root .status-badge--active .status-badge__dot,
+html[data-theme="day"] #root .status-badge--healthy .status-badge__dot {
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  text-shadow: 0 0 8px #1E8E4E !important;
+}
+html[data-theme="day"] #root .status-badge--developing .status-badge__dot,
+html[data-theme="day"] #root .status-badge--degraded .status-badge__dot,
+html[data-theme="day"] #root .status-badge--updating .status-badge__dot,
+html[data-theme="day"] #root .status-badge--timeout .status-badge__dot {
+  color: #D99A00 !important;
+  -webkit-text-fill-color: #D99A00 !important;
+  text-shadow: 0 0 8px #D99A00 !important;
+}
+html[data-theme="day"] #root .status-health--healthy .status-health__dot {
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  text-shadow: 0 0 8px #1E8E4E !important;
+}
+html[data-theme="day"] #root .status-health--developing .status-health__dot,
+html[data-theme="day"] #root .status-health--degraded .status-health__dot,
+html[data-theme="day"] #root .status-health--updating .status-health__dot,
+html[data-theme="day"] #root .status-health--timeout .status-health__dot {
+  color: #D99A00 !important;
+  -webkit-text-fill-color: #D99A00 !important;
+  text-shadow: 0 0 8px #D99A00 !important;
+}
+html[data-theme="day"] #root .status-health {
+  background: #FBFDFF !important;
+  border: 1px solid #B9D6EE !important;
+}
+html[data-theme="day"] #root .status-health--healthy {
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  border-color: #1E8E4E !important;
+  background: #E3F6EA !important;
+}
+html[data-theme="day"] #root .status-card, html[data-theme="day"] #root .status-panel {
+  background: #FBFDFF !important;
+  border-color: #B9D6EE !important;
+}
+html[data-theme="day"] #root .status-card__name, html[data-theme="day"] #root .status-panel__ai-name {
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+}
+html[data-theme="day"] #root .status-card__commands span, html[data-theme="day"] #root .status-card__commands code {
+  background: #EAF3FB !important;
+  border: 1px solid #A5C9E6 !important;
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+}
+/* KHOEM-AI DAY MODE - LAMPS (HIGH SPECIFICITY) */
+html[data-theme="day"][data-theme="day"] #root .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health__dot {
+  font-size: 0 !important;
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  border-radius: 50% !important;
+  vertical-align: middle !important;
+  background: #D1334F !important;
+  background-color: #D1334F !important;
+  box-shadow: 0 0 0 3px #D1334F33, 0 0 8px #D1334F !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge--online .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--ready .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--active .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--healthy .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--healthy .status-health__dot {
+  font-size: 0 !important;
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  border-radius: 50% !important;
+  vertical-align: middle !important;
+  background: #1FA95B !important;
+  background-color: #1FA95B !important;
+  box-shadow: 0 0 0 3px #1FA95B33, 0 0 8px #1FA95B !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge--developing .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--degraded .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--updating .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--timeout .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--developing .status-health__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--degraded .status-health__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--updating .status-health__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--timeout .status-health__dot {
+  font-size: 0 !important;
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  border-radius: 50% !important;
+  vertical-align: middle !important;
+  background: #E0A100 !important;
+  background-color: #E0A100 !important;
+  box-shadow: 0 0 0 3px #E0A10033, 0 0 8px #E0A100 !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge--online,
+html[data-theme="day"][data-theme="day"] #root .status-badge--ready,
+html[data-theme="day"][data-theme="day"] #root .status-badge--active,
+html[data-theme="day"][data-theme="day"] #root .status-badge--healthy {
+  background: #E3F6EA !important;
+  color: #157A40 !important;
+  -webkit-text-fill-color: #157A40 !important;
+  border: 1px solid #157A40 !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge--developing,
+html[data-theme="day"][data-theme="day"] #root .status-badge--degraded,
+html[data-theme="day"][data-theme="day"] #root .status-badge--updating,
+html[data-theme="day"][data-theme="day"] #root .status-badge--timeout {
+  background: #FFF3D1 !important;
+  color: #8A5A00 !important;
+  -webkit-text-fill-color: #8A5A00 !important;
+  border: 1px solid #8A5A00 !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge[style*="--badge-color"] {
+  border: 1px solid var(--badge-color) !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  background: #FFFFFF !important;
+  box-shadow: inset 4px 0 0 var(--badge-color), 0 0 6px color-mix(in srgb, var(--badge-color) 35%, transparent) !important;
+  padding-left: 12px !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-health {
+  font-weight: 700 !important;
+}
