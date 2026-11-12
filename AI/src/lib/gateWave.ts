@@ -34,8 +34,9 @@ export function drawWave(
   h: number,
   p: number,
   theme: "day" | "night",
+  clear = true,
 ): void {
-  ctx.clearRect(0, 0, w, h);
+  if (clear) ctx.clearRect(0, 0, w, h);
   const colors = WAVE_COLORS[theme];
   const baseY = waveBaseY(h);
   const amp = Math.min(36, h * 0.05);

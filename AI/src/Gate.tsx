@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import App from "./App";
 import GatePoem from "./components/GatePoem";
 import { drawWave } from "./lib/gateWave";
+import { createScene, type Scene } from "./lib/gateScene";
 
 const readFlag = (k: string): boolean => {
   try { return sessionStorage.getItem("khoem." + k) === "1"; } catch { return false; }
@@ -11,8 +12,12 @@ const writeFlag = (k: string): void => {
   try { sessionStorage.setItem("khoem." + k, "1"); } catch { /* storage may be disabled */ }
 };
 
-// The name pops up 1 second before the wave reaches the right edge (hold = 3 s).
-const NAME_AT = 2 / 3;
+// Hold time, in milliseconds. The whole space scene plays over this time.
+const HOLD_MS = 60000;
+// The name pops up 1 second before the end.
+const NAME_AT = 1 - 1000 / HOLD_MS;
+// The light wave (3 stripes) starts drawing in the last part of the scene.
+const WAVE_FROM = 0.84;
 
 export default function Gate() {
   const [ok, setOk] = useState(() => readFlag("gate.ok"));
@@ -23,28 +28,39 @@ export default function Gate() {
   const timer = useRef<number | undefined>(undefined);
   const start = useRef<number | null>(null);
   const raf = useRef(0);
+  const scene = useRef<Scene | null>(null);
+  const dpr = useRef(1);
+  const size = useRef({ w: 0, h: 0 });
 
   useEffect(() => {
     const c = cv.current;
     if (!c) return;
-    c.width = window.innerWidth;
-    c.height = window.innerHeight;
+    const d = Math.min(2, window.devicePixelRatio || 1);
+    dpr.current = d;
+    size.current = { w: window.innerWidth, h: window.innerHeight };
+    c.width = Math.round(window.innerWidth * d);
+    c.height = Math.round(window.innerHeight * d);
+    scene.current = createScene(window.innerWidth, window.innerHeight);
     return () => window.clearTimeout(timer.current);
   }, []);
 
-  const draw = (p: number) => {
+  const draw = (p: number, now: number) => {
     const c = cv.current;
-    if (!c) return;
-    const theme = document.documentElement.getAttribute("data-theme") === "day" ? "day" : "night";
-    drawWave(c.getContext("2d")!, c.width, c.height, p, theme);
+    if (!c || !scene.current) return;
+    const ctx = c.getContext("2d")!;
+    const { w, h } = size.current;
+    ctx.setTransform(dpr.current, 0, 0, dpr.current, 0, 0);
+    scene.current.draw(ctx, p, now / 1000);
+    if (p > WAVE_FROM) drawWave(ctx, w, h, (p - WAVE_FROM) / (1 - WAVE_FROM), "night", false);
   };
 
   const tick = () => {
     if (start.current === null) return;
     // eslint-disable-next-line react-hooks/purity
-    const p = Math.min(1, (performance.now() - start.current) / 3000);
+    const now = performance.now();
+    const p = Math.min(1, (now - start.current) / HOLD_MS);
     setPct(p);
-    draw(p);
+    draw(p, now);
     if (p >= 1) {
       // Wave reached the right edge: short pause, then unlock.
       start.current = null;
@@ -66,19 +82,30 @@ export default function Gate() {
     start.current = null;
     cancelAnimationFrame(raf.current);
     const c = cv.current;
-    if (c) c.getContext("2d")!.clearRect(0, 0, c.width, c.height);
+    if (c) {
+      const ctx = c.getContext("2d")!;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, c.width, c.height);
+    }
     setPct(0);
   };
 
   if (ok && !poemDone) return <GatePoem onContinue={() => { setPoemDone(true); writeFlag("gate.poem"); }} />;
   if (ok) return <App />;
 
+  // Logo is shown while waiting, hides while the scene plays, and comes back at the end.
+  const logoOpacity =
+    pct === 0 ? 1 : pct < 0.05 ? 1 - pct / 0.05 : pct < 0.78 ? 0 : Math.min(1, (pct - 0.78) / 0.12);
+
   return (
-    <div className="gate">
+    <div className={"gate" + (pct > 0 ? " is-holding" : "")}>
       <canvas ref={cv} className="gate__canvas" />
-      <img src={khoemLogo} alt="KHOEM-AI" className="gate__eye gate__logo" style={{ width: "180px", height: "auto" }} />
+      <img src={khoemLogo} alt="KHOEM-AI" className="gate__eye gate__logo" style={{ width: "180px", height: "auto", opacity: logoOpacity }} />
       <div className="gate__count">{Math.ceil(pct * 100)}</div>
-      <div className={"gate__name" + (pct >= NAME_AT ? " is-on" : "")}>KHOEM-AI</div>
+      <div className={"gate__name" + (pct >= NAME_AT ? " is-on" : "")}>
+        <span className="gate__name-main">KHOEM-AI</span>
+        <span className="gate__name-sub">KHOEM SOKSIVUTHA</span>
+      </div>
       <button
         className="gate__btn"
         onPointerDown={down}
@@ -87,9 +114,9 @@ export default function Gate() {
         onPointerCancel={up}
         onContextMenu={(e) => e.preventDefault()}
       >
-        HOLD FOR 3 SECONDS
+        HOLD FOR {HOLD_MS / 1000} SECONDS
       </button>
-      <div className="gate__hint">Press and hold for 3 seconds to unlock the app</div>
+      <div className="gate__hint">Press and hold for {HOLD_MS / 1000} seconds to unlock the app</div>
     </div>
   );
 }
