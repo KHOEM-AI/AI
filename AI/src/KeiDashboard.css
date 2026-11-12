@@ -131,3 +131,20 @@ html[data-theme="day"][data-theme="day"] .kei .lv.medium { background: #FFF3D1 !
 
 /* SecurityAlertsCenter: white inline text -> dark on light panel */
 html[data-theme="day"][data-theme="day"] .sac { color: #1E3A56 !important; -webkit-text-fill-color: #1E3A56 !important; }
+/* KHOEM-AI KEI PROTECT - DAY MODE LAMPS */
+html[data-theme="day"][data-theme="day"] .hk, html[data-theme="day"][data-theme="day"] .hk-head { background: #EEF7FD !important; color: #1E3A56 !important; }
+html[data-theme="day"][data-theme="day"] .hk .pr-title { color: #1F5F99 !important; -webkit-text-fill-color: #1F5F99 !important; }
+html[data-theme="day"][data-theme="day"] .pr-row { border-top: 1px solid #B9D6EE !important; }
+html[data-theme="day"][data-theme="day"] .pr-row small { color: #4A6784 !important; -webkit-text-fill-color: #4A6784 !important; }
+html[data-theme="day"][data-theme="day"] .pr-top b { color: #1E3A56 !important; -webkit-text-fill-color: #1E3A56 !important; }
+html[data-theme="day"][data-theme="day"] .bar { background: #DCEAF6 !important; }
+html[data-theme="day"][data-theme="day"] .bar > i { background: linear-gradient(90deg, #1FA95B, #5BD590) !important; }
+html[data-theme="day"][data-theme="day"] .badge { background: #FFF3D1 !important; border: 1px solid #8A5A00 !important; color: #8A5A00 !important; -webkit-text-fill-color: #8A5A00 !important; font-weight: 700 !important; }
+html[data-theme="day"][data-theme="day"] .badge::before, html[data-theme="day"][data-theme="day"] .card em::before {
+  content: "" !important; display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; background: #E0A100; box-shadow: 0 0 0 3px #E0A10033, 0 0 8px #E0A100;
+}
+html[data-theme="day"][data-theme="day"] .badge.ok { background: #E3F6EA !important; border-color: #157A40 !important; color: #157A40 !important; -webkit-text-fill-color: #157A40 !important; }
+html[data-theme="day"][data-theme="day"] .badge.ok::before { background: #1FA95B; box-shadow: 0 0 0 3px #1FA95B33, 0 0 8px #1FA95B; }
+html[data-theme="day"][data-theme="day"] .badge.off { background: #FDE7EC !important; border-color: #B42343 !important; color: #B42343 !important; -webkit-text-fill-color: #B42343 !important; }
+html[data-theme="day"][data-theme="day"] .badge.off::before { background: #D1334F; box-shadow: 0 0 0 3px #D1334F33, 0 0 8px #D1334F; }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import MenuGlyph from './components/MenuGlyph';
 
 type P = { name: string; protected: boolean; covered: number; onDisk: number; outside: number; created: string | null; capped?: boolean };
 type R = { projects: P[]; protectedProjects: number; totalProjects: number; filesCovered: number; filesOnDisk: number };
@@ -24,10 +25,10 @@ export default function KeiProtect({ t, onBack }: { t: Record<string, string>; o
     <div className="hk">
       <div className="hk-head">
         <button onClick={onBack}>← {t.back}</button>
-        <h2 style={{ color: '#7db8ff' }}>🛡️ {t.pTitle}</h2>
+        <h2 className="pr-title" style={{ color: '#7db8ff' }}><span className="kd-icon"><MenuGlyph name="shield" /></span> {t.pTitle}</h2>
         <button onClick={load} disabled={busy}>⟳ {t.reload}</button>
       </div>
-      {err && <p className="muted">⚠ {err}</p>}
+      {err && <p className="muted"><span className="kd-icon"><MenuGlyph name="safety" /></span> {err}</p>}
       {d && (<>
         <section className="kei-cards">
           <div className="card"><span>{t.pCover}</span><b className={d.protectedProjects === d.totalProjects ? 'ok' : 'off'}>{d.protectedProjects}/{d.totalProjects}</b><em>{pc(d.protectedProjects, d.totalProjects)}%</em></div>
