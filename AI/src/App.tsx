@@ -1,6 +1,7 @@
 import khoemLogo from "./assets/khoem-ai-logo.webp";
 import { Fragment, useEffect, useRef, useState } from "react";
 import HeartbeatLogo from "./components/HeartbeatLogo";
+import MenuGlyph from "./components/MenuGlyph";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
 import ControlCenter from "./components/ControlCenter";
@@ -37,6 +38,22 @@ function AppInner() {
   const [honorific, setHonorific] = useState<Honorific | null>(() => loadHonorific());
   const [showHonorific, setShowHonorific] = useState(false);
   const [language, setLanguage] = useState<LanguageCode>(() => loadLanguage());
+  const [theme, setTheme] = useState<"day" | "night">(() => {
+    try {
+      return localStorage.getItem("khoem-ai:theme") === "day" ? "day" : "night";
+    } catch {
+      return "night";
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem("khoem-ai:theme", theme);
+    } catch {
+      // Storage may be disabled.
+    }
+  }, [theme]);
   const [showLanguage, setShowLanguage] = useState(false);
   const [khoemLanguageOptions, setKhoemLanguageOptions] = useState<LanguageOption[]>([]);
   const [languageError, setLanguageError] = useState(false);
@@ -193,7 +210,7 @@ function AppInner() {
 
   return (
     <LanguageProvider value={language}>
-      <div className="app">
+      <div className="app" data-theme={theme}>
         <header className="app__header">
           <button className="app__menu-btn" onClick={() => setShowMenu(true)} aria-label={t.menuOpen}>
             <span className="app__menu-line" />
@@ -226,87 +243,117 @@ function AppInner() {
               </div>
 
               <nav className="app__sidebar-nav">
-                <div className="app__sidebar-section">{"📊 ត្រួតពិនិត្យប្រព័ន្ធ"}</div>
+                <div className="app__sidebar-section">{t.sectionSystem}</div>
+
                 <button className="app__sidebar-item" onClick={() => { setShowStatus(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">📊</span> {t.navStatus}
+                  <MenuGlyph name="status" /> {t.navStatus}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowControl(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🎛</span> {t.navControlCenter}
+                  <MenuGlyph name="control" /> {t.navControlCenter}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🔭</span> {k("ai.menu.observability") || "Observability"}
+                  <MenuGlyph name="observability" /> {t.navObservability}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowAuditMetrics(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">📈</span> {k("ai.menu.auditMetrics") || "Audit & Metrics"}
+                  <MenuGlyph name="audit" /> {t.navAuditMetrics}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">⚙️</span> {k("ai.menu.management") || "Management"}
+                  <MenuGlyph name="settings" /> {t.navManagement}
                 </button>
 
-                <div className="app__sidebar-section">{"💻 កូដ & ឧបករណ៍"}</div>
+                <div className="app__sidebar-section">{t.sectionCode}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowPatchDashboard(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🧩</span> {k("ai.menu.patchDashboard") || "Patch Dashboard"}
+                  <MenuGlyph name="patch" /> {t.navPatchDashboard}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowCodeCenter(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">💻</span> {k("ai.menu.codeCenter") || "Code Center"}
+                  <MenuGlyph name="code" /> {t.navCodeCenter}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🧰</span> {k("ai.menu.toolRegistry") || "Tool Registry"}
+                  <MenuGlyph name="tools" /> {t.navToolRegistry}
                 </button>
-                <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
-                <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
-                <button className="app__sidebar-item" onClick={() => { setShowCidc(true); setShowMenu(false); }}>🧠 CIDC · Central Data Core</button>
-                <button className="app__sidebar-item" onClick={() => { setShowKsv(true); setShowMenu(false); }}><span aria-hidden="true">🕹️</span> KSV · General Device Control</button>
+                <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>
+                  <MenuGlyph name="api" /> {t.navApiCenter}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>
+                  <MenuGlyph name="data" /> {t.navDataCenter}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowCidc(true); setShowMenu(false); }}>
+                  <MenuGlyph name="cidc" /> {t.navCidc}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowKsv(true); setShowMenu(false); }}>
+                  <MenuGlyph name="device" /> {t.navKsv}
+                </button>
 
-                <div className="app__sidebar-section">{"📷 កាមេរ៉ា · រូបភាព · វីដេអូ"}</div>
-                <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
-                <button className="app__sidebar-item" onClick={() => { setShowCai(true); setShowMenu(false); }}><span aria-hidden="true">📷</span> CAI · ស្កេន និងរាប់</button>
+                <div className="app__sidebar-section">{t.sectionMedia}</div>
+                <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}>
+                  <MenuGlyph name="studio" /> {t.navKhoemStudio}
+                </button>
+                <button className="app__sidebar-item" onClick={() => { setShowCai(true); setShowMenu(false); }}>
+                  <MenuGlyph name="camera" /> {t.navCai}
+                </button>
 
-                <div className="app__sidebar-section">{"🛡 ការពារ & សុវត្ថិភាព"}</div>
-                <button className="app__sidebar-item" onClick={() => { setShowKei(true); setShowMenu(false); }}><span aria-hidden="true">🛡️</span> ការពារប្រព័ន្ធ</button>
+                <div className="app__sidebar-section">{t.sectionSecurity}</div>
+                <button className="app__sidebar-item" onClick={() => { setShowKei(true); setShowMenu(false); }}>
+                  <MenuGlyph name="shield" /> {t.navKei}
+                </button>
                 <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🛡</span> {k("ai.menu.safety") || "Safety"}
+                  <MenuGlyph name="safety" /> {t.navSafety}
                 </button>
 
-                <div className="app__sidebar-section">{"⚙ ផ្សេងៗ"}</div>
+                <div className="app__sidebar-section">{t.sectionOther}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
+                  <MenuGlyph name="learning" /> {t.navLearningCenter}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🙏</span> {t.navHonorific}
+                  <MenuGlyph name="honorific" /> {t.navHonorific}
                 </button>
+
+                <button
+                  className="app__sidebar-item app__theme-toggle"
+                  onClick={() => setTheme((current) => current === "night" ? "day" : "night")}
+                  aria-label={theme === "day" ? t.themeDay : t.themeNight}
+                  aria-pressed={theme === "day"}
+                >
+                  <MenuGlyph name={theme === "day" ? "sun" : "moon"} />
+                  <span>{theme === "day" ? t.themeDay : t.themeNight}</span>
+                  <span className="app__theme-indicator">
+                    {theme === "day" ? "DAY" : "NIGHT"}
+                  </span>
+                </button>
+
                 <button className="app__sidebar-item" onClick={() => setShowLanguage((v) => !v)}>
-                  <span aria-hidden="true">🌐</span> {t.navLanguage} · {khoemLanguageOptions.find((o) => o.code === language)?.label ?? language}
+                  <MenuGlyph name="language" /> {t.navLanguage} · {language === "en" ? t.languageEnglish : t.languageKhmer}
                 </button>
+
                 {showLanguage && (
                   <div className="language-panel__list language-panel__list--inline">
-                    {languageError && khoemLanguageOptions.length === 0 && (
-                      <div className="language-option" role="alert">
-                        ទាញយកបញ្ជីភាសាមិនបាន
-                      </div>
-                    )}
-                    {khoemLanguageOptions.map((o) => (
-                      <button
-                        key={o.code}
-                        className={`language-option${language === o.code ? " language-option--active" : ""}`}
-                        onClick={() => { handleSelectLanguage(o.code); setShowLanguage(false); setShowMenu(false); }}
-                      >
-                        <span className="language-option__flag">{o.flag}</span>
-                        <span className="language-option__names">
-                          <span className="language-option__native">{o.label}</span>
-                          <span className="language-option__en">{o.nameEn}</span>
-                        </span>
-                        {language === o.code && <span className="language-option__check">✓</span>}
-                      </button>
-                    ))}
+                    <button
+                      className={`language-option${language === "en" ? " language-option--active" : ""}`}
+                      onClick={() => { handleSelectLanguage("en"); setShowLanguage(false); setShowMenu(false); }}
+                    >
+                      <span className="language-option__names">
+                        <span className="language-option__native">English</span>
+                      </span>
+                      {language === "en" && <span className="language-option__check">✓</span>}
+                    </button>
+                    <button
+                      className={`language-option${language === "km" ? " language-option--active" : ""}`}
+                      onClick={() => { handleSelectLanguage("km"); setShowLanguage(false); setShowMenu(false); }}
+                    >
+                      <span className="language-option__names">
+                        <span className="language-option__native">ខ្មែរ</span>
+                      </span>
+                      {language === "km" && <span className="language-option__check">✓</span>}
+                    </button>
                     <button className="language-panel__back" onClick={() => setShowLanguage(false)}>
                       ← {t.languageClose}
                     </button>
                   </div>
                 )}
+
                 {messages.length > 0 && (
                   <button className="app__sidebar-item" onClick={handleNewChat}>
-                    <span aria-hidden="true">🧹</span> {t.navClearChat}
+                    <MenuGlyph name="clear" /> {t.navClearChat}
                   </button>
                 )}
               </nav>

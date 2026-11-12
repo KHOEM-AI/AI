@@ -15,7 +15,7 @@ async function readJson(rel) {
 
 async function loadIndex() {
   const idx = await readJson("data/index.json");
-  return Array.isArray(idx.datasets) ? idx.datasets : [];
+  return Array.isArray(idx.datasets) ? idx.datasets.filter(d => !d.path.startsWith("data/chat/")) : [];
 }
 
 export function registerColorLightApi(app) {

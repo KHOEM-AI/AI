@@ -44,4 +44,29 @@ export interface Translations {
   videoGenerating: string;
   videoDownload: string;
   videoNoImages: string;
+
+  sectionSystem: string;
+  sectionCode: string;
+  sectionMedia: string;
+  sectionSecurity: string;
+  sectionOther: string;
+  navObservability: string;
+  navAuditMetrics: string;
+  navManagement: string;
+  navPatchDashboard: string;
+  navCodeCenter: string;
+  navToolRegistry: string;
+  navApiCenter: string;
+  navDataCenter: string;
+  navCidc: string;
+  navKsv: string;
+  navKhoemStudio: string;
+  navCai: string;
+  navKei: string;
+  navSafety: string;
+  navLearningCenter: string;
+  languageEnglish: string;
+  languageKhmer: string;
+  themeDay: string;
+  themeNight: string;
 }

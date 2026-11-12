@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { Message } from "../types";
 import { useLanguageCode } from "../i18n";
 import { useKhoem } from "../hooks/useKhoem";
-import { speakText, stopSpeaking, speechSupported, getVoicePreset, getEmotion } from "../useSpeechOutput";
+import { stopSpeaking, speechSupported, getVoicePreset } from "../useSpeechOutput";
 
 interface Props {
   message: Message;
@@ -51,6 +51,32 @@ export default function MessageActions({ message, isLast, disabled, onFeedback, 
   };
   const [copied, setCopied] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      stopSpeaking();
+    };
+  }, []);
+
+  function mapPresetToProfile(presetId: string): string {
+    const map: Record<string, string> = {
+      child_boy: "kid_boy_1", child_girl: "kid_girl_1",
+      teen_boy: "adult_male_soft", teen_girl: "adult_female_soft",
+      young_man: "adult_male_normal", young_woman: "adult_female_normal",
+      husband: "adult_male_deep", wife: "adult_female_strict",
+      father: "old_male_1", mother: "old_female_1",
+      grandfather: "old_grandpa", grandmother: "old_grandma",
+      big_brother: "tiktok_male_1", big_sister: "tiktok_female_1",
+      male_friend: "tiktok_male_2", female_friend: "tiktok_female_2",
+      foreman: "story_epic", worker: "news_anchor_m"
+    };
+    return map[presetId] || "adult_female_normal";
+  }
+
   async function handleCopy() {
     if (await copyText(message.text)) {
       setCopied(true);
@@ -58,13 +84,42 @@ export default function MessageActions({ message, isLast, disabled, onFeedback, 
     }
   }
 
-  function handleSpeak() {
+  async function handleSpeak() {
     if (speaking) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       stopSpeaking();
       setSpeaking(false);
       return;
     }
-    if (speakText(message.text, getVoicePreset(), () => setSpeaking(false), getEmotion())) setSpeaking(true);
+
+    setSpeaking(true);
+    try {
+      const profile = mapPresetToProfile(getVoicePreset());
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: message.text, profile })
+      });
+
+      if (!res.ok) throw new Error("TTS API failed");
+
+      const data = await res.json();
+      if (data.audioUrl) {
+        const audio = new Audio(data.audioUrl);
+        audioRef.current = audio;
+        audio.onended = () => setSpeaking(false);
+        audio.onerror = () => setSpeaking(false);
+        await audio.play();
+      } else {
+        setSpeaking(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setSpeaking(false);
+    }
   }
 
 

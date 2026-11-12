@@ -1,5 +1,7 @@
 import { keiRouter } from "./src/ai/kei.mjs";
 import express from "express";
+import crypto from "node:crypto";
+import { generateVoice } from "./src/ai/ttsEngine.mjs";
 import { createIqaiProxy } from "./src/ai/iqaiProxy.mjs";
 import { registerAllApis } from "./src/ai/registerAll.mjs";
 import { registerColorLightApi } from "./src/ai/colorLight.mjs";
@@ -24,6 +26,7 @@ const isOwnUi = (req) =>
   ALLOWED_ORIGINS.includes(req.get("origin") || "") ||
   (!req.get("origin") && req.get("sec-fetch-site") === "same-origin");
 app.use(express.json({ limit: "2mb" }));
+app.use("/audio", express.static("public/audio"));
 app.use(trackActivity);
 app.use("/api", inputGuardMiddleware);
 app.use(
@@ -186,6 +189,23 @@ app.post("/api/chat", async (req, res) => {
       provider: err.provider || aiCore.provider,
       status: err.status || 500,
     });
+  }
+});
+
+
+app.post("/api/tts", async (req, res) => {
+  const { text, profile } = req.body;
+  if (!text) return res.status(400).json({ error: "Text is required" });
+
+  const filename = `${crypto.randomUUID()}.mp3`;
+  const outputPath = `public/audio/${filename}`;
+
+  try {
+    await generateVoice(text, profile || "adult_female_normal", outputPath);
+    res.json({ audioUrl: `/audio/${filename}` });
+  } catch (error) {
+    console.error("TTS Error:", error);
+    res.status(500).json({ error: "Failed to generate voice" });
   }
 });
 
