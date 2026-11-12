@@ -1912,3 +1912,24 @@ html[data-theme="day"] #root .app .composer__input {
   color: #1E3A56 !important;
   -webkit-text-fill-color: #1E3A56 !important;
 }
+/* KHOEM-AI DAY MODE - EMPTY STATE */
+html[data-theme="day"] #root .app .empty-state,
+html[data-theme="day"] #root .app [class*="empty"] {
+  background: #FBFDFF !important;
+  border: 1px solid #B9D6EE !important;
+  box-shadow: 0 2px 10px rgba(30, 80, 130, .12) !important;
+  color: #1E3A56 !important;
+}
+
+html[data-theme="day"] #root .app .empty-state *,
+html[data-theme="day"] #root .app [class*="empty"] * {
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="day"] #root .app .empty-state p,
+html[data-theme="day"] #root .app [class*="empty"] p {
+  color: #4A6784 !important;
+  -webkit-text-fill-color: #4A6784 !important;
+}
