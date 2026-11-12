@@ -210,3 +210,19 @@ export const iqaiMergeVideos = (ids: string[], o: { width?: number; height?: num
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ids, ...o }),
   });
+
+// Slideshow: stored image ids (+ captions, sound) -> mp4 (IQ-AI POST /videos/slideshow)
+export const iqaiSlideshow = (o: {
+  ids: string[];
+  captions?: string[];
+  secondsPerSlide?: number;
+  effect?: string;
+  width?: number;
+  height?: number;
+  sfx?: string | null;
+}) =>
+  iqaiMp4("/videos/slideshow", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...o, sfx: o.sfx || undefined }),
+  });
