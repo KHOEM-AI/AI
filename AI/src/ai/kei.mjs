@@ -5,6 +5,7 @@ import { join, relative } from "node:path";
 
 const HOME = homedir();
 const KEI_ROOT = process.env.KEI_ROOT || join(HOME, "KEI");
+const CIDC_ROOT = process.env.CIDC_ROOT || join(HOME, "Central-Intelligence-Data-Core");
 
 // Any HTTP reply (even 404) = up; no reply/timeout = down.
 async function ping(url) {
@@ -28,9 +29,10 @@ const TARGETS = {
 // No server/port: "ready" = the files are present (not a running process).
 const READY = {
   "khoem-now": () => existsSync(join(HOME, "khoem-now", "package.json")),
+  // Protection system now lives in Central-Intelligence-Data-Core (per-project baselines in security/.baselines/).
   "KEI": () =>
-    existsSync(join(KEI_ROOT, "security", "file-integrity", "integrity.mjs")) &&
-    existsSync(join(KEI_ROOT, "security", ".baseline.json")),
+    existsSync(join(CIDC_ROOT, "security", "file-integrity", "integrity.mjs")) &&
+    existsSync(join(CIDC_ROOT, "security", ".baselines", "KEI.json")),
 };
 
 export const keiRouter = express.Router();
