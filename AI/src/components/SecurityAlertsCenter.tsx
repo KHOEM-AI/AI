@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import MenuGlyph from "./MenuGlyph";
+import "../KeiDashboard.css";
 
 type Alert = { at: string; event: string; ip: string | null; action: string; actor: string; message_km: string; message_en: string };
 type Result = { count: number; alerts: Alert[] };
@@ -30,13 +32,13 @@ export default function SecurityAlertsCenter() {
     <div className="status-card" style={{ marginTop: 16 }}>
       <div className="status-card__extra">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <strong style={{ color: "#fff" }}>🚨 ការព្រមានសុវត្ថិភាព · Security Alerts</strong>
+          <strong className="sac" style={{ color: "#fff" }}><span className="kd-icon"><MenuGlyph name="bell" /></span> ការព្រមានសុវត្ថិភាព · Security Alerts</strong>
           <button onClick={load} disabled={loading}>{loading ? "..." : "Refresh"}</button>
         </div>
-        {error && <div style={{ marginTop: 8, color: "#fff" }}>⚠ {error}</div>}
+        {error && <div className="sac" style={{ marginTop: 8, color: "#fff" }}><span className="kd-icon"><MenuGlyph name="safety" /></span> {error}</div>}
         {data && (
           data.count === 0 ? (
-            <div style={{ marginTop: 8, color: "#fff" }}>✅ គ្មានការព្យាយាមគ្មានសិទ្ធិថ្មីៗទេ · No recent unauthorized attempts</div>
+            <div className="sac" style={{ marginTop: 8, color: "#fff" }}><span className="kd-icon"><MenuGlyph name="safety" /></span> គ្មានការព្យាយាមគ្មានសិទ្ធិថ្មីៗទេ · No recent unauthorized attempts</div>
           ) : (
             data.alerts.map((a, i) => (
               <div key={i} style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.15)" }}>

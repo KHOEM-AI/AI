@@ -67,3 +67,67 @@
 .bar{height:8px;border-radius:4px;background:#1c1c1c;overflow:hidden;margin-bottom:4px}
 .bar>i{display:block;height:100%;background:linear-gradient(90deg,#1fbf6a,#7dffb0)}
 .pr-row small{color:#8a8a8a}
+/* KHOEM-AI KEI - DAY MODE, LAMPS AND ICONS */
+.kd-icon { display: inline-flex; vertical-align: middle; margin-right: 2px; }
+.kd-icon svg { width: 18px; height: 18px; }
+
+html[data-theme="day"][data-theme="day"] .kd-icon svg { color: #2B7BB9 !important; stroke: #2B7BB9 !important; }
+
+html[data-theme="day"][data-theme="day"] .kei, html[data-theme="day"][data-theme="day"] .kei-cards, html[data-theme="day"][data-theme="day"] .kei-grid {
+  background: #EEF7FD !important;
+  color: #1E3A56 !important;
+}
+html[data-theme="day"][data-theme="day"] .kei .card, html[data-theme="day"][data-theme="day"] .kei .panel, html[data-theme="day"][data-theme="day"] .kei .sub {
+  background: #FBFDFF !important;
+  background-image: none !important;
+  border: 1px solid #B9D6EE !important;
+  box-shadow: 0 2px 6px rgba(30, 80, 130, .10) !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
+html[data-theme="day"][data-theme="day"] .kei button {
+  background: #F4F9FD !important;
+  border: 1px solid #A5C9E6 !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  box-shadow: none !important;
+}
+html[data-theme="day"][data-theme="day"] .kei .muted, html[data-theme="day"][data-theme="day"] .kei small, html[data-theme="day"][data-theme="day"] .kei .card span {
+  color: #4A6784 !important;
+  -webkit-text-fill-color: #4A6784 !important;
+}
+
+/* Lamps: filled colored circle before the status word */
+html[data-theme="day"][data-theme="day"] .kei .sub em::before, html[data-theme="day"][data-theme="day"] .kei .card.state::before, html[data-theme="day"][data-theme="day"] .kei .chip::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  background: #E0A100;
+  box-shadow: 0 0 0 3px #E0A10033, 0 0 8px #E0A100;
+}
+html[data-theme="day"][data-theme="day"] .kei .sub em.ok::before, html[data-theme="day"][data-theme="day"] .kei .card.state.ok::before {
+  background: #1FA95B;
+  box-shadow: 0 0 0 3px #1FA95B33, 0 0 8px #1FA95B;
+}
+html[data-theme="day"][data-theme="day"] .kei .sub em.off::before, html[data-theme="day"][data-theme="day"] .kei .card.state.off::before {
+  background: #D1334F;
+  box-shadow: 0 0 0 3px #D1334F33, 0 0 8px #D1334F;
+}
+html[data-theme="day"][data-theme="day"] .kei .sub em.ok, html[data-theme="day"][data-theme="day"] .kei .card.state.ok, html[data-theme="day"][data-theme="day"] .kei b.ok {
+  color: #157A40 !important;
+  -webkit-text-fill-color: #157A40 !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"][data-theme="day"] .kei .sub em.off, html[data-theme="day"][data-theme="day"] .kei .card.state.off, html[data-theme="day"][data-theme="day"] .kei b.off {
+  color: #B42343 !important;
+  -webkit-text-fill-color: #B42343 !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"][data-theme="day"] .kei .lv.high { background: #FDE7EC !important; color: #B42343 !important; -webkit-text-fill-color: #B42343 !important; border: 1px solid #B42343 !important; }
+html[data-theme="day"][data-theme="day"] .kei .lv.medium { background: #FFF3D1 !important; color: #8A5A00 !important; -webkit-text-fill-color: #8A5A00 !important; border: 1px solid #8A5A00 !important; }
+
+/* SecurityAlertsCenter: white inline text -> dark on light panel */
+html[data-theme="day"][data-theme="day"] .sac { color: #1E3A56 !important; -webkit-text-fill-color: #1E3A56 !important; }

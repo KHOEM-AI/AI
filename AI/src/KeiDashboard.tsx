@@ -3,6 +3,7 @@ import './KeiDashboard.css';
 import KeiHacker from './KeiHacker';
 import KeiEit from './KeiEit';
 import KeiProtect from './KeiProtect';
+import MenuGlyph from './components/MenuGlyph';
 
 type L3 = 'km' | 'en' | 'zh';
 type Lang = L3 | 'th' | 'lo' | 'my' | 'vi' | 'fr' | 'es' | 'ar' | 'pt' | 'hi' | 'ru';
@@ -114,9 +115,9 @@ export default function KeiDashboard() {
       <header className="kei-top">
         <div className="kei-logo"><Shield /><div><b>KHOEM-AI</b><small>{t.title}</small></div></div>
         <h1>{t.dash}</h1>
-        <button className="prtbtn" onClick={() => setScreen('prot')}>🛡️ {t.prot}</button>
-        <button className="hkbtn" onClick={() => setScreen('hacker')}>🚨 {HK[l3]}</button>
-        <button className="eitbtn" onClick={() => setScreen('eit')}>🔢 EI-T</button>
+        <button className="prtbtn" onClick={() => setScreen('prot')}><span className="kd-icon"><MenuGlyph name="shield" /></span> {t.prot}</button>
+        <button className="hkbtn" onClick={() => setScreen('hacker')}><span className="kd-icon"><MenuGlyph name="bell" /></span> {HK[l3]}</button>
+        <button className="eitbtn" onClick={() => setScreen('eit')}><span className="kd-icon"><MenuGlyph name="data" /></span> EI-T</button>
         <div className="kei-lang">
           <button className="flagbtn" onClick={() => setOpen(o => !o)} aria-label="language"><Flag c="en" /></button>
           {open && (
@@ -179,7 +180,7 @@ export default function KeiDashboard() {
           })}
         </div>
       </section>
-      <button className="reload" onClick={() => { load(); loadAl(); }}>⟳ {t.reload}</button>
+      <button className="reload" onClick={() => { load(); loadAl(); }}><span className="kd-icon"><MenuGlyph name="loop" /></span> {t.reload}</button>
       </>)}
     </div>
   );
