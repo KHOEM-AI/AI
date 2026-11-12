@@ -1933,3 +1933,66 @@ html[data-theme="day"] #root .app [class*="empty"] p {
   color: #4A6784 !important;
   -webkit-text-fill-color: #4A6784 !important;
 }
+/* KHOEM-AI DAY MODE - ALL MENU PANELS */
+html[data-theme="day"] [role="dialog"],
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]),
+html[data-theme="day"] #root [class*="modal"],
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) {
+  background: #FBFDFF !important;
+  background-image: none !important;
+  border-color: #B9D6EE !important;
+  box-shadow: 0 4px 16px rgba(30, 80, 130, .15) !important;
+  color: #1E3A56 !important;
+}
+
+html[data-theme="day"] [role="dialog"] *:not(svg):not(path):not(canvas):not(input):not(textarea):not(select):not(button):not(img):not(video),
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) *:not(svg):not(path):not(canvas):not(input):not(textarea):not(select):not(button):not(img):not(video),
+html[data-theme="day"] #root [class*="modal"] *:not(svg):not(path):not(canvas):not(input):not(textarea):not(select):not(button):not(img):not(video),
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) *:not(svg):not(path):not(canvas):not(input):not(textarea):not(select):not(button):not(img):not(video) {
+  background-image: none !important;
+  background-color: #F1F7FC !important;
+  border-color: #B9D6EE !important;
+  box-shadow: none !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+html[data-theme="day"] [role="dialog"] button,
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) button,
+html[data-theme="day"] #root [class*="modal"] button,
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) button {
+  background: #F4F9FD !important;
+  background-image: none !important;
+  border: 1px solid #A5C9E6 !important;
+  box-shadow: none !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="day"] [role="dialog"] input:not([type=range]):not([type=checkbox]):not([type=file]),
+html[data-theme="day"] [role="dialog"] textarea,
+html[data-theme="day"] [role="dialog"] select,
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) input:not([type=range]):not([type=checkbox]):not([type=file]),
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) textarea,
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) select,
+html[data-theme="day"] #root [class*="modal"] input:not([type=range]):not([type=checkbox]):not([type=file]),
+html[data-theme="day"] #root [class*="modal"] textarea,
+html[data-theme="day"] #root [class*="modal"] select,
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) input:not([type=range]):not([type=checkbox]):not([type=file]),
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) textarea,
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) select {
+  background: #FFFFFF !important;
+  border: 1px solid #A5C9E6 !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
+
+html[data-theme="day"] [role="dialog"] svg,
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) svg,
+html[data-theme="day"] #root [class*="modal"] svg,
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) svg {
+  color: #2B7BB9 !important;
+}
