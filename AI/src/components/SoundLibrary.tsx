@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import MenuGlyph from "./MenuGlyph";
+import "./DayExtras.css";
 
 // Reads and edits the IQ-AI sound library through the Vite proxy (/iqai -> :8799/api/v1).
 // The proxy adds the token, so the browser never sees it.
@@ -140,7 +142,7 @@ export default function SoundLibrary() {
 
   return (
     <div style={box}>
-      <div style={{ marginBottom: 6 }}>🔊 បណ្ណាល័យសំឡេង · Sound library ({total})</div>
+      <div style={{ marginBottom: 6 }}><span className="dx-icon"><MenuGlyph name="audio" /></span> បណ្ណាល័យសំឡេង · Sound library ({total})</div>
       <input
         style={{ ...input, width: "55%" }}
         value={q}
@@ -154,11 +156,11 @@ export default function SoundLibrary() {
       </select>
       <label style={{ display: "block", fontSize: 14, marginBottom: 6 }}>
         <input type="checkbox" checked={favOnly} onChange={(e) => setFavOnly(e.target.checked)} />{" "}
-        ⭐ តែចូលចិត្ត · Favorites only
+        <span className="dx-icon"><MenuGlyph name="star" /></span> តែចូលចិត្ត · Favorites only
       </label>
       {busy && <div>កំពុងដំណើរការ... · Working...</div>}
-      {err && <div style={{ color: "#ff8a8a" }}>⚠️ {err}</div>}
-      {actionErr && <div style={{ color: "#ff8a8a" }}>⚠️ {actionErr}</div>}
+      {err && <div className="dx-err" style={{ color: "#ff8a8a" }}><span className="dx-icon"><MenuGlyph name="safety" /></span> {err}</div>}
+      {actionErr && <div className="dx-err" style={{ color: "#ff8a8a" }}><span className="dx-icon"><MenuGlyph name="safety" /></span> {actionErr}</div>}
       {!busy && !err && items.length === 0 && <div>មិនមានសំឡេង · No sounds found</div>}
       {items.map((s) => (
         <div key={s.id} style={{ borderTop: "1px solid rgba(255,255,255,0.1)", padding: "8px 0" }}>

@@ -7,6 +7,8 @@ import {
 } from "../api/client";
 import type { IqaiEmotion } from "../api/client";
 import SoundLibrary from "./SoundLibrary";
+import MenuGlyph from "./MenuGlyph";
+import "./DayExtras.css";
 
 const EMO: Record<string, string> = {
   joy: "😊 សប្បាយ · Joy",
@@ -75,12 +77,12 @@ export default function IqaiCenter({ onClose, embedded = false }: IqaiCenterProp
       onClick={onClose}
     >
       <div
-        style={{ width: "100%", maxWidth: 720, boxSizing: "border-box", margin: embedded ? "0 auto" : "20px auto", background: "#1a1a1f", color: "#eee", borderRadius: 12, padding: 16 }}
+        className="dx-panel" style={{ width: "100%", maxWidth: 720, boxSizing: "border-box", margin: embedded ? "0 auto" : "20px auto", background: "#1a1a1f", color: "#eee", borderRadius: 12, padding: 16 }}
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-          <b style={{ fontSize: 18 }}>🎭 Emotion and Media Analyzer · វិភាគអារម្មណ៍ និងឯកសារ</b>
-          <button style={{ ...btn, background: "#444" }} onClick={onClose}>បិទ · Close</button>
+          <b style={{ fontSize: 18 }}><span className="dx-icon"><MenuGlyph name="emotion" /></span> Emotion and Media Analyzer · វិភាគអារម្មណ៍ និងឯកសារ</b>
+          <button className="dx-btn" style={{ ...btn, background: "#444" }} onClick={onClose}>បិទ · Close</button>
         </div>
 
         <div style={box}>
@@ -116,7 +118,7 @@ export default function IqaiCenter({ onClose, embedded = false }: IqaiCenterProp
         <SoundLibrary />
 
         {busy && <div>កំពុងដំណើរការ... · Working...</div>}
-        {err && <div style={{ color: "#ff8a8a" }}>⚠️ {err}</div>}
+        {err && <div className="dx-err" style={{ color: "#ff8a8a" }}><span className="dx-icon"><MenuGlyph name="safety" /></span> {err}</div>}
       </div>
     </div>
   );

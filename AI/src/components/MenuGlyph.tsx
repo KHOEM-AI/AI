@@ -5,7 +5,7 @@ type MenuGlyphName =
   | "honorific" | "language" | "clear" | "sun" | "moon"
   | "film" | "home" | "audio" | "emotion" | "palette" | "library" | "video" | "cube" | "close"
   | "headphones" | "play" | "pause" | "stop" | "record" | "loop"
-  | "download" | "scissors" | "clock" | "bell" | "mic";
+  | "download" | "scissors" | "clock" | "bell" | "mic" | "star";
 
 const paths: Record<MenuGlyphName, string> = {
   status: "M3 3v18h18 M7 14l4-4 4 3 6-8",
@@ -50,6 +50,7 @@ const paths: Record<MenuGlyphName, string> = {
   clock: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18 M12 7v5l3 2",
   bell: "M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z M10 21h4",
   mic: "M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z M5 11a7 7 0 0 0 14 0 M12 18v3",
+  star: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z",
 };
 
 export default function MenuGlyph({ name }: { name: MenuGlyphName }) {

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { Mesh } from "three";
 import { createThreeScene } from "../ai/threeScene.mjs";
+import MenuGlyph from "./MenuGlyph";
+import "./DayExtras.css";
 
 type ThreeSceneModule = ReturnType<typeof createThreeScene>;
 
@@ -156,11 +158,11 @@ export default function ThreeDStudio({ onClose, onSwitch }: Props) {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {onSwitch && (
             <button className="three-studio__button" onClick={onSwitch}>
-              📷 Camera
+              <span className="dx-icon"><MenuGlyph name="camera" /></span> Camera
             </button>
           )}
           <button className="three-studio__close" onClick={onClose} aria-label="Close 3D Studio">
-            ✕
+            <span className="dx-icon"><MenuGlyph name="close" /></span>
           </button>
         </div>
       </header>
@@ -176,7 +178,7 @@ export default function ThreeDStudio({ onClose, onSwitch }: Props) {
 
       <div className="three-studio__controls">
         <button onClick={toggleRunning} className="three-studio__button">
-          {running ? "Ⅱ Pause orbit" : "▶ Resume orbit"}
+          {running ? (<><span className="dx-icon"><MenuGlyph name="pause" /></span> Pause orbit</>) : (<><span className="dx-icon"><MenuGlyph name="play" /></span> Resume orbit</>)}
         </button>
         <button onClick={() => turnTo(0)} className="three-studio__button">
           Reset 0°
