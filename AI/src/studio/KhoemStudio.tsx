@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import khoemLogo from "../assets/khoem-ai-logo.webp";
 import IqaiCenter from "../components/IqaiCenter";
 import MediaLibrary from "../components/MediaLibrary";
 import CreatePanel from "../components/CreatePanel";
 import ColorLightCenter from "../components/ColorLightCenter";
+import MenuGlyph from "../components/MenuGlyph";
 import TranslatePanel from "./TranslatePanel";
 import { iqaiSoundContentUrl, listSounds, uploadSound, type IqaiSound } from "../api/client";
 import "./studio.css";
@@ -618,28 +619,28 @@ export default function KhoemStudio({ onClose, onOpenAv, onOpen3d }: Props) {
     else setNote("ការបង្កើតរូបភាព/វីដេអូដោយ AI មិនទាន់ភ្ជាប់ provider ទេ។ ឥឡូវនេះអាចកែសំឡេងបាន។");
   };
 
-  const cards: { icon: string; title: string; sub: string; on: boolean; go?: () => void }[] = [
-    { icon: "🎚", title: "កែសំឡេង", sub: "Voice · Music · Effects", on: true, go: () => setView("audio") },
-    { icon: "🎬", title: "កាត់តវីដេអូ", sub: "Clips · Text · Audio", on: !!onOpenAv, go: onOpenAv },
-    { icon: "🎥", title: "បង្កើតវីដេអូ", sub: "Text · Photo → MP4", on: true, go: () => setView("create") },
-    { icon: "🖼", title: "រូបភាព & ឯកសារ", sub: "Library · Share · Inspect", on: true, go: () => setView("media") },
-    { icon: "🌐", title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: true, go: () => setView("translate") },
+  const cards: { icon: ReactNode; title: string; sub: string; on: boolean; go?: () => void }[] = [
+    { icon: <MenuGlyph name="audio" />, title: "កែសំឡេង", sub: "Voice · Music · Effects", on: true, go: () => setView("audio") },
+    { icon: <MenuGlyph name="video" />, title: "កាត់តវីដេអូ", sub: "Clips · Text · Audio", on: !!onOpenAv, go: onOpenAv },
+    { icon: <MenuGlyph name="film" />, title: "បង្កើតវីដេអូ", sub: "Text · Photo → MP4", on: true, go: () => setView("create") },
+    { icon: <MenuGlyph name="library" />, title: "រូបភាព & ឯកសារ", sub: "Library · Share · Inspect", on: true, go: () => setView("media") },
+    { icon: <MenuGlyph name="language" />, title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: true, go: () => setView("translate") },
   ];
 
   return (
     <div className="ks-root" role="dialog" aria-label="KHOEM-AI Creative Studio">
       <nav className="ks-side">
         <img src={khoemLogo} alt="KHOEM-AI" className="ks-logo" />
-        <button className={view === "home" ? "on" : ""} onClick={() => setView("home")}><span>🏠</span><em>Home</em></button>
-        <button className={view === "audio" ? "on" : ""} onClick={() => setView("audio")}><span>🎚</span><em>Audio</em></button>
-        <button className={view === "emotion" ? "on" : ""} onClick={() => setView("emotion")}><span>🎭</span><em>Emotion</em></button>
-        <button className={view === "color" ? "on" : ""} onClick={() => setView("color")}><span>🎨</span><em>Color Palette</em></button>
-        <button className={view === "translate" ? "on" : ""} onClick={() => setView("translate")}><span>🌐</span><em>Translate</em></button>
-        <button className={view === "create" ? "on" : ""} onClick={() => setView("create")}><span>🎥</span><em>Create</em></button>
-        <button className={view === "media" ? "on" : ""} onClick={() => setView("media")}><span>🗂</span><em>Library</em></button>
-        <button disabled={!onOpenAv} onClick={onOpenAv}><span>🎬</span><em>Video</em></button>
-        <button disabled={!onOpen3d} onClick={onOpen3d}><span>🧊</span><em>3D</em></button>
-        <button className="ks-close" onClick={onClose}><span>✕</span><em>បិទ</em></button>
+        <button className={view === "home" ? "on" : ""} onClick={() => setView("home")}><span><MenuGlyph name="home" /></span><em>Home</em></button>
+        <button className={view === "audio" ? "on" : ""} onClick={() => setView("audio")}><span><MenuGlyph name="audio" /></span><em>Audio</em></button>
+        <button className={view === "emotion" ? "on" : ""} onClick={() => setView("emotion")}><span><MenuGlyph name="emotion" /></span><em>Emotion</em></button>
+        <button className={view === "color" ? "on" : ""} onClick={() => setView("color")}><span><MenuGlyph name="palette" /></span><em>Color Palette</em></button>
+        <button className={view === "translate" ? "on" : ""} onClick={() => setView("translate")}><span><MenuGlyph name="language" /></span><em>Translate</em></button>
+        <button className={view === "create" ? "on" : ""} onClick={() => setView("create")}><span><MenuGlyph name="film" /></span><em>Create</em></button>
+        <button className={view === "media" ? "on" : ""} onClick={() => setView("media")}><span><MenuGlyph name="library" /></span><em>Library</em></button>
+        <button disabled={!onOpenAv} onClick={onOpenAv}><span><MenuGlyph name="video" /></span><em>Video</em></button>
+        <button disabled={!onOpen3d} onClick={onOpen3d}><span><MenuGlyph name="cube" /></span><em>3D</em></button>
+        <button className="ks-close" onClick={onClose}><span><MenuGlyph name="close" /></span><em>បិទ</em></button>
       </nav>
 
       <main className="ks-main">

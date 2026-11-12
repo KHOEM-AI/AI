@@ -9,6 +9,7 @@ import {
   uploadMedia,
 } from "../api/client";
 import type { IqaiMedia } from "../api/client";
+import MenuGlyph from "./MenuGlyph";
 
 // Storage + distribution page of the Creative Studio.
 // Stores images / audio / video in IQ-AI (/iqai/media) and lets the user
@@ -115,7 +116,7 @@ export default function MediaLibrary() {
 
   return (
     <div style={box}>
-      <div style={{ marginBottom: 6 }}>🗂 ទុកទិន្នន័យ & ចែកចាយ · Library & Share ({shown.length})</div>
+      <div style={{ marginBottom: 6 }}><span className="ks-inline-icon"><MenuGlyph name="library" /></span> ទុកទិន្នន័យ & ចែកចាយ · Library & Share ({shown.length})</div>
       <input ref={fileRef} type="file" accept="image/*,audio/*,video/*" onChange={(e) => void onFile(e.target.files?.[0])} />
       <select style={{ marginLeft: 6, borderRadius: 8, padding: 6 }} value={type} onChange={(e) => setType(e.target.value)}>
         {TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
@@ -141,7 +142,7 @@ export default function MediaLibrary() {
       )}
       {busy && <div>កំពុងដំណើរការ... · Working...</div>}
       {info && <div style={{ fontSize: 13, opacity: 0.85 }}>{info}</div>}
-      {err && <div style={{ color: "#ff8a8a" }}>⚠️ {err}</div>}
+      {err && <div style={{ color: "#ff8a8a" }}><span className="ks-inline-icon"><MenuGlyph name="safety" /></span> {err}</div>}
       {!busy && !err && shown.length === 0 && <div>មិនមានឯកសារ · Nothing stored yet</div>}
       {shown.map((m) => (
         <div key={m.id} style={{ borderTop: "1px solid rgba(255,255,255,0.1)", padding: "8px 0" }}>

@@ -1,5 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from "react";
 import SoundLibrary from "./SoundLibrary";
+import MenuGlyph from "./MenuGlyph";
+import "./AvStudio.css";
+
+type GlyphName = ComponentProps<typeof MenuGlyph>["name"];
+const TAB_ICONS: Record<string, GlyphName> = { audio: "headphones", video: "video", library: "library", ai: "studio" };
 
 // KHOEM AI Audio · Video · Creative Studio. Calls IQ-AI via the Vite proxy (/iqai).
 type Tab = "audio" | "video" | "library" | "ai";
@@ -378,19 +383,19 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
     } finally { setGBusy(false); }
   });
 
-  const tabs: [Tab, string][] = [["audio", "🎧 Audio"], ["video", "🎬 Video"], ["library", "📚 Library"], ["ai", "✨ AI"]];
+  const tabs: [Tab, string][] = [["audio", "Audio"], ["video", "Video"], ["library", "Library"], ["ai", "AI"]];
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#0b0b10", color: "#fff", overflowY: "auto", padding: 12 }}>
+    <div className="av-root" style={{ position: "fixed", inset: 0, zIndex: 50, background: "#0b0b10", color: "#fff", overflowY: "auto", padding: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <b>KHOEM AI · Audio · Video · Creative Studio</b>
-        <button style={{ ...btn, background: "#444" }} onClick={onClose}>✕</button>
+        <button style={{ ...btn, background: "#444" }} onClick={onClose} aria-label="close"><span className="av-icon"><MenuGlyph name="close" /></span></button>
       </div>
       <div>{tabs.map(([k, l]) => (
-        <button key={k} style={{ ...btn, background: tab === k ? "#4f7cff" : "#2a2a35" }} onClick={() => setTab(k)}>{l}</button>
+        <button key={k} className={tab === k ? "av-on" : ""} style={{ ...btn, background: tab === k ? "#4f7cff" : "#2a2a35" }} onClick={() => setTab(k)}><span className="av-icon"><MenuGlyph name={TAB_ICONS[k] ?? "studio"} /></span> {l}</button>
       ))}</div>
-      {msg && <div style={{ color: "#ff8a8a", marginBottom: 8 }}>⚠️ {msg}</div>}
-      {sys && !sys.ffmpeg && <div style={{ color: "#ffd24f", marginBottom: 8 }}>⚠️ ffmpeg មិនទាន់ដំឡើង (pkg install ffmpeg) · វីដេអូ/ប្តូរសំឡេង មិនដំណើរការ</div>}
-      {sys && sys.ffmpeg && !sys.khmerFont && <div style={{ color: "#ffd24f", marginBottom: 8 }}>⚠️ គ្មានពុម្ពអក្សរខ្មែរ · អត្ថបទ→វីដេអូ មិនដំណើរការ (កំណត់ KHMER_FONT ក្នុង IQ-AI/.env)</div>}
+      {msg && <div className="av-err" style={{ color: "#ff8a8a", marginBottom: 8 }}><span className="av-icon"><MenuGlyph name="safety" /></span> {msg}</div>}
+      {sys && !sys.ffmpeg && <div className="av-warn" style={{ color: "#ffd24f", marginBottom: 8 }}><span className="av-icon"><MenuGlyph name="safety" /></span> ffmpeg មិនទាន់ដំឡើង (pkg install ffmpeg) · វីដេអូ/ប្តូរសំឡេង មិនដំណើរការ</div>}
+      {sys && sys.ffmpeg && !sys.khmerFont && <div className="av-warn" style={{ color: "#ffd24f", marginBottom: 8 }}><span className="av-icon"><MenuGlyph name="safety" /></span> គ្មានពុម្ពអក្សរខ្មែរ · អត្ថបទ→វីដេអូ មិនដំណើរការ (កំណត់ KHMER_FONT ក្នុង IQ-AI/.env)</div>}
 
       {tab === "audio" && (
         <div style={box}>
@@ -399,7 +404,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
             {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
           </select>
           <input style={inp} type="file" accept="audio/*" onChange={(e) => pickFile(e.target.files?.[0])} />
-          <button style={{ ...btn, background: recording ? "#d33" : "#4f7cff" }} onClick={toggleRec}>{recording ? "⏹ បញ្ឈប់ថត" : "⏺ ថត · Record"}</button>
+          <button className={recording ? "av-rec" : ""} style={{ ...btn, background: recording ? "#d33" : "#4f7cff" }} onClick={toggleRec}>{recording ? (<><span className="av-icon"><MenuGlyph name="stop" /></span> បញ្ឈប់ថត</>) : (<><span className="av-icon"><MenuGlyph name="record" /></span> ថត · Record</>)}</button>
           <canvas ref={canvas} width={600} height={120} onClick={seek}
             style={{ width: "100%", height: 120, background: "#000", borderRadius: 8, display: "block", marginBottom: 6 }} />
           <div style={{ height: 6, background: "#222", borderRadius: 3, marginBottom: 8 }}>
@@ -408,10 +413,10 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
           <div style={{ fontSize: 13, opacity: 0.7, marginBottom: 6 }}>
             {buffer ? `${buffer.duration.toFixed(2)} s · ${buffer.sampleRate} Hz · ${buffer.numberOfChannels} ch` : "មិនទាន់មានសំឡេង · No audio loaded"}
           </div>
-          <button style={btn} onClick={() => void play()} disabled={!buffer}>▶ Play</button>
-          <button style={btn} onClick={pause} disabled={!playing}>⏸ Pause</button>
-          <button style={btn} onClick={stop} disabled={!buffer}>⏹ Stop</button>
-          <button style={{ ...btn, background: loop ? "#2a9d5c" : "#2a2a35" }} onClick={toggleLoop} disabled={!buffer}>🔁 Loop{loop ? " ON" : ""}</button>
+          <button style={btn} onClick={() => void play()} disabled={!buffer}><span className="av-icon"><MenuGlyph name="play" /></span> Play</button>
+          <button style={btn} onClick={pause} disabled={!playing}><span className="av-icon"><MenuGlyph name="pause" /></span> Pause</button>
+          <button style={btn} onClick={stop} disabled={!buffer}><span className="av-icon"><MenuGlyph name="stop" /></span> Stop</button>
+          <button className={loop ? "av-on" : ""} style={{ ...btn, background: loop ? "#2a9d5c" : "#2a2a35" }} onClick={toggleLoop} disabled={!buffer}><span className="av-icon"><MenuGlyph name="loop" /></span> Loop{loop ? " ON" : ""}</button>
           <Slider label="Volume" min={0} max={2} step={0.05} value={s.vol} onChange={upd("vol")} />
           <Slider label="Bass" min={-18} max={18} step={1} value={s.bass} unit=" dB" onChange={upd("bass")} />
           <Slider label="Mid" min={-18} max={18} step={1} value={s.mid} unit=" dB" onChange={upd("mid")} />
@@ -419,7 +424,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
           <Slider label="Speed" min={0.5} max={2} step={0.05} value={s.speed} unit="×" onChange={upd("speed")} />
           <Slider label="កាត់ចាប់ផ្ដើម · Trim start" min={0} max={0.99} step={0.01} value={s.a} onChange={(v) => setS((x) => ({ ...x, a: Math.min(v, x.b - 0.01) }))} />
           <Slider label="កាត់ចុង · Trim end" min={0.01} max={1} step={0.01} value={s.b} onChange={(v) => setS((x) => ({ ...x, b: Math.max(v, x.a + 0.01) }))} />
-          <button style={btn} disabled={!buffer} onClick={() => run(async () => { if (buffer) download(await renderWav(buffer, s), "khoem-audio.wav"); })}>⬇ Export WAV</button>
+          <button style={btn} disabled={!buffer} onClick={() => run(async () => { if (buffer) download(await renderWav(buffer, s), "khoem-audio.wav"); })}><span className="av-icon"><MenuGlyph name="download" /></span> Export WAV</button>
         </div>
       )}
 
@@ -433,7 +438,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
           </div>
           {vfile && (
             <div style={{ marginTop: 8 }}>
-              <div style={{ marginBottom: 6 }}>✂ កែវីដេអូ · Edit video</div>
+              <div style={{ marginBottom: 6 }}><span className="av-icon"><MenuGlyph name="scissors" /></span> កែវីដេអូ · Edit video</div>
               <input style={{ ...inp, width: 110 }} type="number" min={0} step={0.1} value={eStart}
                 onChange={(e) => setEStart(e.target.value)} placeholder="ចាប់ផ្ដើម s" />
               <input style={{ ...inp, width: 110 }} type="number" min={0} step={0.1} value={eEnd}
@@ -444,15 +449,15 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
               <label style={{ display: "block", fontSize: 14, marginBottom: 8 }}>
                 <input type="checkbox" checked={eMute} onChange={(e) => setEMute(e.target.checked)} /> 🔇 បិទសំឡេង · Mute
               </label>
-              <button style={btn} onClick={editVideo} disabled={eBusy}>✂ កែ → MP4</button>
+              <button style={btn} onClick={editVideo} disabled={eBusy}><span className="av-icon"><MenuGlyph name="scissors" /></span> កែ → MP4</button>
               <button style={btn} onClick={makeThumb} disabled={eBusy}>🖼 Thumbnail (frame បច្ចុប្បន្ន)</button>
               <button style={btn} onClick={extractAudio} disabled={eBusy}>🔊 ទាញសំឡេង → Audio</button>
-              {eBusy && <div style={{ fontSize: 13, opacity: 0.8 }}>⏳ កំពុងដំណើរការ…</div>}
+              {eBusy && <div style={{ fontSize: 13, opacity: 0.8 }}><span className="av-icon"><MenuGlyph name="clock" /></span> កំពុងដំណើរការ…</div>}
               {eUrl && <video src={eUrl} controls style={{ width: "100%", borderRadius: 8, margin: "6px 0" }} />}
-              {eUrl && <a href={eUrl} download="khoem-edit.mp4" style={{ ...btn, display: "inline-block", textDecoration: "none" }}>⬇ Download MP4</a>}
+              {eUrl && <a href={eUrl} download="khoem-edit.mp4" style={{ ...btn, display: "inline-block", textDecoration: "none" }}><span className="av-icon"><MenuGlyph name="download" /></span> Download MP4</a>}
               {eInfo && <div style={{ fontSize: 13, opacity: 0.8 }}>{eInfo}</div>}
               {tUrl && <img src={tUrl} alt="thumbnail" style={{ width: "100%", borderRadius: 8, margin: "6px 0" }} />}
-              {tUrl && <a href={tUrl} download="khoem-thumb.jpg" style={{ ...btn, display: "inline-block", textDecoration: "none" }}>⬇ Download JPG</a>}
+              {tUrl && <a href={tUrl} download="khoem-thumb.jpg" style={{ ...btn, display: "inline-block", textDecoration: "none" }}><span className="av-icon"><MenuGlyph name="download" /></span> Download JPG</a>}
             </div>
           )}
         </div>
@@ -460,7 +465,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
 
       {tab === "video" && (
         <div style={box}>
-          <div style={{ marginBottom: 6 }}>🎞 បង្កើតវីដេអូ · Create video</div>
+          <div style={{ marginBottom: 6 }}><span className="av-icon"><MenuGlyph name="film" /></span> បង្កើតវីដេអូ · Create video</div>
           <textarea style={{ ...inp, width: "100%", minHeight: 70 }} value={gText}
             onChange={(e) => setGText(e.target.value)} placeholder="អត្ថបទសម្រាប់វីដេអូ…" />
           <div>
@@ -476,7 +481,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
               {sfxTypes.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
-          <button style={btn} onClick={makeTextVideo} disabled={gBusy || !gText.trim()}>📝 អត្ថបទ → វីដេអូ</button>
+          <button style={btn} onClick={makeTextVideo} disabled={gBusy || !gText.trim()}><span className="av-icon"><MenuGlyph name="audit" /></span> អត្ថបទ → វីដេអូ</button>
           <select style={inp} value={gEffect} onChange={(e) => setGEffect(e.target.value)}>
             <option value="zoom-in">zoom-in</option>
             <option value="zoom-out">zoom-out</option>
@@ -486,9 +491,9 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: "none" }} disabled={gBusy}
               onChange={(e) => { makePhotoVideo(e.target.files?.[0]); e.target.value = ""; }} />
           </label>
-          {gBusy && <div style={{ fontSize: 13, opacity: 0.8 }}>⏳ កំពុងបង្កើត…</div>}
+          {gBusy && <div style={{ fontSize: 13, opacity: 0.8 }}><span className="av-icon"><MenuGlyph name="clock" /></span> កំពុងបង្កើត…</div>}
           {gUrl && <video src={gUrl} controls style={{ width: "100%", borderRadius: 8, margin: "6px 0" }} />}
-          {gUrl && <a href={gUrl} download="khoem-video.mp4" style={{ ...btn, display: "inline-block", textDecoration: "none" }}>⬇ Download MP4</a>}
+          {gUrl && <a href={gUrl} download="khoem-video.mp4" style={{ ...btn, display: "inline-block", textDecoration: "none" }}><span className="av-icon"><MenuGlyph name="download" /></span> Download MP4</a>}
           {gInfo && <div style={{ fontSize: 13, opacity: 0.8 }}>{gInfo}</div>}
         </div>
       )}
@@ -497,7 +502,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
 
       {tab === "ai" && (
         <div style={box}>
-          <div style={{ marginBottom: 6 }}>🔔 បង្កើតសំឡេងបែបផែន · SFX</div>
+          <div style={{ marginBottom: 6 }}><span className="av-icon"><MenuGlyph name="bell" /></span> បង្កើតសំឡេងបែបផែន · SFX</div>
           {sfxTypes.length ? (
             <select style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)}>
               {sfxTypes.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -506,7 +511,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
             <input style={inp} value={sfxType} onChange={(e) => setSfxType(e.target.value)} placeholder="type (siren…)" />
           )}
           <button style={btn} onClick={genSfx}>បង្កើត · Generate</button>
-          <div style={{ margin: "10px 0 6px" }}>🗣 ប្តូរសំឡេង · Voice (ប្រើសំឡេងក្នុង Audio Studio)</div>
+          <div style={{ margin: "10px 0 6px" }}><span className="av-icon"><MenuGlyph name="mic" /></span> ប្តូរសំឡេង · Voice (ប្រើសំឡេងក្នុង Audio Studio)</div>
           {voices.filter((v) => !v.natural).map((v) => (
             <button key={v.id} style={btn} onClick={() => void applyVoice(v.id)}>{v.label}</button>
           ))}
@@ -519,7 +524,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
               <button style={btn} disabled={!natural} onClick={() => void applyVoice(natural)}>ប្រើ · Apply</button>
             </div>
           )}
-          <div style={{ margin: "10px 0 6px" }}>📝 អត្ថបទទៅសំឡេង · Text-to-Speech</div>
+          <div style={{ margin: "10px 0 6px" }}><span className="av-icon"><MenuGlyph name="audit" /></span> អត្ថបទទៅសំឡេង · Text-to-Speech</div>
           <input style={{ ...inp, width: "70%" }} value={ttsText} onChange={(e) => setTtsText(e.target.value)} placeholder="អត្ថបទ…" />
           <button style={btn} onClick={tts} disabled={!ttsText.trim()}>បង្កើត</button>
           <div style={{ fontSize: 13, opacity: 0.7 }}>លទ្ធផលទាំងអស់ត្រូវបានផ្ទុកចូល Audio Studio។ រូបភាព/វីដេអូ AI៖ Not Configured។</div>

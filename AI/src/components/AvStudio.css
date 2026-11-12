@@ -1,0 +1,54 @@
+/* KHOEM-AI AvStudio - icons (both modes) and Day Mode */
+.av-icon { display: inline-flex; vertical-align: middle; margin-right: 2px; }
+.av-icon svg { width: 18px; height: 18px; }
+
+html[data-theme="day"] .av-root {
+  background: #EEF7FD !important;
+  color: #1E3A56 !important;
+}
+
+html[data-theme="day"] .av-root button,
+html[data-theme="day"] .av-root a[download] {
+  background: #F4F9FD !important;
+  border: 1px solid #A5C9E6 !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="day"] .av-root button.av-on {
+  background: #2B7BB9 !important;
+  border-color: #2B7BB9 !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+
+html[data-theme="day"] .av-root button.av-rec {
+  background: #C2416B !important;
+  border-color: #C2416B !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+}
+
+html[data-theme="day"] .av-root input:not([type="range"]):not([type="file"]):not([type="checkbox"]),
+html[data-theme="day"] .av-root textarea,
+html[data-theme="day"] .av-root select {
+  background: #FFFFFF !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  border: 1px solid #A5C9E6 !important;
+}
+
+html[data-theme="day"] .av-root .av-icon svg {
+  color: #2B7BB9 !important;
+  stroke: #2B7BB9 !important;
+}
+
+html[data-theme="day"] .av-root .av-on .av-icon svg,
+html[data-theme="day"] .av-root .av-rec .av-icon svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+
+html[data-theme="day"] .av-root .av-warn { color: #8A5A00 !important; }
+html[data-theme="day"] .av-root .av-err { color: #B42343 !important; }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import MenuGlyph from "./MenuGlyph";
 import { iqaiPhotoVideo, iqaiTextVideo, iqaiVideoOptions, uploadMedia } from "../api/client";
 
 // Create video from text or from a photo (IQ-AI, ffmpeg, offline) and
@@ -22,6 +23,15 @@ export default function CreatePanel({ initialText = "" }: { initialText?: string
   const [sfx, setSfx] = useState("");
   const [effects, setEffects] = useState<string[]>(["zoom-in", "zoom-out"]);
   const [sfxTypes, setSfxTypes] = useState<string[]>([]);
+  // Photo video: up to 120 s (seconds). Text video: typed in MINUTES, up to 1:30 (90 min).
+  const maxDur = 120;
+  const [durText, setDurText] = useState("5"); // "5" = 5 min, "30" = 30 min, "1:30" = 1 h 30 min
+  const textMinutes = (() => {
+    const m = /^(\d+):(\d{1,2})$/.exec(durText);
+    const v = m ? Number(m[1]) * 60 + Number(m[2]) : Number(durText);
+    return Number.isFinite(v) && v > 0 ? Math.min(90, v) : 5;
+  })();
+  const textSeconds = Math.max(1, Math.round(textMinutes * 60));
   const [video, setVideo] = useState<Blob | null>(null);
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -41,8 +51,8 @@ export default function CreatePanel({ initialText = "" }: { initialText?: string
     setBusy(true); setErr(""); setOk("");
     try {
       const blob = mode === "text"
-        ? await iqaiTextVideo({ text, durationSec: dur, bgColor: bg, textColor: fg, sfx: sfx || null })
-        : await iqaiPhotoVideo(photo as File, effect, dur, sfx || null);
+        ? await iqaiTextVideo({ text, durationSec: textSeconds, bgColor: bg, textColor: fg, sfx: sfx || null })
+        : await iqaiPhotoVideo(photo as File, effect, Math.min(dur, maxDur), sfx || null);
       if (urlRef.current) URL.revokeObjectURL(urlRef.current);
       urlRef.current = URL.createObjectURL(blob);
       setVideo(blob); setUrl(urlRef.current);
@@ -64,9 +74,9 @@ export default function CreatePanel({ initialText = "" }: { initialText?: string
 
   return (
     <div style={box}>
-      <div style={{ marginBottom: 8 }}>🎬 បង្កើតវីដេអូ · Create video (offline, ffmpeg)</div>
-      <button style={mode === "text" ? btn : soft} onClick={() => setMode("text")}>📝 ពីអត្ថបទ · Text</button>
-      <button style={mode === "photo" ? btn : soft} onClick={() => setMode("photo")}>🖼 ពីរូបភាព · Photo</button>
+      <div style={{ marginBottom: 8 }}><span className="ks-inline-icon"><MenuGlyph name="film" /></span> បង្កើតវីដេអូ · Create video (offline, ffmpeg)</div>
+      <button style={mode === "text" ? btn : soft} onClick={() => setMode("text")}><span className="ks-inline-icon"><MenuGlyph name="audit" /></span> ពីអត្ថបទ · Text</button>
+      <button style={mode === "photo" ? btn : soft} onClick={() => setMode("photo")}><span className="ks-inline-icon"><MenuGlyph name="library" /></span> ពីរូបភាព · Photo</button>
       <div style={{ marginTop: 8 }}>
         {mode === "text" ? (
           <>
@@ -92,9 +102,11 @@ export default function CreatePanel({ initialText = "" }: { initialText?: string
           </>
         )}
         <div>
-          <label>រយៈពេល · Seconds (1–20){" "}
-            <input style={{ ...input, width: 70 }} type="number" min={1} max={20} value={dur}
-              onChange={(e) => setDur(Math.min(20, Math.max(1, Number(e.target.value) || 5)))} />
+          <label>{mode === "text" ? (<>រយៈពេល · នាទី Minutes (1:30 = 1h30){" "}
+            <input style={{ ...input, width: 90 }} type="text" inputMode="decimal" value={durText}
+              onChange={(e) => setDurText(e.target.value.replace(/[^0-9.:]/g, "").slice(0, 7))} /></>) : (<>រយៈពេល · Seconds (1–{maxDur}){" "}
+            <input style={{ ...input, width: 70 }} type="number" min={1} max={maxDur} value={dur}
+              onChange={(e) => setDur(Math.min(maxDur, Math.max(1, Number(e.target.value) || 5)))} /></>)}
           </label>
           {sfxTypes.length > 0 && (
             <select style={input} value={sfx} onChange={(e) => setSfx(e.target.value)}>
@@ -106,7 +118,7 @@ export default function CreatePanel({ initialText = "" }: { initialText?: string
         <button style={btn} disabled={!canGo} onClick={() => void generate()}>▶ បង្កើត · Generate</button>
       </div>
       {busy && <div>កំពុងដំណើរការ... · Working...</div>}
-      {err && <div style={{ color: "#ff8a8a" }}>⚠️ {err}</div>}
+      {err && <div style={{ color: "#ff8a8a" }}><span className="ks-inline-icon"><MenuGlyph name="safety" /></span> {err}</div>}
       {ok && <div style={{ color: "#8affb0" }}>{ok}</div>}
       {url && (
         <div style={{ marginTop: 8 }}>
