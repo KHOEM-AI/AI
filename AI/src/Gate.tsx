@@ -11,6 +11,9 @@ const writeFlag = (k: string): void => {
   try { sessionStorage.setItem("khoem." + k, "1"); } catch { /* storage may be disabled */ }
 };
 
+// The name pops up 1 second before the wave reaches the right edge (hold = 3 s).
+const NAME_AT = 2 / 3;
+
 export default function Gate() {
   const [ok, setOk] = useState(() => readFlag("gate.ok"));
   const [pct, setPct] = useState(0);
@@ -18,7 +21,6 @@ export default function Gate() {
   const cv = useRef<HTMLCanvasElement>(null);
   const doneRef = useRef(false);
   const timer = useRef<number | undefined>(undefined);
-  const [done, setDone] = useState(false);
   const start = useRef<number | null>(null);
   const raf = useRef(0);
 
@@ -44,11 +46,10 @@ export default function Gate() {
     setPct(p);
     draw(p);
     if (p >= 1) {
-      // Wave reached the right edge: show the name for a moment, then unlock.
+      // Wave reached the right edge: short pause, then unlock.
       start.current = null;
       doneRef.current = true;
-      setDone(true);
-      timer.current = window.setTimeout(() => { setOk(true); writeFlag("gate.ok"); }, 700);
+      timer.current = window.setTimeout(() => { setOk(true); writeFlag("gate.ok"); }, 400);
       return;
     }
     raf.current = requestAnimationFrame(tick);
@@ -77,7 +78,7 @@ export default function Gate() {
       <canvas ref={cv} className="gate__canvas" />
       <img src={khoemLogo} alt="KHOEM-AI" className="gate__eye gate__logo" style={{ width: "180px", height: "auto" }} />
       <div className="gate__count">{Math.ceil(pct * 100)}</div>
-      <div className={"gate__name" + (done ? " is-on" : "")}>KHOEM-AI</div>
+      <div className={"gate__name" + (pct >= NAME_AT ? " is-on" : "")}>KHOEM-AI</div>
       <button
         className="gate__btn"
         onPointerDown={down}

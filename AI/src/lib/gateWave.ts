@@ -21,12 +21,12 @@ function beat(t: number): number {
   );
 }
 
-const BEAT_PX = 150;
+const BEAT_PX = 220;
 const SCALE = [1, 0.72, 0.5];
 const WIDTH = [2.6, 2.1, 1.7];
 const SHIFT = [0, 0.16, 0.32]; // each stripe is a little behind the first
 
-export const waveBaseY = (h: number): number => h * 0.58;
+export const waveBaseY = (h: number): number => h * 0.52;
 
 export function drawWave(
   ctx: CanvasRenderingContext2D,
@@ -38,7 +38,7 @@ export function drawWave(
   ctx.clearRect(0, 0, w, h);
   const colors = WAVE_COLORS[theme];
   const baseY = waveBaseY(h);
-  const amp = Math.min(64, h * 0.09);
+  const amp = Math.min(36, h * 0.05);
   const endX = Math.max(0, Math.min(1, p)) * w;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
@@ -46,7 +46,7 @@ export function drawWave(
     const y0 = baseY + (i - 1) * 6;
     ctx.strokeStyle = colors[i];
     ctx.shadowColor = colors[i];
-    ctx.shadowBlur = theme === "night" ? 8 : 3;
+    ctx.shadowBlur = theme === "night" ? 5 : 2;
     ctx.lineWidth = WIDTH[i];
     ctx.beginPath();
     let lastY = y0;

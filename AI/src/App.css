@@ -1958,14 +1958,17 @@ html[data-theme="day"] #root .status-badge.status-badge .status-badge__dot {
    ========================================== */
 .gate__logo { top: 36% !important; }
 .gate__name {
-  position: absolute; right: 18px; top: calc(58% + 44px);
+  position: absolute; right: 18px; top: calc(52% + 30px);
   font-size: 24px; font-weight: 800; letter-spacing: 3px;
   color: #7dd3fc; text-shadow: 0 0 14px rgba(56,189,248,.8);
-  opacity: 0; transform: translateX(10px);
-  transition: opacity .4s ease, transform .4s ease;
-  pointer-events: none;
+  opacity: 0; pointer-events: none;
 }
-.gate__name.is-on { opacity: 1; transform: none; }
+.gate__name.is-on { animation: gateNamePop .55s ease-out both; }
+@keyframes gateNamePop {
+  0% { opacity: 0; transform: translateY(-16px) scale(.6); }
+  60% { opacity: 1; transform: translateY(4px) scale(1.12); }
+  100% { opacity: 1; transform: none; }
+}
 
 html[data-theme="day"] .gate { background: #EEF7FD; color: #1E3A56; }
 html[data-theme="day"] .gate__count { color: #16a34a; text-shadow: none; }
