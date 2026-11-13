@@ -241,3 +241,20 @@ export const iqaiSlideshow = (o: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...o, sfx: o.sfx || undefined }),
   });
+
+// Story video: scenes (stored photo + caption, or a text card) -> mp4 (IQ-AI POST /videos/story)
+export const iqaiStory = (o: {
+  scenes: { imageId?: string; text?: string; seconds?: number }[];
+  width?: number;
+  height?: number;
+  effect?: string;
+  transition?: string;
+  bgColor?: string;
+  textColor?: string;
+  sfx?: string | null;
+}) =>
+  iqaiMp4("/videos/story", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...o, sfx: o.sfx || undefined }),
+  });
