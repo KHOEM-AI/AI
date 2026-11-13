@@ -624,6 +624,10 @@ export default function KhoemStudio({ onClose, onOpen3d }: Props) {
     { icon: <MenuGlyph name="film" />, title: "បង្កើតវីដេអូ", sub: "Text · Photo → MP4", on: true, go: () => setView("create") },
     { icon: <MenuGlyph name="library" />, title: "រូបភាព & ឯកសារ", sub: "Library · Share · Inspect", on: true, go: () => setView("media") },
     { icon: <MenuGlyph name="language" />, title: "បកប្រែ AI", sub: "ខ្មែរ · English · 中文", on: true, go: () => setView("translate") },
+    { icon: <MenuGlyph name="emotion" />, title: "វិភាគអារម្មណ៍", sub: "Emotion · Text analysis", on: true, go: () => setView("emotion") },
+    { icon: <MenuGlyph name="palette" />, title: "ពណ៌ & ពន្លឺ", sub: "Color Palette · Light", on: true, go: () => setView("color") },
+    { icon: <MenuGlyph name="cube" />, title: "3D", sub: "Model · Scene", on: !!onOpen3d, go: onOpen3d },
+    { icon: <MenuGlyph name="film" />, title: "ភាពយន្ត AI", sub: "Story → Movie · V1…V45 (មិនទាន់ត្រៀម)", on: false },
   ];
 
   return (

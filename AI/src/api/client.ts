@@ -169,6 +169,20 @@ export const iqaiVideoOptions = async (): Promise<IqaiVideoOptions> => {
   return { effects: d.effects ?? [], sfxTypes: d.sfxTypes ?? [] };
 };
 
+// IQ-AI text-to-speech: returns WAV audio bytes.
+export const iqaiTts = async (text: string, lang: "km" | "en"): Promise<Blob> => {
+  const r = await fetch("/iqai/audio/tts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, lang }),
+  });
+  if (!r.ok) {
+    const body = await r.json().catch(() => null);
+    throw new ApiError(r.status, body?.error?.message ?? `TTS HTTP ${r.status}`);
+  }
+  return r.blob();
+};
+
 async function iqaiMp4(path: string, init: RequestInit): Promise<Blob> {
   const r = await fetch(`/iqai${path}`, init);
   if (!r.ok) {
@@ -220,6 +234,7 @@ export const iqaiSlideshow = (o: {
   width?: number;
   height?: number;
   sfx?: string | null;
+  audioId?: string;
 }) =>
   iqaiMp4("/videos/slideshow", {
     method: "POST",

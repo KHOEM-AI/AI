@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import MenuGlyph from "./MenuGlyph";
+import {
+  iqaiInspectAudio,
+  iqaiInspectImage,
+  iqaiInspectVideo,
+} from "../api/client";
+import SoundLibrary from "./SoundLibrary";
 
 // Edit an existing video (trim, resize, speed, mute, thumbnail, extract audio).
 // Uses the same IQ-AI / ffmpeg endpoints as the old Video tab in AvStudio.
@@ -38,6 +44,9 @@ export default function VideoEditPanel() {
   const [audioExt, setAudioExt] = useState("wav");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [inspectInfo, setInspectInfo] = useState("");
+  const [inspectBusy, setInspectBusy] = useState(false);
+  const [inspectErr, setInspectErr] = useState("");
   const vref = useRef<HTMLVideoElement | null>(null);
   const urls = useRef<string[]>([]);
 
@@ -53,6 +62,34 @@ export default function VideoEditPanel() {
     setBusy(true);
     try { await fn(); } catch (e) { setErr(errText(e)); }
     setBusy(false);
+  };
+
+  const runFileInfo = async (f?: File) => {
+    if (!f) return;
+
+    setInspectBusy(true);
+    setInspectErr("");
+    setInspectInfo("");
+
+    try {
+      let result: unknown;
+
+      if (f.type.startsWith("audio/")) {
+        result = await iqaiInspectAudio(f);
+      } else if (f.type.startsWith("image/")) {
+        result = await iqaiInspectImage(f);
+      } else if (f.type.startsWith("video/")) {
+        result = await iqaiInspectVideo(f);
+      } else {
+        throw new Error("ប្រភេទឯកសារមិនគាំទ្រ · ត្រូវការ Audio, Image ឬ Video");
+      }
+
+      setInspectInfo(JSON.stringify(result, null, 2));
+    } catch (e) {
+      setInspectErr(errText(e));
+    } finally {
+      setInspectBusy(false);
+    }
   };
 
   const pick = (f?: File) => {
@@ -131,6 +168,33 @@ export default function VideoEditPanel() {
           <button style={btn} onClick={extract} disabled={busy}>🔊 ទាញសំឡេង</button>
         </div>
       )}
+
+      <section style={{ marginTop: 18, padding: 12, border: "1px solid #8885", borderRadius: 10 }}>
+        <div style={{ marginBottom: 8, fontWeight: 600 }}>
+          📄 ព័ត៌មានឯកសារ · File info
+        </div>
+        <input
+          style={input}
+          type="file"
+          accept="audio/*,image/*,video/*"
+          disabled={inspectBusy}
+          onChange={(e) => void runFileInfo(e.target.files?.[0])}
+        />
+        {inspectBusy && <div style={{ fontSize: 13 }}>កំពុងពិនិត្យឯកសារ…</div>}
+        {inspectErr && <div style={{ color: "#ff8a8a" }}>{inspectErr}</div>}
+        {inspectInfo && (
+          <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", fontSize: 12 }}>
+            {inspectInfo}
+          </pre>
+        )}
+      </section>
+
+      <section style={{ marginTop: 18 }}>
+        <div style={{ marginBottom: 8, fontWeight: 600 }}>
+          🎵 បណ្ណាល័យសំឡេង · Sound Library
+        </div>
+        <SoundLibrary />
+      </section>
 
       {busy && <div style={{ fontSize: 13, opacity: 0.8 }}>កំពុងដំណើរការ… · Working…</div>}
       {err && <div style={{ color: "#ff8a8a" }}>{err}</div>}

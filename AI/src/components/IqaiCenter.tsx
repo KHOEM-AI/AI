@@ -1,12 +1,6 @@
 import { useState } from "react";
-import {
-  iqaiAnalyzeEmotion,
-  iqaiInspectAudio,
-  iqaiInspectImage,
-  iqaiInspectVideo,
-} from "../api/client";
+import { iqaiAnalyzeEmotion } from "../api/client";
 import type { IqaiEmotion } from "../api/client";
-import SoundLibrary from "./SoundLibrary";
 import MenuGlyph from "./MenuGlyph";
 import "./DayExtras.css";
 
@@ -43,7 +37,6 @@ type IqaiCenterProps = {
 export default function IqaiCenter({ onClose, embedded = false }: IqaiCenterProps) {
   const [text, setText] = useState("");
   const [emo, setEmo] = useState<IqaiEmotion | null>(null);
-  const [fileInfo, setFileInfo] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -57,20 +50,6 @@ export default function IqaiCenter({ onClose, embedded = false }: IqaiCenterProp
     setBusy(false);
   }
 
-  async function runFile(file: File | undefined) {
-    if (!file) return;
-    setBusy(true); setErr(""); setFileInfo("");
-    try {
-      let info: unknown;
-      if (file.type.startsWith("audio/")) info = await iqaiInspectAudio(file);
-      else if (file.type.startsWith("image/")) info = await iqaiInspectImage(file);
-      else if (file.type.startsWith("video/")) info = await iqaiInspectVideo(file);
-      else throw new Error("ប្រភេទឯកសារមិនគាំទ្រ (ត្រូវការ សំឡេង រូបភាព ឬ វីដេអូ)");
-      setFileInfo(JSON.stringify(info, null, 2));
-    } catch (e) { setErr(msg(e)); }
-    setBusy(false);
-  }
-
   return (
     <div
       style={embedded ? { position: "relative", width: "100%", minHeight: "100%", overflow: "auto", color: "#eee" } : { position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, overflow: "auto" }}
@@ -81,7 +60,7 @@ export default function IqaiCenter({ onClose, embedded = false }: IqaiCenterProp
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-          <b style={{ fontSize: 18 }}><span className="dx-icon"><MenuGlyph name="emotion" /></span> Emotion and Media Analyzer · វិភាគអារម្មណ៍ និងឯកសារ</b>
+          <b style={{ fontSize: 18 }}><span className="dx-icon"><MenuGlyph name="emotion" /></span> Emotion Analyzer · វិភាគអារម្មណ៍</b>
           <button className="dx-btn" style={{ ...btn, background: "#444" }} onClick={onClose}>បិទ · Close</button>
         </div>
 
@@ -101,21 +80,6 @@ export default function IqaiCenter({ onClose, embedded = false }: IqaiCenterProp
             </div>
           )}
         </div>
-
-        <div style={box}>
-          <div style={{ marginBottom: 6 }}>ព័ត៌មានឯកសារ · File info (សំឡេង Audio WAV · រូបភាព Image · វីដេអូ Video)</div>
-          <input
-            type="file"
-            accept="audio/*,image/*,video/*"
-            disabled={busy}
-            onChange={(e) => runFile(e.target.files?.[0])}
-          />
-          {fileInfo && (
-            <pre style={{ marginTop: 8, fontSize: 13, whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{fileInfo}</pre>
-          )}
-        </div>
-
-        <SoundLibrary />
 
         {busy && <div>កំពុងដំណើរការ... · Working...</div>}
         {err && <div className="dx-err" style={{ color: "#ff8a8a" }}><span className="dx-icon"><MenuGlyph name="safety" /></span> {err}</div>}
