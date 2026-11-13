@@ -1,0 +1,10 @@
+export const CAMERA_PRESETS: string[];
+export const LED_MODES: Record<string, { hex: string; n: number; label: string }>;
+export function cameraPreset(name: string, distance: number): number[];
+export function fitDistance(radius: number, fov: number): number;
+export function guessBodyMaterial(list: { name: string; area: number }[]): string | null | undefined;
+export function isGlb(buf: ArrayBuffer): boolean;
+export function isLedName(name: string): boolean;
+export function isOneShotClip(name: string): boolean;
+export function isWheelName(name: string): boolean;
+export function turntableAngle(t: number, total: number): number;
