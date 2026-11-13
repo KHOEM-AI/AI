@@ -258,3 +258,22 @@ export const iqaiStory = (o: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...o, sfx: o.sfx || undefined }),
   });
+
+// ---- IQ-AI background jobs (/iqai/jobs -> :8799/api/v1/jobs) ----
+// Long work (a story video) runs on the server; start a job, poll it, cancel it. The result is a media item.
+export type IqaiJob = {
+  id: string;
+  type: string;
+  status: "queued" | "running" | "done" | "failed" | "cancelled";
+  progress: number;
+  result?: { mediaId: string; size: number } | null;
+  error?: { code: string; message: string } | null;
+};
+export const iqaiStartJob = (type: string, params: Record<string, unknown>) =>
+  iqai<IqaiJob>("/jobs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type, params }),
+  });
+export const iqaiJob = (id: string) => iqai<IqaiJob>(`/jobs/${encodeURIComponent(id)}`);
+export const iqaiCancelJob = (id: string) => iqai<IqaiJob>(`/jobs/${encodeURIComponent(id)}`, { method: "DELETE" });

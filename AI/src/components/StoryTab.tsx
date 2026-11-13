@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { iqaiStory, uploadMedia } from "../api/client";
+import { iqaiCancelJob, iqaiContentUrl, iqaiJob, iqaiStartJob, uploadMedia } from "../api/client";
+import type { IqaiJob } from "../api/client";
 
-// Story video: scenes (photo + optional caption, or a text card), each with its own length,
-// fade transitions and one sound for the whole video (IQ-AI, ffmpeg, offline).
+// Story video as a background job: scenes (photo + optional caption, or a text card), each with its own
+// length, fade transitions and one sound. The server renders it in the background (IQ-AI, ffmpeg, offline);
+// this tab shows progress, can cancel, and plays the result when it is done.
 
 const input: React.CSSProperties = { borderRadius: 8, padding: 8, fontSize: 15, marginRight: 6, marginBottom: 6 };
 const btn: React.CSSProperties = { padding: "8px 14px", borderRadius: 8, border: "none", background: "#4f7cff", color: "#fff", fontSize: 15, marginRight: 8, marginTop: 4 };
@@ -14,10 +16,12 @@ const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 const MAX_SCENES = 30;
 const MAX_TOTAL = 900; // seconds, same as the server
 const SIZES: Record<string, [number, number]> = { "9:16": [720, 1280], "1:1": [720, 720], "16:9": [1280, 720] };
+const POLL_MS = 1500;
 
 type Scene = { key: number; file: File | null; text: string; sec: number };
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfxTypes: string[] }) {
   const [scenes, setScenes] = useState<Scene[]>([]);
@@ -31,12 +35,20 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
   const [video, setVideo] = useState<Blob | null>(null);
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
+  const [phase, setPhase] = useState(""); // what the user sees while busy
+  const [progress, setProgress] = useState(0);
+  const [jobId, setJobId] = useState("");
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
   const urlRef = useRef("");
   const keyRef = useRef(0);
+  const aliveRef = useRef(true);
+  const cancelRef = useRef(false);
 
-  useEffect(() => () => { if (urlRef.current) URL.revokeObjectURL(urlRef.current); }, []);
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => { aliveRef.current = false; if (urlRef.current) URL.revokeObjectURL(urlRef.current); };
+  }, []);
 
   const total = scenes.reduce((n, s) => n + s.sec, 0);
 
@@ -61,8 +73,10 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
   const missing = scenes.findIndex((s) => !s.file && !s.text.trim());
 
   async function generate() {
-    setBusy(true); setErr(""); setOk("");
+    setBusy(true); setErr(""); setOk(""); setProgress(0); setJobId("");
+    cancelRef.current = false;
     try {
+      setPhase("កំពុងបញ្ចូលរូប · Uploading photos...");
       const out: { imageId?: string; text?: string; seconds: number }[] = [];
       for (const s of scenes) {
         const item: { imageId?: string; text?: string; seconds: number } = { seconds: s.sec };
@@ -71,27 +85,39 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
         out.push(item);
       }
       const [width, height] = SIZES[size];
-      const blob = await iqaiStory({
-        scenes: out, width, height, effect, transition, bgColor: bg, textColor: fg, sfx: sfx || null,
+      setPhase("កំពុងបង្កើតវីដេអូ · Rendering...");
+      let job = await iqaiStartJob("video.story", {
+        scenes: out, width, height, effect, transition, bgColor: bg, textColor: fg, sfx: sfx || undefined,
       });
-      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-      urlRef.current = URL.createObjectURL(blob);
-      setVideo(blob); setUrl(urlRef.current);
-    } catch (e) { setErr(msg(e)); }
-    setBusy(false);
+      setJobId(job.id);
+      while (aliveRef.current && (job.status === "queued" || job.status === "running")) {
+        await sleep(POLL_MS);
+        job = await iqaiJob(job.id);
+        if (aliveRef.current) setProgress(job.progress);
+      }
+      if (!aliveRef.current) return;
+      if (job.status === "cancelled" || cancelRef.current) { setOk("បានបោះបង់ · Cancelled"); }
+      else if (job.status === "failed") { throw new Error(job.error ? job.error.message : "Job failed"); }
+      else if (job.status === "done" && job.result) {
+        const r = await fetch(iqaiContentUrl(job.result.mediaId));
+        if (!r.ok) throw new Error(`Could not load the video (${r.status})`);
+        const blob = await r.blob();
+        if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+        urlRef.current = URL.createObjectURL(blob);
+        setVideo(blob); setUrl(urlRef.current);
+        setOk("✅ ចប់ហើយ · Done (រក្សាទុកក្នុងបណ្ណាល័យរួចហើយ · already saved in the library)");
+      }
+    } catch (e) { if (aliveRef.current) setErr(msg(e)); }
+    if (aliveRef.current) { setBusy(false); setPhase(""); setJobId(""); }
   }
 
-  async function save() {
-    if (!video) return;
-    setBusy(true); setErr(""); setOk("");
-    try {
-      await uploadMedia(video, `story-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.mp4`);
-      setOk("☁ បានរក្សាទុកក្នុងបណ្ណាល័យ · Saved to library");
-    } catch (e) { setErr(msg(e)); }
-    setBusy(false);
+  async function cancel() {
+    cancelRef.current = true;
+    if (jobId) { try { await iqaiCancelJob(jobId); } catch (e) { setErr(msg(e)); } }
   }
 
   const effectList = [...effects.filter((x) => x !== "none"), "none"];
+  const pct = Math.round(progress * 100);
 
   return (
     <div style={{ marginTop: 8 }}>
@@ -155,19 +181,29 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
       <button style={btn} disabled={busy || scenes.length === 0 || missing >= 0 || total > MAX_TOTAL} onClick={() => void generate()}>
         ▶ បង្កើត · Generate
       </button>
+      {busy && jobId && <button style={soft} onClick={() => void cancel()}>■ បោះបង់ · Cancel</button>}
       {missing >= 0 && <div style={{ color: "#ffd27a" }}>ឈុតទី {missing + 1} គ្មានរូប ឬអក្សរ · Scene {missing + 1} needs a photo or text</div>}
-      {busy && <div>កំពុងដំណើរការ... (វីដេអូវែងប្រើពេលយូរ) · Working... long videos take a while</div>}
+      {busy && (
+        <div style={{ marginTop: 6 }}>
+          <div>{phase} {jobId && `${pct}%`}</div>
+          {jobId && (
+            <div style={{ height: 8, borderRadius: 4, background: "rgba(255,255,255,0.14)", overflow: "hidden", marginTop: 4 }}>
+              <div style={{ height: "100%", width: `${pct}%`, background: "#4f7cff", transition: "width 0.4s" }} />
+            </div>
+          )}
+        </div>
+      )}
       {err && <div style={{ color: "#ff8a8a" }}>⚠ {err}</div>}
       {ok && <div style={{ color: "#8affb0" }}>{ok}</div>}
       {url && (
         <div style={{ marginTop: 8 }}>
           <video controls src={url} style={{ maxWidth: "100%", maxHeight: 280, borderRadius: 8 }} />
           <div>
-            <button style={btn} disabled={busy} onClick={() => void save()}>☁ រក្សាទុក · Save to library</button>
             <a href={url} download="khoem-story.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
           </div>
         </div>
       )}
+      {video && <div style={{ opacity: 0.7, fontSize: 12 }}>{(video.size / 1048576).toFixed(1)} MB</div>}
     </div>
   );
 }
