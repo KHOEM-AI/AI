@@ -94,7 +94,8 @@ export default function ModelViewer({ onClose }: { onClose?: () => void }) {
         scene.add(sun, new THREE.HemisphereLight(0xaaccff, 0x223344, 0.6));
         const floor = new THREE.Mesh(new THREE.CircleGeometry(4, 64), new THREE.MeshStandardMaterial({ color: 0x1b2438, roughness: 0.9 }));
         floor.rotation.x = -Math.PI / 2;
-        scene.add(floor);
+        floor.visible = false;
+    scene.add(floor);
         const pivot: Group = new THREE.Group();
         scene.add(pivot);
 
@@ -143,7 +144,7 @@ export default function ModelViewer({ onClose }: { onClose?: () => void }) {
               });
             });
           }
-          model = null; mixer = null; actions.clear(); groups.clear(); original.clear(); wheelNodes = [];
+          floor.visible = false; model = null; mixer = null; actions.clear(); groups.clear(); original.clear(); wheelNodes = [];
         };
 
         const place = (name: string) => {
@@ -167,6 +168,7 @@ export default function ModelViewer({ onClose }: { onClose?: () => void }) {
             const c = b.getCenter(new THREE.Vector3());
             m.position.set(m.position.x - c.x, m.position.y - b.min.y, m.position.z - c.z); // centred, standing on the floor
             pivot.add(m);
+        floor.visible = true;
             model = m;
             const size = b.getSize(new THREE.Vector3());
             height = size.y;
