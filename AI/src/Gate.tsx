@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import App from "./App";
 import GatePoem from "./components/GatePoem";
 import { createScene, GATE_HIT, type Scene } from "./lib/gateScene";
+import { drawGems, HOLD_SECONDS, LOGO_IN, SCENE_END } from "./lib/gateGems";
 
 const readFlag = (k: string): boolean => {
   try { return sessionStorage.getItem("khoem." + k) === "1"; } catch { return false; }
@@ -12,7 +13,9 @@ const writeFlag = (k: string): void => {
 };
 
 // Hold time, in milliseconds. The whole space scene plays over this time.
-const HOLD_MS = 20000;
+const HOLD_MS = HOLD_SECONDS * 1000;
+// true: press once and it keeps going. false: hold the finger down.
+const STICKY = true;
 // The logo bursts out when the meteor hits Earth; the name and the voice follow it.
 const NAME_AT = GATE_HIT + 0.04;
 
@@ -88,7 +91,8 @@ export default function Gate() {
     if (!c || !scene.current) return;
     const ctx = c.getContext("2d")!;
     ctx.setTransform(dpr.current, 0, 0, dpr.current, 0, 0);
-    scene.current.draw(ctx, p, now / 1000);
+    scene.current.draw(ctx, Math.min(1, p / SCENE_END), now / 1000);
+    drawGems(ctx, p, now / 1000, window.innerWidth, window.innerHeight);
   };
 
   const tick = () => {
@@ -159,7 +163,7 @@ export default function Gate() {
   };
 
   const up = () => {
-    if (ok || doneRef.current) return;
+    if (STICKY || ok || doneRef.current) return;
     start.current = null;
     cancelAnimationFrame(raf.current);
 
@@ -179,7 +183,7 @@ export default function Gate() {
 
   // Logo is shown while waiting, hides while the scene plays, and comes back at the end.
   const logoOpacity =
-    pct === 0 ? 1 : pct < 0.05 ? 1 - pct / 0.05 : pct < GATE_HIT ? 0 : Math.min(1, (pct - GATE_HIT) / 0.07);
+    pct === 0 ? 1 : pct < 0.05 ? 1 - pct / 0.05 : pct < LOGO_IN ? 0 : Math.min(1, (pct - LOGO_IN) / 0.06);
 
   return (
     <div className={"gate" + (pct > 0 ? " is-holding" : "")}>
@@ -197,9 +201,9 @@ export default function Gate() {
         onPointerCancel={up}
         onContextMenu={(e) => e.preventDefault()}
       >
-        HOLD FOR {HOLD_MS / 1000} SECONDS
+        {STICKY ? "PRESS" : "HOLD"} FOR {HOLD_MS / 1000} SECONDS
       </button>
-      <div className="gate__hint">Press and hold for {HOLD_MS / 1000} seconds to unlock the app</div>
+      <div className="gate__hint">{STICKY ? "Press once" : "Press and hold"} for {HOLD_MS / 1000} seconds to unlock the app</div>
     </div>
   );
 }

@@ -1993,3 +1993,5 @@ html .gate.is-holding { color: #e5e7eb; }
 html .gate.is-holding .gate__hint { color: #cbd5e1; }
 html .gate.is-holding .gate__count { color: #22c55e; }
 html .gate.is-holding .gate__name { color: #7dd3fc; text-shadow: 0 0 14px rgba(56,189,248,.8); }
+
+.gate__name-main { visibility: hidden; }
