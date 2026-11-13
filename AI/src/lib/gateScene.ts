@@ -6,6 +6,9 @@
 
 type Ctx = CanvasRenderingContext2D;
 
+// Progress (0..1) at which the meteor hits Earth and the logo bursts out.
+export const GATE_HIT = 0.86;
+
 export interface Scene {
   draw: (ctx: Ctx, p: number, t: number) => void;
 }
@@ -131,7 +134,7 @@ function makeEarth(): HTMLCanvasElement {
       const edge = al + (vnoise(u * 40, v * 20, 40, 3) - 0.5) * 0.12;
       c = mix(c, ice, smooth(0.8, 0.88, edge));
       const cu = u + 0.08 * (fbm(u, v, 2, 3, 5) - 0.5);
-      const cl = smooth(0.5, 0.7, fbm(cu, v, 5, 5, 33)) * 0.9;
+      const cl = smooth(0.58, 0.8, fbm(cu, v, 5, 5, 33)) * 0.7;
       cloud[k] = Math.round(cl * 255);
       c = mix(c, white, cl);
       col[k * 3] = c[0];
@@ -233,16 +236,30 @@ export function createScene(W: number, H: number): Scene {
     });
   }
 
+  // A faint Milky Way band across the sky (more, smaller stars along a diagonal).
+  const BAND = -0.6;
+  for (let i = 0; i < 110; i++) {
+    const along = (R() - 0.5) * 1.7 * H;
+    const across = (R() + R() - 1) * H * 0.16;
+    const x = W / 2 + Math.cos(BAND) * along - Math.sin(BAND) * across;
+    const y = H / 2 + Math.sin(BAND) * along + Math.cos(BAND) * across;
+    if (x < 0 || x > W || y < 0 || y > H * 0.95) continue;
+    stars.push({ x: x / W, y: y / H, r: 0.3 + R() * 0.55, a: 0.3 + R() * 0.4, sp: 0.4 + R() * 1.2, ph: R() * 6.28, c: "#dbe6ff", depth: 0.1 + R() * 0.5 });
+  }
+  for (let i = 0; i < 7; i++) {
+    stars.push({ x: R(), y: R() * 0.8, r: 1.4 + R() * 0.8, a: 0.85, sp: 0.5 + R(), ph: R() * 6.28, c: starColors[Math.floor(R() * starColors.length)], depth: 0.4 + R() * 0.5 });
+  }
+
   const tones = ["#7a6e60", "#6b6258", "#8a7c6a", "#5d554c"];
   const rocks: Rock[] = [];
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < 18; i++) {
     const n = 8 + Math.floor(R() * 4);
     const pts: number[] = [];
     for (let k = 0; k < n; k++) pts.push(0.65 + R() * 0.5);
     const craters: number[][] = [];
     for (let k = 0; k < 3; k++) craters.push([(R() - 0.5) * 0.9, (R() - 0.5) * 0.9, 0.12 + R() * 0.16]);
     rocks.push({
-      x: R() * 1.4, y: 0.08 + R() * 0.8, size: 5 + R() * 20, rot: R() * 6.28,
+      x: R() * 1.4, y: 0.08 + R() * 0.8, size: 4 + R() * R() * 38, rot: R() * 6.28,
       spin: (R() - 0.5) * 0.8, sp: 0.35 + R() * 0.7, ph: R() * 6.28, pts,
       tone: tones[Math.floor(R() * tones.length)], craters,
     });
@@ -265,6 +282,16 @@ export function createScene(W: number, H: number): Scene {
   for (let i = 0; i < 260; i++) specks2.push({ x: R() * W, y: R(), r: 0.6 + R() * 1.6, c: R() < 0.5 ? "rgba(40,18,10,0.3)" : "rgba(210,130,90,0.22)" });
 
   const drawStars = (ctx: Ctx, p: number, t: number): void => {
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    ctx.rotate(BAND);
+    const haze = ctx.createLinearGradient(0, -H * 0.24, 0, H * 0.24);
+    haze.addColorStop(0, "rgba(170,185,225,0)");
+    haze.addColorStop(0.5, "rgba(170,185,225,0.07)");
+    haze.addColorStop(1, "rgba(170,185,225,0)");
+    ctx.fillStyle = haze;
+    ctx.fillRect(-W * 1.2, -H * 0.24, W * 2.4, H * 0.48);
+    ctx.restore();
     for (const s of stars) {
       const x = (((s.x * W - p * W * 0.6 * s.depth) % W) + W) % W;
       const a = s.a * (0.78 + 0.22 * Math.sin(t * s.sp + s.ph));
@@ -277,23 +304,30 @@ export function createScene(W: number, H: number): Scene {
     ctx.globalAlpha = 1;
   };
 
+  // Earth is a small sphere in the lower-left; the meteor hits its upper-right side.
+  const EARTH_R = W * 0.5;
+  const EARTH_CX = W * 0.18;
+  const EARTH_CY = H * 0.86;
+  const IMPACT = {
+    x: EARTH_CX + EARTH_R * Math.cos((40 * Math.PI) / 180),
+    y: EARTH_CY - EARTH_R * Math.sin((40 * Math.PI) / 180),
+  };
+
   const drawEarth = (ctx: Ctx, p: number): void => {
-    const alpha = smooth(0.3, 0.36, p);
+    const alpha = smooth(0.26, 0.32, p);
     if (alpha <= 0.01) return;
-    const e = smooth(0.3, 0.55, p);
-    const r = W * 1.05;
-    const top = lerp(H * 1.1, H * 0.66, e);
-    const cx = W / 2;
-    const cy = top + r;
+    const cy = lerp(H * 1.5, EARTH_CY, smooth(0.26, 0.46, p));
+    const r = EARTH_R;
+    const cx = EARTH_CX;
     ctx.save();
     ctx.globalAlpha = alpha;
-    const atm = ctx.createRadialGradient(cx, cy, r * 0.97, cx, cy, r * 1.07);
+    const atm = ctx.createRadialGradient(cx, cy, r * 0.97, cx, cy, r * 1.08);
     atm.addColorStop(0, "rgba(110,170,255,0.5)");
     atm.addColorStop(0.4, "rgba(110,170,255,0.22)");
     atm.addColorStop(1, "rgba(110,170,255,0)");
     ctx.fillStyle = atm;
     ctx.beginPath();
-    ctx.arc(cx, cy, r * 1.07, 0, Math.PI * 2);
+    ctx.arc(cx, cy, r * 1.08, 0, Math.PI * 2);
     ctx.fill();
     ctx.drawImage(earthMap, cx - r, cy - r, r * 2, r * 2);
     ctx.restore();
@@ -391,6 +425,11 @@ export function createScene(W: number, H: number): Scene {
       ctx.strokeStyle = "rgba(0,0,0,0.35)";
       ctx.lineWidth = 0.8;
       ctx.stroke();
+      const lit = ctx.createRadialGradient(-sz * 0.45, -sz * 0.45, 0, -sz * 0.45, -sz * 0.45, sz * 1.1);
+      lit.addColorStop(0, "rgba(255,240,220,0.2)");
+      lit.addColorStop(1, "rgba(255,240,220,0)");
+      ctx.fillStyle = lit;
+      ctx.fill();
       ctx.fillStyle = "rgba(0,0,0,0.22)";
       for (const c of a.craters) {
         ctx.beginPath();
@@ -412,134 +451,190 @@ export function createScene(W: number, H: number): Scene {
     ctx.closePath();
   };
 
-  const drawDrop = (ctx: Ctx, p: number): void => {
-    // Seven drops: K H O E M, then A and I together.
-    // The last two meet at Earth's center before separating toward the logo.
-    const drops = [
-      { start: 0.10, end: 0.70, slot: 0 },
-      { start: 0.135, end: 0.735, slot: 1 },
-      { start: 0.17, end: 0.77, slot: 2 },
-      { start: 0.205, end: 0.805, slot: 3 },
-      { start: 0.24, end: 0.84, slot: 4 },
-      { start: 0.27, end: 0.89, slot: 6 },
-      { start: 0.27, end: 0.89, slot: 7 },
-    ];
+  // ---- the water drop that turns into a burning meteor ----
+  const A0 = 0.02; // leaves Mars
+  const B0 = 0.34; // enters from the top-right corner, now burning
+  const HIT = GATE_HIT; // hits Earth and bursts into the logo
+  const P0 = { x: W * 0.3, y: H * 0.8 };
+  const PC = { x: W * 0.62, y: H * 0.2 };
+  const P1 = { x: W * 1.06, y: -H * 0.04 };
+  const S0 = { x: W * 1.04, y: -H * 0.04 };
+  const SC = { x: W * 0.92, y: H * 0.38 };
 
-    const slotGap = Math.min(18, W * 0.052);
-    const targetY = Math.min(H * 0.58, H * 0.36 + 105);
-    const earthX = W * 0.5;
-    const earthY = H * 0.66;
+  const quad = (a: { x: number; y: number }, c: { x: number; y: number }, b: { x: number; y: number }, s: number) => {
+    const v = 1 - s;
+    return { x: v * v * a.x + 2 * v * s * c.x + s * s * b.x, y: v * v * a.y + 2 * v * s * c.y + s * s * b.y };
+  };
+  // Water drop: Mars -> out of the top-right corner.
+  const waterAt = (p: number) => quad(P0, PC, P1, smooth(A0, B0 - 0.02, p));
+  // Meteor: accelerates toward Earth. tt < 0 extends the line back off-screen.
+  const easeFall = (tt: number): number => (tt < 0 ? 0.35 * tt : 0.35 * tt + 0.65 * tt * tt);
+  const fireAt = (tt: number) => quad(S0, SC, IMPACT, easeFall(tt));
 
-    const pointAt = (d: typeof drops[number], u: number): { x: number; y: number } => {
-      const meet = 0.68;
-      const finalX = W * 0.5 + (d.slot - 3.5) * slotGap;
-
-      if (u <= meet) {
-        const q = smooth(0, meet, u);
-        const sx = W * 0.3;
-        const sy = H * 0.80;
-        const cx = W * (0.34 + d.slot * 0.025);
-        const cy = H * 0.30;
-        const v = 1 - q;
-        return {
-          x: v * v * sx + 2 * v * q * cx + q * q * earthX,
-          y: v * v * sy + 2 * v * q * cy + q * q * earthY,
-        };
-      }
-
-      // A and I share the same Earth meeting point, then move apart evenly.
-      const q = smooth(meet, 1, u);
-      return {
-        x: lerp(earthX, finalX, q),
-        y: lerp(earthY, targetY, q),
-      };
-    };
-
-    for (const d of drops) {
-      if (p < d.start || p > d.end) continue;
-
-      const u = clamp01((p - d.start) / (d.end - d.start));
-      const pos = pointAt(d, u);
-      const fadeIn = smooth(0, 0.045, u);
-      const fadeOut = 1 - smooth(0.91, 1, u);
-      const alpha = fadeIn * fadeOut;
-      if (alpha <= 0.01) continue;
-
-      // Soft water trail, following the same curved route.
-      for (let j = 12; j >= 1; j--) {
-        const trailU = Math.max(0, u - j * 0.022);
-        const trail = pointAt(d, trailU);
-        const trailAlpha = alpha * (1 - j / 13) * 0.17;
-        ctx.globalAlpha = trailAlpha;
-        ctx.fillStyle = "#cfe8f7";
-        ctx.beginPath();
-        ctx.arc(trail.x, trail.y, Math.max(1, 4.2 * (1 - j / 15)), 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      const radius = 7.2 * (0.82 + Math.sin(u * Math.PI) * 0.25);
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.translate(pos.x, pos.y);
-      dropPath(ctx, radius);
-
-      const body = ctx.createRadialGradient(
-        -radius * 0.3, -radius * 0.35, 0,
-        0, 0, radius * 1.4,
-      );
-      body.addColorStop(0, "rgba(255,255,255,0.82)");
-      body.addColorStop(0.42, "rgba(205,231,246,0.58)");
-      body.addColorStop(1, "rgba(105,165,205,0.38)");
-      ctx.fillStyle = body;
-      ctx.fill();
-      ctx.strokeStyle = "rgba(245,252,255,0.85)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.fillStyle = "rgba(255,255,255,0.88)";
+  const drawWater = (ctx: Ctx, p: number): void => {
+    if (p < A0 || p > B0) return;
+    const alpha = smooth(A0, A0 + 0.03, p);
+    const pos = waterAt(p);
+    for (let j = 14; j >= 1; j--) {
+      const q = waterAt(Math.max(A0, p - j * 0.006));
+      ctx.globalAlpha = alpha * (1 - j / 15) * 0.18;
+      ctx.fillStyle = "#cfe8f7";
       ctx.beginPath();
-      ctx.ellipse(-radius * 0.32, -radius * 0.24, radius * 0.13, radius * 0.29, -0.4, 0, Math.PI * 2);
+      ctx.arc(q.x, q.y, Math.max(1, 4.5 * (1 - j / 18)), 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
     }
+    const r = 7.5 + 3 * smooth(A0, 0.2, p);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(pos.x, pos.y);
+    dropPath(ctx, r);
+    const body = ctx.createRadialGradient(-r * 0.3, -r * 0.35, 0, 0, 0, r * 1.4);
+    body.addColorStop(0, "rgba(255,255,255,0.82)");
+    body.addColorStop(0.42, "rgba(205,231,246,0.58)");
+    body.addColorStop(1, "rgba(105,165,205,0.38)");
+    ctx.fillStyle = body;
+    ctx.fill();
+    ctx.strokeStyle = "rgba(245,252,255,0.85)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.32, -r * 0.24, r * 0.13, r * 0.29, -0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  };
 
-    // Gentle contact shimmer when A and I meet at Earth.
-    const impact = smooth(0.685, 0.705, p) * (1 - smooth(0.745, 0.775, p));
-    if (impact > 0.01) {
-      const pulse = 9 + impact * 23;
-      ctx.save();
-      ctx.globalAlpha = impact * 0.72;
-      ctx.strokeStyle = "rgba(220,242,255,0.9)";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(earthX, earthY, pulse, 0, Math.PI * 2);
-      ctx.stroke();
+  // Fire colour by age of the flame (0 = hot core, 1 = cooled ember).
+  const fireRGB = (age: number): [number, number, number] => {
+    const stops: [number, number, number][] = [[255, 246, 220], [255, 205, 90], [255, 120, 30], [190, 45, 15]];
+    const x = clamp01(age) * 3;
+    const i = Math.min(2, Math.floor(x));
+    const f = x - i;
+    return [lerp(stops[i][0], stops[i + 1][0], f), lerp(stops[i][1], stops[i + 1][1], f), lerp(stops[i][2], stops[i + 1][2], f)];
+  };
 
-      const glow = ctx.createRadialGradient(earthX, earthY, 0, earthX, earthY, 34);
-      glow.addColorStop(0, "rgba(235,248,255,0.42)");
-      glow.addColorStop(1, "rgba(130,190,230,0)");
-      ctx.fillStyle = glow;
+  const drawFire = (ctx: Ctx, p: number, t: number): void => {
+    if (p < B0 || p >= HIT) return;
+    const tt = (p - B0) / (HIT - B0);
+    const pos = fireAt(tt);
+    const ahead = fireAt(tt + 0.01);
+    const dx = ahead.x - pos.x;
+    const dy = ahead.y - pos.y;
+    const len = Math.max(0.0001, Math.hypot(dx, dy));
+    const nx = -dy / len;
+    const ny = dx / len;
+    const R0 = lerp(6, 11, tt);
+    const N = 46;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    for (let i = N; i >= 0; i--) {
+      const age = i / N;
+      const q = fireAt(tt - i * 0.009);
+      const wob = Math.sin(t * 18 + i * 2.3) * age * R0 * 0.7;
+      const rr = R0 * (1.15 - 0.95 * age) * (1 + 0.18 * Math.sin(t * 25 + i * 1.9));
+      const c = fireRGB(age);
+      ctx.globalAlpha = Math.pow(1 - age, 1.3) * 0.55;
+      ctx.fillStyle = "rgb(" + Math.round(c[0]) + "," + Math.round(c[1]) + "," + Math.round(c[2]) + ")";
       ctx.beginPath();
-      ctx.arc(earthX, earthY, 34, 0, Math.PI * 2);
+      ctx.arc(q.x + nx * wob, q.y + ny * wob, Math.max(0.6, rr), 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
     }
+    // sparks flying off the tail
+    const tick = Math.floor(t * 14);
+    for (let k = 0; k < 10; k++) {
+      const h1 = Math.abs(Math.sin(k * 12.9898 + tick * 78.233) * 43758.5453) % 1;
+      const h2 = Math.abs(Math.sin(k * 39.346 + tick * 11.135) * 24634.6345) % 1;
+      const q = fireAt(tt - (0.01 + h1 * 0.2));
+      const off = (h2 - 0.5) * R0 * 4;
+      ctx.globalAlpha = 0.85 * (1 - h1);
+      ctx.fillStyle = "#ffb060";
+      ctx.fillRect(q.x + nx * off, q.y + ny * off, 1.6, 1.6);
+    }
+    // glow around the head
+    const gl = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, R0 * 3);
+    gl.addColorStop(0, "rgba(255,200,120,0.55)");
+    gl.addColorStop(1, "rgba(255,120,30,0)");
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = gl;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, R0 * 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    // dark rocky core
+    ctx.save();
+    ctx.translate(pos.x, pos.y);
+    ctx.rotate(t * 3);
+    ctx.beginPath();
+    const rock = [1, 0.8, 1.05, 0.85, 1, 0.78, 1.02, 0.9];
+    rock.forEach((m, k) => {
+      const an = (k / rock.length) * Math.PI * 2;
+      const px = Math.cos(an) * R0 * 0.72 * m;
+      const py = Math.sin(an) * R0 * 0.72 * m;
+      if (k === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    });
+    ctx.closePath();
+    ctx.fillStyle = "#2f2620";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,170,90,0.8)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  };
 
-    // Small silver-blue flash where the hyphen appears after A and I separate.
-    const dashFlash = smooth(0.915, 0.925, p) * (1 - smooth(0.96, 0.985, p));
-    if (dashFlash > 0.01) {
-      const x = W * 0.5;
-      const y = targetY;
-      ctx.save();
-      ctx.globalAlpha = dashFlash * 0.85;
-      ctx.strokeStyle = "rgba(225,244,255,0.95)";
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
+  const drawImpact = (ctx: Ctx, p: number): void => {
+    // heat building up in the air just before the hit
+    const heat = smooth(HIT - 0.08, HIT, p) * (1 - smooth(HIT, HIT + 0.02, p));
+    if (heat > 0.01) {
+      const g = ctx.createRadialGradient(IMPACT.x, IMPACT.y, 0, IMPACT.x, IMPACT.y, 60);
+      g.addColorStop(0, "rgba(255,190,120," + 0.5 * heat + ")");
+      g.addColorStop(1, "rgba(255,120,40,0)");
+      ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.moveTo(x - 7, y);
-      ctx.lineTo(x + 7, y);
-      ctx.stroke();
-      ctx.restore();
+      ctx.arc(IMPACT.x, IMPACT.y, 60, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (p < HIT) return;
+    const u = clamp01((p - HIT) / 0.07);
+    const e = 1 - Math.pow(1 - u, 3);
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    // flash that fills the sky, then fades to leave the logo
+    const fr = lerp(10, H * 1.5, e);
+    const fa = Math.pow(1 - u, 1.4) * 0.95;
+    const fg = ctx.createRadialGradient(IMPACT.x, IMPACT.y, 0, IMPACT.x, IMPACT.y, fr);
+    fg.addColorStop(0, "rgba(255,250,235," + fa + ")");
+    fg.addColorStop(0.35, "rgba(255,190,110," + fa * 0.6 + ")");
+    fg.addColorStop(1, "rgba(255,110,30,0)");
+    ctx.fillStyle = fg;
+    ctx.fillRect(0, 0, W, H);
+    // shock ring
+    ctx.globalAlpha = (1 - u) * 0.7;
+    ctx.strokeStyle = "rgba(255,225,180,1)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(IMPACT.x, IMPACT.y, lerp(10, W * 1.1, e), 0, Math.PI * 2);
+    ctx.stroke();
+    // sparks
+    for (let k = 0; k < 28; k++) {
+      const a = (k / 28) * Math.PI * 2 + Math.sin(k * 5.1);
+      const h = Math.abs(Math.sin(k * 91.7) * 1000) % 1;
+      const d = e * W * 0.65 * (0.4 + 0.6 * h);
+      ctx.globalAlpha = (1 - u) * 0.9;
+      ctx.fillStyle = "#ffc47a";
+      ctx.fillRect(IMPACT.x + Math.cos(a) * d, IMPACT.y + Math.sin(a) * d, 2, 2);
+    }
+    ctx.restore();
+    // warm spot on Earth that cools slowly
+    const cool = 1 - smooth(HIT, 1, p);
+    if (cool > 0.01) {
+      const g = ctx.createRadialGradient(IMPACT.x, IMPACT.y, 0, IMPACT.x, IMPACT.y, 40);
+      g.addColorStop(0, "rgba(255,150,70," + 0.5 * cool + ")");
+      g.addColorStop(1, "rgba(255,100,30,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(IMPACT.x, IMPACT.y, 40, 0, Math.PI * 2);
+      ctx.fill();
     }
   };
 
@@ -554,7 +649,9 @@ export function createScene(W: number, H: number): Scene {
       drawEarth(ctx, p);
       drawMars(ctx, p);
       drawRocks(ctx, p);
-      drawDrop(ctx, p);
+      drawWater(ctx, p);
+      drawFire(ctx, p, t);
+      drawImpact(ctx, p);
     },
   };
 }

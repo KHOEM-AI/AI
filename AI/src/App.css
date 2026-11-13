@@ -1993,18 +1993,3 @@ html .gate.is-holding { color: #e5e7eb; }
 html .gate.is-holding .gate__hint { color: #cbd5e1; }
 html .gate.is-holding .gate__count { color: #22c55e; }
 html .gate.is-holding .gate__name { color: #7dd3fc; text-shadow: 0 0 14px rgba(56,189,248,.8); }
-
-/* KHOEM-AI gate letters: reveal in sequence */
-.gate__name-main {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  gap: 2px;
-}
-.gate__letter {
-  display: inline-block;
-  transition: opacity .22s ease, transform .28s ease;
-  color: #c8efff;
-  text-shadow: 0 0 9px rgba(125, 211, 252, .38);
-}
