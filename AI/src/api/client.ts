@@ -277,3 +277,11 @@ export const iqaiStartJob = (type: string, params: Record<string, unknown>) =>
   });
 export const iqaiJob = (id: string) => iqai<IqaiJob>(`/jobs/${encodeURIComponent(id)}`);
 export const iqaiCancelJob = (id: string) => iqai<IqaiJob>(`/jobs/${encodeURIComponent(id)}`, { method: "DELETE" });
+
+// ---- IQ-AI voices (/iqai/audio/voices -> :8799/api/v1/audio/voices) ----
+// Used to choose who reads a story scene aloud (needs the speech engine on the server: IQAI_TTS=edge).
+export type IqaiVoice = { id: string; label: string };
+export const iqaiVoices = async (): Promise<IqaiVoice[]> => {
+  const d = await iqai<{ presets: IqaiVoice[] }>("/audio/voices");
+  return Array.isArray(d.presets) ? d.presets.map((v) => ({ id: v.id, label: v.label })) : [];
+};

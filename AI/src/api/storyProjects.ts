@@ -1,9 +1,9 @@
 // Saved story projects (scenes + settings). Stored in this browser (localStorage). A project keeps the
 // library ids of its photos, not the photos, so the photos must stay in the library.
 
-export type StoryProjectScene = { imageId: string; name: string; text: string; sec: number };
+export type StoryProjectScene = { imageId: string; name: string; text: string; sec: number; say?: string; voice?: string };
 export type StoryProjectSettings = {
-  defSec: number; transition: string; effect: string; size: string; sfx: string; bg: string; fg: string;
+  defSec: number; transition: string; effect: string; size: string; sfx: string; bg: string; fg: string; voice?: string;
 };
 export type StoryProject = {
   id: string; name: string; savedAt: string; settings: StoryProjectSettings; scenes: StoryProjectScene[];

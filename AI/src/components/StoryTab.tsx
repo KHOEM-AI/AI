@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { iqaiCancelJob, iqaiContentUrl, iqaiJob, iqaiStartJob, uploadMedia } from "../api/client";
+import { iqaiCancelJob, iqaiContentUrl, iqaiJob, iqaiStartJob, iqaiVoices, listMedia, uploadMedia } from "../api/client";
+import type { IqaiVoice } from "../api/client";
 import { deleteProject, listProjects, newProjectId, saveProject } from "../api/storyProjects";
 import type { StoryProject } from "../api/storyProjects";
 
@@ -20,7 +21,8 @@ const SIZES: Record<string, [number, number]> = { "9:16": [720, 1280], "1:1": [7
 const POLL_MS = 1500;
 
 // file: a photo picked in this session; imageId: its library id once uploaded (or when opened from a project)
-type Scene = { key: number; file: File | null; imageId: string; name: string; text: string; sec: number };
+type Scene = { key: number; file: File | null; imageId: string; name: string; text: string; say: string; voice: string; sec: number };
+type LibImage = { id: string; type?: string; filename?: string };
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -35,6 +37,10 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
   const [bg, setBg] = useState("#101030");
   const [fg, setFg] = useState("#ffffff");
   const [projects, setProjects] = useState<StoryProject[]>(() => listProjects());
+  const [voices, setVoices] = useState<IqaiVoice[]>([]);
+  const [defVoice, setDefVoice] = useState("");
+  const [libImages, setLibImages] = useState<LibImage[]>([]);
+  const [libPick, setLibPick] = useState("");
   const [projectId, setProjectId] = useState("");
   const [projectName, setProjectName] = useState("");
   const [video, setVideo] = useState<Blob | null>(null);
@@ -50,8 +56,14 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
   const aliveRef = useRef(true);
   const cancelRef = useRef(false);
 
+  async function refreshLibrary() {
+    try { setLibImages(((await listMedia()) as unknown as LibImage[]).filter((m) => m.type === "image")); } catch { /* the list is optional */ }
+  }
+
   useEffect(() => {
     aliveRef.current = true;
+    iqaiVoices().then((v) => { if (aliveRef.current) setVoices(v); }).catch(() => { /* voices are optional; the job reports a real problem */ });
+    void refreshLibrary();
     return () => { aliveRef.current = false; if (urlRef.current) URL.revokeObjectURL(urlRef.current); };
   }, []);
 
@@ -59,10 +71,16 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
 
   function addPhotos(list: FileList | null) {
     if (!list) return;
-    const add = Array.from(list).map((file) => ({ key: ++keyRef.current, file, imageId: "", name: file.name, text: "", sec: defSec }));
+    const add = Array.from(list).map((file) => ({ key: ++keyRef.current, file, imageId: "", name: file.name, text: "", say: "", voice: "", sec: defSec }));
     setScenes((s) => [...s, ...add].slice(0, MAX_SCENES));
   }
-  const addText = () => setScenes((s) => [...s, { key: ++keyRef.current, file: null, imageId: "", name: "", text: "", sec: defSec }].slice(0, MAX_SCENES));
+  const addText = () => setScenes((s) => [...s, { key: ++keyRef.current, file: null, imageId: "", name: "", text: "", say: "", voice: "", sec: defSec }].slice(0, MAX_SCENES));
+  function addFromLibrary() {
+    const m = libImages.find((x) => x.id === libPick);
+    if (!m) return;
+    setScenes((s) => [...s, { key: ++keyRef.current, file: null, imageId: m.id, name: m.filename || m.id.slice(0, 8), text: "", say: "", voice: "", sec: defSec }].slice(0, MAX_SCENES));
+    setLibPick("");
+  }
   const patch = (key: number, p: Partial<Scene>) => setScenes((s) => s.map((x) => (x.key === key ? { ...x, ...p } : x)));
   const remove = (key: number) => setScenes((s) => s.filter((x) => x.key !== key));
   function move(i: number, d: number) {
@@ -89,7 +107,7 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
     return done;
   }
 
-  const settingsNow = () => ({ defSec, transition, effect, size, sfx, bg, fg });
+  const settingsNow = () => ({ defSec, transition, effect, size, sfx, bg, fg, voice: defVoice });
 
   async function saveCurrent() {
     setBusy(true); setErr(""); setOk(""); setPhase("កំពុងរក្សាទុក · Saving...");
@@ -99,7 +117,7 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
       const id = projectId || newProjectId();
       saveProject({
         id, name, savedAt: new Date().toISOString(), settings: settingsNow(),
-        scenes: list.map((s) => ({ imageId: s.imageId, name: s.name, text: s.text, sec: s.sec })),
+        scenes: list.map((s) => ({ imageId: s.imageId, name: s.name, text: s.text, sec: s.sec, say: s.say, voice: s.voice })),
       });
       setProjectId(id); setProjectName(name); setProjects(listProjects());
       setOk(`💾 បានរក្សាទុកគម្រោង · Saved project "${name}"`);
@@ -110,10 +128,10 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
   function openProject(id: string) {
     const p = projects.find((x) => x.id === id);
     if (!p) return;
-    setScenes(p.scenes.map((s) => ({ key: ++keyRef.current, file: null, imageId: s.imageId, name: s.name, text: s.text, sec: s.sec })));
+    setScenes(p.scenes.map((s) => ({ key: ++keyRef.current, file: null, imageId: s.imageId, name: s.name, text: s.text, say: s.say || "", voice: s.voice || "", sec: s.sec })));
     const st = p.settings;
     setDefSec(st.defSec); setTransition(st.transition); setEffect(st.effect); setSize(SIZES[st.size] ? st.size : "9:16");
-    setSfx(st.sfx); setBg(st.bg); setFg(st.fg);
+    setSfx(st.sfx); setBg(st.bg); setFg(st.fg); setDefVoice(st.voice || "");
     setProjectId(p.id); setProjectName(p.name); setErr(""); setOk(`📂 បានបើក · Opened "${p.name}"`);
   }
 
@@ -131,17 +149,18 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
     try {
       setPhase("កំពុងបញ្ចូលរូប · Uploading photos...");
       const list = await ensureUploaded();
-      const out: { imageId?: string; text?: string; seconds: number }[] = [];
+      const out: { imageId?: string; text?: string; seconds: number; say?: string; voice?: string }[] = [];
       for (const s of list) {
-        const item: { imageId?: string; text?: string; seconds: number } = { seconds: s.sec };
+        const item: { imageId?: string; text?: string; seconds: number; say?: string; voice?: string } = { seconds: s.sec };
         if (s.imageId) item.imageId = s.imageId;
         if (s.text.trim()) item.text = s.text.trim();
+        if (s.say.trim()) { item.say = s.say.trim(); if (s.voice) item.voice = s.voice; }
         out.push(item);
       }
       const [width, height] = SIZES[size];
       setPhase("កំពុងបង្កើតវីដេអូ · Rendering...");
       let job = await iqaiStartJob("video.story", {
-        scenes: out, width, height, effect, transition, bgColor: bg, textColor: fg, sfx: sfx || undefined,
+        scenes: out, width, height, effect, transition, bgColor: bg, textColor: fg, sfx: sfx || undefined, voice: defVoice || undefined,
       });
       setJobId(job.id);
       while (aliveRef.current && (job.status === "queued" || job.status === "running")) {
@@ -200,6 +219,14 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
         </label>
         <button style={soft} onClick={addText}>✍ + អក្សរ · Text card</button>
       </div>
+      <div>
+        <select style={{ ...input, maxWidth: "65%" }} value={libPick} onChange={(e) => setLibPick(e.target.value)}>
+          <option value="">{libImages.length ? "📚 រូបពី Library · From library..." : "Library គ្មានរូប · no photos in the library"}</option>
+          {libImages.map((m) => <option key={m.id} value={m.id}>{m.filename || m.id.slice(0, 8)}</option>)}
+        </select>
+        <button style={soft} disabled={!libPick} onClick={addFromLibrary}>＋</button>
+        <button style={small} onClick={() => void refreshLibrary()}>↻</button>
+      </div>
 
       {scenes.map((s, i) => (
         <div key={s.key} style={card}>
@@ -213,6 +240,15 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
           <textarea style={{ ...input, width: "95%", minHeight: 56 }} value={s.text} maxLength={600}
             placeholder={hasPhoto(s) ? "អក្សរក្រោមរូប · Caption (optional)" : "អត្ថបទ · Text"}
             onChange={(e) => patch(s.key, { text: e.target.value })} />
+          <textarea style={{ ...input, width: "95%", minHeight: 44 }} value={s.say} maxLength={1000}
+            placeholder="🗣 សំឡេងអាន · Spoken narration (optional)"
+            onChange={(e) => patch(s.key, { say: e.target.value })} />
+          {s.say.trim() && voices.length > 0 && (
+            <select style={input} value={s.voice} onChange={(e) => patch(s.key, { voice: e.target.value })}>
+              <option value="">🗣 សំឡេងលំនាំដើម · default voice</option>
+              {voices.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
+            </select>
+          )}
           <div>
             <label>វិនាទី · Seconds{" "}
               <input style={{ ...input, width: 70 }} type="number" min={1} max={60} value={s.sec}
@@ -235,6 +271,12 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
         <select style={input} value={size} onChange={(e) => setSize(e.target.value)}>
           {Object.keys(SIZES).map((k) => <option key={k} value={k}>{k} ({SIZES[k][0]}×{SIZES[k][1]})</option>)}
         </select>
+        {voices.length > 0 && (
+          <select style={input} value={defVoice} onChange={(e) => setDefVoice(e.target.value)}>
+            <option value="">🗣 សំឡេងអាន · Narrator voice (male)</option>
+            {voices.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
+          </select>
+        )}
         {sfxTypes.length > 0 && (
           <select style={input} value={sfx} onChange={(e) => setSfx(e.target.value)}>
             <option value="">🔇 គ្មានសំឡេង · No sound</option>
