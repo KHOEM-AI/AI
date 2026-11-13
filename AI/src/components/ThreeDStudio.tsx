@@ -1,4 +1,6 @@
+import { useState } from "react";
 import ModelViewer from "./ModelViewer";
+import HumanViewer from "./HumanViewer";
 import MenuGlyph from "./MenuGlyph";
 import "./DayExtras.css";
 
@@ -8,6 +10,7 @@ type Props = {
 };
 
 export default function ThreeDStudio({ onClose, onSwitch }: Props) {
+  const [tab, setTab] = useState<"cars" | "people">("cars");
   return (
     <section
       className="three-studio"
@@ -44,7 +47,11 @@ export default function ThreeDStudio({ onClose, onSwitch }: Props) {
         </div>
       </header>
 
-      <ModelViewer />
+      <div style={{ padding: "0 8px" }}>
+        <button className="three-studio__button" style={{ marginRight: 8, opacity: tab === "cars" ? 1 : 0.6 }} onClick={() => setTab("cars")}>🚗 ឡាន · Vehicles</button>
+        <button className="three-studio__button" style={{ opacity: tab === "people" ? 1 : 0.6 }} onClick={() => setTab("people")}>🧍 មនុស្ស · People</button>
+      </div>
+      {tab === "cars" ? <ModelViewer /> : <HumanViewer />}
     </section>
   );
 }
