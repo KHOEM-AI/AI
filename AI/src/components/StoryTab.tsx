@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { iqaiCancelJob, iqaiContentUrl, iqaiJob, iqaiStartJob, uploadMedia } from "../api/client";
-import type { IqaiJob } from "../api/client";
+import { deleteProject, listProjects, newProjectId, saveProject } from "../api/storyProjects";
+import type { StoryProject } from "../api/storyProjects";
 
 // Story video as a background job: scenes (photo + optional caption, or a text card), each with its own
 // length, fade transitions and one sound. The server renders it in the background (IQ-AI, ffmpeg, offline);
@@ -18,7 +19,8 @@ const MAX_TOTAL = 900; // seconds, same as the server
 const SIZES: Record<string, [number, number]> = { "9:16": [720, 1280], "1:1": [720, 720], "16:9": [1280, 720] };
 const POLL_MS = 1500;
 
-type Scene = { key: number; file: File | null; text: string; sec: number };
+// file: a photo picked in this session; imageId: its library id once uploaded (or when opened from a project)
+type Scene = { key: number; file: File | null; imageId: string; name: string; text: string; sec: number };
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -32,6 +34,9 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
   const [sfx, setSfx] = useState("");
   const [bg, setBg] = useState("#101030");
   const [fg, setFg] = useState("#ffffff");
+  const [projects, setProjects] = useState<StoryProject[]>(() => listProjects());
+  const [projectId, setProjectId] = useState("");
+  const [projectName, setProjectName] = useState("");
   const [video, setVideo] = useState<Blob | null>(null);
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
@@ -54,10 +59,10 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
 
   function addPhotos(list: FileList | null) {
     if (!list) return;
-    const add = Array.from(list).map((file) => ({ key: ++keyRef.current, file, text: "", sec: defSec }));
+    const add = Array.from(list).map((file) => ({ key: ++keyRef.current, file, imageId: "", name: file.name, text: "", sec: defSec }));
     setScenes((s) => [...s, ...add].slice(0, MAX_SCENES));
   }
-  const addText = () => setScenes((s) => [...s, { key: ++keyRef.current, file: null, text: "", sec: defSec }].slice(0, MAX_SCENES));
+  const addText = () => setScenes((s) => [...s, { key: ++keyRef.current, file: null, imageId: "", name: "", text: "", sec: defSec }].slice(0, MAX_SCENES));
   const patch = (key: number, p: Partial<Scene>) => setScenes((s) => s.map((x) => (x.key === key ? { ...x, ...p } : x)));
   const remove = (key: number) => setScenes((s) => s.filter((x) => x.key !== key));
   function move(i: number, d: number) {
@@ -70,17 +75,66 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
     });
   }
 
-  const missing = scenes.findIndex((s) => !s.file && !s.text.trim());
+  const hasPhoto = (s: Scene) => !!s.file || !!s.imageId;
+  const missing = scenes.findIndex((s) => !hasPhoto(s) && !s.text.trim());
+
+  // Upload the photos that are not in the library yet; remember their ids so nothing is uploaded twice.
+  async function ensureUploaded(): Promise<Scene[]> {
+    const done: Scene[] = [];
+    for (const s of scenes) {
+      if (s.file && !s.imageId) done.push({ ...s, imageId: (await uploadMedia(s.file, s.file.name)).id });
+      else done.push(s);
+    }
+    setScenes(done);
+    return done;
+  }
+
+  const settingsNow = () => ({ defSec, transition, effect, size, sfx, bg, fg });
+
+  async function saveCurrent() {
+    setBusy(true); setErr(""); setOk(""); setPhase("កំពុងរក្សាទុក · Saving...");
+    try {
+      const list = await ensureUploaded();
+      const name = projectName.trim() || `រឿង ${new Date().toLocaleString()}`;
+      const id = projectId || newProjectId();
+      saveProject({
+        id, name, savedAt: new Date().toISOString(), settings: settingsNow(),
+        scenes: list.map((s) => ({ imageId: s.imageId, name: s.name, text: s.text, sec: s.sec })),
+      });
+      setProjectId(id); setProjectName(name); setProjects(listProjects());
+      setOk(`💾 បានរក្សាទុកគម្រោង · Saved project "${name}"`);
+    } catch (e) { setErr(msg(e)); }
+    setBusy(false); setPhase("");
+  }
+
+  function openProject(id: string) {
+    const p = projects.find((x) => x.id === id);
+    if (!p) return;
+    setScenes(p.scenes.map((s) => ({ key: ++keyRef.current, file: null, imageId: s.imageId, name: s.name, text: s.text, sec: s.sec })));
+    const st = p.settings;
+    setDefSec(st.defSec); setTransition(st.transition); setEffect(st.effect); setSize(SIZES[st.size] ? st.size : "9:16");
+    setSfx(st.sfx); setBg(st.bg); setFg(st.fg);
+    setProjectId(p.id); setProjectName(p.name); setErr(""); setOk(`📂 បានបើក · Opened "${p.name}"`);
+  }
+
+  function removeProject() {
+    if (!projectId) return;
+    try { deleteProject(projectId); } catch (e) { setErr(msg(e)); return; }
+    setProjects(listProjects()); setProjectId(""); setProjectName(""); setOk("🗑 បានលុបគម្រោង · Project deleted");
+  }
+
+  function newProject() { setScenes([]); setProjectId(""); setProjectName(""); setOk(""); setErr(""); }
 
   async function generate() {
     setBusy(true); setErr(""); setOk(""); setProgress(0); setJobId("");
     cancelRef.current = false;
     try {
       setPhase("កំពុងបញ្ចូលរូប · Uploading photos...");
+      const list = await ensureUploaded();
       const out: { imageId?: string; text?: string; seconds: number }[] = [];
-      for (const s of scenes) {
+      for (const s of list) {
         const item: { imageId?: string; text?: string; seconds: number } = { seconds: s.sec };
-        if (s.file) item.imageId = (await uploadMedia(s.file, s.file.name)).id;
+        if (s.imageId) item.imageId = s.imageId;
         if (s.text.trim()) item.text = s.text.trim();
         out.push(item);
       }
@@ -121,7 +175,21 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
 
   return (
     <div style={{ marginTop: 8 }}>
-      <div style={{ opacity: 0.85, fontSize: 13 }}>
+      <div style={card}>
+        <div>📁 គម្រោង · Project</div>
+        <input style={{ ...input, width: "60%" }} value={projectName} maxLength={80}
+          placeholder="ឈ្មោះគម្រោង · Project name" onChange={(e) => setProjectName(e.target.value)} />
+        <button style={btn} disabled={busy || scenes.length === 0 || missing >= 0} onClick={() => void saveCurrent()}>💾 រក្សាទុក · Save</button>
+        <div>
+          <select style={{ ...input, maxWidth: "70%" }} value={projectId} onChange={(e) => (e.target.value ? openProject(e.target.value) : newProject())}>
+            <option value="">{projects.length ? "📂 បើកគម្រោង · Open a project..." : "មិនទាន់មានគម្រោង · No projects yet"}</option>
+            {projects.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.scenes.length})</option>)}
+          </select>
+          <button style={small} disabled={busy} onClick={newProject}>＋ ថ្មី · New</button>
+          <button style={small} disabled={busy || !projectId} onClick={removeProject}>🗑</button>
+        </div>
+      </div>
+      <div style={{ opacity: 0.85, fontSize: 13, marginTop: 8 }}>
         ឈុត · Scenes {scenes.length}/{MAX_SCENES} · សរុប · Total {fmt(total)} {total > MAX_TOTAL && "⚠ > 15:00"}
       </div>
       <div>
@@ -136,13 +204,14 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
       {scenes.map((s, i) => (
         <div key={s.key} style={card}>
           <div>
-            {i + 1}. {s.file ? `🖼 ${s.file.name}` : "✍ អក្សរ · Text card"}{" "}
+            {i + 1}. {hasPhoto(s) ? `🖼 ${s.name || s.imageId.slice(0, 8)}` : "✍ អក្សរ · Text card"}{" "}
             <button style={small} disabled={i === 0} onClick={() => move(i, -1)}>↑</button>
             <button style={small} disabled={i === scenes.length - 1} onClick={() => move(i, 1)}>↓</button>
             <button style={small} onClick={() => remove(s.key)}>✕</button>
           </div>
+          {s.imageId && <img src={iqaiContentUrl(s.imageId)} alt="" style={{ height: 48, borderRadius: 6, display: "block", marginTop: 4 }} />}
           <textarea style={{ ...input, width: "95%", minHeight: 56 }} value={s.text} maxLength={600}
-            placeholder={s.file ? "អក្សរក្រោមរូប · Caption (optional)" : "អត្ថបទ · Text"}
+            placeholder={hasPhoto(s) ? "អក្សរក្រោមរូប · Caption (optional)" : "អត្ថបទ · Text"}
             onChange={(e) => patch(s.key, { text: e.target.value })} />
           <div>
             <label>វិនាទី · Seconds{" "}
