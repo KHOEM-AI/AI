@@ -17,8 +17,8 @@ const soft: React.CSSProperties = { ...btn, background: "rgba(255,255,255,0.14)"
 
 const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
-export default function CreatePanel({ initialText = "" }: { initialText?: string }) {
-  const [mode, setMode] = useState<"text" | "photo" | "slideshow" | "edit" | "auto" | "story" | "finish">("text");
+export default function CreatePanel({ initialText = "", initialMode = "text" }: { initialText?: string; initialMode?: "text" | "photo" | "slideshow" | "edit" | "auto" | "story" | "finish" }) {
+  const [mode, setMode] = useState<"text" | "photo" | "slideshow" | "edit" | "auto" | "story" | "finish">(initialMode);
   const [text, setText] = useState(initialText);
   const [photo, setPhoto] = useState<File | null>(null);
   const [dur, setDur] = useState(5);

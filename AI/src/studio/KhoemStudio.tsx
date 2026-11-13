@@ -603,7 +603,7 @@ const TRANSLATE_WORDS = /បកប្រែ|translate/i;
 const AUDIO_WORDS = /សំឡេង|ភ្លេង|audio|sound|music|bass|volume|mp3|wav/i;
 
 export default function KhoemStudio({ onClose, onOpen3d }: Props) {
-  const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate" | "media" | "create">("home");
+  const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate" | "media" | "create" | "movie">("home");
   const [prompt, setPrompt] = useState("");
   const [note, setNote] = useState("");
 
@@ -627,7 +627,7 @@ export default function KhoemStudio({ onClose, onOpen3d }: Props) {
     { icon: <MenuGlyph name="emotion" />, title: "វិភាគអារម្មណ៍", sub: "Emotion · Text analysis", on: true, go: () => setView("emotion") },
     { icon: <MenuGlyph name="palette" />, title: "ពណ៌ & ពន្លឺ", sub: "Color Palette · Light", on: true, go: () => setView("color") },
     { icon: <MenuGlyph name="cube" />, title: "3D", sub: "Model · Scene", on: !!onOpen3d, go: onOpen3d },
-    { icon: <MenuGlyph name="film" />, title: "ភាពយន្ត AI", sub: "Story → Movie · V1…V45 (មិនទាន់ត្រៀម)", on: false },
+    { icon: <MenuGlyph name="film" />, title: "ភាពយន្ត AI", sub: "Story → Movie · V1–V9 offline · V10+ មិនទាន់ត្រៀម", on: true, go: () => setView("movie") },
   ];
 
   return (
@@ -656,10 +656,10 @@ export default function KhoemStudio({ onClose, onOpen3d }: Props) {
           <div style={{ position: "relative", minHeight: "100%", overflow: "auto" }}>
             <ColorLightCenter embedded paletteOnly onClose={() => setView("home")} />
           </div>
-        ) : view === "create" ? (
+        ) : view === "create" || view === "movie" ? (
           <div style={{ position: "relative", minHeight: "100%", padding: 12, overflow: "auto" }}>
             <button className="ks-btn" onClick={() => setView("home")} style={{ marginBottom: 12 }}>← Home</button>
-            <CreatePanel initialText={prompt} />
+            <CreatePanel key={view} initialMode={view === "movie" ? "story" : "text"} initialText={prompt} />
             <MediaLibrary />
           </div>
         ) : view === "media" ? (
