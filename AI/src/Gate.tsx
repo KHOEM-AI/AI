@@ -15,7 +15,7 @@ const writeFlag = (k: string): void => {
 // Hold time, in milliseconds. The whole space scene plays over this time.
 const HOLD_MS = HOLD_SECONDS * 1000;
 // true: press once and it keeps going. false: hold the finger down.
-const STICKY = true;
+const STICKY = false;
 // The logo bursts out when the meteor hits Earth; the name and the voice follow it.
 const NAME_AT = GATE_HIT + 0.04;
 
