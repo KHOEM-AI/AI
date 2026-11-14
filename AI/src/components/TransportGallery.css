@@ -349,7 +349,7 @@
   height: min(62vh, 520px);
   min-height: 300px;
   overflow: hidden;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 .tm-canvas canvas {

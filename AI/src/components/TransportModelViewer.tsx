@@ -30,6 +30,7 @@ export default function TransportModelViewer({ type, name }: Props) {
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
+    renderer.domElement.style.touchAction = "pan-y"; // vertical swipe scrolls the page, horizontal rotates
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
     controls.minDistance = 4;
@@ -455,6 +456,7 @@ export default function TransportModelViewer({ type, name }: Props) {
 
     let frame = 0;
     let disposed = false;
+    let dirty = true; // draw only when the view changed (saves battery)
 
     const resize = () => {
       const width = container.clientWidth;
@@ -463,6 +465,7 @@ export default function TransportModelViewer({ type, name }: Props) {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      dirty = true;
     };
 
     const observer = new ResizeObserver(resize);
@@ -471,8 +474,10 @@ export default function TransportModelViewer({ type, name }: Props) {
     const render = () => {
       if (disposed) return;
       frame = requestAnimationFrame(render);
-      controls.update();
-      renderer.render(scene, camera);
+      if (controls.update() || dirty) {
+        dirty = false;
+        renderer.render(scene, camera);
+      }
     };
     render();
 

@@ -102,6 +102,7 @@ export default function ModelViewer({ onClose }: { onClose?: () => void }) {
         const camera: PerspectiveCamera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
         camera.position.set(4, 2, 4);
         const controls: OrbitControls = new Orbit(camera, gl.domElement);
+        gl.domElement.style.touchAction = "pan-y"; // vertical swipe scrolls the page, horizontal rotates
         controls.enableDamping = true;
         controls.target.set(0, 0.6, 0);
 

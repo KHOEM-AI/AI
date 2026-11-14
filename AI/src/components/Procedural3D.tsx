@@ -42,6 +42,7 @@ export default function Procedural3D({ mode }: { mode?: Tab }) {
     Object.assign(sun.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6 }); scene.add(sun);
     const cam = new THREE.PerspectiveCamera(35, 1, 0.1, 200); cam.position.set(6, 2.6, 7);
     const ctl = new OrbitControls(cam, renderer.domElement);
+    renderer.domElement.style.touchAction = "pan-y"; // vertical swipe scrolls the page, horizontal rotates
     ctl.target.set(0, 0.9, 0); ctl.enableDamping = true; ctl.addEventListener("change", () => { holder.dirty = true; }); ctl.maxPolarAngle = Math.PI * 0.49; ctl.minDistance = 1.5; ctl.maxDistance = 20;
     const holder = { obj: null as THREE.Object3D | null, dirty: true, set(o: THREE.Object3D | null) {
       if (holder.obj) { scene.remove(holder.obj); if (holder.obj.userData.car) disposeObject(holder.obj); else disposePerson(holder.obj); }
@@ -94,7 +95,7 @@ export default function Procedural3D({ mode }: { mode?: Tab }) {
           <button style={btn(tab === "people")} onClick={() => setTab("people")}>🧍 People</button>
         </div>
       )}
-      <div ref={host} style={{ width: "100%", height: "calc(100dvh - 440px)", minHeight: 340, borderRadius: 14, overflow: "hidden", touchAction: "none" }} />
+      <div ref={host} style={{ width: "100%", height: "calc(100dvh - 440px)", minHeight: 340, borderRadius: 14, overflow: "hidden", touchAction: "pan-y" }} />
       {tab === "cars" ? (
         <>
           <div style={row}>{CAR_LIST.map((c) => <button key={c.id} style={btn(c.id === carId)} onClick={() => setCarId(c.id)} title={c.kind}>{c.id.toUpperCase()}</button>)}</div>

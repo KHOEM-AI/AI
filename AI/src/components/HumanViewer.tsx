@@ -202,6 +202,7 @@ export default function HumanViewer() {
 
         const camera: PerspectiveCamera = new T.PerspectiveCamera(35, 1, 0.1, 100);
         const controls: OrbitControls = new Orbit(camera, gl.domElement);
+        gl.domElement.style.touchAction = "pan-y"; // vertical swipe scrolls the page, horizontal rotates
         controls.enableDamping = true;
         controls.minDistance = 1.8;
         controls.maxDistance = 8;
