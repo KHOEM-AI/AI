@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { CAR_LIST, LED_NAMES, animateCar, buildCar, disposeObject, setCarLed, type CarId, type LedMode } from "../lib/procCars";
+import Ico from "./UiIcon";
 import { PEOPLE_PRESETS, SKIN_TONES, animatePerson, buildPerson, disposePerson, randomPerson, type Motion, type SkinName } from "../lib/procPeople";
 
 type Tab = "cars" | "people";
@@ -24,7 +25,7 @@ export default function Procedural3D({ mode }: { mode?: Tab }) {
   const [seed, setSeed] = useState(0);
   const live = useRef({ tab, drive, motion, led });
   live.current = { tab, drive, motion, led };
-  const sceneRef = useRef<{ set: (o: THREE.Object3D | null) => void; obj: THREE.Object3D | null; dirty: boolean } | null>(null);
+  const sceneRef = useRef<{ set: (o: THREE.Object3D | null, refit?: boolean) => void; fit: () => void; obj: THREE.Object3D | null; dirty: boolean } | null>(null);
 
   // renderer lifecycle (once)
   useEffect(() => {
@@ -42,14 +43,33 @@ export default function Procedural3D({ mode }: { mode?: Tab }) {
     Object.assign(sun.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6 }); scene.add(sun);
     const cam = new THREE.PerspectiveCamera(35, 1, 0.1, 200); cam.position.set(6, 2.6, 7);
     const ctl = new OrbitControls(cam, renderer.domElement);
-    renderer.domElement.style.touchAction = "pan-y"; // vertical swipe scrolls the page, horizontal rotates
-    ctl.target.set(0, 0.9, 0); ctl.enableDamping = true; ctl.addEventListener("change", () => { holder.dirty = true; }); ctl.maxPolarAngle = Math.PI * 0.49; ctl.minDistance = 1.5; ctl.maxDistance = 20;
-    const holder = { obj: null as THREE.Object3D | null, dirty: true, set(o: THREE.Object3D | null) {
+    ctl.target.set(0, 0.9, 0); ctl.enableDamping = true; ctl.addEventListener("change", () => { holder.dirty = true; }); ctl.maxPolarAngle = Math.PI * 0.49;
+    const FILL = 0.7; // model fills 70% of the viewer (30% smaller than before)
+    const fit = () => {
+      const o = holder.obj; if (!o) return;
+      o.updateMatrixWorld(true);
+      const box = new THREE.Box3(), tmp = new THREE.Box3();
+      o.traverse((m) => { // measure real geometry only (skip the big additive underglow plane)
+        const me = m as THREE.Mesh; if (!me.isMesh || (me.material as THREE.Material).blending === THREE.AdditiveBlending) return;
+        if (!me.geometry.boundingBox) me.geometry.computeBoundingBox();
+        tmp.copy(me.geometry.boundingBox!).applyMatrix4(me.matrixWorld); box.union(tmp);
+      });
+      if (box.isEmpty()) return;
+      const sz = box.getSize(new THREE.Vector3());
+      const sph = new THREE.Sphere(box.getCenter(new THREE.Vector3()), Math.max(Math.hypot(sz.x, sz.z) * 0.42, sz.y * 0.5));
+      const vf = THREE.MathUtils.degToRad(cam.fov), hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
+      const dist = sph.radius / (FILL * Math.sin(Math.min(vf, hf) / 2));
+      const dir = new THREE.Vector3(0.55, 0.3, 0.78).normalize();
+      ctl.target.copy(sph.center); ctl.target.y = Math.max(sph.center.y * 0.9, 0.5);
+      cam.position.copy(ctl.target).addScaledVector(dir, dist);
+      ctl.minDistance = dist * 0.35; ctl.maxDistance = dist * 3; ctl.update(); holder.dirty = true;
+    };
+    const holder = { obj: null as THREE.Object3D | null, dirty: true, fit, set(o: THREE.Object3D | null, refit = true) {
       if (holder.obj) { scene.remove(holder.obj); if (holder.obj.userData.car) disposeObject(holder.obj); else disposePerson(holder.obj); }
-      holder.obj = o; holder.dirty = true; if (o) scene.add(o);
+      holder.obj = o; holder.dirty = true; if (o) { scene.add(o); if (refit) fit(); }
     } };
     sceneRef.current = holder;
-    const resize = () => { const w = el.clientWidth || 600, h = el.clientHeight || 420; renderer.setSize(w, h); cam.aspect = w / h; cam.updateProjectionMatrix(); holder.dirty = true; };
+    const resize = () => { const w = el.clientWidth || 600, h = el.clientHeight || 420; renderer.setSize(w, h); cam.aspect = w / h; cam.updateProjectionMatrix(); holder.dirty = true; if (holder.obj) holder.fit(); };
     resize(); const ro = new ResizeObserver(resize); ro.observe(el);
     const clock = new THREE.Clock(); let raf = 0, acc = 0;
     const loop = () => {
@@ -83,44 +103,73 @@ export default function Procedural3D({ mode }: { mode?: Tab }) {
   useEffect(() => { const h = sceneRef.current; if (h) h.dirty = true; }, [motion, drive]);
 
   const btn = (on: boolean): React.CSSProperties => ({
-    padding: "6px 12px", borderRadius: 999, border: "1px solid " + (on ? "#a78bfa" : "#2c3040"),
-    background: on ? "#3b2a6e" : "#1a1d29", color: "#e8eaf2", cursor: "pointer", fontSize: 13,
+    padding: "8px 14px", borderRadius: 999, border: "1px solid " + (on ? "#a78bfa" : "#2c3040"),
+    background: on ? "#3b2a6e" : "#1a1d29", color: "#e8eaf2", cursor: "pointer", fontSize: 14, minHeight: 38,
   });
-  const row: React.CSSProperties = { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 };
+  const row: React.CSSProperties = { display: "flex", flexWrap: "wrap", gap: 6 };
+  const step = (n: number, title: string, children: unknown) => (
+    <section key={n} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#b9bdd0" }}>
+        <span style={{ width: 22, height: 22, borderRadius: 11, background: "#3b2a6e", color: "#fff", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 12 }}>{n}</span>
+        {title}
+      </div>
+      <div style={row}>{children as never}</div>
+    </section>
+  );
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, color: "#e8eaf2" }}>
-      {!mode && (
-        <div style={row}>
-          <button style={btn(tab === "cars")} onClick={() => setTab("cars")}>🚗 Cars</button>
-          <button style={btn(tab === "people")} onClick={() => setTab("people")}>🧍 People</button>
-        </div>
-      )}
-      <div ref={host} style={{ width: "100%", height: "calc(100dvh - 440px)", minHeight: 340, borderRadius: 14, overflow: "hidden", touchAction: "pan-y" }} />
-      {tab === "cars" ? (
-        <>
-          <div style={row}>{CAR_LIST.map((c) => <button key={c.id} style={btn(c.id === carId)} onClick={() => setCarId(c.id)} title={c.kind}>{c.id.toUpperCase()}</button>)}</div>
-          <div style={row}>
-            {LEDS.map((m) => <button key={m} style={btn(m === led)} onClick={() => setLed(m)}>{m ? `${m} · ${LED_NAMES[m]}` : "LED off"}</button>)}
-            <button style={btn(drive)} onClick={() => setDrive(!drive)}>⚙ Wheels</button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div style={row}>
-            {Object.entries(PEOPLE_PRESETS).map(([k, v]) => <button key={k} style={btn(k === preset)} onClick={() => setPreset(k)}>{v.name}</button>)}
-            <button style={btn(preset === "random")} onClick={() => { setPreset("random"); setSeed((x) => x + 1); }}>🎲 Random</button>
-          </div>
-          <div style={row}>
-            <button style={btn(skin === "preset")} onClick={() => setSkin("preset")}>Skin: preset</button>
-            {(Object.keys(SKIN_TONES) as SkinName[]).map((k) => (
-              <button key={k} style={{ ...btn(skin === k), display: "flex", alignItems: "center", gap: 6 }} onClick={() => setSkin(k)}>
-                <span style={{ width: 12, height: 12, borderRadius: 6, background: "#" + SKIN_TONES[k].toString(16).padStart(6, "0") }} />{k}
-              </button>
-            ))}
-          </div>
-          <div style={row}>{MOTIONS.map((m) => <button key={m} style={btn(m === motion)} onClick={() => setMotion(m)}>{m}</button>)}</div>
-        </>
-      )}
+    <div className="p3d" style={{ color: "#e8eaf2" }}>
+      <style>{`
+        .p3d{display:grid;grid-template-columns:1fr;gap:10px;width:100%;min-height:0}
+        .p3d-view{width:100%;height:clamp(260px,46dvh,560px);border-radius:14px;overflow:hidden;touch-action:none}
+        .p3d-ctl{display:flex;flex-direction:column;gap:12px;min-width:0}
+        @media (min-width:900px){
+          .p3d{grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:16px;align-items:start}
+          .p3d-view{height:calc(100dvh - 190px);min-height:380px;max-height:1100px}
+          .p3d-ctl{max-height:calc(100dvh - 190px);overflow:auto;padding-right:4px}
+        }
+        @media (min-width:1800px){ .p3d{grid-template-columns:minmax(0,1fr) 460px} .p3d button{font-size:17px!important} }
+        @media (max-height:520px) and (orientation:landscape){
+          .p3d{grid-template-columns:minmax(0,1fr) minmax(240px,320px)} .p3d-view{height:calc(100dvh - 120px);min-height:200px}
+        }
+      `}</style>
+      <div ref={host} className="p3d-view" />
+      <div className="p3d-ctl">
+        {tab === "cars" ? (
+          <>
+            {step(1, "ជ្រើសរើសឡាន · Choose car", <>
+              {CAR_LIST.map((c) => <button key={c.id} style={btn(c.id === carId)} onClick={() => setCarId(c.id)} title={c.kind}>{c.id.toUpperCase()}</button>)}
+            </>)}
+            {step(2, "ភ្លើង LED · Lights", <>
+              {LEDS.map((m) => <button key={m} style={btn(m === led)} onClick={() => setLed(m)}>{m ? `${m} · ${LED_NAMES[m]}` : "LED off"}</button>)}
+            </>)}
+            {step(3, "ចលនា · Motion", <>
+              <button style={btn(drive)} onClick={() => setDrive(!drive)}><Ico n="wheel" />Wheels</button>
+            </>)}
+          </>
+        ) : (
+          <>
+            {step(1, "ជ្រើសរើសតួ · Choose person", <>
+              {Object.entries(PEOPLE_PRESETS).map(([k, v]) => <button key={k} style={btn(k === preset)} onClick={() => setPreset(k)}>{v.name}</button>)}
+              <button style={btn(preset === "random")} onClick={() => { setPreset("random"); setSeed((x) => x + 1); }}><Ico n="dice" />Random</button>
+            </>)}
+            {step(2, "ពណ៌សម្បុរ · Skin", <>
+              <button style={btn(skin === "preset")} onClick={() => setSkin("preset")}>Preset</button>
+              {(Object.keys(SKIN_TONES) as SkinName[]).map((k) => (
+                <button key={k} style={{ ...btn(skin === k), display: "flex", alignItems: "center", gap: 6 }} onClick={() => setSkin(k)}>
+                  <span style={{ width: 12, height: 12, borderRadius: 6, background: "#" + SKIN_TONES[k].toString(16).padStart(6, "0") }} />{k}
+                </button>
+              ))}
+            </>)}
+            {step(3, "ចលនា · Motion", <>
+              {MOTIONS.map((m) => <button key={m} style={btn(m === motion)} onClick={() => setMotion(m)}>{m}</button>)}
+            </>)}
+          </>
+        )}
+        {!mode && step(4, "ប្រភេទ · Type", <>
+            <button style={btn(tab === "cars")} onClick={() => setTab("cars")}><Ico n="car" />Cars</button>
+            <button style={btn(tab === "people")} onClick={() => setTab("people")}><Ico n="person" />People</button>
+          </>)}
+      </div>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import Ico from "./UiIcon";
 import { useEffect, useRef, useState } from "react";
 import { iqaiCancelJob, iqaiContentUrl, iqaiJob, iqaiStartJob, iqaiVoices, listMedia, uploadMedia } from "../api/client";
 import type { IqaiVoice } from "../api/client";
@@ -120,7 +121,7 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
         scenes: list.map((s) => ({ imageId: s.imageId, name: s.name, text: s.text, sec: s.sec, say: s.say, voice: s.voice })),
       });
       setProjectId(id); setProjectName(name); setProjects(listProjects());
-      setOk(`💾 បានរក្សាទុកគម្រោង · Saved project "${name}"`);
+      setOk(`បានរក្សាទុកគម្រោង · Saved project "${name}"`);
     } catch (e) { setErr(msg(e)); }
     setBusy(false); setPhase("");
   }
@@ -132,13 +133,13 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
     const st = p.settings;
     setDefSec(st.defSec); setTransition(st.transition); setEffect(st.effect); setSize(SIZES[st.size] ? st.size : "9:16");
     setSfx(st.sfx); setBg(st.bg); setFg(st.fg); setDefVoice(st.voice || "");
-    setProjectId(p.id); setProjectName(p.name); setErr(""); setOk(`📂 បានបើក · Opened "${p.name}"`);
+    setProjectId(p.id); setProjectName(p.name); setErr(""); setOk(`បានបើក · Opened "${p.name}"`);
   }
 
   function removeProject() {
     if (!projectId) return;
     try { deleteProject(projectId); } catch (e) { setErr(msg(e)); return; }
-    setProjects(listProjects()); setProjectId(""); setProjectName(""); setOk("🗑 បានលុបគម្រោង · Project deleted");
+    setProjects(listProjects()); setProjectId(""); setProjectName(""); setOk("បានលុបគម្រោង · Project deleted");
   }
 
   function newProject() { setScenes([]); setProjectId(""); setProjectName(""); setOk(""); setErr(""); }
@@ -178,7 +179,7 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
         if (urlRef.current) URL.revokeObjectURL(urlRef.current);
         urlRef.current = URL.createObjectURL(blob);
         setVideo(blob); setUrl(urlRef.current);
-        setOk("✅ ចប់ហើយ · Done (រក្សាទុកក្នុងបណ្ណាល័យរួចហើយ · already saved in the library)");
+        setOk("ចប់ហើយ · Done (រក្សាទុកក្នុងបណ្ណាល័យរួចហើយ · already saved in the library)");
       }
     } catch (e) { if (aliveRef.current) setErr(msg(e)); }
     if (aliveRef.current) { setBusy(false); setPhase(""); setJobId(""); }
@@ -195,57 +196,57 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
   return (
     <div style={{ marginTop: 8 }}>
       <div style={card}>
-        <div>📁 គម្រោង · Project</div>
+        <div><Ico n="folder" />គម្រោង · Project</div>
         <input style={{ ...input, width: "60%" }} value={projectName} maxLength={80}
           placeholder="ឈ្មោះគម្រោង · Project name" onChange={(e) => setProjectName(e.target.value)} />
-        <button style={btn} disabled={busy || scenes.length === 0 || missing >= 0} onClick={() => void saveCurrent()}>💾 រក្សាទុក · Save</button>
+        <button style={btn} disabled={busy || scenes.length === 0 || missing >= 0} onClick={() => void saveCurrent()}><Ico n="save" />រក្សាទុក · Save</button>
         <div>
           <select style={{ ...input, maxWidth: "70%" }} value={projectId} onChange={(e) => (e.target.value ? openProject(e.target.value) : newProject())}>
-            <option value="">{projects.length ? "📂 បើកគម្រោង · Open a project..." : "មិនទាន់មានគម្រោង · No projects yet"}</option>
+            <option value="">{projects.length ? "បើកគម្រោង · Open a project..." : "មិនទាន់មានគម្រោង · No projects yet"}</option>
             {projects.map((p) => <option key={p.id} value={p.id}>{p.name} ({p.scenes.length})</option>)}
           </select>
           <button style={small} disabled={busy} onClick={newProject}>＋ ថ្មី · New</button>
-          <button style={small} disabled={busy || !projectId} onClick={removeProject}>🗑</button>
+          <button style={small} disabled={busy || !projectId} onClick={removeProject}><Ico n="trash" only /></button>
         </div>
       </div>
       <div style={{ opacity: 0.85, fontSize: 13, marginTop: 8 }}>
-        ឈុត · Scenes {scenes.length}/{MAX_SCENES} · សរុប · Total {fmt(total)} {total > MAX_TOTAL && "⚠ > 15:00"}
+        ឈុត · Scenes {scenes.length}/{MAX_SCENES} · សរុប · Total {fmt(total)} {total > MAX_TOTAL && "(> 15:00)"}
       </div>
       <div>
         <label style={{ ...soft, display: "inline-block", cursor: "pointer" }}>
-          🖼 + រូបភាព · Photos
+          <Ico n="photo" />+ រូបភាព · Photos
           <input type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: "none" }}
             onChange={(e) => { addPhotos(e.target.files); e.target.value = ""; }} />
         </label>
-        <button style={soft} onClick={addText}>✍ + អក្សរ · Text card</button>
+        <button style={soft} onClick={addText}><Ico n="pen" />+ អក្សរ · Text card</button>
       </div>
       <div>
         <select style={{ ...input, maxWidth: "65%" }} value={libPick} onChange={(e) => setLibPick(e.target.value)}>
-          <option value="">{libImages.length ? "📚 រូបពី Library · From library..." : "Library គ្មានរូប · no photos in the library"}</option>
+          <option value="">{libImages.length ? "រូបពី Library · From library..." : "Library គ្មានរូប · no photos in the library"}</option>
           {libImages.map((m) => <option key={m.id} value={m.id}>{m.filename || m.id.slice(0, 8)}</option>)}
         </select>
         <button style={soft} disabled={!libPick} onClick={addFromLibrary}>＋</button>
-        <button style={small} onClick={() => void refreshLibrary()}>↻</button>
+        <button style={small} onClick={() => void refreshLibrary()}><Ico n="refresh" only /></button>
       </div>
 
       {scenes.map((s, i) => (
         <div key={s.key} style={card}>
           <div>
-            {i + 1}. {hasPhoto(s) ? `🖼 ${s.name || s.imageId.slice(0, 8)}` : "✍ អក្សរ · Text card"}{" "}
-            <button style={small} disabled={i === 0} onClick={() => move(i, -1)}>↑</button>
-            <button style={small} disabled={i === scenes.length - 1} onClick={() => move(i, 1)}>↓</button>
-            <button style={small} onClick={() => remove(s.key)}>✕</button>
+            {i + 1}. {hasPhoto(s) ? <><Ico n="photo" />{s.name || s.imageId.slice(0, 8)}</> : <><Ico n="pen" />អក្សរ · Text card</>}{" "}
+            <button style={small} disabled={i === 0} onClick={() => move(i, -1)}><Ico n="up" only /></button>
+            <button style={small} disabled={i === scenes.length - 1} onClick={() => move(i, 1)}><Ico n="down" only /></button>
+            <button style={small} onClick={() => remove(s.key)}><Ico n="close" only /></button>
           </div>
           {s.imageId && <img src={iqaiContentUrl(s.imageId)} alt="" style={{ height: 48, borderRadius: 6, display: "block", marginTop: 4 }} />}
           <textarea style={{ ...input, width: "95%", minHeight: 56 }} value={s.text} maxLength={600}
             placeholder={hasPhoto(s) ? "អក្សរក្រោមរូប · Caption (optional)" : "អត្ថបទ · Text"}
             onChange={(e) => patch(s.key, { text: e.target.value })} />
           <textarea style={{ ...input, width: "95%", minHeight: 44 }} value={s.say} maxLength={1000}
-            placeholder="🗣 សំឡេងអាន · Spoken narration (optional)"
+            placeholder="សំឡេងអាន · Spoken narration (optional)"
             onChange={(e) => patch(s.key, { say: e.target.value })} />
           {s.say.trim() && voices.length > 0 && (
             <select style={input} value={s.voice} onChange={(e) => patch(s.key, { voice: e.target.value })}>
-              <option value="">🗣 សំឡេងលំនាំដើម · default voice</option>
+              <option value="">សំឡេងលំនាំដើម · default voice</option>
               {voices.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
             </select>
           )}
@@ -273,14 +274,14 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
         </select>
         {voices.length > 0 && (
           <select style={input} value={defVoice} onChange={(e) => setDefVoice(e.target.value)}>
-            <option value="">🗣 សំឡេងអាន · Narrator voice (male)</option>
+            <option value="">សំឡេងអាន · Narrator voice (male)</option>
             {voices.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
           </select>
         )}
         {sfxTypes.length > 0 && (
           <select style={input} value={sfx} onChange={(e) => setSfx(e.target.value)}>
-            <option value="">🔇 គ្មានសំឡេង · No sound</option>
-            {sfxTypes.map((x) => <option key={x} value={x}>🔊 {x}</option>)}
+            <option value="">គ្មានសំឡេង · No sound</option>
+            {sfxTypes.map((x) => <option key={x} value={x}>{x}</option>)}
           </select>
         )}
       </div>
@@ -304,13 +305,13 @@ export default function StoryTab({ effects, sfxTypes }: { effects: string[]; sfx
           )}
         </div>
       )}
-      {err && <div style={{ color: "#ff8a8a" }}>⚠ {err}</div>}
+      {err && <div style={{ color: "#ff8a8a" }}><Ico n="warn" />{err}</div>}
       {ok && <div style={{ color: "#8affb0" }}>{ok}</div>}
       {url && (
         <div style={{ marginTop: 8 }}>
           <video controls src={url} style={{ maxWidth: "100%", maxHeight: 280, borderRadius: 8 }} />
           <div>
-            <a href={url} download="khoem-story.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
+            <a href={url} download="khoem-story.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}><Ico n="download" />ទាញយក</a>
           </div>
         </div>
       )}

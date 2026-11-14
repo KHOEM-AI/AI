@@ -1,3 +1,4 @@
+import Ico from "./UiIcon";
 import { useEffect, useRef, useState } from "react";
 import { iqaiCancelJob, iqaiContentUrl, listMedia } from "../api/client";
 import { runJob } from "../api/runJob";
@@ -65,7 +66,7 @@ export default function FinishTab() {
       if (job.status === "cancelled") setOk("បានបោះបង់ · Cancelled");
       if (job.status === "done" && job.result) {
         setResult(job.result.mediaId);
-        setOk("✅ ចប់ហើយ · Done (រក្សាទុកក្នុងបណ្ណាល័យ · saved in the library)");
+        setOk("ចប់ហើយ · Done (រក្សាទុកក្នុងបណ្ណាល័យ · saved in the library)");
         void refresh();
       }
     } catch (e) { if (aliveRef.current) setErr(msg(e)); }
@@ -111,7 +112,7 @@ export default function FinishTab() {
       <div style={card}>
         <div>១. ជ្រើសវីដេអូ · Choose a video from the library ({videos.length})</div>
         {pick(src, setSrc, videos, "— ជ្រើស · choose —")}
-        <button style={soft} onClick={() => void refresh()}>↻</button>
+        <button style={soft} onClick={() => void refresh()}><Ico n="refresh" only /></button>
         {videos.length === 0 && <div style={{ opacity: 0.8, fontSize: 13 }}>មិនទាន់មានវីដេអូ · No video yet. Make one in Story, or upload it in the Library.</div>}
         {src && <video controls src={iqaiContentUrl(src)} style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 8, display: "block", marginTop: 6 }} />}
       </div>
@@ -170,14 +171,14 @@ export default function FinishTab() {
           {jobId && <button style={soft} onClick={() => void cancel()}>■ បោះបង់ · Cancel</button>}
         </div>
       )}
-      {err && <div style={{ color: "#ff8a8a", marginTop: 6 }}>⚠ {err}</div>}
+      {err && <div style={{ color: "#ff8a8a", marginTop: 6 }}><Ico n="warn" />{err}</div>}
       {ok && <div style={{ color: "#8affb0", marginTop: 6 }}>{ok}</div>}
       {result && (
         <div style={{ marginTop: 8 }}>
           <video controls src={iqaiContentUrl(result)} style={{ maxWidth: "100%", maxHeight: 280, borderRadius: 8 }} />
           <div>
-            <button style={btn} onClick={() => setSrc(result)}>↻ ប្រើជាប្រភពបន្ទាប់ · Use as the next source</button>
-            <a href={iqaiContentUrl(result)} download="khoem-finished.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
+            <button style={btn} onClick={() => setSrc(result)}><Ico n="refresh" />ប្រើជាប្រភពបន្ទាប់ · Use as the next source</button>
+            <a href={iqaiContentUrl(result)} download="khoem-finished.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}><Ico n="download" />ទាញយក</a>
           </div>
         </div>
       )}

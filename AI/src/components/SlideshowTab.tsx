@@ -1,3 +1,4 @@
+import Ico from "./UiIcon";
 import { useEffect, useRef, useState } from "react";
 import { iqaiSlideshow, uploadMedia } from "../api/client";
 
@@ -79,7 +80,7 @@ export default function SlideshowTab({ effects, sfxTypes }: { effects: string[];
     setBusy(true); setErr(""); setOk("");
     try {
       await uploadMedia(video, `slideshow-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.mp4`);
-      setOk("☁ បានរក្សាទុកក្នុងបណ្ណាល័យ · Saved to library");
+      setOk("បានរក្សាទុកក្នុងបណ្ណាល័យ · Saved to library");
     } catch (e) { setErr(msg(e)); }
     setBusy(false);
   }
@@ -97,9 +98,9 @@ export default function SlideshowTab({ effects, sfxTypes }: { effects: string[];
         <div key={s.key} style={{ marginTop: 6 }}>
           <div>
             {i + 1}. {s.file.name}{" "}
-            <button style={small} disabled={i === 0} onClick={() => move(i, -1)}>↑</button>
-            <button style={small} disabled={i === slides.length - 1} onClick={() => move(i, 1)}>↓</button>
-            <button style={small} onClick={() => remove(s.key)}>✕</button>
+            <button style={small} disabled={i === 0} onClick={() => move(i, -1)}><Ico n="up" only /></button>
+            <button style={small} disabled={i === slides.length - 1} onClick={() => move(i, 1)}><Ico n="down" only /></button>
+            <button style={small} onClick={() => remove(s.key)}><Ico n="close" only /></button>
           </div>
           <input style={{ ...input, width: "95%" }} value={s.caption} maxLength={300}
             placeholder="អក្សរក្រោមរូប · Caption (optional)"
@@ -118,21 +119,21 @@ export default function SlideshowTab({ effects, sfxTypes }: { effects: string[];
         </select>
         {sfxTypes.length > 0 && (
           <select style={input} value={sfx} onChange={(e) => setSfx(e.target.value)}>
-            <option value="">🔇 គ្មានសំឡេង · No sound</option>
-            {sfxTypes.map((x) => <option key={x} value={x}>🔊 {x}</option>)}
+            <option value="">គ្មានសំឡេង · No sound</option>
+            {sfxTypes.map((x) => <option key={x} value={x}>{x}</option>)}
           </select>
         )}
       </div>
       <button style={btn} disabled={busy || slides.length === 0} onClick={() => void generate()}>▶ បង្កើត · Generate</button>
       {busy && <div>កំពុងដំណើរការ... · Working...</div>}
-      {err && <div style={{ color: "#ff8a8a" }}>⚠ {err}</div>}
+      {err && <div style={{ color: "#ff8a8a" }}><Ico n="warn" />{err}</div>}
       {ok && <div style={{ color: "#8affb0" }}>{ok}</div>}
       {url && (
         <div style={{ marginTop: 8 }}>
           <video controls src={url} style={{ maxWidth: "100%", maxHeight: 280, borderRadius: 8 }} />
           <div>
-            <button style={btn} disabled={busy} onClick={() => void save()}>☁ រក្សាទុក · Save to library</button>
-            <a href={url} download="khoem-slideshow.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
+            <button style={btn} disabled={busy} onClick={() => void save()}><Ico n="cloud" />រក្សាទុក · Save to library</button>
+            <a href={url} download="khoem-slideshow.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}><Ico n="download" />ទាញយក</a>
           </div>
         </div>
       )}

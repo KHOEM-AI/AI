@@ -1,3 +1,4 @@
+import Ico from "./UiIcon";
 import { useEffect, useRef, useState } from "react";
 import MenuGlyph from "./MenuGlyph";
 import SlideshowTab from "./SlideshowTab";
@@ -70,7 +71,7 @@ export default function CreatePanel({ initialText = "", initialMode = "text" }: 
     setBusy(true); setErr(""); setOk("");
     try {
       await uploadMedia(video, `video-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.mp4`);
-      setOk("☁ បានរក្សាទុកក្នុងបណ្ណាល័យ (ផ្ទាំង Library) · Saved to library");
+      setOk("បានរក្សាទុកក្នុងបណ្ណាល័យ (ផ្ទាំង Library) · Saved to library");
     } catch (e) { setErr(msg(e)); }
     setBusy(false);
   }
@@ -82,11 +83,11 @@ export default function CreatePanel({ initialText = "", initialMode = "text" }: 
       <div style={{ marginBottom: 8 }}><span className="ks-inline-icon"><MenuGlyph name="film" /></span> បង្កើតវីដេអូ · Create video (offline, ffmpeg)</div>
       <button style={mode === "text" ? btn : soft} onClick={() => setMode("text")}><span className="ks-inline-icon"><MenuGlyph name="audit" /></span> ពីអត្ថបទ · Text</button>
       <button style={mode === "photo" ? btn : soft} onClick={() => setMode("photo")}><span className="ks-inline-icon"><MenuGlyph name="library" /></span> ពីរូបភាព · Photo</button>
-      <button style={mode === "slideshow" ? btn : soft} onClick={() => setMode("slideshow")}>🎞 Slideshow</button>
-      <button style={mode === "edit" ? btn : soft} onClick={() => setMode("edit")}>✂ កាត់ត · Edit</button>
-      <button style={mode === "auto" ? btn : soft} onClick={() => setMode("auto")}>✨ AI Auto Create</button>
-      <button style={mode === "story" ? btn : soft} onClick={() => setMode("story")}>🎬 រឿង · Story</button>
-      <button style={mode === "finish" ? btn : soft} onClick={() => setMode("finish")}>✨ បញ្ចប់ · Finish</button>
+      <button style={mode === "slideshow" ? btn : soft} onClick={() => setMode("slideshow")}><Ico n="slideshow" />Slideshow</button>
+      <button style={mode === "edit" ? btn : soft} onClick={() => setMode("edit")}><Ico n="scissors" />កាត់ត · Edit</button>
+      <button style={mode === "auto" ? btn : soft} onClick={() => setMode("auto")}><Ico n="auto" />AI Auto Create</button>
+      <button style={mode === "story" ? btn : soft} onClick={() => setMode("story")}><Ico n="story" />រឿង · Story</button>
+      <button style={mode === "finish" ? btn : soft} onClick={() => setMode("finish")}><Ico n="finish" />បញ្ចប់ · Finish</button>
       {mode === "slideshow" && <SlideshowTab effects={effects} sfxTypes={sfxTypes} />}
       {mode === "edit" && <VideoEditPanel />}
       {mode === "auto" && <AiAutoCreatePanel />}
@@ -125,8 +126,8 @@ export default function CreatePanel({ initialText = "", initialMode = "text" }: 
           </label>
           {sfxTypes.length > 0 && (
             <select style={input} value={sfx} onChange={(e) => setSfx(e.target.value)}>
-              <option value="">🔇 គ្មានសំឡេង · No sound</option>
-              {sfxTypes.map((x) => <option key={x} value={x}>🔊 {x}</option>)}
+              <option value="">គ្មានសំឡេង · No sound</option>
+              {sfxTypes.map((x) => <option key={x} value={x}>{x}</option>)}
             </select>
           )}
         </div>
@@ -139,8 +140,8 @@ export default function CreatePanel({ initialText = "", initialMode = "text" }: 
         <div style={{ marginTop: 8 }}>
           <video controls src={url} style={{ maxWidth: "100%", maxHeight: 280, borderRadius: 8 }} />
           <div>
-            <button style={btn} disabled={busy} onClick={() => void save()}>☁ រក្សាទុក · Save to library</button>
-            <a href={url} download="khoem-video.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
+            <button style={btn} disabled={busy} onClick={() => void save()}><Ico n="cloud" />រក្សាទុក · Save to library</button>
+            <a href={url} download="khoem-video.mp4" style={{ ...soft, textDecoration: "none", display: "inline-block" }}><Ico n="download" />ទាញយក</a>
           </div>
         </div>
       )}

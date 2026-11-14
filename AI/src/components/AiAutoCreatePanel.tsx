@@ -1,3 +1,4 @@
+import Ico from "./UiIcon";
 import { useEffect, useRef, useState } from "react";
 import { iqaiSlideshow, iqaiTts, uploadMedia } from "../api/client";
 
@@ -193,7 +194,7 @@ export default function AiAutoCreatePanel() {
 
   return (
     <div style={box}>
-      <h3 style={{ marginTop: 0 }}>✨ AI Auto Create</h3>
+      <h3 style={{ marginTop: 0 }}><Ico n="auto" />AI Auto Create</h3>
       <p>បង្កើតវីដេអូពីអត្ថបទ រូបភាព សំឡេងនិយាយ និង Subtitle។</p>
 
       <label>ភាសាសំឡេង · Voice language</label>
@@ -242,12 +243,12 @@ export default function AiAutoCreatePanel() {
         disabled={busy || !text.trim() || photos.length < 1 || photos.length > 20}
         onClick={() => void generate()}
       >
-        ✨ បង្កើតវីដេអូដោយស្វ័យប្រវត្តិ
+        <Ico n="auto" />បង្កើតវីដេអូដោយស្វ័យប្រវត្តិ
       </button>
 
-      {busy && <p>⏳ {status}</p>}
+      {busy && <p>{status}</p>}
       {!busy && status && <p>{status}</p>}
-      {error && <p style={{ color: "#ff7777" }}>⚠ {error}</p>}
+      {error && <p style={{ color: "#ff7777" }}><Ico n="warn" />{error}</p>}
 
       {url && (
         <div style={{ marginTop: 12 }}>
@@ -262,14 +263,14 @@ export default function AiAutoCreatePanel() {
             disabled={busy || saved}
             onClick={() => void save()}
           >
-            {saved ? "✓ បានរក្សាទុករួច" : "☁ Save to Library"}
+            {saved ? <><Ico n="check" />បានរក្សាទុករួច</> : <><Ico n="cloud" />Save to Library</>}
           </button>
           <a
             href={url}
             download="khoem-ai-auto-create.mp4"
             style={{ ...btn, display: "inline-block", textDecoration: "none" }}
           >
-            ⬇ ទាញយក MP4
+            <Ico n="download" />ទាញយក MP4
           </a>
         </div>
       )}

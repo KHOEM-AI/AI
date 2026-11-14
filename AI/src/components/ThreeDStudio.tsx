@@ -78,26 +78,6 @@ export default function ThreeDStudio({ onClose, onSwitch }: Props) {
         </div>
       </header>
 
-      <div style={{ padding: "0 8px", display: "flex", flexWrap: "wrap", gap: 8 }}>
-        <button className="three-studio__button" style={{ opacity: tab === "vehicles" ? 1 : 0.6 }} onClick={() => setTab("vehicles")}><TabIcon k="car" />ឡាន · យន្តហោះ · ទូរស័ព្ទ</button>
-        <button className="three-studio__button" style={{ opacity: tab === "people" ? 1 : 0.6 }} onClick={() => setTab("people")}><TabIcon k="people" />មនុស្ស · People</button>
-        <button className="three-studio__button" style={{ opacity: tab === "glb" ? 1 : 0.6 }} onClick={() => setTab("glb")}><TabIcon k="glb" />.glb · Import</button>
-      </div>
-
-      {tab === "vehicles" && (
-        <div style={{ padding: "8px 8px 0", display: "flex", flexWrap: "wrap", gap: 6 }}>
-          <button className="three-studio__button" style={sub(vSub === "cars")} onClick={() => setVSub("cars")}><TabIcon k="car" />ឡាន · Cars</button>
-          <button className="three-studio__button" style={sub(vSub === "aircraft")} onClick={() => setVSub("aircraft")}><TabIcon k="plane" />យន្តហោះ · Aircraft</button>
-          <button className="three-studio__button" style={sub(vSub === "phones")} onClick={() => setVSub("phones")}><TabIcon k="phone" />ទូរស័ព្ទ · Phone</button>
-        </div>
-      )}
-      {tab === "people" && (
-        <div style={{ padding: "8px 8px 0", display: "flex", flexWrap: "wrap", gap: 6 }}>
-          <button className="three-studio__button" style={sub(pSub === "people")} onClick={() => setPSub("people")}><TabIcon k="people" />តួអង្គ · Characters</button>
-          <button className="three-studio__button" style={sub(pSub === "mannequin")} onClick={() => setPSub("mannequin")}><TabIcon k="mannequin" />Mannequin</button>
-        </div>
-      )}
-
       <div style={{ padding: "8px" }}>
         {tab === "vehicles" && vSub === "cars" && <Procedural3D mode="cars" />}
         {tab === "people" && pSub === "people" && <Procedural3D mode="people" />}
@@ -106,6 +86,29 @@ export default function ThreeDStudio({ onClose, onSwitch }: Props) {
       </div>
       {tab === "glb" && <ModelViewer />}
       {tab === "people" && pSub === "mannequin" && <HumanViewer />}
+      <nav className="td-bottomnav" aria-label="3D navigation" style={{ position: "sticky", bottom: 0, zIndex: 5, marginTop: 8, padding: "8px 8px calc(8px + env(safe-area-inset-bottom))", background: "rgba(14,16,24,.94)", backdropFilter: "blur(8px)", borderTop: "1px solid #2c3040", display: "flex", flexDirection: "column", gap: 6 }}>
+        <style>{`.td-bottomnav .three-studio__button{flex:1 1 0;min-width:0;justify-content:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .td-bottomnav .td-n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:10px;background:#3b2a6e;color:#fff;font-size:12px;font-weight:700;margin-right:6px;flex-shrink:0}
+        @media (min-width:900px){.td-bottomnav{flex-direction:row;align-items:center;justify-content:center}.td-bottomnav>div{flex:0 1 560px}}`}</style>
+        {tab === "vehicles" && (
+          <div style={{ display: "flex", gap: 6 }}>
+            <button className="three-studio__button" style={sub(vSub === "cars")} onClick={() => setVSub("cars")}><span className="td-n">1</span><TabIcon k="car" />Cars</button>
+            <button className="three-studio__button" style={sub(vSub === "aircraft")} onClick={() => setVSub("aircraft")}><span className="td-n">2</span><TabIcon k="plane" />Aircraft</button>
+            <button className="three-studio__button" style={sub(vSub === "phones")} onClick={() => setVSub("phones")}><span className="td-n">3</span><TabIcon k="phone" />Phone</button>
+          </div>
+        )}
+        {tab === "people" && (
+          <div style={{ display: "flex", gap: 6 }}>
+            <button className="three-studio__button" style={sub(pSub === "people")} onClick={() => setPSub("people")}><span className="td-n">1</span><TabIcon k="people" />Characters</button>
+            <button className="three-studio__button" style={sub(pSub === "mannequin")} onClick={() => setPSub("mannequin")}><span className="td-n">2</span><TabIcon k="mannequin" />Mannequin</button>
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 6 }}>
+          <button className="three-studio__button" style={{ opacity: tab === "vehicles" ? 1 : 0.6 }} onClick={() => setTab("vehicles")}><span className="td-n">1</span><TabIcon k="car" />ឡាន</button>
+          <button className="three-studio__button" style={{ opacity: tab === "people" ? 1 : 0.6 }} onClick={() => setTab("people")}><span className="td-n">2</span><TabIcon k="people" />មនុស្ស</button>
+          <button className="three-studio__button" style={{ opacity: tab === "glb" ? 1 : 0.6 }} onClick={() => setTab("glb")}><span className="td-n">3</span><TabIcon k="glb" />.glb</button>
+        </div>
+      </nav>
     </section>
   );
 }

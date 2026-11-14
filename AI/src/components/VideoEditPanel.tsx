@@ -1,3 +1,4 @@
+import Ico from "./UiIcon";
 import { useEffect, useRef, useState } from "react";
 import MenuGlyph from "./MenuGlyph";
 import {
@@ -161,17 +162,17 @@ export default function VideoEditPanel() {
               onChange={(e) => setSpeed(Number(e.target.value))} style={{ width: "100%" }} />
           </label>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8 }}>
-            <input type="checkbox" checked={mute} onChange={(e) => setMute(e.target.checked)} /> 🔇 បិទសំឡេង · Mute
+            <input type="checkbox" checked={mute} onChange={(e) => setMute(e.target.checked)} /> <Ico n="mute" />បិទសំឡេង · Mute
           </label>
-          <button style={btn} onClick={edit} disabled={busy}>✂ កែ → MP4</button>
-          <button style={btn} onClick={thumb} disabled={busy}>🖼 Thumbnail (frame បច្ចុប្បន្ន)</button>
-          <button style={btn} onClick={extract} disabled={busy}>🔊 ទាញសំឡេង</button>
+          <button style={btn} onClick={edit} disabled={busy}><Ico n="scissors" />កែ → MP4</button>
+          <button style={btn} onClick={thumb} disabled={busy}><Ico n="frame" />Thumbnail (frame បច្ចុប្បន្ន)</button>
+          <button style={btn} onClick={extract} disabled={busy}><Ico n="wave" />ទាញសំឡេង</button>
         </div>
       )}
 
       <section style={{ marginTop: 18, padding: 12, border: "1px solid #8885", borderRadius: 10 }}>
         <div style={{ marginBottom: 8, fontWeight: 600 }}>
-          📄 ព័ត៌មានឯកសារ · File info
+          <Ico n="info" />ព័ត៌មានឯកសារ · File info
         </div>
         <input
           style={input}
@@ -191,7 +192,7 @@ export default function VideoEditPanel() {
 
       <section style={{ marginTop: 18 }}>
         <div style={{ marginBottom: 8, fontWeight: 600 }}>
-          🎵 បណ្ណាល័យសំឡេង · Sound Library
+          <Ico n="music" />បណ្ណាល័យសំឡេង · Sound Library
         </div>
         <SoundLibrary />
       </section>
@@ -199,12 +200,12 @@ export default function VideoEditPanel() {
       {busy && <div style={{ fontSize: 13, opacity: 0.8 }}>កំពុងដំណើរការ… · Working…</div>}
       {err && <div style={{ color: "#ff8a8a" }}>{err}</div>}
       {outUrl && <video src={outUrl} controls style={{ width: "100%", borderRadius: 8, margin: "6px 0" }} />}
-      {outUrl && <a href={outUrl} download="khoem-edit.mp4" style={link}>⬇ Download MP4</a>}
+      {outUrl && <a href={outUrl} download="khoem-edit.mp4" style={link}><Ico n="download" />Download MP4</a>}
       {outInfo && <div style={{ fontSize: 13, opacity: 0.8 }}>{outInfo}</div>}
       {thumbUrl && <img src={thumbUrl} alt="thumbnail" style={{ width: "100%", borderRadius: 8, margin: "6px 0" }} />}
-      {thumbUrl && <a href={thumbUrl} download="khoem-thumb.jpg" style={link}>⬇ Download JPG</a>}
+      {thumbUrl && <a href={thumbUrl} download="khoem-thumb.jpg" style={link}><Ico n="download" />Download JPG</a>}
       {audioUrl && <audio src={audioUrl} controls style={{ width: "100%", margin: "6px 0" }} />}
-      {audioUrl && <a href={audioUrl} download={"khoem-audio." + audioExt} style={link}>⬇ Download Audio</a>}
+      {audioUrl && <a href={audioUrl} download={"khoem-audio." + audioExt} style={link}><Ico n="download" />Download Audio</a>}
     </div>
   );
 }

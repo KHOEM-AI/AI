@@ -101,7 +101,7 @@ const SPECS: CarSpec[] = [
 
 // styling per model (supercar / luxury details + factory colours)
 const EXTRA: Partial<Record<CarId, Partial<CarSpec>>> = {
-  v99: { taper: 0.24, grille: "hex", caliper: 0xa24bff, exhaust: true, intake: true, stripe: 0x7c3aed },
+  v99: { color: 0xb4bac4, taper: 0.24, grille: "hex", caliper: 0x2f7bff, exhaust: true, intake: true, rim: 0x14161c },
   s1:  { color: 0x6a7077, taper: 0.2, grille: "hex", caliper: 0xd9172c, exhaust: true, intake: true, stripe: 0xd9172c },
   s2:  { color: 0x8fdc1e, taper: 0.26, grille: "hex", caliper: 0x111111, exhaust: true, intake: true, stripe: 0x0e0e10 },
   s3:  { color: 0x1747d6, taper: 0.26, grille: "hex", caliper: 0xffffff, exhaust: true, intake: true, stripe: 0xf5f7fa },
@@ -116,10 +116,12 @@ export const CAR_LIST: { id: CarId; name: string; kind: string }[] =
   SPECS.map(({ id, name, kind }) => ({ id, name, kind }));
 
 export interface CarOptions { color?: number; led?: LedMode }
+/** V99 body colour per LED mode (poster 'COLOR MODES'): 3 blue, 6 purple, 9 red, 0 silver. */
+export const V99_MODE_PAINT: Record<LedMode, number> = { 0: 0xb4bac4, 3: 0x1f5fe0, 6: 0x8b3fe0, 9: 0xc8202c };
 export interface CarData {
   spec: CarSpec; wheels: THREE.Object3D[]; ledMats: THREE.MeshStandardMaterial[];
   ledLight: THREE.PointLight; wheelR: number; led: LedMode;
-  paint: THREE.MeshPhysicalMaterial; strobe: THREE.MeshStandardMaterial[];
+  paint: THREE.MeshPhysicalMaterial; strobe: THREE.MeshStandardMaterial[]; customColor: boolean;
 }
 
 function shapeBody(g: THREE.BufferGeometry, L: number, gc: number, topY: number, taper: number): void {
@@ -383,10 +385,31 @@ export function buildCar(id: CarId, opts: CarOptions = {}): THREE.Group {
   };
   switch (id) {
     case "v99": {
-      spoiler(X(0.045), tail + 0.18, W * 0.78, paint);
-      sidePanel(X(0.3), X(0.78), gc + 0.22, gc + 0.245, ledMat);
-      stripeAlongHood(0x7c3aed, 0.18);
-      badge("V99", "#e9d5ff", null, X(0.4), gc + 0.38, 0.5, 0.16);
+      const carbon = new THREE.MeshStandardMaterial({ color: 0x0b0c10, roughness: 0.35, metalness: 0.6 });
+      spoiler(X(0.045), tail + 0.2, W * 0.86, carbon);
+      // carbon hood insert + roof + black lower body / skirts / bumper (poster look)
+      const hA = V(spec.lower[2]), hB = V(spec.lower[3]);
+      bar(hA, hB, 0.012, W * 0.5, 0, carbon, 0.082);
+      for (const side of [-1, 1]) {
+        sidePanel(X(0.16), X(0.9), gc, gc + 0.2, carbon);
+        box(L * 0.7, 0.03, 0.04, ledMat, X(0.5), gc + 0.215, side * (W / 2 + 0.012));
+      }
+      box(0.3, 0.2, W * (0.96 - 0.24 * 1.3), carbon, L / 2 - 0.02, gc + 0.1, 0);
+      box(0.3, 0.22, W * 0.7, carbon, -L / 2 + 0.02, gc + 0.12, 0);
+      // names (poster): doors, hood, plates
+      badge("KHOEM-AI", "#0b0c10", null, X(0.46), gc + 0.55, 1.15, 0.2);
+      const plate = (x: number, y: number, ry: number) => {
+        const pm = new THREE.MeshBasicMaterial({ map: canvasTex("KHOEM-AI", "#0b0c10", "#f3f4f6", 512, 128) });
+        const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.125), pm); pl.position.set(x, y, 0); pl.rotation.y = ry; g.add(pl);
+      };
+      plate(L / 2 + 0.115, gc + 0.2, Math.PI / 2); plate(-L / 2 - 0.075, gc + 0.4, -Math.PI / 2);
+      {
+        const ang = Math.atan2(hB.y - hA.y, hB.x - hA.x) + Math.PI; // slope with x increasing
+        const hm = new THREE.MeshBasicMaterial({ map: canvasTex("KHOEM-AI", "#e8ecf4", null, 512, 128), transparent: true, depthWrite: false });
+        const hp = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.2), hm);
+        const grp = new THREE.Group(); grp.position.set((hA.x + hB.x) / 2 - 0.05, (hA.y + hB.y) / 2 + 0.1, 0); grp.rotation.z = ang;
+        hp.rotation.x = -Math.PI / 2; hp.rotation.z = Math.PI / 2; grp.add(hp); g.add(grp);
+      }
       break;
     }
     case "s2": stripeAlongHood(0x111111, 0.3); break;
@@ -473,7 +496,7 @@ export function buildCar(id: CarId, opts: CarOptions = {}): THREE.Group {
     m.receiveShadow = false;
   });
   body.receiveShadow = true;
-  const data: CarData = { spec, wheels, ledMats: [ledMat], ledLight, wheelR: spec.wheelR, led: 0, paint, strobe };
+  const data: CarData = { spec, wheels, ledMats: [ledMat], ledLight, wheelR: spec.wheelR, led: 0, paint, strobe, customColor: opts.color !== undefined };
   (data as any).glow = glow;
   g.userData.car = data;
   setCarLed(g, opts.led ?? 0);
@@ -483,6 +506,7 @@ export function buildCar(id: CarId, opts: CarOptions = {}): THREE.Group {
 export function setCarLed(car: THREE.Object3D, mode: LedMode): void {
   const d = car.userData.car as CarData | undefined; if (!d) return;
   d.led = mode;
+  if (d.spec.id === "v99" && !d.customColor) d.paint.color.setHex(V99_MODE_PAINT[mode]);
   const c = new THREE.Color(LED_COLORS[mode]);
   for (const m of d.ledMats) { m.color.copy(c); m.emissive.copy(c); m.emissiveIntensity = mode ? 3.5 : 0; }
   d.ledLight.color.copy(c); d.ledLight.intensity = mode ? 6 : 0;

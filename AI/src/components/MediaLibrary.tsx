@@ -1,3 +1,4 @@
+import Ico from "./UiIcon";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   deleteMedia,
@@ -17,7 +18,7 @@ import MenuGlyph from "./MenuGlyph";
 
 const box: React.CSSProperties = { background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 12, marginBottom: 12, boxSizing: "border-box", maxWidth: "100%" };
 const btn: React.CSSProperties = { padding: "6px 12px", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.14)", color: "#fff", marginRight: 8, marginTop: 4 };
-const TYPES: [string, string][] = [["", "ទាំងអស់ · All"], ["image", "🖼 រូបភាព"], ["audio", "🎧 សំឡេង"], ["video", "🎬 វីដេអូ"]];
+const TYPES: [string, string][] = [["", "ទាំងអស់ · All"], ["image", "រូបភាព"], ["audio", "សំឡេង"], ["video", "វីដេអូ"]];
 
 const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
@@ -49,10 +50,10 @@ export default function MediaLibrary() {
     try {
       if (f.type.startsWith("image/")) {
         const i = await iqaiInspectImage(f);
-        setInfo(`🖼 ${i.format.toUpperCase()} · ${i.width}×${i.height}`);
+        setInfo(`${i.format.toUpperCase()} · ${i.width}×${i.height}`);
       } else if (f.type.startsWith("video/")) {
         const v = await iqaiInspectVideo(f);
-        setInfo(`🎬 ${v.format.toUpperCase()} · ${v.width}×${v.height} · ${v.durationSec.toFixed(1)}s`);
+        setInfo(`${v.format.toUpperCase()} · ${v.width}×${v.height} · ${v.durationSec.toFixed(1)}s`);
       }
     } catch { /* inspect is informational only; upload still validates */ }
     try { await uploadMedia(f, f.name); await load(); }
@@ -88,7 +89,7 @@ export default function MediaLibrary() {
     setBusy(true); setErr(""); setInfo("");
     try {
       await uploadMedia(merged, `film-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.mp4`);
-      setInfo("☁ បានរក្សាទុកវីដេអូដែលភ្ជាប់ · Merged video saved");
+      setInfo("បានរក្សាទុកវីដេអូដែលភ្ជាប់ · Merged video saved");
       setMerged(null); setMergedUrl(""); setPicked([]);
       await load();
     } catch (e) { setErr(msg(e)); }
@@ -107,7 +108,7 @@ export default function MediaLibrary() {
         } catch (e) { if ((e as Error).name === "AbortError") return; }
       }
       await navigator.clipboard.writeText(url);
-      setInfo("📋 ចម្លងតំណរួចហើយ (ប្រើបានតែលើបណ្ដាញដូចគ្នា) · Link copied (same network only)");
+      setInfo("ចម្លងតំណរួចហើយ (ប្រើបានតែលើបណ្ដាញដូចគ្នា) · Link copied (same network only)");
     } catch (e) { setErr(msg(e)); }
   }
 
@@ -121,13 +122,13 @@ export default function MediaLibrary() {
       <select style={{ marginLeft: 6, borderRadius: 8, padding: 6 }} value={type} onChange={(e) => setType(e.target.value)}>
         {TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
       </select>
-      <button style={btn} onClick={() => void load()}>↻</button>
+      <button style={btn} onClick={() => void load()}><Ico n="refresh" only /></button>
       {picked.length > 0 && (
         <div style={{ marginTop: 6 }}>
           <button style={{ ...btn, background: "#4f7cff" }} disabled={busy || picked.length < 2} onClick={() => void mergePicked()}>
-            🎞 ភ្ជាប់ · Merge ({picked.length})
+            <Ico n="merge" />ភ្ជាប់ · Merge ({picked.length})
           </button>
-          <button style={btn} onClick={() => { setPicked([]); }}>✖ សម្អាត · Clear</button>
+          <button style={btn} onClick={() => { setPicked([]); }}><Ico n="close" />សម្អាត · Clear</button>
           {picked.length < 2 && <span style={{ fontSize: 13, opacity: 0.8 }}>ជ្រើសយ៉ាងតិច 2 វីដេអូ · Pick at least 2 videos</span>}
         </div>
       )}
@@ -135,8 +136,8 @@ export default function MediaLibrary() {
         <div style={{ marginTop: 8 }}>
           <video controls src={mergedUrl} style={{ maxWidth: "100%", maxHeight: 260, borderRadius: 8 }} />
           <div>
-            <button style={{ ...btn, background: "#4f7cff" }} disabled={busy} onClick={() => void saveMerged()}>☁ រក្សាទុក · Save merged</button>
-            <a href={mergedUrl} download="khoem-film.mp4" style={{ ...btn, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
+            <button style={{ ...btn, background: "#4f7cff" }} disabled={busy} onClick={() => void saveMerged()}><Ico n="cloud" />រក្សាទុក · Save merged</button>
+            <a href={mergedUrl} download="khoem-film.mp4" style={{ ...btn, textDecoration: "none", display: "inline-block" }}><Ico n="download" />ទាញយក</a>
           </div>
         </div>
       )}
@@ -152,14 +153,14 @@ export default function MediaLibrary() {
           {m.type === "audio" && <audio controls src={url(m)} style={{ width: "100%", marginTop: 4 }} />}
           {m.type === "video" && <video controls src={url(m)} style={{ maxWidth: "100%", maxHeight: 220, marginTop: 4 }} />}
           <div>
-            <a href={url(m)} download={m.filename} style={{ ...btn, textDecoration: "none", display: "inline-block" }}>⬇ ទាញយក</a>
-            <button style={btn} onClick={() => void share(m)}>📤 ចែកចាយ</button>
+            <a href={url(m)} download={m.filename} style={{ ...btn, textDecoration: "none", display: "inline-block" }}><Ico n="download" />ទាញយក</a>
+            <button style={btn} onClick={() => void share(m)}><Ico n="share" />ចែកចាយ</button>
             {m.type === "video" && (
               <button style={picked.includes(m.id) ? { ...btn, background: "#4f7cff" } : btn} onClick={() => togglePick(m.id)}>
-                {picked.includes(m.id) ? `✔ ${picked.indexOf(m.id) + 1}` : "＋ ភ្ជាប់"}
+                {picked.includes(m.id) ? <><Ico n="check" />{picked.indexOf(m.id) + 1}</> : <><Ico n="plus" />ភ្ជាប់</>}
               </button>
             )}
-            <button style={{ ...btn, background: "rgba(255,80,80,0.35)" }} onClick={() => void remove(m)}>🗑 លុប</button>
+            <button style={{ ...btn, background: "rgba(255,80,80,0.35)" }} onClick={() => void remove(m)}><Ico n="trash" />លុប</button>
           </div>
         </div>
       ))}
