@@ -655,7 +655,3 @@ html[data-theme="day"] .ks-inline-icon svg {
   stroke: #2B7BB9 !important;
 }
 
-/* Back (inside Studio) sits above the X (leave Studio) */
-.ks-back { margin-top: auto; }
-.ks-back + .ks-close { margin-top: 0; }
-.ks-back:disabled { opacity: .35; cursor: default; }

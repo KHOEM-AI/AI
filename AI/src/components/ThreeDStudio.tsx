@@ -39,7 +39,7 @@ export default function ThreeDStudio({ onClose, onSwitch }: Props) {
   const home = () => { setTab("vehicles"); setVSub("cars"); };
   // Back: first step back inside the studio (-> Cars), then leave the panel
   useBackStep(() => { if (!atHome) { home(); return true; } return false; });
-  const goBack = () => { if (!atHome) home(); else onClose(); };
+  const goBack = () => { if (!atHome) home(); }; // Back stays inside 3D; only X leaves
   const sub = (on: boolean) => ({ opacity: on ? 1 : 0.6, fontSize: 12, padding: "6px 10px" });
   return (
     <section
@@ -56,7 +56,7 @@ export default function ThreeDStudio({ onClose, onSwitch }: Props) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button className="three-studio__button" onClick={goBack} aria-label="Back">‹ ថយក្រោយ</button>
+          <button className="three-studio__button" disabled={atHome} style={{ opacity: atHome ? 0.4 : 1 }} onClick={goBack} aria-label="Back">‹ ថយក្រោយ</button>
           {onSwitch && (
             <button className="three-studio__button" onClick={onSwitch}>
               <span className="dx-icon">
