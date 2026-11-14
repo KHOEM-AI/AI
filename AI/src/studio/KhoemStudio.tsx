@@ -5,6 +5,7 @@ import MediaLibrary from "../components/MediaLibrary";
 import CreatePanel from "../components/CreatePanel";
 import ColorLightCenter from "../components/ColorLightCenter";
 import MenuGlyph from "../components/MenuGlyph";
+import { useBackStep } from "../lib/useBackClose";
 import TranslatePanel from "./TranslatePanel";
 import { iqaiSoundContentUrl, listSounds, uploadSound, type IqaiSound } from "../api/client";
 import "./studio.css";
@@ -604,6 +605,8 @@ const AUDIO_WORDS = /សំឡេង|ភ្លេង|audio|sound|music|bass|volu
 
 export default function KhoemStudio({ onClose, onOpen3d }: Props) {
   const [view, setView] = useState<"home" | "audio" | "emotion" | "color" | "translate" | "media" | "create" | "movie">("home");
+  // Back = one step inside the Studio (-> Home). The X button leaves the Studio.
+  useBackStep(() => { if (view !== "home") { setView("home"); return true; } return false; });
   const [prompt, setPrompt] = useState("");
   const [note, setNote] = useState("");
 
@@ -642,6 +645,7 @@ export default function KhoemStudio({ onClose, onOpen3d }: Props) {
         <button className={view === "create" ? "on" : ""} onClick={() => setView("create")}><span><MenuGlyph name="film" /></span><em>Create</em></button>
         <button className={view === "media" ? "on" : ""} onClick={() => setView("media")}><span><MenuGlyph name="library" /></span><em>Library</em></button>
         <button disabled={!onOpen3d} onClick={onOpen3d}><span><MenuGlyph name="cube" /></span><em>3D</em></button>
+        <button className="ks-back" disabled={view === "home"} onClick={() => setView("home")} aria-label="ថយក្រោយ"><span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#45d9ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5" /></svg></span><em>ថយក្រោយ</em></button>
         <button className="ks-close" onClick={onClose}><span><MenuGlyph name="close" /></span><em>បិទ</em></button>
       </nav>
 
