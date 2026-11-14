@@ -32,10 +32,15 @@ function TabIcon({ k }: { k: IconKey }) {
 }
 
 export default function ThreeDStudio({ onClose, onSwitch }: Props) {
-  const [tab, setTab] = useState<"cars" | "people" | "glb" | "mannequin" | "phones" | "aircraft">("cars");
-  // Back: first step back inside the studio (tab -> Cars), then leave the panel
-  useBackStep(() => { if (tab !== "cars") { setTab("cars"); return true; } return false; });
-  const goBack = () => { if (tab !== "cars") setTab("cars"); else onClose(); };
+  const [tab, setTab] = useState<"vehicles" | "people" | "glb">("vehicles");
+  const [vSub, setVSub] = useState<"cars" | "aircraft" | "phones">("cars");
+  const [pSub, setPSub] = useState<"people" | "mannequin">("people");
+  const atHome = tab === "vehicles" && vSub === "cars";
+  const home = () => { setTab("vehicles"); setVSub("cars"); };
+  // Back: first step back inside the studio (-> Cars), then leave the panel
+  useBackStep(() => { if (!atHome) { home(); return true; } return false; });
+  const goBack = () => { if (!atHome) home(); else onClose(); };
+  const sub = (on: boolean) => ({ opacity: on ? 1 : 0.6, fontSize: 12, padding: "6px 10px" });
   return (
     <section
       className="three-studio"
@@ -74,19 +79,33 @@ export default function ThreeDStudio({ onClose, onSwitch }: Props) {
       </header>
 
       <div style={{ padding: "0 8px", display: "flex", flexWrap: "wrap", gap: 8 }}>
-        <button className="three-studio__button" style={{ opacity: tab === "cars" ? 1 : 0.6 }} onClick={() => setTab("cars")}><TabIcon k="car" />ឡាន · Cars</button>
+        <button className="three-studio__button" style={{ opacity: tab === "vehicles" ? 1 : 0.6 }} onClick={() => setTab("vehicles")}><TabIcon k="car" />ឡាន · យន្តហោះ · ទូរស័ព្ទ</button>
         <button className="three-studio__button" style={{ opacity: tab === "people" ? 1 : 0.6 }} onClick={() => setTab("people")}><TabIcon k="people" />មនុស្ស · People</button>
         <button className="three-studio__button" style={{ opacity: tab === "glb" ? 1 : 0.6 }} onClick={() => setTab("glb")}><TabIcon k="glb" />.glb · Import</button>
-        <button className="three-studio__button" style={{ opacity: tab === "mannequin" ? 1 : 0.6 }} onClick={() => setTab("mannequin")}><TabIcon k="mannequin" />Mannequin</button>
-        <button className="three-studio__button" style={{ opacity: tab === "phones" ? 1 : 0.6 }} onClick={() => setTab("phones")}><TabIcon k="phone" />Phone Gallery</button>
-        <button className="three-studio__button" style={{ opacity: tab === "aircraft" ? 1 : 0.6 }} onClick={() => setTab("aircraft")}><TabIcon k="plane" />Aircraft Gallery</button>
       </div>
+
+      {tab === "vehicles" && (
+        <div style={{ padding: "8px 8px 0", display: "flex", flexWrap: "wrap", gap: 6 }}>
+          <button className="three-studio__button" style={sub(vSub === "cars")} onClick={() => setVSub("cars")}><TabIcon k="car" />ឡាន · Cars</button>
+          <button className="three-studio__button" style={sub(vSub === "aircraft")} onClick={() => setVSub("aircraft")}><TabIcon k="plane" />យន្តហោះ · Aircraft</button>
+          <button className="three-studio__button" style={sub(vSub === "phones")} onClick={() => setVSub("phones")}><TabIcon k="phone" />ទូរស័ព្ទ · Phone</button>
+        </div>
+      )}
+      {tab === "people" && (
+        <div style={{ padding: "8px 8px 0", display: "flex", flexWrap: "wrap", gap: 6 }}>
+          <button className="three-studio__button" style={sub(pSub === "people")} onClick={() => setPSub("people")}><TabIcon k="people" />តួអង្គ · Characters</button>
+          <button className="three-studio__button" style={sub(pSub === "mannequin")} onClick={() => setPSub("mannequin")}><TabIcon k="mannequin" />Mannequin</button>
+        </div>
+      )}
+
       <div style={{ padding: "8px" }}>
-        {(tab === "cars" || tab === "people") && <Procedural3D mode={tab} />}
+        {tab === "vehicles" && vSub === "cars" && <Procedural3D mode="cars" />}
+        {tab === "people" && pSub === "people" && <Procedural3D mode="people" />}
+        {tab === "vehicles" && vSub === "phones" && <TransportGallery initialTab="phones" />}
+        {tab === "vehicles" && vSub === "aircraft" && <TransportGallery initialTab="aircraft" />}
       </div>
       {tab === "glb" && <ModelViewer />}
-      {tab === "mannequin" && <HumanViewer />}
-      {(tab === "phones" || tab === "aircraft") && <TransportGallery initialTab={tab} />}
+      {tab === "people" && pSub === "mannequin" && <HumanViewer />}
     </section>
   );
 }
