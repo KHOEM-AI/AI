@@ -4,7 +4,7 @@ type MenuGlyphName =
   | "studio" | "camera" | "shield" | "safety" | "learning"
   | "honorific" | "language" | "clear" | "sun" | "moon"
   | "film" | "home" | "audio" | "emotion" | "palette" | "library" | "video" | "cube" | "close"
-  | "headphones" | "play" | "pause" | "stop" | "record" | "loop"
+  | "phone" | "aircraft" | "headphones" | "play" | "pause" | "stop" | "record" | "loop"
   | "download" | "scissors" | "clock" | "bell" | "mic" | "star";
 
 const paths: Record<MenuGlyphName, string> = {
@@ -39,6 +39,8 @@ const paths: Record<MenuGlyphName, string> = {
   cube: "M12 3l8 4.5v9L12 21l-8-4.5v-9z M12 12l8-4.5 M12 12v9 M12 12L4 7.5",
   close: "M6 6l12 12 M18 6L6 18",
   film: "M3 9h18v11H3z M3 9l3-5h4l-3 5 M10 9l3-5h4l-3 5 M7 14h10 M7 17h6",
+  phone: "M7 2.8h10a1.8 1.8 0 0 1 1.8 1.8v14.8a1.8 1.8 0 0 1-1.8 1.8H7a1.8 1.8 0 0 1-1.8-1.8V4.6A1.8 1.8 0 0 1 7 2.8z M9 5.5h6 M11 18.2h2",
+  aircraft: "M12 2 14 9l7 4v2l-7-2-1 7 3 2v1l-4-1-4 1v-1l3-2-1-7-7 2v-2l7-4z",
   headphones: "M4 13a8 8 0 0 1 16 0 M4 13h3v6H5a1 1 0 0 1-1-1z M20 13h-3v6h2a1 1 0 0 0 1-1z",
   play: "M7 4l13 8-13 8z",
   pause: "M7 4h3v16H7z M14 4h3v16h-3z",

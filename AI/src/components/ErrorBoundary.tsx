@@ -1,4 +1,9 @@
 import { Component, type ReactNode } from "react";
+import { useBackClose } from "../lib/useBackClose";
+
+// Phone Back button closes the open panel (instead of leaving the app)
+function Guard({ onClose }: { onClose: () => void }) { useBackClose(onClose); return null; }
+function BackGuard({ onClose }: { onClose?: () => void }) { return onClose ? <Guard onClose={onClose} /> : null; }
 
 interface Props { children: ReactNode; onClose?: () => void }
 interface State { error: Error | null }
@@ -11,6 +16,10 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   render() {
+    return (<><BackGuard onClose={this.props.onClose} />{this.renderInner()}</>);
+  }
+
+  renderInner() {
     if (this.state.error) {
       return (
         <div className="status-overlay" role="dialog">

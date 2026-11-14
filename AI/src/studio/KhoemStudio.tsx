@@ -595,7 +595,7 @@ function AudioEditor({ onBack }: { onBack: () => void }) {
 }
 
 /* ---------- home ---------- */
-type Props = { onClose: () => void; onOpenAv?: () => void; onOpen3d?: () => void };
+type Props = { onClose: () => void; onOpenAv?: () => void; onOpen3d?: () => void; onOpenGallery?: (tab: "phones" | "aircraft") => void };
 const VIDEO_WORDS = /វីដេអូ|video|clip/i;
 const IMAGE_WORDS = /រូបភាព|រូប|image|photo|picture/i;
 const TEXT_WORDS = /អត្ថបទ|អារម្មណ៍|emotion|text/i;

@@ -1,0 +1,373 @@
+.transport-gallery {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  color: #fff;
+  background:
+    radial-gradient(circle at top, #12345b 0%, #071426 45%, #030812 100%);
+  border: 1px solid #087cff;
+  border-radius: 16px;
+  overflow: hidden;
+  font-family: inherit;
+}
+
+.transport-gallery * {
+  box-sizing: border-box;
+}
+
+.tg-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 4px 20px;
+  text-align: left;
+}
+
+.tg-logo {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #27caff;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(145deg, #087cff, #092a58);
+  font-size: 27px;
+  font-weight: 900;
+  box-shadow: 0 0 18px #087cff77;
+}
+
+.tg-header h2 {
+  margin: 0;
+  color: #38d5ff;
+  font-size: 19px;
+}
+
+.tg-header p {
+  margin: 4px 0 0;
+  color: #a7c8e9;
+  font-size: 11px;
+}
+
+.tg-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tg-tabs button,
+.tg-filters button {
+  border: 1px solid #245b8f;
+  color: #dceeff;
+  background: #10223a;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.tg-tabs button {
+  min-width: 0;
+  padding: 12px 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tg-tabs button.active {
+  color: white;
+  border-color: #2acfff;
+  background: linear-gradient(120deg, #0755a4, #087fbd);
+  box-shadow: 0 0 12px #008cff66;
+}
+
+.tg-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  height: 42px;
+  border: 1px solid #235987;
+  border-radius: 10px;
+  background: #07172a;
+  color: #30cfff;
+}
+
+.tg-search span {
+  font-size: 23px;
+}
+
+.tg-search input {
+  width: 100%;
+  min-width: 0;
+  outline: none;
+  border: 0;
+  color: white;
+  background: transparent;
+  font-size: 13px;
+}
+
+.tg-search input::placeholder {
+  color: #7699ba;
+}
+
+.tg-filters {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 12px 0;
+  scrollbar-width: thin;
+}
+
+.tg-filters button {
+  flex: 0 0 auto;
+  padding: 7px 11px;
+  font-size: 10px;
+}
+
+.tg-filters button.selected {
+  color: #fff;
+  background: #075da8;
+  border-color: #29caff;
+}
+
+.tg-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.tg-heading h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #35d2ff;
+}
+
+.tg-heading span {
+  color: #9dc5e8;
+  font-size: 10px;
+}
+
+.tg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.tg-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 5px;
+  color: white;
+  border: 1px solid #17558a;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #132e4d, #071326);
+  cursor: pointer;
+  text-align: center;
+  transition: transform .15s, border-color .15s;
+}
+
+.tg-card:active {
+  transform: scale(.96);
+  border-color: #30d3ff;
+}
+
+.tg-image {
+  width: 100%;
+  min-height: 68px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle, #164b79 0%, #0a1d35 75%);
+  font-size: 36px;
+}
+
+.tg-card strong {
+  width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.tg-card small {
+  color: #a6c9e8;
+  font-size: 9px;
+}
+
+.tg-view {
+  color: #30d3ff;
+  font-size: 9px;
+}
+
+.tg-empty {
+  padding: 28px 8px;
+  color: #9dc5e8;
+  text-align: center;
+  font-size: 13px;
+}
+
+.tg-footer {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #17456c;
+  text-align: center;
+  color: #6da8d3;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+
+@media (min-width: 700px) {
+  .tg-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 360px) {
+  .transport-gallery {
+    padding: 9px;
+  }
+
+  .tg-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tg-header h2 {
+    font-size: 16px;
+  }
+}
+
+
+.tg-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 10px;
+  background: #030812;
+}
+
+.tg-modal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px 12px;
+  color: #35d2ff;
+  font-weight: 700;
+}
+
+.tg-modal-bar button {
+  padding: 9px 13px;
+  color: white;
+  background: #12385e;
+  border: 1px solid #258bd0;
+  border-radius: 8px;
+}
+
+.tg-modal-content {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Custom SVG illustrations */
+.tg-image {
+  min-height: 115px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at center, #164d78 0%, #0b2039 65%, #071326 100%);
+}
+
+.tg-image svg {
+  display: block;
+  width: 100%;
+  max-width: 190px;
+  height: 110px;
+  overflow: visible;
+  filter: drop-shadow(0 5px 8px #00aaff33);
+}
+
+.tg-card {
+  border-color: #2377ae;
+  background: linear-gradient(145deg, #153858, #071426);
+}
+
+.tg-card:hover {
+  border-color: #48ddff;
+  box-shadow: 0 0 16px #008cff55;
+  transform: translateY(-2px);
+}
+
+.tg-card strong {
+  color: #e9f8ff;
+  font-size: 11px;
+}
+
+.tg-description {
+  color: #91b9d9;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.tg-view {
+  padding-top: 5px;
+  color: #38d5ff;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+/* Procedural 3D model viewer */
+.tm-viewer {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #17618c;
+  border-radius: 12px;
+  background: #071426;
+}
+
+.tm-title {
+  padding: 13px;
+  color: #43d8ff;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.tm-canvas {
+  width: 100%;
+  height: min(62vh, 520px);
+  min-height: 300px;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.tm-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tm-help {
+  padding: 10px;
+  color: #9dc5e8;
+  font-size: 11px;
+  text-align: center;
+}
+
+.tm-description {
+  padding: 10px;
+  color: #a9cce8;
+  text-align: center;
+  font-size: 12px;
+}

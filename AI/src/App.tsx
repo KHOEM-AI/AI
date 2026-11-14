@@ -2,6 +2,7 @@ import khoemLogo from "./assets/khoem-ai-logo.webp";
 import { Fragment, useEffect, useRef, useState } from "react";
 import HeartbeatLogo from "./components/HeartbeatLogo";
 import MenuGlyph from "./components/MenuGlyph";
+import TransportGallery from "./components/TransportGallery";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
 import ControlCenter from "./components/ControlCenter";
@@ -35,6 +36,8 @@ import { useKhoem } from "./hooks/useKhoem";
 import { APP_NAME } from "./lib/app";
 
 function AppInner() {
+  const [showTransportGallery, setShowTransportGallery] = useState(false);
+  const [transportGalleryTab, setTransportGalleryTab] = useState<"phones" | "aircraft">("phones");
   const [honorific, setHonorific] = useState<Honorific | null>(() => loadHonorific());
   const [showHonorific, setShowHonorific] = useState(false);
   const [language, setLanguage] = useState<LanguageCode>(() => loadLanguage());
@@ -393,6 +396,24 @@ function AppInner() {
           {error && <div className="error-banner">{error}</div>}
         </main>
 
+        {showTransportGallery && (
+          <div className="tg-modal">
+            <div className="tg-modal-bar">
+              <span>KHOEM-AI Gallery</span>
+              <button
+                type="button"
+                onClick={() => setShowTransportGallery(false)}
+                aria-label="Close Gallery"
+              >
+                ✕ Close
+              </button>
+            </div>
+            <div className="tg-modal-content">
+              <TransportGallery initialTab={transportGalleryTab} />
+            </div>
+          </div>
+        )}
+
         <footer className="app__composer">
           <textarea
             className="composer__input"
@@ -439,7 +460,7 @@ function AppInner() {
         {showCidc && <ErrorBoundary onClose={() => setShowCidc(false)}><CidcCenter onClose={() => setShowCidc(false)} /></ErrorBoundary>}
         {showThreeDStudio && <ErrorBoundary onClose={() => setShowThreeDStudio(false)}><ThreeDStudio onClose={() => setShowThreeDStudio(false)} /></ErrorBoundary>}
         {showAvStudio && <ErrorBoundary onClose={() => setShowAvStudio(false)}><Suspense fallback={null}><AvStudio onClose={() => setShowAvStudio(false)} /></Suspense></ErrorBoundary>}
-        {showKhoemStudio && <ErrorBoundary onClose={() => setShowKhoemStudio(false)}><Suspense fallback={null}><KhoemStudio onClose={() => setShowKhoemStudio(false)} onOpenAv={() => { setShowKhoemStudio(false); setShowAvStudio(true); }} onOpen3d={() => { setShowKhoemStudio(false); setShowThreeDStudio(true); }} /></Suspense></ErrorBoundary>}
+        {showKhoemStudio && <ErrorBoundary onClose={() => setShowKhoemStudio(false)}><Suspense fallback={null}><KhoemStudio onOpenGallery={(tab) => { setTransportGalleryTab(tab); setShowTransportGallery(true); }} onClose={() => setShowKhoemStudio(false)} onOpenAv={() => { setShowKhoemStudio(false); setShowAvStudio(true); }} onOpen3d={() => { setShowKhoemStudio(false); setShowThreeDStudio(true); }} /></Suspense></ErrorBoundary>}
         {showCai && <ErrorBoundary onClose={() => setShowCai(false)}><CaiScan onClose={() => setShowCai(false)} /></ErrorBoundary>}
         {showKsv && <ErrorBoundary onClose={() => setShowKsv(false)}><KsvPanel onClose={() => setShowKsv(false)} /></ErrorBoundary>}
 
