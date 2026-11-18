@@ -9,7 +9,7 @@ type Saved = { id: string; name: string; cols: Col[] };
 
 const HEX = /^#[0-9a-f]{6}$/i;
 const SKIP = new Set(["km", "en", "hex", "name", "light"]);
-const KI = "http://" + (typeof window !== "undefined" && window.location.hostname ? window.location.hostname : "localhost") + ":5001/api";
+const KI = "/ki/api";
 const HM: Record<string, number[]> = { comp: [0, 180], analog: [0, 30, -30, 60, -60], triad: [0, 120, 240], tetrad: [0, 90, 180, 270], mono: [0] };
 
 function str(v: unknown): string {

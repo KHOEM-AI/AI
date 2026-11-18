@@ -8,7 +8,7 @@ export type RegApi = { id: string; name?: string; type?: string; base_url?: stri
 export type RegSvc = { groups?: string[]; public?: string[]; protected?: string[] };
 export type RegApp = { id: string; name?: string; api_id?: string; url?: string; enabled?: boolean };
 
-const KI_BASE = typeof window !== "undefined" ? `http://${window.location.hostname}:5001` : "http://127.0.0.1:5001";
+const KI_BASE = "/ki";
 
 async function getKi<T>(name: string, ms = 4000): Promise<T> {
   const ctl = new AbortController();

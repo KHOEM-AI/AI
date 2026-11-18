@@ -19,6 +19,16 @@ function gatewayToken(): string {
   }
 }
 
+// KI token stays server-side: the /ki proxy adds it, the browser never sees it.
+function kiToken(): string {
+  try {
+    const t = fs.readFileSync(process.env.KI_ENV_FILE ?? os.homedir() + "/KI/.env", "utf8");
+    return /^KI_API_TOKEN=(.+)$/m.exec(t)?.[1].trim() ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -45,6 +55,25 @@ export default defineConfig({
         target: "http://127.0.0.1:5190",
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/cidc/, ""),
+      },
+
+      // KI API (token added here; only the routes this UI needs)
+      "/ki": {
+        target: "http://127.0.0.1:5001",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/ki/, ""),
+        headers: kiToken() ? { "x-ki-token": kiToken() } : {},
+        bypass(req, res) {
+          const path = (req.url ?? "").replace(/^\/ki/, "").split("?")[0].replace(/\/+$/, "");
+          const ok = /^(GET|POST) \/api\/colors$/.test(`${req.method} ${path}`) ||
+            req.method === "GET" && (path === "/api/healthz" || path === "/api/registry" || /^\/api\/registry\/[a-z0-9-]+$/.test(path));
+          if (!ok) {
+            res.statusCode = 403;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "KI route not allowed" }));
+            return false;
+          }
+        },
       },
 
       // KSV Gateway
