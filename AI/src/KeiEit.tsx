@@ -26,6 +26,17 @@ function show(v: unknown): string {
   return String(v);
 }
 
+function CalcIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7dffb0" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+      style={{ verticalAlign: "-4px", filter: "drop-shadow(0 0 4px rgba(125,255,176,.6))" }}>
+      <rect x="4" y="2" width="16" height="20" rx="3" />
+      <path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01" />
+    </svg>
+  );
+}
+
 export default function KeiEit({ lang, onBack }: { lang: Lang; onBack: () => void }) {
   const t = L[lang];
   const [num, setNum] = useState('');
@@ -67,7 +78,7 @@ export default function KeiEit({ lang, onBack }: { lang: Lang; onBack: () => voi
     <div className="hk">
       <div className="hk-head">
         <button onClick={onBack}>← {t.back}</button>
-        <h2 style={{ color: '#7dffb0' }}>🔢 {t.title}</h2>
+        <h2 style={{ color: '#7dffb0' }}><CalcIcon /> {t.title}</h2>
       </div>
 
       <section className="panel">
