@@ -1,10 +1,30 @@
 import { useCallback, useEffect, useState } from "react";
 import systemMap from "../../docs/SYSTEM_MAP.md?raw";
 
-// KSV 🤝 KI 🤝 AI: one page that shows which parts answer, and explains every part.
+// KSV - KI - AI: one page that shows which parts answer, and explains every part.
 // "ជាប់" means the server answered an HTTP request. It does not prove the data is correct.
 
 const host = typeof window !== "undefined" && window.location.hostname ? window.location.hostname : "localhost";
+
+// Link icon: sky-blue with a soft glow, readable on both dark and light themes.
+const GLOW_CSS = `
+.ksv-glow-btn{transition:box-shadow .15s,transform .1s,background .15s;-webkit-tap-highlight-color:transparent}
+.ksv-glow-btn:hover{background:rgba(56,189,248,.16)!important}
+.ksv-glow-btn:active{background:rgba(56,189,248,.28)!important;transform:scale(.97);
+  box-shadow:0 0 22px 4px rgba(56,189,248,.85),inset 0 0 12px rgba(56,189,248,.5)!important}
+.ksv-glow-btn:focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
+`;
+
+function LinkIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+      style={{ color: "#38bdf8", filter: "drop-shadow(0 0 4px rgba(56,189,248,.65))" }}>
+      <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11.3 4.63" />
+      <path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.53-1.53" />
+    </svg>
+  );
+}
 
 type Svc = { key: string; name: string; role: string; port: string; url: string };
 
@@ -71,10 +91,11 @@ export default function KsvKiAiCenter({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="status-overlay" role="dialog" aria-label="KSV KI AI">
+      <style>{GLOW_CSS}</style>
       <div className="status-panel">
         <div className="status-panel__head">
           <div>
-            <div className="status-panel__ai-name">🌐 KSV 🤝 KI 🤝 AI</div>
+            <div className="status-panel__ai-name">KSV · KI · AI</div>
             <div className="status-panel__page-title">KHOEM-AI · ការតភ្ជាប់ និងការពន្យល់ផ្នែកនីមួយៗ</div>
           </div>
           <button className="status-panel__close" onClick={onClose} aria-label="Close">✕</button>
@@ -83,10 +104,10 @@ export default function KsvKiAiCenter({ onClose }: { onClose: () => void }) {
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", margin: "14px 0 8px" }}>
           {MAIN.map((s, i) => (
             <span key={s.key} style={{ display: "contents" }}>
-              <button style={nodeBtn(s, true)} onClick={() => { void check(s); }} title={s.url}>
+              <button className="ksv-glow-btn" style={nodeBtn(s, true)} onClick={() => { void check(s); }} title={s.url}>
                 {s.name} {mark(st(s.key))}
               </button>
-              {i < MAIN.length - 1 && <span aria-hidden="true" style={{ fontSize: 22 }}>🤝</span>}
+              {i < MAIN.length - 1 && <LinkIcon />}
             </span>
           ))}
         </div>

@@ -148,3 +148,12 @@ html[data-theme="day"][data-theme="day"] .badge.ok { background: #E3F6EA !import
 html[data-theme="day"][data-theme="day"] .badge.ok::before { background: #1FA95B; box-shadow: 0 0 0 3px #1FA95B33, 0 0 8px #1FA95B; }
 html[data-theme="day"][data-theme="day"] .badge.off { background: #FDE7EC !important; border-color: #B42343 !important; color: #B42343 !important; -webkit-text-fill-color: #B42343 !important; }
 html[data-theme="day"][data-theme="day"] .badge.off::before { background: #D1334F; box-shadow: 0 0 0 3px #D1334F33, 0 0 8px #D1334F; }
+
+/* ===== sky glow on press (KEI panel buttons) ===== */
+.kei button,.status-panel:has(.kei) .status-panel__close{-webkit-tap-highlight-color:transparent}
+.kei button:active,.status-panel:has(.kei) .status-panel__close:active{
+  box-shadow:0 1px 0 #000,0 0 18px 4px rgba(56,189,248,.85),inset 0 0 12px rgba(56,189,248,.55)}
+.kei button:focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
+html[data-theme="day"][data-theme="day"] .kei button:active{
+  box-shadow:0 0 18px 4px rgba(14,165,233,.75),inset 0 0 10px rgba(14,165,233,.4) !important;
+  background:#DDF0FD !important}
