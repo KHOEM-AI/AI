@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BackIcon, RefreshIcon } from './KeiIcons';
 
 type Lang = 'km' | 'en' | 'zh';
 
@@ -77,7 +78,7 @@ export default function KeiEit({ lang, onBack }: { lang: Lang; onBack: () => voi
   return (
     <div className="hk">
       <div className="hk-head">
-        <button onClick={onBack}>← {t.back}</button>
+        <button onClick={onBack}><BackIcon />{t.back}</button>
         <h2 style={{ color: '#7dffb0' }}><CalcIcon /> {t.title}</h2>
       </div>
 

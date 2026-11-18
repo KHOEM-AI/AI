@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { BackIcon, RefreshIcon } from './KeiIcons';
 
 type Lang = 'km' | 'en' | 'zh';
 type A = { at: string; event: string; ip: string | null; action: string; actor: string; message_km: string; message_en: string };
@@ -49,9 +50,9 @@ export default function KeiHacker({ lang, onBack }: { lang: Lang; onBack: () => 
   return (
     <div className="hk">
       <div className="hk-head">
-        <button onClick={onBack}>← {t.back}</button>
+        <button onClick={onBack}><BackIcon />{t.back}</button>
         <h2>🚨 {t.title}</h2>
-        <button onClick={load} disabled={loading}>⟳ {loading ? t.loading : t.refresh}</button>
+        <button onClick={load} disabled={loading}><RefreshIcon />{loading ? t.loading : t.refresh}</button>
       </div>
 
       <section className="kei-cards">

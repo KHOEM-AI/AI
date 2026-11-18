@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BackIcon, RefreshIcon } from './KeiIcons';
 import MenuGlyph from './components/MenuGlyph';
 
 type P = { name: string; protected: boolean; covered: number; onDisk: number; outside: number; created: string | null; capped?: boolean };
@@ -24,9 +25,9 @@ export default function KeiProtect({ t, onBack }: { t: Record<string, string>; o
   return (
     <div className="hk">
       <div className="hk-head">
-        <button onClick={onBack}>← {t.back}</button>
+        <button onClick={onBack}><BackIcon />{t.back}</button>
         <h2 className="pr-title" style={{ color: '#7db8ff' }}><span className="kd-icon"><MenuGlyph name="shield" /></span> {t.pTitle}</h2>
-        <button onClick={load} disabled={busy}>⟳ {t.reload}</button>
+        <button onClick={load} disabled={busy}><RefreshIcon />{t.reload}</button>
       </div>
       {err && <p className="muted"><span className="kd-icon"><MenuGlyph name="safety" /></span> {err}</p>}
       {d && (<>
