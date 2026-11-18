@@ -45,7 +45,7 @@ const MORE: Partial<Record<Lang, Dict>> = {
   hi: { ready: 'तैयार', title: 'AI और सुरक्षा प्रणाली', dash: 'मुख्य डैशबोर्ड', services: 'कुल सेवाएँ', network: 'नेटवर्क', ai: 'AI केंद्र', devices: 'डिवाइस', threat: 'खतरे की पहचान', alerts: 'नवीनतम अलर्ट', none: 'कोई वास्तविक डेटा नहीं', online: 'ऑनलाइन', offline: 'कनेक्ट नहीं', running: 'चल रहा है', connected: 'जुड़े हुए', sub: 'सभी उप-प्रणालियाँ', reload: 'पुनः लोड करें', attempts: 'अनधिकृत प्रयास', last: 'नवीनतम', clean: 'हाल में कोई अनधिकृत प्रयास नहीं', prot: 'सुरक्षा', pTitle: 'सुरक्षा प्रणाली', pProt: 'सुरक्षित', pNot: 'असुरक्षित', pFiles: 'फ़ाइलें', pCover: 'सुरक्षित प्रोजेक्ट', pTotal: 'सुरक्षित फ़ाइलें', back: 'वापस' },
 };
 
-const SUBS = ['KI API', 'AI UI', 'IQ-AI', 'KSV', 'khoem-now', 'KHOEM_AI', 'KEI', 'EI-T'];
+const SUBS = ['KI API', 'AI UI', 'IQ-AI', 'KSV', 'khoem-now', 'KHOEM_AI', 'KEI', 'EI-T', 'MI-K'];
 const HK: Record<L3, string> = { km: 'ហេក', en: 'Hacker', zh: '黑客' };
 const isLang = (x: unknown): x is Lang => LANGS.some(l => l.code === x);
 

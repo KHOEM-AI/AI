@@ -24,6 +24,7 @@ const TARGETS = {
   "KSV": "http://127.0.0.1:4000/",
   "KHOEM_AI": "http://127.0.0.1:8790/health",
   "EI-T": "http://127.0.0.1:3100/health",
+  "MI-K": "http://127.0.0.1:5176/",
 };
 
 // No server/port: "ready" = the files are present (not a running process).
