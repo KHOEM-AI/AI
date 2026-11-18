@@ -65,7 +65,8 @@ export default defineConfig({
         headers: kiToken() ? { "x-ki-token": kiToken() } : {},
         bypass(req, res) {
           const path = (req.url ?? "").replace(/^\/ki/, "").split("?")[0].replace(/\/+$/, "");
-          const ok = /^(GET|POST) \/api\/colors$/.test(`${req.method} ${path}`) ||
+          const ok = /^(GET|POST) \/api\/(colors|scans)$/.test(`${req.method} ${path}`) ||
+            `${req.method} ${path}` === "POST /api/scan" ||
             req.method === "GET" && (path === "/api/healthz" || path === "/api/registry" || /^\/api\/registry\/[a-z0-9-]+$/.test(path));
           if (!ok) {
             res.statusCode = 403;
