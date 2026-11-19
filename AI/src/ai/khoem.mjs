@@ -178,7 +178,7 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
     }
 
     return [
-      "🎬 STORY WORKSHOP — KHOEM AI",
+      "🎬 STORY WORKSHOP — KHOEM-AI",
       "",
       "ចំណងជើង៖ " + idea,
       "",
@@ -225,7 +225,7 @@ export async function khoemReply(conversation, honorific = "បង", onStage = n
       });
       const r = buildShotList({ beats: splitBeats(text), characters, assets: arr(searchAssets({})), maxShots: 30 });
       if (!r.total) return "រកមិនឃើញឈុតក្នុងអត្ថបទនេះទេ";
-      const lines = ["🎞️ SHOT LIST — KHOEM AI", "ចំនួនឈុត៖ " + r.total + " | រយៈពេលប៉ាន់ស្មាន៖ " + r.durationSec + " វិនាទី", ""];
+      const lines = ["🎞️ SHOT LIST — KHOEM-AI", "ចំនួនឈុត៖ " + r.total + " | រយៈពេលប៉ាន់ស្មាន៖ " + r.durationSec + " វិនាទី", ""];
       for (const sh of r.shots) {
         lines.push("Shot " + sh.n + " (" + sh.durationSec + "s): " + sh.beat);
         if (sh.characters.length) lines.push("  តួអង្គ៖ " + sh.characters.map((c) => c.name).join(", "));

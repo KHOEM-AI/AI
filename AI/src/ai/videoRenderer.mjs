@@ -1,4 +1,4 @@
-// KHOEM AI — local FFmpeg storyboard renderer.
+// KHOEM-AI — local FFmpeg storyboard renderer.
 // Renders approved storyboard scenes to MP4.
 // This is an animatic renderer, not an AI character-animation model.
 

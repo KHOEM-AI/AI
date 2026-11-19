@@ -26,7 +26,7 @@ function makePcmWav(samples, sampleRate = 16000) {
   return wav;
 }
 
-describe("KHOEM AI Voice Engine audio validation", () => {
+describe("KHOEM-AI Voice Engine audio validation", () => {
   it("inspects valid PCM WAV metadata and audio samples", () => {
     const result = inspectWav(makePcmWav([0, 5000, -5000, 10000]));
 

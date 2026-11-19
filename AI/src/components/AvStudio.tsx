@@ -6,7 +6,7 @@ import "./AvStudio.css";
 type GlyphName = ComponentProps<typeof MenuGlyph>["name"];
 const TAB_ICONS: Record<string, GlyphName> = { audio: "headphones", video: "video", library: "library", ai: "studio" };
 
-// KHOEM AI Audio · Video · Creative Studio. Calls IQ-AI via the Vite proxy (/iqai).
+// KHOEM-AI Audio · Video · Creative Studio. Calls IQ-AI via the Vite proxy (/iqai).
 type Tab = "audio" | "video" | "library" | "ai";
 interface Item { id: string; name: string }
 const S0 = { vol: 1, bass: 0, mid: 0, treble: 0, speed: 1, a: 0, b: 1 };
@@ -387,7 +387,7 @@ export default function AvStudio({ onClose }: { onClose: () => void }) {
   return (
     <div className="av-root" style={{ position: "fixed", inset: 0, zIndex: 50, background: "#0b0b10", color: "#fff", overflowY: "auto", padding: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <b>KHOEM AI · Audio · Video · Creative Studio</b>
+        <b>KHOEM-AI · Audio · Video · Creative Studio</b>
         <button style={{ ...btn, background: "#444" }} onClick={onClose} aria-label="close"><span className="av-icon"><MenuGlyph name="close" /></span></button>
       </div>
       <div>{tabs.map(([k, l]) => (

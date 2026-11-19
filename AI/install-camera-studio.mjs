@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// KHOEM AI — Camera Studio installer.
+// KHOEM-AI — Camera Studio installer.
 //
 // Run from the project root (~/ai-project/AI):
 //   node install-camera-studio.mjs --dry-run   # show what would change, write nothing

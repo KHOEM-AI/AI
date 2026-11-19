@@ -1,4 +1,4 @@
-// math.mjs — Arbitrary-precision math tool for KHOEM AI
+// math.mjs — Arbitrary-precision math tool for KHOEM-AI
 // Non-destructive: standalone module, does not touch existing files.
 // Drop into: ~/ai-project/AI/src/ai/tools/math.mjs (or wherever your tools/ folder is)
 // Then register it in your tools registry (do NOT overwrite existing tools list —

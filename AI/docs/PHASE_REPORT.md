@@ -1,4 +1,4 @@
-# KHOEM AI — Phase Report
+# KHOEM-AI — Phase Report
 Generated: 2026-09-22
 
 ## REPOSITORY AUDIT

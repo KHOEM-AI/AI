@@ -1,4 +1,4 @@
-# KHOEM AI — MASTER ARCHITECTURE + CONTROLLED AUTONOMY
+# KHOEM-AI — MASTER ARCHITECTURE + CONTROLLED AUTONOMY
 ## CONSOLIDATED IMPLEMENTATION SPECIFICATION
 *(Merged from 4 source documents — duplicates removed, gaps filled, phase numbering unified)*
 
@@ -6,13 +6,13 @@
 
 # PART 0 — PROJECT
 
-- **PROJECT:** KHOEM AI
+- **PROJECT:** KHOEM-AI
 - **REPOSITORY:** `~/ai-project/AI`
 - **REMOTE:** `https://github.com/KHOEM-AI/AI.git`
 - **BRANCH:** `main`
 
 ## MISSION
-Build KHOEM AI as a modular, observable, reliable, creative,
+Build KHOEM-AI as a modular, observable, reliable, creative,
 autonomous-capable AI system while keeping human authority over
 privileged actions.
 
@@ -77,7 +77,7 @@ unless explicitly authorized.
 # PART 2 — TARGET ARCHITECTURE (FULL)
 
 ```
-KHOEM AI
+KHOEM-AI
 ├── SYSTEM HEALTH               ├── PERMISSION ENGINE
 ├── AI CORE                     ├── POLICY ENGINE
 ├── TASK ENGINE                 ├── HUMAN APPROVAL GATE
@@ -906,7 +906,7 @@ If a phase fails: **STOP. Fix it first.**
                       │
               APPROVAL GATE
                       │
-                 KHOEM AI
+                 KHOEM-AI
         ┌─────────────┼─────────────┐
       MEMORY      KNOWLEDGE      TOOLS
         └─────────────┼─────────────┘
