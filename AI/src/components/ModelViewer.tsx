@@ -4,6 +4,7 @@ import type { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { uploadMedia } from "../api/client";
 import { VEHICLES, vehicleById } from "../ai/vehicles.mjs";
+import { buildVehicle } from "../ai/proceduralVehicle";
 import {
   CAMERA_PRESETS, LED_MODES, cameraPreset, fitDistance, guessBodyMaterial, isGlb, isLedName, isOneShotClip, isWheelName, turntableAngle,
 } from "../ai/modelTools.mjs";
@@ -25,6 +26,8 @@ const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 type Api = {
   load: (buf: ArrayBuffer) => Promise<{ materials: string[]; body: string; clips: string[]; leds: number; wheels: number }>;
   clear: () => void;
+  procedural: (key: string) => Promise<{ materials: string[]; body: string; clips: string[]; leds: number; wheels: number }>;
+  adopt: (g: GLTF) => Promise<{ materials: string[]; body: string; clips: string[]; leds: number; wheels: number }>;
   setColor: (material: string, hex: string) => void;
   resetColors: () => void;
   setLed: (mode: string) => number;
@@ -159,7 +162,14 @@ export default function ModelViewer({ onClose }: { onClose?: () => void }) {
           async load(buf) {
             const loader = new GLTFLoader();
             const gltf: GLTF = await new Promise((res, rej) => loader.parse(buf, "", res, (e) => rej(e instanceof Error ? e : new Error("The model could not be read"))));
-            freeModel();
+        return api.adopt(gltf);
+      },
+      // a simple built-in car, used when there is no .glb yet
+      async procedural(key) {
+        return api.adopt({ scene: buildVehicle(THREE, key), animations: [] } as unknown as GLTF);
+      },
+      async adopt(gltf) {
+        freeModel();
             const m = gltf.scene;
             const b0 = new THREE.Box3().setFromObject(m);
             const s0 = b0.getSize(new THREE.Vector3());
@@ -333,6 +343,17 @@ export default function ModelViewer({ onClose }: { onClose?: () => void }) {
     setBusy(false);
   }
 
+  async function builtIn() {
+    const api = apiRef.current;
+    if (!api) return;
+    setBusy(true); setErr("");
+    try {
+      applyLoaded(await api.procedural(`${vehicle.kind} ${vehicle.name} ${vehicle.id}`));
+      setNote(`🧩 ឡាន 3D សាកល្បង (មិនមែនម៉ូដែលពិត) · Built-in test car, not the real design. Real model: public${vehicle.glb}`);
+    } catch (e) { setErr(msg(e)); }
+    setBusy(false);
+  }
+
   function clearModel() {
     if (apiRef.current) apiRef.current.clear();
     setHasModel(false); setMaterials([]); setClips([]); setLeds(0); setWheels(0);
@@ -349,8 +370,8 @@ export default function ModelViewer({ onClose }: { onClose?: () => void }) {
         const buf = r.ok ? await r.arrayBuffer() : null;
         if (cancelled) return;
         if (buf && isGlb(buf)) await loadBuffer(buf, `${vehicle.name} (${vehicle.glb})`);
-        else { clearModel(); setNote(`មិនទាន់មានម៉ូដែល 3D · No 3D model yet. Put it at public${vehicle.glb} or import a .glb.`); }
-      } catch { if (!cancelled) { clearModel(); setNote("មិនទាន់មានម៉ូដែល 3D · No 3D model yet."); } }
+        else await builtIn();
+      } catch { if (!cancelled) await builtIn(); }
     })();
     return () => { cancelled = true; };
   }, [ready, vehicleId]);
@@ -401,6 +422,7 @@ export default function ModelViewer({ onClose }: { onClose?: () => void }) {
       </div>
       {busy && <div>កំពុងដំណើរការ... · Working...</div>}
       {note && <div style={{ marginTop: 6 }}>{note}</div>}
+      {hasModel && <img src={vehicle.image} alt={vehicle.name} style={{ height: 72, borderRadius: 6, marginTop: 6 }} />}
       {err && <div style={{ color: "#ff8a8a", marginTop: 6 }}>⚠ {err}</div>}
 
       <div style={box}>

@@ -14,11 +14,11 @@ type Mode = "idle" | "walk" | "wave";
 interface Person {
   id: string; name: string; role: string; female: boolean; height: number;
   skin: number; top: number; bottom: number; hair: number;
-  tie?: number; skirt?: boolean; longHair?: boolean; bun?: boolean; longSleeves?: boolean;
+  tie?: number; shirt?: number; skirt?: boolean; longHair?: boolean; bun?: boolean; longSleeves?: boolean;
 }
 
 const PEOPLE: Person[] = [
-  { id: "businessman", name: "សុភ័ក្រ", role: "Businessman", female: false, height: 180, skin: 0xc58e69, top: 0x1f2a44, bottom: 0x1f2a44, hair: 0x15110e, tie: 0xb3202a, longSleeves: true },
+  { id: "businessman", name: "សុភ័ក្រ", role: "Businessman", female: false, height: 180, skin: 0xc58e69, top: 0x2a2e38, bottom: 0x2a2e38, hair: 0x15110e, tie: 0xb3202a, shirt: 0xf3f5f7, longSleeves: true },
   { id: "fashion-model", name: "ដារ៉ា", role: "Fashion Model", female: false, height: 178, skin: 0xc99672, top: 0x86b9ea, bottom: 0x232b3a, hair: 0x1a1410 },
   { id: "doctor", name: "គុសល", role: "Doctor", female: false, height: 182, skin: 0xc08a66, top: 0xf1f4f6, bottom: 0x3b4a5c, hair: 0x15110e, longSleeves: true },
   { id: "businesswoman", name: "លីហ្សា", role: "Businesswoman", female: true, height: 168, skin: 0xd0a07c, top: 0x7a2d63, bottom: 0x24202c, hair: 0x120d0b, skirt: true, longHair: true, longSleeves: true },
@@ -65,7 +65,8 @@ function buildPerson(T: Three, p: Person): Rig {
     add(hips, new T.CylinderGeometry(rt * 0.9, rt * 1.55, 0.3, 20, 1, true), skirt, 0, -0.1, 0);
   }
   add(torso, new T.CylinderGeometry(0.045, 0.05, 0.09, 12), skin, 0, 0.58, 0);
-  if (p.tie !== undefined) add(torso, new T.BoxGeometry(0.04, 0.3, 0.012), mat(p.tie, 0.6), 0, 0.33, rt * 0.7 + 0.004);
+  if (p.shirt !== undefined) add(torso, new T.BoxGeometry(0.11, 0.34, 0.02), mat(p.shirt, 0.7), 0, 0.34, rt * 0.7 + 0.004);
+  if (p.tie !== undefined) add(torso, new T.BoxGeometry(0.04, 0.3, 0.012), mat(p.tie, 0.6), 0, 0.33, rt * 0.7 + 0.016);
 
   const head = joint(torso, 0, 0.72);
   add(head, new T.SphereGeometry(0.105, 20, 16), skin).scale.y = 1.12;
@@ -187,14 +188,14 @@ export default function HumanViewer() {
         Object.assign(gl.domElement.style, { width: "100%", height: "100%", display: "block", touchAction: "none" });
 
         const scene: Scene = new T.Scene();
-        scene.background = new T.Color(0x0b1220);
-        scene.add(new T.HemisphereLight(0xffffff, 0x34415d, 1.6));
-        const key = new T.DirectionalLight(0xffffff, 2.2);
+        scene.background = new T.Color(0x141b2b);
+        scene.add(new T.HemisphereLight(0xfff6e8, 0x5a6478, 2.3));
+        const key = new T.DirectionalLight(0xfff1dd, 2.8);
         key.position.set(3, 5, 4);
         const rim = new T.DirectionalLight(0x39cfff, 1.2);
         rim.position.set(-4, 2, -3);
         scene.add(key, rim);
-        const floor = new T.Mesh(new T.CircleGeometry(1.6, 48), new T.MeshStandardMaterial({ color: 0x182945, roughness: 0.9 }));
+        const floor = new T.Mesh(new T.CircleGeometry(1.6, 48), new T.MeshStandardMaterial({ color: 0x3b4357, roughness: 0.9 }));
         floor.rotation.x = -Math.PI / 2;
         scene.add(floor);
         const pivot: Group = new T.Group();
