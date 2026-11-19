@@ -81,7 +81,10 @@ keiRouter.post("/eit", async (req, res) => {
 
 // ---- Protection coverage (read-only): roots.json + .baselines/*.json vs files on disk ----
 const SEC = join(CIDC_ROOT, "security"); // protection system lives in Central-Intelligence-Data-Core
-const SKIP_DIRS = new Set(["node_modules", ".git", ".expo", "dist"]);
+// Mirror of Central-Intelligence-Data-Core/security/file-integrity/integrity.mjs, so the % compares like with like.
+const SKIP_DIRS = new Set(["node_modules", ".git", ".expo", "dist", "build", "coverage", ".vite", ".pnpm-store", ".cache", ".baselines"]);
+const ROOT_ONLY_SKIP = new Set(["data", "data_clean", "output", "logs", "tmp", "corpus-sample"]);
+const SKIP_FILE = /(\.(log|pid|tmp)$)|\.bak|\.backup|\.before-|\.broken-backup|\.zoom-backup|^\.baseline\.json$|^\.integrity\.log$/;
 const CANDIDATES = [{ name: "CAI", path: "~/CAI" }, { name: "khoem-now", path: "~/khoem-now" }];
 const expand = (p) => p.replace(/^~/, HOME);
 
@@ -94,8 +97,8 @@ function listFiles(root, cap = 20000) {
     try { ents = readdirSync(d, { withFileTypes: true }); } catch { continue; }
     for (const e of ents) {
       const p = join(d, e.name);
-      if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) stack.push(p); }
-      else if (e.isFile()) out.add(relative(root, p));
+      if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name) && !(d === root && ROOT_ONLY_SKIP.has(e.name))) stack.push(p); }
+      else if (e.isFile() && !SKIP_FILE.test(e.name)) out.add(relative(root, p));
     }
   }
   return { files: out, capped: out.size >= cap };
