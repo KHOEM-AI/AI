@@ -82,7 +82,7 @@ keiRouter.post("/eit", async (req, res) => {
 // ---- Protection coverage (read-only): roots.json + .baselines/*.json vs files on disk ----
 const SEC = join(CIDC_ROOT, "security"); // protection system lives in Central-Intelligence-Data-Core
 // Mirror of Central-Intelligence-Data-Core/security/file-integrity/integrity.mjs, so the % compares like with like.
-const SKIP_DIRS = new Set(["node_modules", ".git", ".expo", "dist", "build", "coverage", ".vite", ".pnpm-store", ".cache", ".baselines"]);
+const SKIP_DIRS = new Set(["node_modules", ".git", ".expo", "dist", "build", "coverage", ".vite", ".pnpm-store", ".cache", ".baselines", "__pycache__"]);
 const ROOT_ONLY_SKIP = new Set(["data", "data_clean", "output", "logs", "tmp", "corpus-sample"]);
 const SKIP_FILE = /(\.(log|pid|tmp)$)|\.bak|\.backup|\.before-|\.broken-backup|\.zoom-backup|^\.baseline\.json$|^\.integrity\.log$/;
 const CANDIDATES = [{ name: "CAI", path: "~/CAI" }, { name: "khoem-now", path: "~/khoem-now" }];
