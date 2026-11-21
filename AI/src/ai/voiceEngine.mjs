@@ -1,5 +1,5 @@
 /**
- * KHOEM AI Voice Engine — audio validation core.
+ * KHOEM-AI Voice Engine — audio validation core.
  *
  * This module validates generated PCM WAV audio.
  * It does not pretend to synthesize speech until a trained

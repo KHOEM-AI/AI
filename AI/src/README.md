@@ -1,8 +1,8 @@
-# KHOEM AI
+# KHOEM-AI
 
-**KHOEM AI** គឺជាប្រព័ន្ធ AI បែបម៉ូឌុល (modular) ដែលសង្កេតបាន (observable) អាចផ្ទៀងផ្ទាត់បាន (verifiable) និងអាចទុកចិត្តបាន ដោយមានមនុស្សជាអ្នកកាន់សិទ្ធិចុងក្រោយលើសកម្មភាពដែលមានសិទ្ធិពិសេស។ គម្រោងនេះត្រូវបានអភិវឌ្ឍទាំងស្រុងលើទូរស័ព្ទតាមរយៈ Termux។
+**KHOEM-AI** គឺជាប្រព័ន្ធ AI បែបម៉ូឌុល (modular) ដែលសង្កេតបាន (observable) អាចផ្ទៀងផ្ទាត់បាន (verifiable) និងអាចទុកចិត្តបាន ដោយមានមនុស្សជាអ្នកកាន់សិទ្ធិចុងក្រោយលើសកម្មភាពដែលមានសិទ្ធិពិសេស។ គម្រោងនេះត្រូវបានអភិវឌ្ឍទាំងស្រុងលើទូរស័ព្ទតាមរយៈ Termux។
 
-*KHOEM AI is a modular, observable, verifiable AI system with human authority over privileged actions. It supports Khmer and English, with a Black 3D UI.*
+*KHOEM-AI is a modular, observable, verifiable AI system with human authority over privileged actions. It supports Khmer and English, with a Black 3D UI.*
 
 - Repository: `~/ai-project/AI`
 - Remote: `https://github.com/KHOEM-AI/AI.git`

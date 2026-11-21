@@ -1,4 +1,4 @@
-# KHOEM AI — Work Log
+# KHOEM-AI — Work Log
 
 កំណត់ត្រាការងារ (ថ្មីបំផុតនៅខាងក្រោម)។
 
