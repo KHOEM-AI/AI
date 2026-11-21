@@ -54,7 +54,7 @@ Backend ស្តាប់តែលើ `127.0.0.1` ប៉ុណ្ណោះ (ម
 
 **ជំហាន ១៖ ទាញយកកូដ**
 
-    git clone https://github.com/KHOEM-AI/AI.git ai-project/AI
+    git clone https://github.com/KHOEM-AI/AI.git ai-project
     cd ai-project/AI
     npm install
 
