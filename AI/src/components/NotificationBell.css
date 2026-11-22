@@ -15,3 +15,8 @@
 .kbell__meta { font-size: 11px; color: #9a9da6; margin-top: 4px; }
 .kbell__empty, .kbell__err { padding: 14px 12px; font-size: 12px; color: #9a9da6; }
 .kbell__err { color: #e5484d; }
+
+/* touch-friendly size and spacing next to the + button */
+.kbell { margin-right: 10px; }
+.kbell__btn { min-width: 44px; min-height: 44px; justify-content: center; }
+.kbell__btn svg { width: 24px; height: 24px; }
