@@ -19,6 +19,18 @@ function gatewayToken(): string {
   }
 }
 
+// KI token for the /ki proxy. Read on the server (dev server), never sent to the browser.
+function kiToken(): string {
+  if (process.env.KI_API_TOKEN) return process.env.KI_API_TOKEN;
+  try {
+    const f = os.homedir() + "/KI/.env";
+    const m = fs.readFileSync(f, "utf8").match(/^\s*(?:export\s+)?KI_API_TOKEN\s*=\s*(.*)$/m);
+    return m ? m[1].trim().replace(/^['"]|['"]$/g, "") : "";
+  } catch {
+    return "";
+  }
+}
+
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -55,6 +67,14 @@ export default defineConfig({
         headers: {
           "x-gateway-token": gatewayToken(),
         },
+      },
+
+      // KI central API (own service, port 5001); the token is added here
+      "^/ki/": {
+        target: "http://127.0.0.1:5001",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/ki/, ""),
+        headers: { "x-ki-token": kiToken() },
       },
 
       // AI Backend

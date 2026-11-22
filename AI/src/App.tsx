@@ -1,6 +1,7 @@
 import khoemLogo from "./assets/khoem-ai-logo.webp";
 import { Fragment, useEffect, useRef, useState } from "react";
 import HeartbeatLogo from "./components/HeartbeatLogo";
+import NotificationBell from "./components/NotificationBell";
 import { useChat } from "./hooks/useChat";
 import AIStatus from "./components/AIStatus";
 import ControlCenter from "./components/ControlCenter";
@@ -204,6 +205,7 @@ function AppInner() {
             <span className="app__brand-name">{APP_NAME}</span>
           </div>
 
+          <NotificationBell />
           <button className="app__new-btn" onClick={handleNewChat} aria-label={t.newChat}>
             +
           </button>
