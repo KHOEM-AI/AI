@@ -51,7 +51,7 @@ export default function VaultPanel({ onClose }: Props) {
         >
           ← ត្រឡប់ទៅកម្មវិធី
         </button>
-        <strong style={{ color: "#4fd1ff" }}>KHOEM-AI Vault</strong>
+        <strong style={{ color: "#4fd1ff" }}>Data Storage</strong>
         <a
           href={VAULT_URL}
           target="_blank"
@@ -62,7 +62,7 @@ export default function VaultPanel({ onClose }: Props) {
         </a>
       </div>
       <iframe
-        title="KHOEM-AI Vault"
+        title="Data Storage"
         src={VAULT_URL}
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-downloads"
         style={{ flex: 1, width: "100%", border: 0, background: "#05070d" }}

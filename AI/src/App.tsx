@@ -271,7 +271,7 @@ function AppInner() {
                 </button>
 
                 <div className="app__sidebar-section">{"⚙ ផ្សេងៗ"}</div>
-                <button className="app__sidebar-item" onClick={() => { setShowVault(true); setShowMenu(false); }}><span aria-hidden="true">🎓</span> KHOEM-AI Vault</button>
+                <button className="app__sidebar-item" onClick={() => { setShowVault(true); setShowMenu(false); }}><span aria-hidden="true">🎓</span> Data Storage</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
