@@ -32,6 +32,7 @@ import { LanguageProvider, getTranslations } from "./i18n";
 import { useSpeechInput } from "./useSpeechInput";
 import { useKhoem } from "./hooks/useKhoem";
 import { APP_NAME } from "./lib/app";
+import VaultPanel from "./components/VaultPanel";
 
 function AppInner() {
   const [honorific, setHonorific] = useState<Honorific | null>(() => loadHonorific());
@@ -96,6 +97,7 @@ function AppInner() {
   const [showKei, setShowKei] = useState(false);
   const [showToolRegistry, setShowToolRegistry] = useState(false);
   const [showLearningCenter, setShowLearningCenter] = useState(false);
+  const [showVault, setShowVault] = useState(false);
   const [showApiCenter, setShowApiCenter] = useState(false);
   const [showDataCenter, setShowDataCenter] = useState(false);
   const [showThreeDStudio, setShowThreeDStudio] = useState(false);
@@ -269,7 +271,7 @@ function AppInner() {
                 </button>
 
                 <div className="app__sidebar-section">{"⚙ ផ្សេងៗ"}</div>
-                <button className="app__sidebar-item" onClick={() => { window.open("https://khoem-ai.github.io/VTH/", "_blank", "noopener,noreferrer"); setShowMenu(false); }}><span aria-hidden="true">🎓</span> KHOEM-AI Vault</button>
+                <button className="app__sidebar-item" onClick={() => { setShowVault(true); setShowMenu(false); }}><span aria-hidden="true">🎓</span> KHOEM-AI Vault</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
@@ -387,6 +389,7 @@ function AppInner() {
         {showSafety && <ErrorBoundary onClose={() => setShowSafety(false)}><SafetyCenter onClose={() => setShowSafety(false)} /></ErrorBoundary>}
         {showKei && <ErrorBoundary onClose={() => setShowKei(false)}><KeiCenter onClose={() => setShowKei(false)} /></ErrorBoundary>}
         {showToolRegistry && <ErrorBoundary onClose={() => setShowToolRegistry(false)}><ToolRegistryCenter onClose={() => setShowToolRegistry(false)} /></ErrorBoundary>}
+        {showVault && <VaultPanel onClose={() => setShowVault(false)} />}
         {showLearningCenter && <ErrorBoundary onClose={() => setShowLearningCenter(false)}><LearningCenter onClose={() => setShowLearningCenter(false)} /></ErrorBoundary>}
         {showApiCenter && <ErrorBoundary onClose={() => setShowApiCenter(false)}><ApiCenter onClose={() => setShowApiCenter(false)} /></ErrorBoundary>}
         {showDataCenter && <ErrorBoundary onClose={() => setShowDataCenter(false)}><DataCenter onClose={() => setShowDataCenter(false)} /></ErrorBoundary>}
