@@ -269,6 +269,7 @@ function AppInner() {
                 </button>
 
                 <div className="app__sidebar-section">{"⚙ ផ្សេងៗ"}</div>
+                <button className="app__sidebar-item" onClick={() => { window.open("https://khoem-ai.github.io/VTH/", "_blank", "noopener,noreferrer"); setShowMenu(false); }}><span aria-hidden="true">🎓</span> KHOEM-AI Vault</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
                   <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
