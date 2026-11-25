@@ -31,6 +31,25 @@ function kiToken(): string {
   }
 }
 
+// IQ-AI token for the /iqai proxy. Read on the server (dev server), never sent to the browser.
+// Order: env IQAI_TOKEN, then ~/IQ-AI/.env, then ~/.iqai-token (same file docs/TERMUX.md creates).
+function iqaiToken(): string {
+  if (process.env.IQAI_TOKEN) return process.env.IQAI_TOKEN;
+  const clean = (v: string) => v.trim().replace(/^['"]|['"]$/g, "");
+  try {
+    const f = os.homedir() + "/IQ-AI/.env";
+    const m = fs.readFileSync(f, "utf8").match(/^\s*(?:export\s+)?IQAI_TOKEN\s*=\s*(.*)$/m);
+    if (m && clean(m[1])) return clean(m[1]);
+  } catch {
+    /* fall through */
+  }
+  try {
+    return clean(fs.readFileSync(os.homedir() + "/.iqai-token", "utf8"));
+  } catch {
+    return "";
+  }
+}
+
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -48,7 +67,7 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (p) => p.replace(/^\/iqai/, "/api/v1"),
         headers: {
-          Authorization: `Bearer ${process.env.IQAI_TOKEN ?? ""}`,
+          Authorization: `Bearer ${iqaiToken()}`,
         },
       },
 
