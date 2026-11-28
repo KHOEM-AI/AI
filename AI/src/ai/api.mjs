@@ -1,3 +1,6 @@
+import "./toolRegistry.bootstrap.mjs";
+import { cidcWrite } from "./cidcTools.mjs";
+import { basename as cidcBasename } from "node:path";
 import crypto from "node:crypto";
 import { khoemReply } from "./khoem.mjs";
 import { policyCheck, getAudit, DECISION } from "./permission.mjs";
@@ -491,6 +494,13 @@ app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
     return { message: "សកម្មភាពសាកល្បង HIGH-risk (mock — គ្មានផលប៉ះពាល់ពិតប្រាកដ)" };
   }));
 
+  app.post("/api/cidc/write", guard, policy("cidc.scaffold"), notKilled, wrap(async (req) => {
+    const { templateId, name } = req.body || {};
+    if (!templateId || !name) throw bad("templateId and name are required");
+    const out = await cidcWrite({ templateId, name, actor: "ai" });
+    return { status: out.status, approvalId: out.approvalId };
+  }));
+
   app.get("/api/approvals", guard, policy("approval.read"), (req, res) => {
     res.json({ approvals: listApprovals({ status: req.query.status }) });
   });
@@ -516,7 +526,7 @@ app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
   });
 
   // ប្រតិបត្តិសំណើដែល APPROVED រួច — verify ម្តងទៀតភ្លាមៗមុនប្រតិបត្តិ (spec 4.8)
-  app.post("/api/approvals/:id/execute", guard, policy("approval.execute"), wrap(async (req) => {
+  app.post("/api/approvals/:id/execute", guard, policy("approval.execute"), notKilled, wrap(async (req) => {
     const approval = getApproval(req.params.id);
     if (!approval) throw bad("រកមិនឃើញ approval request", 404);
     const check = verifyBeforeExecution(req.params.id, { action: approval.action, target: approval.target });
@@ -526,6 +536,13 @@ app.get("/api/tools/:id/risk", guard, policy("tool.find"), wrap((req) => {
     // proceed. Everything else fails loudly instead of pretending to succeed.
     if (approval.action === "code.applyPatch") {
       throw bad("សម្រាប់ code.applyPatch សូមប្រើ /api/patch/apply (ត្រូវការ proposalId + approvalId) ជំនួសវិញ", 400);
+    }
+    if (approval.action === "cidc.write") {
+      const out = await cidcWrite({
+        templateId: approval.resource, name: cidcBasename(approval.target),
+        actor: approval.actor, approvalId: approval.id,
+      });
+      return { status: out.status, approvalId: approval.id, ...out.result };
     }
     if (approval.action !== "approval.test.high-risk") {
       throw bad(`NO_EXECUTOR_FOR_ACTION: ${approval.action}`, 501);
