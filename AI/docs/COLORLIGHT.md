@@ -13,15 +13,15 @@
     UI ColorLightCenter (5175)
       -> /api/colorlight/...   (Vite proxy ទៅ 8787)
       -> server.mjs (8787) -> src/ai/colorLight.mjs
-      -> អាន JSON ពី ~/khoem-now-github/data
+      -> អាន JSON ពី ~/khoem-now/data
 
 - ទិន្នន័យអានស្រស់រាល់ការស្នើ ដូច្នេះ git pull ក្នុង khoem-now ឃើញភ្លាម មិនបាច់ restart
-- ថតលំនាំដើម ~/khoem-now-github អាចប្តូរដោយ COLORLIGHT_DIR
+- ថតលំនាំដើម ~/khoem-now អាចប្តូរដោយ COLORLIGHT_DIR
 - ថត ~/KSV/khoem-now (ចាស់) និង ~/khoem-now (repo VTH) មិនត្រូវបានប្រើទេ
 
 ## ដំឡើង (ម្តង)
 
-    git clone https://github.com/KHOEM-AI/khoem-now.git ~/khoem-now-github
+    git clone https://github.com/KHOEM-AI/khoem-now.git ~/khoem-now
 
 ថតផ្សេង: COLORLIGHT_DIR=/path/to/khoem-now ai
 
@@ -43,7 +43,7 @@
 
 ## ធ្វើបច្ចុប្បន្នភាពទិន្នន័យ
 
-    cd ~/khoem-now-github && git pull
+    cd ~/khoem-now && git pull
 
 ## ស្ថានភាព និងចន្លោះ
 - ឥឡូវមាន 28 ប្រភេទ (color wheel 22,821, css-named 141, សីតុណ្ហភាពពណ៌ 111, ភ្លើងសញ្ញា, ISO 3864, ឡាស៊ែរ, ឆាក ...)
