@@ -1360,3 +1360,638 @@ body::after {
 
 .app__sidebar-section{margin:14px 0 4px;padding:0 4px;font-size:11px;letter-spacing:.04em;color:#7dd3fc;opacity:.75;text-transform:uppercase}
 .app__sidebar-section:first-child{margin-top:0}
+
+
+/* KHOEM-AI bilingual SVG sidebar */
+.app__sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  line-height: 1.45;
+}
+.app__menu-glyph {
+  display: block;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  color: #63c9ef;
+}
+.app__sidebar-section {
+  margin: 15px 0 5px;
+  padding: 0 8px;
+  color: #71c9ed;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.app__sidebar-section:first-child {
+  margin-top: 2px;
+}
+
+
+/* ==========================================
+   KHOEM-AI DAY / NIGHT THEME
+   ========================================== */
+
+.app__theme-toggle {
+  position: relative;
+}
+
+.app__theme-toggle .app__menu-glyph {
+  width: 23px;
+  height: 23px;
+  flex-basis: 23px;
+  transition: transform .35s ease, filter .35s ease;
+}
+
+.app__theme-toggle:hover .app__menu-glyph {
+  transform: rotate(18deg) scale(1.12);
+}
+
+.app[data-theme="night"] .app__theme-toggle .app__menu-glyph {
+  color: #7dd3fc;
+  filter: drop-shadow(0 0 7px rgba(56,189,248,.85));
+}
+
+.app[data-theme="day"] .app__theme-toggle .app__menu-glyph {
+  color: #f59e0b;
+  filter: drop-shadow(0 0 7px rgba(245,158,11,.65));
+}
+
+.app__theme-indicator {
+  margin-left: auto;
+  padding: 3px 7px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  color: #7dd3fc;
+  border: 1px solid rgba(56,189,248,.4);
+}
+
+.app[data-theme="day"] .app__theme-indicator {
+  color: #a16207;
+  border-color: rgba(217,119,6,.4);
+  background: rgba(251,191,36,.12);
+}
+
+
+
+/* ==========================================
+   KHOEM-AI DAY MODE - ONE CLEAN BLOCK
+   Only html[data-theme="day"] is touched, so night mode stays as it is.
+   No [class*="..."] and no * wildcards: they matched child elements
+   (box inside box) and beat the more specific rules.
+   ========================================== */
+html[data-theme="day"] {
+  --bg: #EEF7FD;
+  --surface: #FBFDFF;
+  --surface-2: #F1F7FC;
+  --surface-3: #E3EFF9;
+  --border: #A2C4E1;
+  --border-light: #91B9DA;
+  --text: #1E3A56;
+  --text-dim: #4A6784;
+  --silver: #1E3A56;
+  --user-bubble: #CFE6F8;
+  --assistant-bubble: #FBFDFF;
+}
+html[data-theme="day"] body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+html[data-theme="day"] body::before,
+html[data-theme="day"] body::after {
+  opacity: 0 !important;
+  animation: none !important;
+}
+html[data-theme="day"] #root .app {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+/* header */
+html[data-theme="day"] #root .app__header {
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  color: var(--text) !important;
+}
+html[data-theme="day"] #root .app__brand-name {
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"] #root .app__header img {
+  filter: none !important;
+  box-shadow: none !important;
+}
+html[data-theme="day"] #root .app__menu-btn,
+html[data-theme="day"] #root .app__new-btn,
+html[data-theme="day"] #root .app__sidebar-close {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: none !important;
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+}
+html[data-theme="day"] #root .app__menu-btn svg,
+html[data-theme="day"] #root .app__menu-btn svg *,
+html[data-theme="day"] #root .app__new-btn svg,
+html[data-theme="day"] #root .app__new-btn svg * {
+  color: #1F5F99 !important;
+  stroke: #1F5F99 !important;
+}
+
+/* sidebar */
+html[data-theme="day"] #root .app__sidebar {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 2px 0 12px rgba(30, 80, 130, .12) !important;
+  color: var(--text) !important;
+}
+html[data-theme="day"] #root .app__sidebar-section {
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+  opacity: 1 !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+html[data-theme="day"] #root .app__sidebar-item {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 1px 4px rgba(30, 80, 130, .10) !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+html[data-theme="day"] #root .app__sidebar-item span {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+  font-weight: 600 !important;
+}
+html[data-theme="day"] #root .app__sidebar-item:hover {
+  background: var(--surface-3) !important;
+  border-color: var(--border-light) !important;
+}
+html[data-theme="day"] #root .app__menu-glyph {
+  color: #1F5F99 !important;
+}
+html[data-theme="day"] #root .app__theme-toggle .app__menu-glyph {
+  color: #D97706 !important;
+}
+html[data-theme="day"] #root .app__sidebar-item .app__theme-indicator {
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+  background: var(--surface-3) !important;
+  border: 1px solid var(--border-light) !important;
+  font-weight: 800 !important;
+}
+
+/* chat */
+html[data-theme="day"] #root .app__body {
+  color: var(--text) !important;
+}
+html[data-theme="day"] #root .bubble {
+  background: var(--assistant-bubble) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 2px 6px rgba(30, 80, 130, .12) !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+html[data-theme="day"] #root .bubble--user {
+  background: var(--user-bubble) !important;
+}
+html[data-theme="day"] #root .bubble--pending .bubble__text {
+  color: var(--text-dim) !important;
+  -webkit-text-fill-color: var(--text-dim) !important;
+}
+html[data-theme="day"] #root .bubble__action {
+  color: var(--text-dim) !important;
+}
+html[data-theme="day"] #root .bubble__action:hover:not(:disabled),
+html[data-theme="day"] #root .bubble__action--active {
+  color: #1F5F99 !important;
+  background: var(--surface-3) !important;
+}
+html[data-theme="day"] #root .empty-state {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 2px 10px rgba(30, 80, 130, .12) !important;
+}
+html[data-theme="day"] #root .empty-state__title,
+html[data-theme="day"] #root .empty-state__hint {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"] #root .empty-state__title {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+html[data-theme="day"] #root .empty-state__hint {
+  color: var(--text-dim) !important;
+  -webkit-text-fill-color: var(--text-dim) !important;
+}
+
+/* bottom bar */
+html[data-theme="day"] #root .app__composer {
+  background: var(--bg) !important;
+  border-top: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+html[data-theme="day"] #root .composer__input {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: none !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+html[data-theme="day"] #root .composer__input::placeholder {
+  color: var(--text-dim) !important;
+  -webkit-text-fill-color: var(--text-dim) !important;
+  opacity: 1 !important;
+}
+html[data-theme="day"] #root .composer__input:focus {
+  border-color: #1F5F99 !important;
+  box-shadow: 0 0 0 3px rgba(31, 95, 153, .18) !important;
+}
+html[data-theme="day"] #root .composer__mic {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: none !important;
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+}
+html[data-theme="day"] #root .composer__mic--on {
+  background: #FDE7EC !important;
+  border-color: #B42343 !important;
+  color: #B42343 !important;
+  -webkit-text-fill-color: #B42343 !important;
+}
+html[data-theme="day"] #root .composer__send {
+  background: linear-gradient(145deg, #bae6fd, #38bdf8) !important;
+  border: 1px solid #7dd3fc !important;
+  box-shadow: 0 2px 6px rgba(30, 80, 130, .18) !important;
+  color: #04121c !important;
+  -webkit-text-fill-color: #04121c !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"] #root .composer__send:disabled {
+  background: var(--surface-3) !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+  color: var(--text-dim) !important;
+  -webkit-text-fill-color: var(--text-dim) !important;
+  opacity: 1 !important;
+}
+
+/* language list + overlay */
+html[data-theme="day"] #root .language-option,
+html[data-theme="day"] #root .language-panel__back {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+html[data-theme="day"] #root .language-option--active {
+  background: var(--user-bubble) !important;
+}
+html[data-theme="day"] #root .app__overlay {
+  background: rgba(30, 58, 86, .30) !important;
+}
+
+/* KHOEM-AI DAY MODE - ALL MENU PANELS */
+html[data-theme="day"] [role="dialog"],
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]),
+html[data-theme="day"] #root [class*="modal"],
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) {
+  background: #FBFDFF !important;
+  background-image: none !important;
+  border-color: #A2C4E1 !important;
+  box-shadow: 0 4px 16px rgba(30, 80, 130, .15) !important;
+  color: #1E3A56 !important;
+}
+
+html[data-theme="day"] [role="dialog"] *:not(svg):not(path):not(canvas):not(input):not(textarea):not(select):not(button):not(img):not(video),
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) *:not(svg):not(path):not(canvas):not(input):not(textarea):not(select):not(button):not(img):not(video),
+html[data-theme="day"] #root [class*="modal"] *:not(svg):not(path):not(canvas):not(input):not(textarea):not(select):not(button):not(img):not(video),
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) *:not(svg):not(path):not(canvas):not(input):not(textarea):not(select):not(button):not(img):not(video) {
+  background-image: none !important;
+  background-color: #F1F7FC !important;
+  border-color: #A2C4E1 !important;
+  box-shadow: none !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+html[data-theme="day"] [role="dialog"] button,
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) button,
+html[data-theme="day"] #root [class*="modal"] button,
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) button {
+  background: #F4F9FD !important;
+  background-image: none !important;
+  border: 1px solid #91B9DA !important;
+  box-shadow: none !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="day"] [role="dialog"] input:not([type=range]):not([type=checkbox]):not([type=file]),
+html[data-theme="day"] [role="dialog"] textarea,
+html[data-theme="day"] [role="dialog"] select,
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) input:not([type=range]):not([type=checkbox]):not([type=file]),
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) textarea,
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) select,
+html[data-theme="day"] #root [class*="modal"] input:not([type=range]):not([type=checkbox]):not([type=file]),
+html[data-theme="day"] #root [class*="modal"] textarea,
+html[data-theme="day"] #root [class*="modal"] select,
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) input:not([type=range]):not([type=checkbox]):not([type=file]),
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) textarea,
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) select {
+  background: #FFFFFF !important;
+  border: 1px solid #91B9DA !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+}
+
+html[data-theme="day"] [role="dialog"] svg,
+html[data-theme="day"] #root [class*="center"]:not(.app__sidebar-item):not([class*="center-"]) svg,
+html[data-theme="day"] #root [class*="modal"] svg,
+html[data-theme="day"] #root [class*="panel"]:not(.language-panel__back) svg {
+  color: #2B7BB9 !important;
+}
+/* KHOEM-AI DAY MODE - STATUS BADGES AND DOTS */
+html[data-theme="day"] #root .status-badge--online,
+html[data-theme="day"] #root .status-badge--ready,
+html[data-theme="day"] #root .status-badge--active,
+html[data-theme="day"] #root .status-badge--healthy {
+  --badge-color: #1E8E4E !important;
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  background: #E3F6EA !important;
+  border: 1px solid #1E8E4E !important;
+  box-shadow: 0 0 8px #1E8E4E55 !important;
+}
+html[data-theme="day"] #root .status-badge--developing,
+html[data-theme="day"] #root .status-badge--degraded,
+html[data-theme="day"] #root .status-badge--updating,
+html[data-theme="day"] #root .status-badge--timeout {
+  --badge-color: #9A6700 !important;
+  color: #9A6700 !important;
+  -webkit-text-fill-color: #9A6700 !important;
+  background: #FFF3D1 !important;
+  border: 1px solid #9A6700 !important;
+  box-shadow: 0 0 8px #9A670055 !important;
+}
+html[data-theme="day"] #root .status-badge {
+  --badge-color: #B42343;
+  color: #B42343;
+  background: #FDE7EC;
+  border: 1px solid #B42343;
+  box-shadow: 0 0 8px #B4234355;
+}
+html[data-theme="day"] #root .status-badge--online,
+html[data-theme="day"] #root .status-badge--ready,
+html[data-theme="day"] #root .status-badge--active,
+html[data-theme="day"] #root .status-badge--healthy {
+  --badge-color: #1E8E4E !important;
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  background: #E3F6EA !important;
+  border: 1px solid #1E8E4E !important;
+  box-shadow: 0 0 8px #1E8E4E55 !important;
+}
+html[data-theme="day"] #root .status-badge--developing,
+html[data-theme="day"] #root .status-badge--degraded,
+html[data-theme="day"] #root .status-badge--updating,
+html[data-theme="day"] #root .status-badge--timeout {
+  --badge-color: #9A6700 !important;
+  color: #9A6700 !important;
+  -webkit-text-fill-color: #9A6700 !important;
+  background: #FFF3D1 !important;
+  border: 1px solid #9A6700 !important;
+  box-shadow: 0 0 8px #9A670055 !important;
+}
+html[data-theme="day"] #root .status-badge--online .status-badge__dot,
+html[data-theme="day"] #root .status-badge--ready .status-badge__dot,
+html[data-theme="day"] #root .status-badge--active .status-badge__dot,
+html[data-theme="day"] #root .status-badge--healthy .status-badge__dot {
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  text-shadow: 0 0 8px #1E8E4E !important;
+}
+html[data-theme="day"] #root .status-badge--developing .status-badge__dot,
+html[data-theme="day"] #root .status-badge--degraded .status-badge__dot,
+html[data-theme="day"] #root .status-badge--updating .status-badge__dot,
+html[data-theme="day"] #root .status-badge--timeout .status-badge__dot {
+  color: #D99A00 !important;
+  -webkit-text-fill-color: #D99A00 !important;
+  text-shadow: 0 0 8px #D99A00 !important;
+}
+html[data-theme="day"] #root .status-health--healthy .status-health__dot {
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  text-shadow: 0 0 8px #1E8E4E !important;
+}
+html[data-theme="day"] #root .status-health--developing .status-health__dot,
+html[data-theme="day"] #root .status-health--degraded .status-health__dot,
+html[data-theme="day"] #root .status-health--updating .status-health__dot,
+html[data-theme="day"] #root .status-health--timeout .status-health__dot {
+  color: #D99A00 !important;
+  -webkit-text-fill-color: #D99A00 !important;
+  text-shadow: 0 0 8px #D99A00 !important;
+}
+html[data-theme="day"] #root .status-health {
+  background: #FBFDFF !important;
+  border: 1px solid #A2C4E1 !important;
+}
+html[data-theme="day"] #root .status-health--healthy {
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  border-color: #1E8E4E !important;
+  background: #E3F6EA !important;
+}
+html[data-theme="day"] #root .status-card, html[data-theme="day"] #root .status-panel {
+  background: #FBFDFF !important;
+  border-color: #A2C4E1 !important;
+}
+html[data-theme="day"] #root .status-card__name, html[data-theme="day"] #root .status-panel__ai-name {
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+}
+html[data-theme="day"] #root .status-card__commands span, html[data-theme="day"] #root .status-card__commands code {
+  background: #EAF3FB !important;
+  border: 1px solid #91B9DA !important;
+  color: #1F5F99 !important;
+  -webkit-text-fill-color: #1F5F99 !important;
+}
+/* KHOEM-AI DAY MODE - LAMPS (HIGH SPECIFICITY) */
+html[data-theme="day"][data-theme="day"] #root .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health__dot {
+  font-size: 0 !important;
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  border-radius: 50% !important;
+  vertical-align: middle !important;
+  background: #D1334F !important;
+  background-color: #D1334F !important;
+  box-shadow: 0 0 0 3px #D1334F33, 0 0 8px #D1334F !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge--online .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--ready .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--active .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--healthy .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--healthy .status-health__dot {
+  font-size: 0 !important;
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  border-radius: 50% !important;
+  vertical-align: middle !important;
+  background: #1FA95B !important;
+  background-color: #1FA95B !important;
+  box-shadow: 0 0 0 3px #1FA95B33, 0 0 8px #1FA95B !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge--developing .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--degraded .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--updating .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-badge--timeout .status-badge__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--developing .status-health__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--degraded .status-health__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--updating .status-health__dot,
+html[data-theme="day"][data-theme="day"] #root .status-health--timeout .status-health__dot {
+  font-size: 0 !important;
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  border-radius: 50% !important;
+  vertical-align: middle !important;
+  background: #E0A100 !important;
+  background-color: #E0A100 !important;
+  box-shadow: 0 0 0 3px #E0A10033, 0 0 8px #E0A100 !important;
+  text-shadow: none !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge--online,
+html[data-theme="day"][data-theme="day"] #root .status-badge--ready,
+html[data-theme="day"][data-theme="day"] #root .status-badge--active,
+html[data-theme="day"][data-theme="day"] #root .status-badge--healthy {
+  background: #E3F6EA !important;
+  color: #157A40 !important;
+  -webkit-text-fill-color: #157A40 !important;
+  border: 1px solid #157A40 !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge--developing,
+html[data-theme="day"][data-theme="day"] #root .status-badge--degraded,
+html[data-theme="day"][data-theme="day"] #root .status-badge--updating,
+html[data-theme="day"][data-theme="day"] #root .status-badge--timeout {
+  background: #FFF3D1 !important;
+  color: #8A5A00 !important;
+  -webkit-text-fill-color: #8A5A00 !important;
+  border: 1px solid #8A5A00 !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-badge[style*="--badge-color"] {
+  border: 1px solid var(--badge-color) !important;
+  color: #1E3A56 !important;
+  -webkit-text-fill-color: #1E3A56 !important;
+  background: #FFFFFF !important;
+  box-shadow: inset 4px 0 0 var(--badge-color), 0 0 6px color-mix(in srgb, var(--badge-color) 35%, transparent) !important;
+  padding-left: 12px !important;
+  font-weight: 700 !important;
+}
+html[data-theme="day"][data-theme="day"] #root .status-health {
+  font-weight: 700 !important;
+}
+
+/* KHOEM-AI DAY MODE - STATUS BADGES WIN OVER THE PANEL RULES (class repeated = higher specificity) */
+html[data-theme="day"] #root .status-badge.status-badge {
+  color: #B42343 !important;
+  -webkit-text-fill-color: #B42343 !important;
+  background: #FDE7EC !important;
+  border: 1px solid #B42343 !important;
+  box-shadow: none !important;
+}
+html[data-theme="day"] #root .status-badge.status-badge.status-badge--online,
+html[data-theme="day"] #root .status-badge.status-badge.status-badge--ready,
+html[data-theme="day"] #root .status-badge.status-badge.status-badge--active,
+html[data-theme="day"] #root .status-badge.status-badge.status-badge--healthy {
+  color: #1E8E4E !important;
+  -webkit-text-fill-color: #1E8E4E !important;
+  background: #E3F6EA !important;
+  border-color: #1E8E4E !important;
+}
+html[data-theme="day"] #root .status-badge.status-badge.status-badge--developing,
+html[data-theme="day"] #root .status-badge.status-badge.status-badge--degraded,
+html[data-theme="day"] #root .status-badge.status-badge.status-badge--updating,
+html[data-theme="day"] #root .status-badge.status-badge.status-badge--timeout {
+  color: #9A6700 !important;
+  -webkit-text-fill-color: #9A6700 !important;
+  background: #FFF3D1 !important;
+  border-color: #9A6700 !important;
+}
+html[data-theme="day"] #root .status-badge.status-badge .status-badge__dot {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+  background: transparent !important;
+}
+
+/* ==========================================
+   GATE + WELCOME PAGE THEME (follows day / night)
+   Night values equal the old hard-coded colours, so night looks the same.
+   ========================================== */
+.gate__logo { top: 36% !important; }
+.gate__name {
+  position: absolute; left: 0; right: 0; top: calc(36% + 84px);
+  font-size: 24px; font-weight: 800; letter-spacing: 3px; text-align: center;
+  color: #7dd3fc; text-shadow: 0 0 14px rgba(56,189,248,.8);
+  opacity: 0; pointer-events: none;
+}
+.gate__name { display: flex; flex-direction: column; align-items: center; }
+.gate__name.is-on { animation: gateNamePop .55s ease-out both; }
+@keyframes gateNamePop {
+  0% { opacity: 0; transform: translateY(-16px) scale(.6); }
+  60% { opacity: 1; transform: translateY(4px) scale(1.12); }
+  100% { opacity: 1; transform: none; }
+}
+
+html[data-theme="day"] .gate { background: #EEF7FD; color: #1E3A56; }
+html[data-theme="day"] .gate__count { color: #16a34a; text-shadow: none; }
+html[data-theme="day"] .gate__logo { filter: drop-shadow(0 0 6px rgba(31,95,153,.35)) !important; }
+html[data-theme="day"] .gate__name { color: #1F5F99; text-shadow: none; }
+html[data-theme="day"] .gate__hint { color: #4A6784; }
+html[data-theme="day"] .gate__btn { box-shadow: 0 2px 10px rgba(31,95,153,.35); }
+
+html[data-theme="day"] {
+  --gp-bg: #EEF7FD;
+  --gp-text: #1E3A56;
+  --gp-h1: #1F5F99;
+  --gp-h2: #2B77B8;
+  --gp-btn-bg: #1F6FB2;
+  --gp-btn-border: #1F5F99;
+  --gp-btn-text: #ffffff;
+}
+
+/* While the space scene plays the screen is black in day mode too (it is space). */
+html .gate.is-holding { color: #e5e7eb; }
+html .gate.is-holding .gate__hint { color: #cbd5e1; }
+html .gate.is-holding .gate__count { color: #22c55e; }
+html .gate.is-holding .gate__name { color: #7dd3fc; text-shadow: 0 0 14px rgba(56,189,248,.8); }
+
+.gate__name-main { visibility: hidden; }

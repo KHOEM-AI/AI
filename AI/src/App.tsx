@@ -32,6 +32,7 @@ import { LanguageProvider, getTranslations } from "./i18n";
 import { useSpeechInput } from "./useSpeechInput";
 import { useKhoem } from "./hooks/useKhoem";
 import { APP_NAME } from "./lib/app";
+import MenuIcon from "./components/MenuIcon";
 import VaultPanel from "./components/VaultPanel";
 
 function AppInner() {
@@ -230,56 +231,56 @@ function AppInner() {
               <nav className="app__sidebar-nav">
                 <div className="app__sidebar-section">{"📊 ត្រួតពិនិត្យប្រព័ន្ធ"}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowStatus(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">📊</span> {t.navStatus}
+                  <MenuIcon name="status" />{t.navStatus}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowControl(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🎛</span> {t.navControlCenter}
+                  <MenuIcon name="control" />{t.navControlCenter}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowObservability(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🔭</span> {k("ai.menu.observability") || "Observability"}
+                  <MenuIcon name="observe" />{k("ai.menu.observability") || "Observability"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowAuditMetrics(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">📈</span> {k("ai.menu.auditMetrics") || "Audit & Metrics"}
+                  <MenuIcon name="audit" />{k("ai.menu.auditMetrics") || "Audit & Metrics"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowManagement(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">⚙️</span> {k("ai.menu.management") || "Management"}
+                  <MenuIcon name="manage" />{k("ai.menu.management") || "Management"}
                 </button>
 
                 <div className="app__sidebar-section">{"💻 កូដ & ឧបករណ៍"}</div>
                 <button className="app__sidebar-item" onClick={() => { setShowPatchDashboard(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🧩</span> {k("ai.menu.patchDashboard") || "Patch Dashboard"}
+                  <MenuIcon name="patch" />{k("ai.menu.patchDashboard") || "Patch Dashboard"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowCodeCenter(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">💻</span> {k("ai.menu.codeCenter") || "Code Center"}
+                  <MenuIcon name="code" />{k("ai.menu.codeCenter") || "Code Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowToolRegistry(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🧰</span> {k("ai.menu.toolRegistry") || "Tool Registry"}
+                  <MenuIcon name="tools" />{k("ai.menu.toolRegistry") || "Tool Registry"}
                 </button>
-                <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}>🔌 API Center</button>
-                <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}>🗂 Data Center</button>
-                <button className="app__sidebar-item" onClick={() => { setShowKsv(true); setShowMenu(false); }}><span aria-hidden="true">🕹️</span> KSV · General Device Control</button>
+                <button className="app__sidebar-item" onClick={() => { setShowApiCenter(true); setShowMenu(false); }}><MenuIcon name="api" />API Center</button>
+                <button className="app__sidebar-item" onClick={() => { setShowDataCenter(true); setShowMenu(false); }}><MenuIcon name="data" />Data Center</button>
+                <button className="app__sidebar-item" onClick={() => { setShowKsv(true); setShowMenu(false); }}><MenuIcon name="device" />KSV · General Device Control</button>
 
                 <div className="app__sidebar-section">{"📷 កាមេរ៉ា · រូបភាព · វីដេអូ"}</div>
-                <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><span aria-hidden="true">✨</span> KHOEM-AI Creative Studio</button>
-                <button className="app__sidebar-item" onClick={() => { setShowCai(true); setShowMenu(false); }}><span aria-hidden="true">📷</span> CAI · ស្កេន និងរាប់</button>
-                <button className="app__sidebar-item" onClick={() => { window.location.href = `http://${window.location.hostname}:5180/cai-scan.html`; setShowMenu(false); }}><span aria-hidden="true">📷</span> Scan Photo Location + Count</button>
+                <button className="app__sidebar-item" onClick={() => { setShowKhoemStudio(true); setShowMenu(false); }}><MenuIcon name="studio" />KHOEM-AI Creative Studio</button>
+                <button className="app__sidebar-item" onClick={() => { setShowCai(true); setShowMenu(false); }}><MenuIcon name="camera" />CAI · ស្កេន និងរាប់</button>
+                <button className="app__sidebar-item" onClick={() => { window.location.href = `http://${window.location.hostname}:5180/cai-scan.html`; setShowMenu(false); }}><MenuIcon name="location" />Scan Photo Location + Count</button>
 
                 <div className="app__sidebar-section">{"🛡 ការពារ & សុវត្ថិភាព"}</div>
-                <button className="app__sidebar-item" onClick={() => { setShowKei(true); setShowMenu(false); }}><span aria-hidden="true">🛡️</span> ការពារប្រព័ន្ធ</button>
+                <button className="app__sidebar-item" onClick={() => { setShowKei(true); setShowMenu(false); }}><MenuIcon name="protect" />ការពារប្រព័ន្ធ</button>
                 <button className="app__sidebar-item" onClick={() => { setShowSafety(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🛡</span> {k("ai.menu.safety") || "Safety"}
+                  <MenuIcon name="safety" />{k("ai.menu.safety") || "Safety"}
                 </button>
 
                 <div className="app__sidebar-section">{"⚙ ផ្សេងៗ"}</div>
-                <button className="app__sidebar-item" onClick={() => { setShowVault(true); setShowMenu(false); }}><span aria-hidden="true">🎓</span> Data Storage</button>
+                <button className="app__sidebar-item" onClick={() => { setShowVault(true); setShowMenu(false); }}><MenuIcon name="vault" />Data Storage</button>
                 <button className="app__sidebar-item" onClick={() => { setShowLearningCenter(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🎓</span> {k("ai.menu.learningCenter") || "Learning Center"}
+                  <MenuIcon name="learn" />{k("ai.menu.learningCenter") || "Learning Center"}
                 </button>
                 <button className="app__sidebar-item" onClick={() => { setShowHonorific(true); setShowMenu(false); }}>
-                  <span aria-hidden="true">🙏</span> {t.navHonorific}
+                  <MenuIcon name="person" />{t.navHonorific}
                 </button>
                 <button className="app__sidebar-item" onClick={() => setShowLanguage((v) => !v)}>
-                  <span aria-hidden="true">🌐</span> {t.navLanguage} · {khoemLanguageOptions.find((o) => o.code === language)?.label ?? language}
+                  <MenuIcon name="globe" />{t.navLanguage} · {khoemLanguageOptions.find((o) => o.code === language)?.label ?? language}
                 </button>
                 {showLanguage && (
                   <div className="language-panel__list language-panel__list--inline">
@@ -309,7 +310,7 @@ function AppInner() {
                 )}
                 {messages.length > 0 && (
                   <button className="app__sidebar-item" onClick={handleNewChat}>
-                    <span aria-hidden="true">🧹</span> {t.navClearChat}
+                    <MenuIcon name="clear" />{t.navClearChat}
                   </button>
                 )}
               </nav>
