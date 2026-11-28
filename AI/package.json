@@ -16,7 +16,8 @@
     "report:translations": "cd ~/KHOEM_AI/KHOEM_AI/localization && npm run report:translations",
     "verify": "cd ~/KHOEM_AI/KHOEM_AI/localization && npm run verify",
     "test:slow": "vitest run src/ai/__tests__/patch.test.mjs src/ai/__tests__/sandbox.test.mjs",
-    "test:all": "npm test && npm run test:slow"
+    "test:all": "npm test && npm run test:slow",
+    "verify:chat": "node scripts/verify-chat.mjs"
   },
   "dependencies": {
     "@khoem-ai/localization": "file:../../KHOEM_AI/KHOEM_AI/localization",
