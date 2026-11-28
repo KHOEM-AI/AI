@@ -86,6 +86,10 @@ export const REGISTRY = {
   "approval.read": { permission: "system.read", risk: RISK.LOW },
   "approval.decide": { permission: "system.modify", risk: RISK.MEDIUM },
   "approval.execute": { permission: "system.modify", risk: RISK.LOW },
+  // CIDC: fetching data/templates is read-only. Writing generated files to disk always needs human approval.
+  "cidc.search": { permission: "system.read", risk: RISK.LOW },
+  "cidc.scaffold": { permission: "system.read", risk: RISK.LOW },
+  "cidc.write": { permission: "code.write", risk: RISK.HIGH },
 };
 
 // Structural check for the registry. Returns { ok, problems } and never throws.

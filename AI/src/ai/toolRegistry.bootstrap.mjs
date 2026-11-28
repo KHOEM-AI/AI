@@ -51,3 +51,25 @@ registerTool({
   description: "search code and return structured data { ok, count, files }",
   capabilities: ["find", "search", "code", "structured"],
 });
+
+registerTool({
+  id: "cidc-search",
+  action: "cidc.search",
+  name: "CIDC Search",
+  description: "search CIDC registries (languages, frameworks, templates, tools), read-only",
+  capabilities: ["cidc", "search", "data"],
+});
+registerTool({
+  id: "cidc-scaffold",
+  action: "cidc.scaffold",
+  name: "CIDC Scaffold",
+  description: "fetch starter source files for a website/app template, no disk write",
+  capabilities: ["cidc", "scaffold", "template", "website", "app"],
+});
+registerTool({
+  id: "cidc-write",
+  action: "cidc.write",
+  name: "CIDC Write Project",
+  description: "write a CIDC template to the generated folder, always requires human approval",
+  capabilities: ["cidc", "write", "generate"],
+});
