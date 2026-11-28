@@ -11,25 +11,31 @@
 | **KI** | **API** — កន្លែងចែកចាយ API និងទិន្នន័យកណ្តាល | `5001` |
 | **IQ-AI** | សំឡេង វីដេអូ រូបភាព | `8799` |
 | **KSV** | បញ្ជាឧបករណ៍អេឡិចត្រូនិចទូទៅ (gateway · API · UI) | gateway `4000` · API `3000` · UI `5173` |
-| **khoem-now** | ពណ៌ និងអំពូល (ទិន្នន័យកណ្តាល) | គ្មានច្រក — ជាឯកសារក្នុង `data/` |
+| **khoem-now** | ពណ៌ និងអំពូល (ទិន្នន័យកណ្តាល · repo `~/khoem-now`។ ចំណាំ៖ `KSV/khoem-now` ជា KSV API ហើយ `KEI/khoem-now` ជា App KEI គឺជាថតផ្សេងគ្នា) | គ្មានច្រក — ជាឯកសារក្នុង `data/` |
 | **KHOEM_AI** | ភាសា និងកូដ | `8790` |
-| **KEI** | ក្តារចុចខ្មែរ និង editor (React Native) | គ្មានច្រក |
+| **KEI** | **ក្នុង repo ឥឡូវ**៖ Khmer Editor & Input (ក្តារចុចខ្មែរ + editor, React Native/Expo)។ **តួនាទីគ្រោង**៖ ការពារប្រព័ន្ធ (ការពារពិតឥឡូវនៅក្នុង KI៖ token, scope, default-deny) | គ្មានច្រក |
 | **EI-T** | គណិតវិទ្យាត្រឹមត្រូវ | `3100` |
 | **CAI** | ស្គេនរូបថតរាប់ចំនួន និងទីតាំង | scan `5180` · share `5181` |
 | **MI-K-VISION-3D** | ស្ទូឌីយោ 3D | `5176` |
 | **Central-Intelligence-Data-Core (CIDC)** | ទិន្នន័យកូដ/ភាសាកណ្តាល · ប្រព័ន្ធការពារឯកសារ | API `8800` · UI `5190` |
+| **phone torch / bridge** | សេវាទូរស័ព្ទ (មើលក្នុង `ai status`) | torch `9300` · bridge `9301` |
 
 ## UI និង API ខុសគ្នាយ៉ាងណា
 
 - **UI** ដូចមុខហាង៖ ជាអ្វីដែលអ្នកប្រើមើលឃើញ និងចុច (បើកតាម `http://localhost:5175`)។
 - **API** ដូចទ្វារសេវា៖ ទំព័រ ឬកម្មវិធីផ្សេងៗហៅមកយកទិន្នន័យ ឬបញ្ជូនទិន្នន័យមកទុក។
 - UI មិនទុកទិន្នន័យ ឬ key ក្នុងខ្លួនទេ វាទាញពី API។ **KI** ជាកន្លែងចែកចាយ API នេះ។
-    ┌─ AI backend  (8787)
+
+```
+        ┌─ AI backend  (8787)
 AI UI ──┼─ KHOEM_AI    (8790)  ភាសា និងកូដ
 (5175)  ├─ IQ-AI       (8799)  សំឡេង វីដេអូ រូបភាព
-├─ KSV         (4000)  ឧបករណ៍អេឡិចត្រូនិច
-└─ /ki proxy ──► KI API (5001)  ← ទំព័រផ្សេងៗក៏មកទាញពីទីនេះ
+        ├─ KSV         (4000)  ឧបករណ៍អេឡិចត្រូនិច
+        └─ /ki proxy ──► KI API (5001)  ← ទំព័រផ្សេងៗក៏មកទាញពីទីនេះ
+```
+
 MI-K (5176) និង CAI (5180) ក៏ហៅ KI តាម proxy /ki ដូចគ្នា
+
 ## KI API (ច្រក 5001)
 
 KI ស្តាប់តែ `127.0.0.1`។ **គ្រប់ route លើកលែង `GET /api/healthz` ត្រូវការ header `x-ki-token`** (token នៅ `~/KI/.env` មិនឡើង GitHub)។ ទំព័រ (UI) មិនត្រូវដាក់ token ក្នុង browser ទេ ត្រូវហៅតាម proxy `/ki` ដែល server ដាក់ token ឱ្យ។
@@ -42,10 +48,10 @@ KI ស្តាប់តែ `127.0.0.1`។ **គ្រប់ route លើកល�
 | POST | `/api/scan` | ស្កេនដោយ AI vision — មិនទាន់កំណត់ (ឆ្លើយ 501) |
 | GET | `/api/registry`, `/api/registry/<ឈ្មោះ>` | ឯកសារក្នុង `data/` (អានតែប៉ុណ្ណោះ) |
 | GET, POST | `/api/notify`, `/api/notifications`, `/api/status` | ការជូនដំណឹង និងស្ថានភាពសេវា |
-| * | `/v1/...` | ច្រកមានកំណែ (chat, search, translate, math, audio, videos, media, projects, files, data, keys, usage, system) |
-| * | `/gw/<សេវា>/...` | gateway ទៅសេវាផ្សេង (ai, cidc, lang, ei-t, iqai) ដែលអនុញ្ញាតតែ route ក្នុងបញ្ជី |
+| * | `/v1/...` | ច្រកមានកំណែ (chat, search, translate, math, ksv, audio, videos, media, projects, files, data, database, keys, usage, system) |
+| * | `/gw/<សេវា>/...` | gateway ទៅសេវាផ្សេង (ai, cidc, lang, ei-t, iqai, ksv) ដែលអនុញ្ញាតតែ route ក្នុងបញ្ជី |
 
-ព័ត៌មានលម្អិត៖ `docs/API.md` និង `docs/ARCHITECTURE.md`។ កូដ៖ `KI/src/` (Node ធម្មតា គ្មាន dependency)។ ទិន្នន័យទុកក្នុង `~/.ki-*.json` (មិនឡើង GitHub)។
+ព័ត៌មានលម្អិត៖ `docs/API.md` និង `docs/ARCHITECTURE.md`។ កូដ៖ `KI/src/` (Node ធម្មតា គ្មាន dependency)។ ទិន្នន័យទុកក្នុង `~/.ki/ki.db` (SQLite មួយឯកសារ, មិនឡើង GitHub)។
 
 ## ទំព័រ Color and Light
 
@@ -58,6 +64,8 @@ ai restart    # បើកឡើងវិញ
 ai status     # ស្ថានភាពសេវានីមួយៗ
 ai check      # ពិនិត្យ API (AI_CHECK_WAIT=30 ដើម្បីរង់ចាំ)
 ពាក្យ `ai` ដំណើរការ `~/KSV/ai.sh`។
+
+ក្រោយកែកូដ KI៖ `ai stop` → ពិនិត្យ `pgrep -af "node.*src/server.mjs"` (បើមាន process KI ចាស់ ត្រូវសម្លាប់ដោយ PID) → `ai`។ កុំរត់ `node src/server.mjs` ផ្ទាល់ពេល `ai` កំពុងរត់ (port 5001 ជាប់៖ `EADDRINUSE`)។
 
 ## ច្បាប់ថែទាំ
 

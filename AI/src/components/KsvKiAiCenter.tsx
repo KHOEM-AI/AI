@@ -19,6 +19,8 @@ const MAIN: Svc[] = [
 const OTHER: Svc[] = [
   { key: "khoem", name: "KHOEM_AI", role: "ភាសា និងកូដ", port: ":8790", url: "/l10n/health" },
   { key: "iqai", name: "IQ-AI", role: "សំឡេង វីដេអូ រូបភាព", port: ":8799", url: `http://${host}:8799/` },
+  { key: "eit", name: "EI-T", role: "គណិតវិទ្យាត្រឹមត្រូវ", port: ":3100", url: `http://${host}:3100/health` },
+  { key: "cidc", name: "CIDC", role: "ទិន្នន័យកូដ និងភាសាកណ្តាល", port: ":5190", url: `http://${host}:5190/` },
   { key: "cai", name: "CAI", role: "ស្កេនរូបថតរាប់ចំនួន និងទីតាំង", port: ":5180", url: `http://${host}:5180/` },
   { key: "mik", name: "MI-K 3D", role: "ស្ទូឌីយោ 3D", port: ":5176", url: `http://${host}:5176/` },
 ];
