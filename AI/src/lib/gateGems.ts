@@ -2,7 +2,7 @@
 // Each diamond hits the Earth, bounces up and lights ONE letter of the name. The fire is the first letter.
 type Ctx = CanvasRenderingContext2D;
 
-export const HOLD_SECONDS = 12;
+export const HOLD_SECONDS = 9;
 export const SCENE_END = 0.72;
 const FIRE_LAND = 0.76 * SCENE_END * HOLD_SECONDS;
 const FIRE_FLIGHT = 0.32 * SCENE_END * HOLD_SECONDS;
